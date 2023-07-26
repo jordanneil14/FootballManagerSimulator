@@ -1,12 +1,13 @@
 ﻿using FootballManagerSimulator.Structures;
+using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Interfaces;
 
 public interface IState
 {
     string ManagerName { get; set; }
-    CurrentScreen CurrentScreen { get; set; }
     DateOnly Date { get; set; }
+    Stack<Screen> ScreenStack { get; set; }
     IEnumerable<Event> Events { get; set; }
     Team MyTeam { get; set; }
     List<Notification> Notifications { get; set; }
@@ -16,12 +17,11 @@ public interface IState
     List<string> UserFeedbackUpdates { get; set; }
     IEnumerable<Fixture> TodaysFixtures { get => Competitions.SelectMany(p => p.Fixtures).Where(pp => pp.Date == Date); }
     string Weather { get; set; }
-    SerialisableStateModel SerialisableState { get; set; }
+    public SerialisableStateModel SerialisableState { get; set; }
     public class SerialisableStateModel
     {
         public DateOnly Date { get; set; }
         public string Weather { get; set; } = "";
-        public League League { get; set; } = new League();
         public List<Notification> Notifications { get; set; } = new List<Notification>();
         public IEnumerable<Team.SerialisableTeamModel> Teams { get; set; } = new List<Team.SerialisableTeamModel>();
         public Team.SerialisableTeamModel MyTeam { get; set; } = new Team.SerialisableTeamModel();
@@ -29,7 +29,13 @@ public interface IState
         public IEnumerable<Fixture.SerialisableFixtureModel> Fixtures { get; set; } = new List<Fixture.SerialisableFixtureModel>();
         public IEnumerable<Event> Events { get; set; } = new List<Event>();
         public string ManagerName { get; set; } = "";
+        public IEnumerable<JObject> Competitions { get; set; } = new List<JObject>();
+    }
 
-        public IEnumerable<ICompetition> Competitions { get; set; }
+    public PreviewModel Preview { get; set; }
+
+    public class PreviewModel
+    {
+        public Team.SerialisableTeamModel MyTeam { get; set; } = new Team.SerialisableTeamModel();
     }
 }

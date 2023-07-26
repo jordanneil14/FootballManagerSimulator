@@ -19,7 +19,7 @@ public class ScoutScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -37,7 +37,7 @@ public class ScoutScreen : BaseScreen
     {
         Console.WriteLine(string.Format("{0,-35}{1,-10}{2,-25}", "Player", "Rating", "Team"));
 
-        var batchOfPlayers = State.Players.OrderByDescending(p => p.Contract?.Team).Take(400);
+        var batchOfPlayers = State.Players.OrderByDescending(p => p.Contract?.Team.Name).Take(600);
         foreach (var player in batchOfPlayers)
         {
             var team = player.Contract?.Team?.Name ?? "Unemployed";

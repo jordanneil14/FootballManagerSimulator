@@ -19,7 +19,7 @@ public class FixturesScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;

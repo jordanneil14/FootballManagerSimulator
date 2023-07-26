@@ -2,6 +2,8 @@
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using static FootballManagerSimulator.Interfaces.IState;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -21,24 +23,28 @@ public class SaveScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Clear();
                 break;
             default:
                 SaveGame(input);
-                State.CurrentScreen.Type = ScreenType.Main;
                 break;
         }
+
+        State.ScreenStack.Push(new Screen
+        {
+            Type = ScreenType.Main
+        });
     }
 
     private void SaveGame(string fileName)
     {
         var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-        var serialisableState = new IState.SerialisableStateModel
+        var serialisableState = new SerialisableStateModel
         {
             Date = State.Date,
             Events = State.Events,
-            Competitions = State.Competitions,
+            Competitions = State.Competitions.Select(p => p.SerialisableCompetition()),
             ManagerName = State.ManagerName,
             MyTeam = State.MyTeam.SerialisableTeam(),
             Notifications = State.Notifications,
@@ -49,8 +55,8 @@ public class SaveScreen : BaseScreen
 
         try 
         {
-            var s = JsonConvert.SerializeObject(serialisableState);
-            File.WriteAllText(path + $"\\{fileName}.fms", s);
+            var stateAsJson = JsonConvert.SerializeObject(serialisableState);
+            File.WriteAllText(path + $"\\{fileName}.fms", stateAsJson);
             State.UserFeedbackUpdates.Add("Game saved successfully");
         }
         catch

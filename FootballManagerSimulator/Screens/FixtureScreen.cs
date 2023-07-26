@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -21,11 +22,14 @@ public class FixtureScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.PreMatch;
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.PreMatch
+                });
                 HandleAITeamSelection();
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;

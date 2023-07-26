@@ -1,6 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -23,8 +22,8 @@ public class TacticsScreen : BaseScreen
 
         if (parts.Length > 1)
         {
-            var fromPlayerID = Convert.ToInt32(parts[0]) - 1;
-            var toPlayerID = Convert.ToInt32(parts[1]) - 1;
+            var fromPlayerID = int.Parse(parts[0]) - 1;
+            var toPlayerID = int.Parse(parts[1]) - 1;
 
             var fromPlayer = State.MyTeam.TacticSlots.ElementAt(fromPlayerID).Player;
             var toPlayer = State.MyTeam.TacticSlots.ElementAt(toPlayerID).Player;
@@ -37,7 +36,7 @@ public class TacticsScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Pop();
                 break;
             case "C":
                 TacticHelper.ResetTacticForTeam(State.MyTeam);

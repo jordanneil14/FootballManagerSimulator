@@ -4,6 +4,8 @@ using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using FootballManagerSimulator.Helpers;
+using FootballManagerSimulator.Factories;
+using System.Data;
 
 namespace FootballManagerSimulator;
 
@@ -38,6 +40,8 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, FullTimeScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchLeagueTableScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchScoreScreen>();
+
+        builder.Services.AddSingleton<ICompetitionFactory, LeagueFactory>();
 
         var host = builder.Build();
         var game = host.Services.GetService<IGame>();

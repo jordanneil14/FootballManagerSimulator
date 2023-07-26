@@ -15,9 +15,9 @@ public class PlayerScreen : BaseScreen
         State = state;
     }
 
-    public static CurrentScreen CreateScreen(Player player)
+    public static Screen CreateScreen(Player player)
     {
-        return new CurrentScreen
+        return new Screen
         {
             Type = ScreenType.Player,
             Parameters = new PlayerScreenObj
@@ -39,7 +39,7 @@ public class PlayerScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var screenParameters = State.CurrentScreen.Parameters as PlayerScreenObj;
+        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
 
         Console.WriteLine($"{screenParameters.Player}");
     }

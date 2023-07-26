@@ -19,7 +19,10 @@ public class PostMatchScoreScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.FullTime;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.FullTime
+                });
                 break;
             default:
                 break;

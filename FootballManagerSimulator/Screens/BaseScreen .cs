@@ -45,8 +45,8 @@ public abstract class BaseScreen : IBaseScreen
     {
         var nextMatchCaption = GetNextMatchCaption();
 
-        Console.WriteLine($"{State.MyTeam.Name, -80}{State.Date, -15}");
-        Console.WriteLine($"{State.ManagerName, -80}{State.Weather, -15}");
+        Console.WriteLine($"{State.MyTeam.Name,-80}{State.Date,-15}");
+        Console.WriteLine($"{State.ManagerName,-80}{State.Weather,-15}");
         Console.WriteLine(nextMatchCaption);
         Console.WriteLine("-------------------------------------------------------------------------------------------------");
     }
@@ -60,8 +60,8 @@ public abstract class BaseScreen : IBaseScreen
 
         if (nextFixture == null) return "Season Complete";
         var teamAgainst = nextFixture.HomeTeam == State.MyTeam ? nextFixture.AwayTeam : nextFixture.HomeTeam;
-        if (nextFixture.Date == State.Date) return $"Next Match In: Today Vs {teamAgainst}";
-        return $"Next Match In: {(nextFixture.Date.DayNumber - State.Date.DayNumber)} days Vs {teamAgainst}";
+        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {teamAgainst}";
+        return $"Next Match: {(nextFixture.Date.DayNumber - State.Date.DayNumber)} days Vs {teamAgainst}";
 
     }
 }

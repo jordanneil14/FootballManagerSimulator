@@ -19,10 +19,15 @@ public class Game : IGame
 
     public void Run()
     {
+        State.ScreenStack.Push(new Screen
+        {
+            Type = ScreenType.Welcome
+        });
 
         while (true)
         {
-            var screen = Screens.First(s => s.Screen == State.CurrentScreen.Type);
+            var peek = State.ScreenStack.Peek();
+            var screen = Screens.First(s => s.Screen == peek.Type);
             Console.Clear();
             screen.RenderScreen();
             var input = Console.ReadLine();

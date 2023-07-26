@@ -3,8 +3,37 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Structures;
 
-public class Player : IPlayer
+public class Player : IPerson
 {
+    public int ID { get; set; }
+    public string Name { get; set; } = "";
+    public int Rating { get; set; }
+    public int ShirtNumber { get; set; }
+    public int Age { get; set; }
+    public PlayerPosition Position { get; set; }
+    // Only players which are signed to a team will have a contract
+    public Contract? Contract { get; set; }
+    public Team? Team { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Name}";
+    }
+
+    public SerialisablePlayerModel SerialisablePlayer()
+    {
+        return new SerialisablePlayerModel
+        {
+            Contract = Contract?.SerialisableContract(),
+            Age = Age,
+            ID = ID, 
+            Name = Name,
+            Position = Position,
+            Rating = Rating,
+            ShirtNumber = ShirtNumber
+        };
+    }
+
     public static Player FromPlayerItem(SerialisablePlayerModel item, int? index, Team? team)
     {
         var player = new Player
@@ -15,7 +44,7 @@ public class Player : IPlayer
             Position = AssignPosition(),
             Rating = item.Rating,
             ShirtNumber = index.GetValueOrDefault(),
-            Contract = team == null ? null : new PlayerContract
+            Contract = team == null ? null : new Contract
             {
                 Team = team,
             }
@@ -32,43 +61,15 @@ public class Player : IPlayer
     private static PlayerPosition AssignPosition()
     {
         var rand = new Random().Next(0, 6);
-        if (rand ==  0) { return PlayerPosition.GK; }
-        if (rand == 1 || rand == 2) { return PlayerPosition.DEF;  }
+        if (rand == 0) { return PlayerPosition.GK; }
+        if (rand == 1 || rand == 2) { return PlayerPosition.DEF; }
         if (rand == 3 || rand == 4) { return PlayerPosition.MID; }
         return PlayerPosition.FWD;
     }
 
-    public int ID { get; set; }
-    public string Name { get; set; } = "";
-    public int Rating { get; set; }
-    public int ShirtNumber { get; set; }
-    public int Age { get; set; }
-    public PlayerPosition Position { get; set; }
-
-    // Only players which are signed to a team will have a contract
-    public PlayerContract? Contract { get; set; }
-    public override string ToString()
-    {
-        return $"{Name}";
-    }
-
-    public SerialisablePlayerModel SerialisablePlayer()
-    {
-        return new SerialisablePlayerModel
-        {
-            Contract = Contract?.SerialisablePlayerContract(),
-            Age = Age,
-            ID = ID, 
-            Name = Name,
-            Position = Position,
-            Rating = Rating,
-            ShirtNumber = ShirtNumber
-        };
-    }
-
     public class SerialisablePlayerModel
     {
-        public PlayerContract.SerialisablePlayerContractModel? Contract { get; set; }
+        public Contract.SerialisableContractModel? Contract { get; set; }
         public int ID { get; set; }
         public string Name { get; set; } = "";
         public int Rating { get; set; }

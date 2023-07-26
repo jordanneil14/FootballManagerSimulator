@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Structures;
+using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Interfaces;
 
@@ -6,4 +7,6 @@ public interface ICompetition
 {
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
+    IEnumerable<Team> Teams { get; set; }
+    JObject SerialisableCompetition();
 }

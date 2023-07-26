@@ -25,10 +25,16 @@ public class WelcomeScreen : IBaseScreen
         {
             case "A":
                 SetupStateForNewGame();
-                State.CurrentScreen.Type = ScreenType.CreateManager;
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.CreateManager
+                });
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.LoadGame;
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.LoadGame
+                });
                 break;
             case "Q":
                 Environment.Exit(0);

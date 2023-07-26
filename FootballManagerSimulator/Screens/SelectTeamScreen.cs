@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 
@@ -9,12 +10,18 @@ public class SelectTeamScreen : IBaseScreen
     private readonly IState State;
     private readonly IHelperFunction HelperFunction;
     private readonly IFixtureHelper FixtureHelper;
+    private readonly ICompetitionFactory LeagueFactory;
 
-    public SelectTeamScreen(IState state, IHelperFunction helperFunction, IFixtureHelper fixtureHelper)
+    public SelectTeamScreen(
+        IState state, 
+        IHelperFunction helperFunction, 
+        IFixtureHelper fixtureHelper,
+        ICompetitionFactory leagueFactory)
     {
         State = state;
         HelperFunction = helperFunction;
         FixtureHelper = fixtureHelper;
+        LeagueFactory = leagueFactory;
     }
 
     public ScreenType Screen => ScreenType.SelectTeam;
@@ -27,14 +34,18 @@ public class SelectTeamScreen : IBaseScreen
         {
             State.MyTeam = team;
             SetupStateForNewGame();
-            State.CurrentScreen.Type = ScreenType.Main;
+            State.ScreenStack.Clear();
+            State.ScreenStack.Push(new Structures.Screen
+            {
+                Type = ScreenType.Main
+            });
             return;
         }
 
         switch(input)
         {
             case "B":
-                State.CurrentScreen.Type = ScreenType.CreateManager;
+                State.ScreenStack.Pop();
                 break;
         }
     }
@@ -43,12 +54,8 @@ public class SelectTeamScreen : IBaseScreen
     {
         State.Date = new DateOnly(2022, 07, 01);
 
-        State.Competitions.Add(new League
-        {
-            Fixtures = FixtureHelper.GenerateFixtures(State.Teams.ToList()),
-            Name = "Premier League"
-        });
-
+        var teams = HelperFunction.GetTeams();
+        State.Competitions.Add(LeagueFactory.CreateLeague("Premier League", teams));
         State.Weather = "Sunny 28c";
         
         var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(4);
@@ -86,7 +93,7 @@ public class SelectTeamScreen : IBaseScreen
         Console.WriteLine("Select a team to manage:\n");
         foreach(var team in State.Teams) 
         {
-            Console.WriteLine($"{team}");
+            Console.WriteLine($"{team.Name}");
         }
 
         Console.WriteLine("\nOptions:");

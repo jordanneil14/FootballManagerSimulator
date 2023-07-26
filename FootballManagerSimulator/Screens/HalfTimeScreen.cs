@@ -26,10 +26,16 @@ public class HalfTimeScreen : BaseScreen
                     MatchSimulator.SimulateSecondHalf(fixture);
                     fixture.Concluded = true;
                 }
-                State.CurrentScreen.Type = ScreenType.FullTime;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.FullTime
+                });
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.Tactics;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Tactics
+                });
                 break;
             default:
                 break;
@@ -58,7 +64,7 @@ public class HalfTimeScreen : BaseScreen
         {
             var homePlayer = homeTeamPlayers.ElementAt(i).Player?.ToString() ?? "EMPTY SLOT";
             var awayPlayer = awayTeamPlayers.ElementAt(i).Player?.ToString() ?? "EMPTY SLOT";
-            Console.WriteLine($"{homePlayer + " " + (i + 1),45}   {i + 1 + " " + awayPlayer,-45}");
+            Console.WriteLine($"{homePlayer + " " + (i+1),45}   {i+1 + " " + awayPlayer,-45}");
         }
     }
 }

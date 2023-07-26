@@ -17,6 +17,11 @@ public class Team
 
     public List<TacticSlot> TacticSlots { get; set; } = GenerateBlankTactic();
 
+    public override string ToString()
+    {
+        return $"{Name}";
+    }
+
     private static List<TacticSlot> GenerateBlankTactic()
     {
         return new List<TacticSlot>()
@@ -128,7 +133,7 @@ public class Team
     public void AddPlayer(Player player)
     {
         Players.Add(player);
-        player.Contract = new PlayerContract
+        player.Contract = new Contract
         {
             Team = this,
             ExpiryDate = new DateOnly(2023, 06, 30),

@@ -1,25 +1,40 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Structures;
 
 public class League : ICompetition
 {
     public string Name { get; set; } = "";
+    public string CompetitionType { get; set; } = "";
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
-    public IEnumerable<Team> Teams { get => Fixtures.Select(p => p.HomeTeam).Distinct(); }
+    public IEnumerable<Team> Teams { get; set; } = new List<Team>();
 
-    public IOrderedEnumerable<LeagueTableModel> LeagueTable { get => GenerateLeagueTable(); }
-
-    public class LeagueTableModel
+    public JObject SerialisableCompetition()
     {
-        public string TeamName { get; set; } = "";
-        public int Points { get; set; }
+        var serialisableCompetitionModel = new SerialisableCompetitionModel()
+        {
+            Name = Name,
+            CompetitionType = CompetitionType,
+            Fixtures = Fixtures.Select(p => new Fixture.SerialisableFixtureModel
+            {
+                AwayTeamID = p.AwayTeam.ID,
+                WeekNumber = p.WeekNumber,
+                Concluded = p.Concluded,
+                Date = p.Date,
+                ID = p.ID,
+                GoalsAway = p.GoalsAway,
+                GoalsHome = p.GoalsHome,
+                HomeTeamID = p.HomeTeam.ID,
+            }).ToList()
+        };
+        return JObject.FromObject(serialisableCompetitionModel);
     }
 
-    private IOrderedEnumerable<LeagueTableModel> GenerateLeagueTable()
+    public IOrderedEnumerable<LeagueTableModel> GenerateLeagueTable()
     {
         var table = new List<LeagueTableModel>();
-        foreach(var team in Teams)
+        foreach (var team in Teams)
         {
             var teamFixtures = Fixtures.Where(p => p.Concluded && (p.HomeTeam == team || p.AwayTeam == team));
             var homeWinPoints = teamFixtures.Where(p => p.HomeTeam == team && p.GoalsHome > p.GoalsAway).Count() * 3;
@@ -35,3 +50,14 @@ public class League : ICompetition
         return table.OrderByDescending(p => p.Points);
     }
 }
+
+
+
+
+
+public class LeagueTableModel
+{
+    public string TeamName { get; set; } = "";
+    public int Points { get; set; }
+}
+

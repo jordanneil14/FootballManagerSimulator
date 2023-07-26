@@ -24,25 +24,27 @@ public class ClubScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.LeagueTable;
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.LeagueTable
+                });
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Pop();
                 break;
             default:
                 var player = HelperFunction.GetPlayerByName(input);
                 if (player != null)
                 {
-                    State.CurrentScreen = PlayerScreen.CreateScreen(player);
+                    State.ScreenStack.Push(PlayerScreen.CreateScreen(player));
                 }
                 break;
-
         }
     }
 
-    public static CurrentScreen CreateScreen(Team team)
+    public static Screen CreateScreen(Team team)
     {
-        return new CurrentScreen
+        return new Screen
         {
             Type = ScreenType.Club,
             Parameters = new PlayerScreenObj
@@ -59,7 +61,7 @@ public class ClubScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var playerScreenObj = State.CurrentScreen.Parameters as PlayerScreenObj;
+        var playerScreenObj = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
 
         Console.WriteLine($"{playerScreenObj!.Team}");
         Console.WriteLine("\n");

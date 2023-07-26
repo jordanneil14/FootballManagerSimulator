@@ -1,20 +1,23 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
-using System.Linq.Expressions;
+using static FootballManagerSimulator.Interfaces.IState;
 
 namespace FootballManagerSimulator.Screens;
 
 public class LoadGameScreen : IBaseScreen
 {
     private readonly IState State;
-    private List<LoadGamePreview> Games = new List<LoadGamePreview>();
+    private readonly List<LoadGamePreview> Games = new();
     private readonly IHelperFunction HelperFunction;
+    private readonly IEnumerable<ICompetitionFactory> LeagueFactories;
 
-    public LoadGameScreen(IState state, IHelperFunction helperFunction)
+    public LoadGameScreen(IState state, IHelperFunction helperFunction, IEnumerable<ICompetitionFactory> leagueFactories)
     {
         State = state;
+        LeagueFactories = leagueFactories; 
         HelperFunction = helperFunction;
     }
 
@@ -25,14 +28,18 @@ public class LoadGameScreen : IBaseScreen
         switch(input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.Welcome;
+                State.ScreenStack.Clear();
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.Welcome
+                });
                 break;
             default:
-                if (input.All(char.IsNumber) && Games.Count() >= Convert.ToInt32(input))
+                if (input.All(char.IsNumber) && Games.Count >= int.Parse(input))
                 {
-                    var game = Games.ElementAt(Convert.ToInt32(input) - 1);
+                    var game = Games.ElementAt(int.Parse(input) - 1);
                     if (game == null) return;
-                    LoadGame(game.FileName);
+                    TryLoadGame(game.FileName);
                 }
                 break;
         }
@@ -47,35 +54,31 @@ public class LoadGameScreen : IBaseScreen
         {
             fileContent = File.ReadAllText(path + $"\\{fileName}");
 
-            var deserialisedState = JsonConvert.DeserializeObject<IState.SerialisableStateModel>(fileContent);
+            var deserialisedState = JsonConvert.DeserializeObject<SerialisableStateModel>(fileContent);
 
             var playerItems = HelperFunction.GetPlayers().ToList();
 
             State.Teams = HelperFunction.GetTeams();
             State.Players = deserialisedState.Players
                 .Select(p => Player.FromPlayerItem(p, p.ShirtNumber, p.Contract?.TeamID == null ? null : HelperFunction.GetTeam(p.Contract.TeamID.Value))).ToList();
-            State.CurrentScreen = new CurrentScreen()
-            {
-                Parameters = null,
-                Type = ScreenType.Main
-            };
             State.Date = deserialisedState.Date;
             State.Events = deserialisedState.Events;
-            State.Competitions.First().Fixtures = deserialisedState.Fixtures.Select(p => new Fixture
+
+            foreach (var competition in deserialisedState.Competitions)
             {
-                AwayTeam = HelperFunction.GetTeam(p.AwayTeamID),
-                HomeTeam = HelperFunction.GetTeam(p.HomeTeamID),
-                Concluded = p.Concluded,
-                Date = p.Date,
-                GoalsAway = p.GoalsAway,
-                GoalsHome = p.GoalsHome,
-                ID = p.ID,
-                WeekNumber = p.WeekNumber
-            }).ToList();
+                var serialisableCompetitionModel = competition.ToObject<SerialisableCompetitionModel>();
+                var competitions = deserialisedState.Competitions.Select(p => LeagueFactories.First(p => serialisableCompetitionModel.CompetitionType == p.CompetitionType).Deserialise(p)).ToList();
+                State.Competitions.AddRange(competitions);
+            }
             State.Weather = deserialisedState.Weather;
             State.ManagerName = deserialisedState.ManagerName;
             State.Notifications = deserialisedState.Notifications;
             State.MyTeam = HelperFunction.GetTeam(deserialisedState.MyTeam.ID);
+            State.ScreenStack.Clear();
+            State.ScreenStack.Push(new Screen()
+            {
+                Type = ScreenType.Main
+            });
         }
         catch (Exception)
         {
@@ -95,7 +98,7 @@ public class LoadGameScreen : IBaseScreen
             try
             {
                 var fileContents = File.ReadAllText(file.FullName);
-                var deserialisedContent = JsonConvert.DeserializeObject<State>(fileContents);
+                var deserialisedContent = JsonConvert.DeserializeObject<IState.PreviewModel>(fileContents);
                 if (deserialisedContent == null) continue;
                 Games.Add(new LoadGamePreview
                 {
@@ -106,7 +109,7 @@ public class LoadGameScreen : IBaseScreen
             }
             catch (Exception)
             {
-
+                //Ignore and move to the next file
             }
         }
 
@@ -118,7 +121,7 @@ public class LoadGameScreen : IBaseScreen
             return;
         }
 
-        Console.WriteLine(string.Format("{0, -10}{1, -30}{2, -30}{3, -20}", "Number", "File Name", "Club Managed", "Last Modified"));
+        Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
         for(int i = 0; i < Games.Count; i++)
         {
             Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i+1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
@@ -134,5 +137,4 @@ public class LoadGamePreview
     public DateTime SaveDate { get; set; }
     public string FileName { get; set; } = "";
     public string ClubName { get; set; } = "";
-
 }

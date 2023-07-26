@@ -22,7 +22,10 @@ public class PostMatchLeagueTableScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.FullTime;
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.FullTime
+                });
                 break;
             default:
                 break;
@@ -37,15 +40,21 @@ public class PostMatchLeagueTableScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var competition = State.Competitions.Where(p => p.Name == "Premier League").First() as League;
-        var leagueTable = competition.LeagueTable;
+        var league = State.Competitions.First(p => p.Name == "Premier League") as League;
+        var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"League Table\n");
         Console.WriteLine(string.Format("{0,-10}{1,-20}{2,-10}", "Position", "Team", "Points"));
         for (int i = 0; i < leagueTable.Count(); i++)
         {
-            var leaguePosition = leagueTable.ElementAt(i);
-            Console.WriteLine($"{i + 1,-10}{leaguePosition.TeamName,-20}{leaguePosition.Points}");
+            var leagueTablePosition = leagueTable.ElementAt(i);
+            Console.WriteLine($"{i + 1,-10}{leagueTablePosition.TeamName,-20}{leagueTablePosition.Points}");
         }
+    }
+
+    public class LeagueTableModel
+    {
+        public string TeamName { get; set; } = "";
+        public int Points { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Structures;
 
-public class CurrentScreen
+public class Screen
 {
     public ScreenType Type { get; set; }
     public object? Parameters { get; set; }

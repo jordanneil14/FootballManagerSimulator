@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Interfaces;
 
-public interface IPlayerContract
+public interface IContract
 {
     Team? Team { get; set; }
     DateOnly ExpiryDate { get; set; }

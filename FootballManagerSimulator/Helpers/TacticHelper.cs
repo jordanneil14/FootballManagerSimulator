@@ -148,7 +148,7 @@ public class TacticHelper : ITacticHelper
         }
     }
 
-    private PlayerPosition ResolvePosition(TacticSlotType tacticSlotType)
+    private static PlayerPosition ResolvePosition(TacticSlotType tacticSlotType)
     {
         if (tacticSlotType == TacticSlotType.GK) return PlayerPosition.GK;
         if (tacticSlotType == TacticSlotType.DEF) return PlayerPosition.DEF;

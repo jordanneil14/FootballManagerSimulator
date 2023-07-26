@@ -2,17 +2,17 @@
 
 namespace FootballManagerSimulator.Structures;
 
-public class PlayerContract : IPlayerContract
+public class Contract : IContract
 {
-    public Team Team { get; set; }
+    public Team Team { get; set; } = new Team();
     public DateOnly ExpiryDate { get; set; }
     public int WeeklyWage { get; set; }
     public string WeeklyWageFriendly { get => $"£{WeeklyWage:n}"; }
     public DateOnly StartDate { get; set; }
 
-    public SerialisablePlayerContractModel SerialisablePlayerContract()
+    public SerialisableContractModel SerialisableContract()
     {
-        return new SerialisablePlayerContractModel
+        return new SerialisableContractModel
         {
             TeamID = Team.ID,
             ExpiryDate = ExpiryDate,
@@ -21,7 +21,7 @@ public class PlayerContract : IPlayerContract
         };
     }
 
-    public class SerialisablePlayerContractModel
+    public class SerialisableContractModel
     {
         public int? TeamID { get; set; }
         public DateOnly ExpiryDate { get; set; }

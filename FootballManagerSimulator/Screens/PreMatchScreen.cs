@@ -31,13 +31,19 @@ public class PreMatchScreen : BaseScreen
                 {
                     MatchSimulator.SimulateFirstHalf(fixture);
                 }
-                State.CurrentScreen.Type = ScreenType.HalfTime;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.HalfTime
+                });
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.Tactics;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Tactics
+                });
                 break;
             case "C":
-                State.CurrentScreen.Type = ScreenType.Fixture;
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;

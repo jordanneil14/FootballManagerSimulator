@@ -25,22 +25,37 @@ public class MainScreen : BaseScreen
                 State.Notifications.RemoveRange(0, 1);
                 break;
             case "C":
-                State.CurrentScreen.Type = ScreenType.LeagueTable;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.LeagueTable
+                });
                 break;
             case "D":
-                State.CurrentScreen.Type = ScreenType.Fixtures;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Fixtures
+                });
                 break;
             case "E":
-                State.CurrentScreen = ClubScreen.CreateScreen(State.MyTeam);
+                State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyTeam));
                 break;
             case "F":
-                State.CurrentScreen.Type = ScreenType.Scout;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Scout
+                });
                 break;
             case "S":
-                State.CurrentScreen.Type = ScreenType.SaveGame;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.SaveGame
+                });
                 break;
             case "G":
-                State.CurrentScreen.Type = ScreenType.Tactics;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Tactics
+                });
                 break;
             case "Q":
                 Environment.Exit(0);
@@ -56,7 +71,10 @@ public class MainScreen : BaseScreen
 
         if (State.TodaysFixtures.Any(p => !p.Concluded))
         {
-            State.CurrentScreen.Type = ScreenType.Fixture;
+            State.ScreenStack.Push(new Structures.Screen
+            {
+                Type = ScreenType.Fixture
+            });
         }
         else
         {

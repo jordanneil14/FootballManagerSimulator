@@ -19,7 +19,10 @@ public class CreateManagerScreen : IBaseScreen
     {
         var text = new CultureInfo("en-US", false).TextInfo;
         State.ManagerName = text.ToTitleCase(input.ToLower());
-        State.CurrentScreen.Type = ScreenType.SelectTeam;
+        State.ScreenStack.Push(new Structures.Screen
+        {
+            Type = ScreenType.SelectTeam
+        });
     }
 
     public void RenderScreen()

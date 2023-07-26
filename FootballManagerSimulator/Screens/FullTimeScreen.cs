@@ -21,13 +21,23 @@ public class FullTimeScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.CurrentScreen.Type = ScreenType.Main;
+                State.ScreenStack.Clear();
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Main
+                });
                 break;
             case "B":
-                State.CurrentScreen.Type = ScreenType.PostMatchScores;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.PostMatchScores
+                });
                 break;
             case "C":
-                State.CurrentScreen.Type = ScreenType.PostMatchLeagueTable;
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.PostMatchLeagueTable
+                });
                 break;
             default:
                 break;
