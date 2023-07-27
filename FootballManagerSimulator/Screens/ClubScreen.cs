@@ -23,12 +23,6 @@ public class ClubScreen : BaseScreen
     {
         switch (input)
         {
-            case "A":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.LeagueTable
-                });
-                break;
             case "B":
                 State.ScreenStack.Pop();
                 break;
@@ -47,21 +41,21 @@ public class ClubScreen : BaseScreen
         return new Screen
         {
             Type = ScreenType.Club,
-            Parameters = new PlayerScreenObj
+            Parameters = new ClubScreenObj
             {
                 Team = team
             }
         };
     }
 
-    public class PlayerScreenObj
+    public class ClubScreenObj
     {
         public Team Team { get; set; } = new Team();
     }
 
     public override void RenderSubscreen()
     {
-        var playerScreenObj = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var playerScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
 
         Console.WriteLine($"{playerScreenObj!.Team} Players");
         Console.WriteLine("\n");
@@ -79,7 +73,7 @@ public class ClubScreen : BaseScreen
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("A) Back");
+        Console.WriteLine("B) Back");
         Console.WriteLine("<Enter Player Number>) Go To Player");
     }
 }

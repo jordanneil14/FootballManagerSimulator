@@ -13,8 +13,6 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Console.WindowHeight = Console.LargestWindowWidth;
-
         var builder = Host.CreateApplicationBuilder(args);
 
         builder.Services.AddSingleton<IGame, Game>();

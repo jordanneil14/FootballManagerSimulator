@@ -17,6 +17,7 @@ public class MatchSimulator : IMatchSimulator
 
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
+
         while (minute <= 45)
         {
             var randomNumber = Random.Next(0, max);

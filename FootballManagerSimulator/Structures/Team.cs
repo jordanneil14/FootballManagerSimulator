@@ -19,7 +19,7 @@ public class Team
 
     public override string ToString()
     {
-        return $"{Name}";
+        return Name;
     }
 
     private static List<TacticSlot> GenerateBlankTactic()
