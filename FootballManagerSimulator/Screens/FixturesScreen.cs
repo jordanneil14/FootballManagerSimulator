@@ -43,11 +43,11 @@ public class FixturesScreen : BaseScreen
             {
                 if (fixture.Concluded)
                 {
-                    Console.WriteLine($"{fixture.HomeTeam.Name} {fixture.GoalsHome} v {fixture.GoalsAway} {fixture.AwayTeam.Name}");
+                    Console.WriteLine($"{fixture.HomeTeam.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayTeam.Name,-55}");
                 }
                 else
                 {
-                    Console.WriteLine($"{fixture.HomeTeam.Name} v {fixture.AwayTeam.Name}");
+                    Console.WriteLine($"{fixture.HomeTeam.Name,58} v {fixture.AwayTeam.Name,-58}");
                 }
             }
         }

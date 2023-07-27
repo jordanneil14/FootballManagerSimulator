@@ -75,16 +75,33 @@ public class PreMatchScreen : BaseScreen
         var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
         var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
 
-        Console.WriteLine($"{homeTeam, 40} v {awayTeam, -40}\n");
+        Console.WriteLine($"{homeTeam, 58} v {awayTeam, -58}\n");
 
         var homeTeamPlayers = State.Teams.Where(p => p == homeTeam).First().TacticSlots;
         var awayTeamPlayers = State.Teams.Where(p => p == awayTeam).First().TacticSlots;
 
-        for (int i = 0; i < 11; i++)
+        for (int i = 0; i < 18; i++)
         {
-            var homePlayer = homeTeamPlayers.ElementAt(i).Player?.ToString() ?? "EMPTY SLOT";
-            var awayPlayer = awayTeamPlayers.ElementAt(i).Player?.ToString() ?? "EMPTY SLOT";
-            Console.WriteLine($"{homePlayer + " " + (i+1), 40}   {i+1 + " " + awayPlayer, -40}");
+            if (i == 11)
+            {
+                Console.WriteLine(string.Format("{0, 58}{1,-58}", "------------", "   ------------"));
+            }
+
+            var tacticSlotHome = homeTeamPlayers.ElementAt(i);
+            var homePlayer = "EMPTY SLOT";
+            if (tacticSlotHome.Player != null)
+            {
+                homePlayer = $"{tacticSlotHome.Player.Name, 55}{tacticSlotHome.Player.ShirtNumber, 3}";
+            }
+
+            var tacticSlotAway = awayTeamPlayers.ElementAt(i);
+            var awayPlayer = "EMPTY SLOT";
+            if (tacticSlotAway.Player != null)
+            {
+                awayPlayer = $"{tacticSlotAway.Player.ShirtNumber,-3}{tacticSlotAway.Player.Name, -55}";
+            }
+
+            Console.WriteLine($"{homePlayer}   {awayPlayer}");
         }
     }
 }

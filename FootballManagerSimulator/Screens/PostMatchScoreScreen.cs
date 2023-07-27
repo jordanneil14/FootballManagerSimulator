@@ -42,7 +42,7 @@ public class PostMatchScoreScreen : BaseScreen
         {
             var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
             var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
-            Console.WriteLine($"{homeTeam,40}{fixture.GoalsHome,5} v {fixture.GoalsAway, -5}{awayTeam,-40}");
+            Console.WriteLine($"{homeTeam,53}{fixture.GoalsHome.GetValueOrDefault(),5} v {fixture.GoalsAway!.GetValueOrDefault(),-5}{awayTeam,-53}");
         }
     }
 }

@@ -61,7 +61,7 @@ public class FixtureScreen : BaseScreen
         {
             var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
             var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
-            Console.WriteLine($"{homeTeam,45} v {awayTeam,-45}");
+            Console.WriteLine($"{homeTeam,48} v {awayTeam,-48}{"3PM KO",21}");
         }
     }
 }

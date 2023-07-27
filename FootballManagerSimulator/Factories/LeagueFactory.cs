@@ -1,11 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FootballManagerSimulator.Factories;
 
@@ -28,7 +23,8 @@ public class LeagueFactory : ICompetitionFactory
         {
             Name = name,
             CompetitionType = CompetitionType,
-            Fixtures = FixtureHelper.GenerateFixtures(teams.ToList())
+            Fixtures = FixtureHelper.GenerateFixtures(teams.ToList()),
+            Teams = HelperFunction.GetTeams()
         };
     }
 

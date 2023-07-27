@@ -9,7 +9,9 @@ public class LeagueTableScreen : BaseScreen
     private readonly IState State;
     private readonly IHelperFunction HelperFunction;
 
-    public LeagueTableScreen(IState state, IHelperFunction helperFunction) : base(state)
+    public LeagueTableScreen(
+        IState state, 
+        IHelperFunction helperFunction) : base(state)
     {
         State = state;
         HelperFunction = helperFunction;

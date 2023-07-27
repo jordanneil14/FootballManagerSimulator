@@ -20,3 +20,5 @@
 /FootballManagerSimulator/obj/FootballManagerSimulator.csproj.nuget.g.targets
 /FootballManagerSimulator/obj/project.assets.json
 /FootballManagerSimulator/obj/project.nuget.cache
+/FootballManagerSimulator/bin/
+/.vs/

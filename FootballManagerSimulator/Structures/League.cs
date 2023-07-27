@@ -31,9 +31,9 @@ public class League : ICompetition
         return JObject.FromObject(serialisableCompetitionModel);
     }
 
-    public IOrderedEnumerable<LeagueTableModel> GenerateLeagueTable()
+    public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {
-        var table = new List<LeagueTableModel>();
+        var table = new List<LeaguePositionModel>();
         foreach (var team in Teams)
         {
             var teamFixtures = Fixtures.Where(p => p.Concluded && (p.HomeTeam == team || p.AwayTeam == team));
@@ -41,7 +41,7 @@ public class League : ICompetition
             var awayWinPoints = teamFixtures.Where(p => p.AwayTeam == team && p.GoalsAway > p.GoalsHome).Count() * 3;
             var drawPoints = teamFixtures.Where(p => p.GoalsAway == p.GoalsHome).Count();
 
-            table.Add(new LeagueTableModel
+            table.Add(new LeaguePositionModel
             {
                 TeamName = team.Name,
                 Points = homeWinPoints + awayWinPoints + drawPoints
@@ -51,13 +51,4 @@ public class League : ICompetition
     }
 }
 
-
-
-
-
-public class LeagueTableModel
-{
-    public string TeamName { get; set; } = "";
-    public int Points { get; set; }
-}
 

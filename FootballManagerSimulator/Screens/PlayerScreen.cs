@@ -34,7 +34,14 @@ public class PlayerScreen : BaseScreen
 
     public override void HandleInput(string input)
     {
-        throw new NotImplementedException();
+        switch(input)
+        {
+            case "B":
+                State.ScreenStack.Pop();
+                break;
+            default:
+                break;
+        }
     }
 
     public override void RenderSubscreen()
@@ -47,7 +54,7 @@ public class PlayerScreen : BaseScreen
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("A) Back");
+        Console.WriteLine("B) Back");
         Console.WriteLine("<Enter Player Name>) Go To Player");
     }
 }

@@ -57,7 +57,7 @@ public class WelcomeScreen : IBaseScreen
         {
             for (int i = 0; i < 25; i++)
             {
-                var player = Player.FromPlayerItem(players.ElementAt(i), i, team);
+                var player = Player.FromPlayerItem(players.ElementAt(i), i+1, team);
                 State.Players.Add(player);
             }
             players.RemoveRange(0, 25);

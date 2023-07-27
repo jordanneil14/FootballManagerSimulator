@@ -34,7 +34,7 @@ public class Player : IPerson
         };
     }
 
-    public static Player FromPlayerItem(SerialisablePlayerModel item, int? index, Team? team)
+    public static Player FromPlayerItem(SerialisablePlayerModel item, int? shirtNumber, Team? team)
     {
         var player = new Player
         {
@@ -43,7 +43,7 @@ public class Player : IPerson
             Name = item.Name,
             Position = AssignPosition(),
             Rating = item.Rating,
-            ShirtNumber = index.GetValueOrDefault(),
+            ShirtNumber = shirtNumber.GetValueOrDefault(),
             Contract = team == null ? null : new Contract
             {
                 Team = team,

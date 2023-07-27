@@ -7,12 +7,10 @@ namespace FootballManagerSimulator.Screens;
 public class PostMatchLeagueTableScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly ITacticHelper TacticHelper;
 
-    public PostMatchLeagueTableScreen(IState state, ITacticHelper tacticHelper) : base(state)
+    public PostMatchLeagueTableScreen(IState state) : base(state)
     {
         State = state;
-        TacticHelper = tacticHelper;
     }
 
     public override ScreenType Screen => ScreenType.PostMatchLeagueTable;
@@ -50,11 +48,5 @@ public class PostMatchLeagueTableScreen : BaseScreen
             var leagueTablePosition = leagueTable.ElementAt(i);
             Console.WriteLine($"{i + 1,-10}{leagueTablePosition.TeamName,-20}{leagueTablePosition.Points}");
         }
-    }
-
-    public class LeagueTableModel
-    {
-        public string TeamName { get; set; } = "";
-        public int Points { get; set; }
     }
 }

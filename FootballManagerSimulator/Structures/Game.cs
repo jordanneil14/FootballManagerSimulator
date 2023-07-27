@@ -25,7 +25,7 @@ public class Game : IGame
 
         while (true)
         {
-            var screen = Screens.First(s => State.ScreenStack.Peek() == s);
+            var screen = Screens.First(screen => State.ScreenStack.Peek() == screen);
             Console.Clear();
             screen.RenderScreen();
             var input = Console.ReadLine();

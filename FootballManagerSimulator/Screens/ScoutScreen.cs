@@ -1,11 +1,22 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
+using static FootballManagerSimulator.Screens.PlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
+
+public class PlayerDetailModel
+{
+    public int Row { get; set; }
+    public Player Player { get; set; } = new Player();
+    
+}
+
 
 public class ScoutScreen : BaseScreen
 {
     private readonly IState State;
+    private readonly List<PlayerDetailModel> PlayerDetails = new(); 
 
     public ScoutScreen(IState state) : base(state)
     {
@@ -22,6 +33,22 @@ public class ScoutScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             default:
+                var success = int.TryParse(input, out int result);
+                if (!success) return;
+                if (PlayerDetails.Count > result && result > 0)
+                {
+                    var playerDetail = PlayerDetails.First(p => p.Row == result);
+                    State.ScreenStack.Push(new Structures.Screen
+                    {
+                        Type = ScreenType.Player,
+                        Parameters = new PlayerScreenObj()
+                        {
+                            Player = playerDetail.Player
+                        }
+                    });
+                }
+
+                
                 break;
         }
     }
@@ -30,18 +57,37 @@ public class ScoutScreen : BaseScreen
     {
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Player Name>) Go To Player");
+        Console.WriteLine("<Enter Row>) Go To Player");
     }
 
     public override void RenderSubscreen()
     {
-        Console.WriteLine(string.Format("{0,-35}{1,-10}{2,-25}", "Player", "Rating", "Team"));
-
-        var batchOfPlayers = State.Players.OrderByDescending(p => p.Contract?.Team.Name).Take(600);
-        foreach (var player in batchOfPlayers)
+        PlayerDetails.Clear();
+        var employeedPlayers = State.Players.Where(p => p.Contract != null).OrderBy(p => p.Contract!.Team.Name);
+        for(int i = 0; i < employeedPlayers.Count(); i++) 
         {
-            var team = player.Contract?.Team?.Name ?? "Unemployed";
-            Console.WriteLine($"{player, -35}{player.Rating, -10}{team, -25}");
+            PlayerDetails.Add(new PlayerDetailModel
+            {
+                Player = employeedPlayers.ElementAt(i),
+                Row = i+1
+            });
+        }
+        var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(100);
+        for (int i = 0; i < freeAgents.Count(); i++)
+        {
+            PlayerDetails.Add(new PlayerDetailModel
+            {
+                Player = freeAgents.ElementAt(i),
+                Row = i + 1 + employeedPlayers.Count()
+            });
+        }
+
+        Console.WriteLine("All Players\n");
+        Console.WriteLine(string.Format("{0,-5}{1,-35}{2,-10}{3,-25}", "Row", "Player", "Rating", "Team"));
+        foreach(var playerDetail in PlayerDetails.OrderBy(p => p.Player.Team))
+        {
+            var team = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.Team.Name;
+            Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player,-35}{playerDetail.Player.Rating,-10}{team,-25}");
         }
     }
 }

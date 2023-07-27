@@ -63,16 +63,16 @@ public class ClubScreen : BaseScreen
     {
         var playerScreenObj = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
 
-        Console.WriteLine($"{playerScreenObj!.Team}");
+        Console.WriteLine($"{playerScreenObj!.Team} Players");
         Console.WriteLine("\n");
-        Console.WriteLine("Players");
 
         var players = State.Players.Where(p => p.Contract?.Team == playerScreenObj.Team);
-        Console.WriteLine(string.Format("{0, -10}{1, -40}{2, -10}{3,-10}", "Position", "Name", "Rating", "Weekly Wage"));
 
-        foreach (var player in players)
+        Console.WriteLine(string.Format("{0,-10}{1,-10}{2,-40}{3,-10}{4,-10}", "Number", "Position", "Name", "Rating", "Weekly Wage"));
+
+        foreach (var player in players.OrderBy(p => p.Name))
         {
-            Console.WriteLine($"{player.Position,-10}{player,-40}{player.Rating,-10}{player.Contract!.WeeklyWageFriendly}");
+            Console.WriteLine($"{player.ShirtNumber,-10}{player.Position,-10}{player,-40}{player.Rating,-10}{player.Contract!.WeeklyWageFriendly}");
         }
     }
 
@@ -80,6 +80,6 @@ public class ClubScreen : BaseScreen
     {
         Console.WriteLine("Options:");
         Console.WriteLine("A) Back");
-        Console.WriteLine("<Enter Player Name>) Go To Player");
+        Console.WriteLine("<Enter Player Number>) Go To Player");
     }
 }

@@ -13,6 +13,8 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        Console.WindowHeight = Console.LargestWindowWidth;
+
         var builder = Host.CreateApplicationBuilder(args);
 
         builder.Services.AddSingleton<IGame, Game>();
@@ -40,6 +42,7 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, FullTimeScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchLeagueTableScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchScoreScreen>();
+        builder.Services.AddSingleton<IBaseScreen, PlayerScreen>();
 
         builder.Services.AddSingleton<ICompetitionFactory, LeagueFactory>();
 
