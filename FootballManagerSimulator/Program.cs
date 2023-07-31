@@ -39,6 +39,7 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, PostMatchLeagueTableScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchScoreScreen>();
         builder.Services.AddSingleton<IBaseScreen, PlayerScreen>();
+        builder.Services.AddSingleton<IBaseScreen, FinancesScreen>();
 
         builder.Services.AddSingleton<ICompetitionFactory, LeagueFactory>();
 

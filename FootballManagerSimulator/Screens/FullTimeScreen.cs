@@ -53,7 +53,7 @@ public class FullTimeScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.Where(p => p.HomeTeam == State.MyTeam || p.AwayTeam == State.MyTeam).First();
+        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyTeam || p.AwayTeam == State.MyTeam).First();
         var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
         var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
 

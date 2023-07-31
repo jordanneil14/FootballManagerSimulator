@@ -28,5 +28,6 @@ public enum ScreenType
     SelectTeam,
     FullTime,
     PostMatchScores,
-    PostMatchLeagueTable
+    PostMatchLeagueTable,
+    Finances
 }

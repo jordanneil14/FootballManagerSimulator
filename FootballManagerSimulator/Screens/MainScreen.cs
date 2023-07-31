@@ -55,6 +55,12 @@ public class MainScreen : BaseScreen
                     Type = ScreenType.Tactics
                 });
                 break;
+            case "H":
+                State.ScreenStack.Push(new Structures.Screen
+                { 
+                    Type = ScreenType.Finances
+                });
+                break;
             case "Q":
                 Environment.Exit(0);
                 break;
@@ -67,17 +73,16 @@ public class MainScreen : BaseScreen
     {
         State.UserFeedbackUpdates.Clear();
 
-        if (State.TodaysFixtures.Any(p => !p.Concluded))
+        if (State.TodaysFixtures.SelectMany(p => p.Fixtures).Any(p => !p.Concluded))
         {
             State.ScreenStack.Push(new Structures.Screen
             {
                 Type = ScreenType.Fixture
             });
+            return;
         }
-        else
-        {
-            State.Date = State.Date.AddDays(1);
-        }
+
+        State.Date = State.Date.AddDays(1);
     }
 
     public override void RenderSubscreen()
@@ -103,6 +108,7 @@ public class MainScreen : BaseScreen
         Console.WriteLine("E) My Club");
         Console.WriteLine("F) Scout");
         Console.WriteLine("G) Tactics");
+        Console.WriteLine("H) Finances");
         Console.WriteLine("S) Save Game");
         Console.WriteLine("Q) Quit Game");
     }

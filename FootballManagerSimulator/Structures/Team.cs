@@ -12,6 +12,12 @@ public class Team
     public string Stadium { get; set; }
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
 
+    public string WageBudgetFriendly { get => $"£{RemainingWageBudget:n}"; }
+
+    private int RemainingWageBudget => WageBudget - Players.Sum(p => p.Contract!.WeeklyWage);
+
+    public int WageBudget { get; set; }
+
     public int FirstTeamTotalRating { get => TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.Player != null)
             .Sum(p => p.Player!.Rating); }
@@ -157,6 +163,7 @@ public class Team
             ID = ID,
             Name = Name,
             TransferBudget = TransferBudget,
+            WageBudget = WageBudget,
             Players = Players.Select(p => p.SerialisablePlayer()),
             TacticSlots = TacticSlots.Select(p => p.SerialisableTacticSlot())
         };
@@ -166,6 +173,7 @@ public class Team
     {
         public int ID { get; set; }
         public string Name { get; set; } = "";
+        public int WageBudget { get; set; }
         public int TransferBudget { get; set; }
         public IEnumerable<Player.SerialisablePlayerModel> Players { get; set; } = new List<Player.SerialisablePlayerModel>();
         public IEnumerable<TacticSlot.SerialisableTacticSlotModel> TacticSlots { get; set; } = new List<TacticSlot.SerialisableTacticSlotModel>();

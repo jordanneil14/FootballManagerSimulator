@@ -51,6 +51,7 @@ public class WelcomeScreen : IBaseScreen
     public void SetupStateForNewGame()
     {
         State.Teams = HelperFunction.GetResource<IEnumerable<Team>>("teams.json"); 
+        
         var playerItems = HelperFunction.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playersImproved.json");
         AssignPlayersToTeams(playerItems.ToList());
 

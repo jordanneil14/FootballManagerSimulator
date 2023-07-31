@@ -15,7 +15,7 @@ public interface IState
     IEnumerable<Team> Teams { get; set; }
     List<ICompetition> Competitions { get; set; }
     List<string> UserFeedbackUpdates { get; set; }
-    IEnumerable<Fixture> TodaysFixtures { get => Competitions.SelectMany(p => p.Fixtures).Where(pp => pp.Date == Date); }
+    IEnumerable<CompetitionFixtureModel> TodaysFixtures { get; }
     string Weather { get; set; }
     public SerialisableStateModel SerialisableState { get; set; }
     public class SerialisableStateModel

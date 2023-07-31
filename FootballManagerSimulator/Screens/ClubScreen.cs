@@ -55,12 +55,24 @@ public class ClubScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var playerScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
+        var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
 
-        Console.WriteLine($"{playerScreenObj!.Team} Players");
-        Console.WriteLine("\n");
+        Console.WriteLine($"{clubScreenObj!.Team}");
 
-        var players = State.Players.Where(p => p.Contract?.Team == playerScreenObj.Team);
+        Console.WriteLine($"\nStadium:\n{clubScreenObj.Team.Stadium}\n");
+
+        Console.WriteLine("Upcoming Fixtures");
+        var upcomingFixtures = State.Competitions
+            .SelectMany(p => p.Fixtures)
+            .Where(p => p.HomeTeam == clubScreenObj.Team || p.AwayTeam == clubScreenObj.Team).Take(5);
+        foreach (var fixture in upcomingFixtures)
+        {
+            Console.WriteLine($"{fixture.HomeTeam} Vs {fixture.AwayTeam}");
+        }
+
+        Console.WriteLine("\nPlayers");
+
+        var players = State.Players.Where(p => p.Contract?.Team == clubScreenObj.Team);
 
         Console.WriteLine(string.Format("{0,-10}{1,-10}{2,-40}{3,-10}{4,-10}", "Number", "Position", "Name", "Rating", "Weekly Wage"));
 
