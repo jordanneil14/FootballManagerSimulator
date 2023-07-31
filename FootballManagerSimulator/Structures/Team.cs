@@ -7,6 +7,9 @@ public class Team
     public int ID { get; set; }
     public string Name { get; set; } = "";
     public int TransferBudget { get; set; }
+    public int CompetitionID { get; set; }
+
+    public string Stadium { get; set; }
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
 
     public int FirstTeamTotalRating { get => TacticSlots

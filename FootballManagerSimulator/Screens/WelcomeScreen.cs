@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 
@@ -7,14 +8,17 @@ namespace FootballManagerSimulator.Screens;
 public class WelcomeScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly IHelperFunction HelperFunction;
+    private readonly IUtils HelperFunction;
+    private readonly ICompetitionFactory LeagueFactory;
 
     public WelcomeScreen(
         IState state, 
-        IHelperFunction helperFunction)
+        IUtils helperFunction,
+        ICompetitionFactory leagueFactory)
     {
         State = state;
         HelperFunction = helperFunction;
+        LeagueFactory = leagueFactory;
     }
 
     public ScreenType Screen => ScreenType.Welcome;
@@ -46,9 +50,16 @@ public class WelcomeScreen : IBaseScreen
 
     public void SetupStateForNewGame()
     {
-        State.Teams = HelperFunction.GetTeams();
-        var playerItems = HelperFunction.GetPlayers().ToList();
-        AssignPlayersToTeams(playerItems);
+        State.Teams = HelperFunction.GetResource<IEnumerable<Team>>("teams.json"); 
+        var playerItems = HelperFunction.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playersImproved.json");
+        AssignPlayersToTeams(playerItems.ToList());
+
+        var competitions = HelperFunction.GetResource<IEnumerable<Competition>>("competitions.json");
+        foreach(var competition in competitions)
+        {
+            var league = LeagueFactory.CreateCompetition(competition);
+            State.Competitions.Add(league);
+        }
     }
 
     private void AssignPlayersToTeams(List<Player.SerialisablePlayerModel> players)

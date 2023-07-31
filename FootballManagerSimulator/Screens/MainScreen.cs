@@ -31,10 +31,8 @@ public class MainScreen : BaseScreen
                 });
                 break;
             case "D":
-                State.ScreenStack.Push(new Structures.Screen
-                {
-                    Type = ScreenType.Fixtures
-                });
+                var myLeague = State.Competitions.FirstOrDefault(p => p.ID == State.MyTeam.CompetitionID);
+                State.ScreenStack.Push(FixturesScreen.CreateScreen(myLeague));
                 break;
             case "E":
                 State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyTeam));

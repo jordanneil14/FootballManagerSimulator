@@ -5,11 +5,11 @@ namespace FootballManagerSimulator.Structures;
 
 public class League : ICompetition
 {
+    public int ID { get; set; }
     public string Name { get; set; } = "";
     public string CompetitionType { get; set; } = "";
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public IEnumerable<Team> Teams { get; set; } = new List<Team>();
-
     public JObject SerialisableCompetition()
     {
         var serialisableCompetitionModel = new SerialisableCompetitionModel()

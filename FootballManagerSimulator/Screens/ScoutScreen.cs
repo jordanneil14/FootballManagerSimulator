@@ -5,14 +5,6 @@ using static FootballManagerSimulator.Screens.PlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
 
-public class PlayerDetailModel
-{
-    public int Row { get; set; }
-    public Player Player { get; set; } = new Player();
-    
-}
-
-
 public class ScoutScreen : BaseScreen
 {
     private readonly IState State;
@@ -38,7 +30,7 @@ public class ScoutScreen : BaseScreen
                 if (PlayerDetails.Count > result && result > 0)
                 {
                     var playerDetail = PlayerDetails.First(p => p.Row == result);
-                    State.ScreenStack.Push(new Structures.Screen
+                    State.ScreenStack.Push(new Screen
                     {
                         Type = ScreenType.Player,
                         Parameters = new PlayerScreenObj()

@@ -4,27 +4,20 @@ using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class HelperFunction : IHelperFunction
+public class Utils : IUtils
 {
     private readonly IState State;
 
-    public HelperFunction(IState state)
+    public Utils(IState state)
     {
         State = state;
     }
 
-    public IEnumerable<Team> GetTeams()
+    public T GetResource<T>(string filename)
     {
-        var content = File.ReadAllText("Resources\\teams.json");
-        var teams = JsonConvert.DeserializeObject<IEnumerable<Team>>(content);
-        return teams;
-    }
-
-    public IEnumerable<Player.SerialisablePlayerModel> GetPlayers()
-    {
-        var content = File.ReadAllText("Resources\\playersImproved.json");
-        var players = JsonConvert.DeserializeObject<IEnumerable<Player.SerialisablePlayerModel>>(content);
-        return players;
+        var content = File.ReadAllText($"Resources\\{filename}");
+        var data = JsonConvert.DeserializeObject<T>(content);
+        return data;
     }
 
     public Team? GetTeamByName(string name)

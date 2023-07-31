@@ -11,10 +11,10 @@ public class LoadGameScreen : IBaseScreen
 {
     private readonly IState State;
     private readonly List<LoadGamePreview> Games = new();
-    private readonly IHelperFunction HelperFunction;
+    private readonly IUtils HelperFunction;
     private readonly IEnumerable<ICompetitionFactory> LeagueFactories;
 
-    public LoadGameScreen(IState state, IHelperFunction helperFunction, IEnumerable<ICompetitionFactory> leagueFactories)
+    public LoadGameScreen(IState state, IUtils helperFunction, IEnumerable<ICompetitionFactory> leagueFactories)
     {
         State = state;
         LeagueFactories = leagueFactories; 
@@ -56,9 +56,9 @@ public class LoadGameScreen : IBaseScreen
 
             var deserialisedState = JsonConvert.DeserializeObject<SerialisableStateModel>(fileContent);
 
-            var playerItems = HelperFunction.GetPlayers().ToList();
+            var playerItems = HelperFunction.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playersImproved.json");
 
-            State.Teams = HelperFunction.GetTeams();
+            State.Teams = HelperFunction.GetResource<IEnumerable<Team>>("teams.json");
             State.Players = deserialisedState.Players
                 .Select(p => Player.FromPlayerItem(p, p.ShirtNumber, p.Contract?.TeamID == null ? null : HelperFunction.GetTeam(p.Contract.TeamID.Value))).ToList();
             State.Date = deserialisedState.Date;
@@ -98,7 +98,7 @@ public class LoadGameScreen : IBaseScreen
             try
             {
                 var fileContents = File.ReadAllText(file.FullName);
-                var deserialisedContent = JsonConvert.DeserializeObject<IState.PreviewModel>(fileContents);
+                var deserialisedContent = JsonConvert.DeserializeObject<PreviewModel>(fileContents);
                 if (deserialisedContent == null) continue;
                 Games.Add(new LoadGamePreview
                 {

@@ -7,12 +7,10 @@ namespace FootballManagerSimulator.Screens;
 public class FullTimeScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly IFixtureHelper FixtureHelper;
 
-    public FullTimeScreen(IState state, IFixtureHelper fixtureHelper) : base(state)
+    public FullTimeScreen(IState state) : base(state)
     {
         State = state;
-        FixtureHelper = fixtureHelper;
     }
 
     public override ScreenType Screen => ScreenType.FullTime;

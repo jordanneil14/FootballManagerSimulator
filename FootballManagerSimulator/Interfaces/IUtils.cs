@@ -2,12 +2,11 @@
 
 namespace FootballManagerSimulator.Interfaces;
 
-public interface IHelperFunction
+public interface IUtils
 {
     Player? GetPlayerByName(string name);
     Team? GetTeamByName(string name);
-    IEnumerable<Team> GetTeams();
     Team GetTeam(int id);
     Player GetPlayer(int id);
-    IEnumerable<Player.SerialisablePlayerModel> GetPlayers();
+    T GetResource<T>(string filename);
 }

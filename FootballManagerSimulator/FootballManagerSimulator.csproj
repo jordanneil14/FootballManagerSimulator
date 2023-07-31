@@ -15,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\competitions.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\playersImproved.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

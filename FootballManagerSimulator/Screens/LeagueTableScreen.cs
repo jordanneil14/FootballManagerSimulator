@@ -7,11 +7,11 @@ namespace FootballManagerSimulator.Screens;
 public class LeagueTableScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly IHelperFunction HelperFunction;
+    private readonly IUtils HelperFunction;
 
     public LeagueTableScreen(
         IState state, 
-        IHelperFunction helperFunction) : base(state)
+        IUtils helperFunction) : base(state)
     {
         State = state;
         HelperFunction = helperFunction;
@@ -38,7 +38,7 @@ public class LeagueTableScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var league = State.Competitions.First(p => p.Name == "Premier League") as League;
+        var league = State.Competitions.First(p => p.ID == State.MyTeam.CompetitionID) as League;
         var leagueTable = league.GenerateLeagueTable(); 
 
         Console.WriteLine($"League Table\n");

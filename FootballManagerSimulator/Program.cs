@@ -5,7 +5,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Factories;
-using System.Data;
 
 namespace FootballManagerSimulator;
 
@@ -16,9 +15,8 @@ public class Program
         var builder = Host.CreateApplicationBuilder(args);
 
         builder.Services.AddSingleton<IGame, Game>();
-        builder.Services.AddSingleton<IHelperFunction, HelperFunction>();
+        builder.Services.AddSingleton<IUtils, Utils>();
         builder.Services.AddSingleton<IState, State>();
-        builder.Services.AddSingleton<IFixtureHelper, FixtureHelper>();
         builder.Services.AddSingleton<ITacticHelper, TacticHelper>();
         builder.Services.AddSingleton<IMatchSimulator, MatchSimulator>();
 

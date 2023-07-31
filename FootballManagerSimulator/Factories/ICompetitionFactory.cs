@@ -7,7 +7,9 @@ namespace FootballManagerSimulator.Factories;
 public interface ICompetitionFactory
 {
     string CompetitionType { get; }
-    ICompetition CreateLeague(string name, IEnumerable<Team> teams);
+    ICompetition CreateCompetition(Competition competition);
     ICompetition Deserialise(JObject s);
+
+    List<Fixture> GenerateNextRoundOfFixtures(List<Team> teams);
 }
 

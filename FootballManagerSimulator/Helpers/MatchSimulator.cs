@@ -1,6 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
-using System;
+
 namespace FootballManagerSimulator.Helpers;
 
 public class MatchSimulator : IMatchSimulator

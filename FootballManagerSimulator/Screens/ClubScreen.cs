@@ -9,11 +9,11 @@ public class ClubScreen : BaseScreen
     public override ScreenType Screen => ScreenType.Club;
 
     private readonly IState State;
-    private readonly IHelperFunction HelperFunction;
+    private readonly IUtils HelperFunction;
 
     public ClubScreen(
         IState state, 
-        IHelperFunction helperFunction) : base(state)
+        IUtils helperFunction) : base(state)
     {
         State = state;
         HelperFunction = helperFunction;

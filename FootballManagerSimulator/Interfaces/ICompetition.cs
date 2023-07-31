@@ -5,6 +5,7 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface ICompetition
 {
+    int ID { get; } 
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
     IEnumerable<Team> Teams { get; set; }

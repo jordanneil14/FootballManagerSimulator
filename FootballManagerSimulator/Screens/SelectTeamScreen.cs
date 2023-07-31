@@ -8,20 +8,14 @@ namespace FootballManagerSimulator.Screens;
 public class SelectTeamScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly IHelperFunction HelperFunction;
-    private readonly IFixtureHelper FixtureHelper;
-    private readonly ICompetitionFactory LeagueFactory;
+    private readonly IUtils HelperFunction;
 
     public SelectTeamScreen(
         IState state, 
-        IHelperFunction helperFunction, 
-        IFixtureHelper fixtureHelper,
-        ICompetitionFactory leagueFactory)
+        IUtils helperFunction)
     {
         State = state;
         HelperFunction = helperFunction;
-        FixtureHelper = fixtureHelper;
-        LeagueFactory = leagueFactory;
     }
 
     public ScreenType Screen => ScreenType.SelectTeam;
@@ -35,7 +29,7 @@ public class SelectTeamScreen : IBaseScreen
             State.MyTeam = team;
             SetupStateForNewGame();
             State.ScreenStack.Clear();
-            State.ScreenStack.Push(new Structures.Screen
+            State.ScreenStack.Push(new Screen
             {
                 Type = ScreenType.Main
             });
@@ -54,8 +48,6 @@ public class SelectTeamScreen : IBaseScreen
     {
         State.Date = new DateOnly(2022, 07, 01);
 
-        var teams = HelperFunction.GetTeams();
-        State.Competitions.Add(LeagueFactory.CreateLeague("Premier League", teams));
         State.Weather = "Sunny 28c";
         
         var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(4);
@@ -91,9 +83,12 @@ public class SelectTeamScreen : IBaseScreen
     public void RenderScreen()
     {
         Console.WriteLine("Select a team to manage:\n");
+
+        Console.WriteLine(string.Format("{0,-50}{1,-40}", "Team", "League Competition"));
         foreach(var team in State.Teams) 
         {
-            Console.WriteLine($"{team.Name}");
+            var competition = State.Competitions.FirstOrDefault(p => p.ID == team.CompetitionID);
+            Console.WriteLine($"{team.Name,-50}{competition.Name}");
         }
 
         Console.WriteLine("\nOptions:");
