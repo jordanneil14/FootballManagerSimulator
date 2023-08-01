@@ -29,8 +29,8 @@ public class FinancesScreen : BaseScreen
                     Date = State.Date.AddDays(2),
                     Recipient = "Chairman",
                     Subject = "Extended Transfer Budget Request",
-                    Message = $"Your request for the transfer budget to be extended from {State.MyTeam.TransferBudget} " + 
-                        "has been rejected. We feel that the current allowance is enough to achieve your goals this season"
+                    Message = $"Your request for the transfer budget to be extended from {State.MyTeam.TransferBudgetFriendly} " + 
+                        "has been rejected. We feel that the current allowance is enough for you to achieve your goals this season"
                 });
                 break;
             default:

@@ -84,8 +84,8 @@ public class SelectTeamScreen : IBaseScreen
     {
         Console.WriteLine("Select a team to manage:\n");
 
-        Console.WriteLine(string.Format("{0,-50}{1,-40}", "Team", "League Competition"));
-        foreach(var team in State.Teams) 
+        Console.WriteLine(string.Format("{0,-50}{1,-40}", "Team", "League"));
+        foreach(var team in State.Teams.OrderBy(p => p.CompetitionID).ThenBy(p => p.Name))
         {
             var competition = State.Competitions.FirstOrDefault(p => p.ID == team.CompetitionID);
             Console.WriteLine($"{team.Name,-50}{competition.Name}");

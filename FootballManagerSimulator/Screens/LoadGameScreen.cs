@@ -27,7 +27,7 @@ public class LoadGameScreen : IBaseScreen
     {
         switch(input)
         {
-            case "A":
+            case "B":
                 State.ScreenStack.Clear();
                 State.ScreenStack.Push(new Screen
                 {
@@ -117,7 +117,9 @@ public class LoadGameScreen : IBaseScreen
 
         if (!Games.Any())
         {
-            Console.WriteLine("No game files found");
+            Console.WriteLine("No game files found on your desktop");
+            Console.WriteLine("\nOptions:");
+            Console.WriteLine("B) Back");
             return;
         }
 
@@ -127,7 +129,7 @@ public class LoadGameScreen : IBaseScreen
             Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i+1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
         }
         Console.WriteLine("\nOptions:");
-        Console.WriteLine("A) Back");
+        Console.WriteLine("B) Back");
         Console.WriteLine("<Enter Number>) Load Game");
     }
 }

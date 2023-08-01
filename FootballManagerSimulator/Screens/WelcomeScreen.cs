@@ -86,6 +86,7 @@ public class WelcomeScreen : IBaseScreen
     public void RenderScreen()
     {
         Console.WriteLine("Welcome to Football Manager Simulator\n");
+        Console.WriteLine("Options:");
         Console.WriteLine("A) Start New Game");
         Console.WriteLine("B) Load Game");
         Console.WriteLine("Q) Quit");

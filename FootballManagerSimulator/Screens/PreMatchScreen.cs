@@ -101,7 +101,7 @@ public class PreMatchScreen : BaseScreen
                 awayPlayer = $"{tacticSlotAway.Player.ShirtNumber,-3}{tacticSlotAway.Player.Name, -55}";
             }
 
-            Console.WriteLine($"{homePlayer}   {awayPlayer}");
+            Console.WriteLine($"{homePlayer,58}   {awayPlayer,-58}");
         }
     }
 }
