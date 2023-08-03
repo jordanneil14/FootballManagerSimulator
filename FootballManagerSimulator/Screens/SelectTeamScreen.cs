@@ -8,25 +8,25 @@ namespace FootballManagerSimulator.Screens;
 public class SelectTeamScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly IUtils HelperFunction;
+    private readonly IUtils Utils;
 
     public SelectTeamScreen(
         IState state, 
-        IUtils helperFunction)
+        IUtils utils)
     {
         State = state;
-        HelperFunction = helperFunction;
+        Utils = utils;
     }
 
     public ScreenType Screen => ScreenType.SelectTeam;
 
     public void HandleInput(string input)
     {
-        var team = HelperFunction.GetTeamByName(input);
+        var team = Utils.GetTeamByName(input);
 
         if (team != null)
         {
-            State.MyTeam = team;
+            State.MyClub = team;
             SetupStateForNewGame();
             State.ScreenStack.Clear();
             State.ScreenStack.Push(new Screen
@@ -50,14 +50,14 @@ public class SelectTeamScreen : IBaseScreen
 
         State.Weather = "Sunny 28c";
         
-        var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(4);
+        var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Select(p => p.Name).Take(4);
         State.Notifications = new List<Notification>()
         {
             new Notification
             {
                 Date = State.Date,
                 Recipient = "Chairman",
-                Subject = $"Welcome to {State.MyTeam.Name}",
+                Subject = $"Welcome to {State.MyClub.Name}",
                 Message = "Everyone at the club wishes you a successful reign as manager."
             },
             new Notification
@@ -65,7 +65,7 @@ public class SelectTeamScreen : IBaseScreen
                 Date = State.Date,
                 Recipient = "Chairman",
                 Subject = "Transfer Budget",
-                Message = $"Your transfer budget for the upcoming season is {State.MyTeam.TransferBudgetFriendly}."
+                Message = $"Your transfer budget for the upcoming season is {State.MyClub.TransferBudgetFriendly}."
             },
             new Notification
             {
@@ -85,7 +85,7 @@ public class SelectTeamScreen : IBaseScreen
         Console.WriteLine("Select a team to manage:\n");
 
         Console.WriteLine(string.Format("{0,-50}{1,-40}", "Team", "League"));
-        foreach(var team in State.Teams.OrderBy(p => p.CompetitionID).ThenBy(p => p.Name))
+        foreach(var team in State.Clubs.OrderBy(p => p.CompetitionID).ThenBy(p => p.Name))
         {
             var competition = State.Competitions.FirstOrDefault(p => p.ID == team.CompetitionID);
             Console.WriteLine($"{team.Name,-50}{competition.Name}");

@@ -20,14 +20,14 @@ public class Utils : IUtils
         return data;
     }
 
-    public Team? GetTeamByName(string name)
+    public Club? GetTeamByName(string name)
     {
-        return State.Teams.Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefault();
+        return State.Clubs.Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefault();
     }
 
-    public Team GetTeam(int id)
+    public Club GetTeam(int id)
     {
-        return State.Teams.Where(p => p.ID == id).First();
+        return State.Clubs.Where(p => p.ID == id).First();
     }
 
     public Player GetPlayer(int id)
@@ -38,5 +38,29 @@ public class Utils : IUtils
     public Player? GetPlayerByName(string name)
     {
         return State.Players.Where(p => p.Name == name).FirstOrDefault();
+    }
+
+    public Player? GetPlayerByClubAndShirtNumber(Club club, int shirtNumber)
+    {
+        return State.Clubs.Where(p => p == club).FirstOrDefault()?.Players.Where(p => p.ShirtNumber == shirtNumber).FirstOrDefault();
+    }
+
+    public void MapPlayersToATeam(List<Player.SerialisablePlayerModel> serialisablePlayers)
+    {
+        for (int i = 0; i < serialisablePlayers.Count; i++)
+        {
+            if (serialisablePlayers[i].Name == "De Gea")
+            {
+
+            }
+
+            Club? club = null;
+            if (serialisablePlayers[i].Contract != null)
+            {
+                club = GetTeamByName(serialisablePlayers[i].Contract!.ClubName);
+            }
+            var player = Player.FromPlayerData(serialisablePlayers[i], i + 1, club);
+            State.Players.Add(player);
+        }
     }
 }

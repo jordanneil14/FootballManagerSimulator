@@ -45,7 +45,7 @@ public class FixtureScreen : BaseScreen
 
     private void HandleAITeamSelection()
     {
-        var aiTeams = State.Teams.Where(p => p != State.MyTeam);
+        var aiTeams = State.Clubs.Where(p => p != State.MyClub);
 
         foreach(var aiTeam in aiTeams)
         {
@@ -63,12 +63,11 @@ public class FixtureScreen : BaseScreen
             Console.WriteLine(group.Competition.Name);
             foreach (var fixture in group.Fixtures)
             {
-                var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
-                var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
+                var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
+                var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
                 Console.WriteLine($"{homeTeam,48} v {awayTeam,-48}{"3PM KO",21}");
             }
             Console.WriteLine("\n");
         }
-        
     }
 }

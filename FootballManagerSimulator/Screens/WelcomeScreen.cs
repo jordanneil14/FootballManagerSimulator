@@ -8,16 +8,16 @@ namespace FootballManagerSimulator.Screens;
 public class WelcomeScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly IUtils HelperFunction;
+    private readonly IUtils Utils;
     private readonly ICompetitionFactory LeagueFactory;
 
     public WelcomeScreen(
         IState state, 
-        IUtils helperFunction,
+        IUtils utils,
         ICompetitionFactory leagueFactory)
     {
         State = state;
-        HelperFunction = helperFunction;
+        Utils = utils;
         LeagueFactory = leagueFactory;
     }
 
@@ -50,36 +50,16 @@ public class WelcomeScreen : IBaseScreen
 
     public void SetupStateForNewGame()
     {
-        State.Teams = HelperFunction.GetResource<IEnumerable<Team>>("teams.json"); 
+        State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json"); 
         
-        var playerItems = HelperFunction.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playersImproved.json");
-        AssignPlayersToTeams(playerItems.ToList());
+        var playerItems = Utils.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playerData.json");
+        Utils.MapPlayersToATeam(playerItems.ToList());
 
-        var competitions = HelperFunction.GetResource<IEnumerable<Competition>>("competitions.json");
+        var competitions = Utils.GetResource<IEnumerable<Competition>>("competitions.json");
         foreach(var competition in competitions)
         {
             var league = LeagueFactory.CreateCompetition(competition);
             State.Competitions.Add(league);
-        }
-    }
-
-    private void AssignPlayersToTeams(List<Player.SerialisablePlayerModel> players)
-    {
-        foreach (var team in State.Teams)
-        {
-            for (int i = 0; i < 25; i++)
-            {
-                var player = Player.FromPlayerItem(players.ElementAt(i), i+1, team);
-                State.Players.Add(player);
-            }
-            players.RemoveRange(0, 25);
-        }
-
-        //Free agents
-        for (int i = 0; i < players.Count; i++)
-        {
-            var player = Player.FromPlayerItem(players.ElementAt(i), null, null);
-            State.Players.Add(player);
         }
     }
 

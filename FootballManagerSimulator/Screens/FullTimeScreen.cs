@@ -53,14 +53,14 @@ public class FullTimeScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyTeam || p.AwayTeam == State.MyTeam).First();
-        var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
-        var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
+        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyClub || p.AwayTeam == State.MyClub).First();
+        var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
+        var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
 
         Console.WriteLine($"{homeTeam,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayTeam,-53}\n{"** FULL TIME **",67}\n");
 
-        var homeTeamPlayers = State.Teams.Where(p => p == homeTeam).First().TacticSlots;
-        var awayTeamPlayers = State.Teams.Where(p => p == awayTeam).First().TacticSlots;
+        var homeTeamPlayers = State.Clubs.Where(p => p == homeTeam).First().TacticSlots;
+        var awayTeamPlayers = State.Clubs.Where(p => p == awayTeam).First().TacticSlots;
 
         for (int i = 0; i < 18; i++)
         {

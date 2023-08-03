@@ -4,17 +4,18 @@ namespace FootballManagerSimulator.Structures;
 
 public class Contract : IContract
 {
-    public Team Team { get; set; } = new Team();
+    public Club Club { get; set; } = new Club();
     public DateOnly ExpiryDate { get; set; }
     public int WeeklyWage { get; set; }
     public string WeeklyWageFriendly { get => $"£{WeeklyWage:n}"; }
     public DateOnly StartDate { get; set; }
 
-    public SerialisableContractModel SerialisableContract()
+    public SerialisableContractModel? SerialisableContract()
     {
         return new SerialisableContractModel
         {
-            TeamID = Team.ID,
+            ClubID = Club.ID,
+            ClubName = Club.Name,
             ExpiryDate = ExpiryDate,
             StartDate = StartDate,
             WeeklyWage = WeeklyWage
@@ -23,7 +24,8 @@ public class Contract : IContract
 
     public class SerialisableContractModel
     {
-        public int? TeamID { get; set; }
+        public int ClubID { get; set; }
+        public string ClubName { get; set; } = "";
         public DateOnly ExpiryDate { get; set; }
         public int WeeklyWage { get; set; }
         public DateOnly StartDate { get; set; }

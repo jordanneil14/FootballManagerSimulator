@@ -1,17 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FootballManagerSimulator.Enums;
+﻿namespace FootballManagerSimulator.Enums;
 
 public enum TacticSlotType
 {
     GK,
-    DEF,
-    MID,
-    FWD,
+    LF,
+    LS,
+    RW,
+    LW,
+    ST,
+    RCB,
+    RB,
+    LB,
+    RM,
+    LM,
+    CM,
+    CB,
+    LCB,
+
     SUB,
     RES
 }

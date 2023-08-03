@@ -13,7 +13,7 @@ public class TacticHelper : ITacticHelper
         State = state;
     }
 
-    public void ResetTacticForTeam(Team team)
+    public void ResetTacticForTeam(Club team)
     {
         team.TacticSlots = new List<TacticSlot>()
         {
@@ -25,52 +25,52 @@ public class TacticHelper : ITacticHelper
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.DEF
+                TacticSlotType = TacticSlotType.RB
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.DEF
+                TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.DEF
+                TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.DEF
+                TacticSlotType = TacticSlotType.LB
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.MID
+                TacticSlotType = TacticSlotType.LM
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.MID
+                TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.MID
+                TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.MID
+                TacticSlotType = TacticSlotType.RM
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.FWD
+                TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
                 Player = null,
-                TacticSlotType = TacticSlotType.FWD
+                TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
@@ -109,7 +109,7 @@ public class TacticHelper : ITacticHelper
             }
         };
 
-        var players = State.Teams.Where(p => p == team).First().Players;
+        var players = State.Clubs.Where(p => p == team).First().Players;
 
         foreach(var player in players)
         {
@@ -121,17 +121,19 @@ public class TacticHelper : ITacticHelper
         }
     }
 
-    public void PickTacticSlots(Team team)
+    public void PickTacticSlots(Club team)
     {
-        var players = State.Teams.Where(p => p == team).First().Players;
+        var players = State.Clubs.Where(p => p == team).First().Players;
 
         // Move players from the reserves into the starting 11
-        foreach(var slot in team.TacticSlots
-            .Where(p => new[] { TacticSlotType.GK, TacticSlotType.DEF, TacticSlotType.MID, TacticSlotType.FWD }.Contains(p.TacticSlotType)))
+        var playingTacticSlots = team.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
+
+        foreach(var slot in playingTacticSlots)
         {
             var position = ResolvePosition(slot.TacticSlotType);
 
-            var preferredPlayers = players.Where(p => p.Position == position);
+
+            var preferredPlayers = players.Where(p => p.Position.Split("/").Contains(position.ToString()));
             var reserves = team.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.Player != null);
             var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q == p.Player));
 
@@ -148,11 +150,9 @@ public class TacticHelper : ITacticHelper
         }
     }
 
-    private static PlayerPosition ResolvePosition(TacticSlotType tacticSlotType)
+    private static Position ResolvePosition(TacticSlotType tacticSlotType)
     {
-        if (tacticSlotType == TacticSlotType.GK) return PlayerPosition.GK;
-        if (tacticSlotType == TacticSlotType.DEF) return PlayerPosition.DEF;
-        if (tacticSlotType == TacticSlotType.MID) return PlayerPosition.MID;
-        return PlayerPosition.FWD;
+        Enum.TryParse(tacticSlotType.ToString(), out Position position);
+        return position;
     }
 }

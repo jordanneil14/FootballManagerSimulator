@@ -45,7 +45,7 @@ public abstract class BaseScreen : IBaseScreen
     {
         var nextMatchCaption = GetNextMatchCaption();
 
-        Console.WriteLine($"{State.MyTeam.Name,-100}{State.Date,20}");
+        Console.WriteLine($"{State.MyClub.Name,-100}{State.Date,20}");
         Console.WriteLine($"{State.ManagerName,-100}{State.Weather,20}");
         Console.WriteLine(nextMatchCaption);
         Console.WriteLine("------------------------------------------------------------------------------------------------------------------------");
@@ -54,12 +54,12 @@ public abstract class BaseScreen : IBaseScreen
     private string GetNextMatchCaption()
     {
         var nextFixture = State.Competitions.SelectMany(p => p.Fixtures)
-            .Where(p => p.Date >= State.Date && (p.HomeTeam == State.MyTeam || p.AwayTeam == State.MyTeam))
+            .Where(p => p.Date >= State.Date && (p.HomeTeam == State.MyClub || p.AwayTeam == State.MyClub))
             .OrderBy(p => p.WeekNumber)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
-        var teamAgainst = nextFixture.HomeTeam == State.MyTeam ? nextFixture.AwayTeam : nextFixture.HomeTeam;
+        var teamAgainst = nextFixture.HomeTeam == State.MyClub ? nextFixture.AwayTeam : nextFixture.HomeTeam;
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
         {
             return $"Next Match: Today Vs {teamAgainst} ({nextFixture.GoalsHome!.Value}:{nextFixture.GoalsAway!.Value})";

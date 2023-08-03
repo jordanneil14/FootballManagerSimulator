@@ -25,11 +25,11 @@ public class TacticsScreen : BaseScreen
             var fromPlayerID = int.Parse(parts[0]) - 1;
             var toPlayerID = int.Parse(parts[1]) - 1;
 
-            var fromPlayer = State.MyTeam.TacticSlots.ElementAt(fromPlayerID).Player;
-            var toPlayer = State.MyTeam.TacticSlots.ElementAt(toPlayerID).Player;
+            var fromPlayer = State.MyClub.TacticSlots.ElementAt(fromPlayerID).Player;
+            var toPlayer = State.MyClub.TacticSlots.ElementAt(toPlayerID).Player;
 
-            State.MyTeam.TacticSlots.ElementAt(toPlayerID).Player = fromPlayer;
-            State.MyTeam.TacticSlots.ElementAt(fromPlayerID).Player = toPlayer;
+            State.MyClub.TacticSlots.ElementAt(toPlayerID).Player = fromPlayer;
+            State.MyClub.TacticSlots.ElementAt(fromPlayerID).Player = toPlayer;
             return;
         }
 
@@ -39,8 +39,8 @@ public class TacticsScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             case "C":
-                TacticHelper.ResetTacticForTeam(State.MyTeam);
-                TacticHelper.PickTacticSlots(State.MyTeam);
+                TacticHelper.ResetTacticForTeam(State.MyClub);
+                TacticHelper.PickTacticSlots(State.MyClub);
                 break;
             default:
                 break;
@@ -58,9 +58,9 @@ public class TacticsScreen : BaseScreen
     public override void RenderSubscreen()
     {
         Console.WriteLine(string.Format("{0,-10}{1,-10}{2,-10}{3,-40}{4,-10}", "Number", "Slot", "Position", "Name", "Rating"));
-        for(int i = 0; i < State.MyTeam.TacticSlots.Count; i++)
+        for(int i = 0; i < State.MyClub.TacticSlots.Count; i++)
         {
-            var element = State.MyTeam.TacticSlots.ElementAt(i);
+            var element = State.MyClub.TacticSlots.ElementAt(i);
             if (element?.Player != null)
             {
                 Console.WriteLine($"{i + 1,-10}{element.TacticSlotType,-10}{element.Player.Position,-10}{element.Player.Name,-40}{element.Player.Rating,-10}");

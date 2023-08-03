@@ -4,8 +4,9 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface IFixture
 {
-    Team HomeTeam { get; set; }
-    Team AwayTeam { get; set; }
+    Club HomeTeam { get; set; }
+    Club AwayTeam { get; set; }
+    ICompetition Competition { get; set; }
     int WeekNumber { get; set; }
     int? GoalsHome { get; set; }
     int? GoalsAway { get; set; }

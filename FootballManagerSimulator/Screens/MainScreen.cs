@@ -31,11 +31,11 @@ public class MainScreen : BaseScreen
                 });
                 break;
             case "D":
-                var myLeague = State.Competitions.FirstOrDefault(p => p.ID == State.MyTeam.CompetitionID);
+                var myLeague = State.Competitions.FirstOrDefault(p => p.ID == State.MyClub.CompetitionID);
                 State.ScreenStack.Push(FixturesScreen.CreateScreen(myLeague));
                 break;
             case "E":
-                State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyTeam));
+                State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyClub));
                 break;
             case "F":
                 State.ScreenStack.Push(new Structures.Screen

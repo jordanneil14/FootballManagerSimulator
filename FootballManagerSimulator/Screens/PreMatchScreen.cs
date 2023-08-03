@@ -52,9 +52,8 @@ public class PreMatchScreen : BaseScreen
 
     private string? ValidateStartMatch()
     {
-        if (State.MyTeam.TacticSlots
-            .Where(p => new[] { TacticSlotType.GK, TacticSlotType.FWD, TacticSlotType.MID, TacticSlotType.DEF}.Contains(p.TacticSlotType))
-            .Any(p => p.Player == null))
+        var positions = State.MyClub.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
+        if (positions.Where(p => p.Player == null).Any())
         {
             return "Unable to start game. Your team has not been fully selected";
         }
@@ -71,14 +70,14 @@ public class PreMatchScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyTeam || p.AwayTeam == State.MyTeam).First();
-        var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
-        var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
+        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyClub || p.AwayTeam == State.MyClub).First();
+        var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
+        var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
 
         Console.WriteLine($"{homeTeam, 58} v {awayTeam, -58}\n");
 
-        var homeTeamPlayers = State.Teams.Where(p => p == homeTeam).First().TacticSlots;
-        var awayTeamPlayers = State.Teams.Where(p => p == awayTeam).First().TacticSlots;
+        var homeTeamPlayers = State.Clubs.Where(p => p == homeTeam).First().TacticSlots;
+        var awayTeamPlayers = State.Clubs.Where(p => p == awayTeam).First().TacticSlots;
 
         for (int i = 0; i < 18; i++)
         {

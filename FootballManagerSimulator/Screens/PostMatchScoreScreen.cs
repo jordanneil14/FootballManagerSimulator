@@ -18,7 +18,7 @@ public class PostMatchScoreScreen : BaseScreen
     {
         switch (input)
         {
-            case "A":
+            case "B":
                 State.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.FullTime
@@ -32,7 +32,7 @@ public class PostMatchScoreScreen : BaseScreen
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("A) Back");
+        Console.WriteLine("B) Back");
     }
 
     public override void RenderSubscreen()
@@ -44,10 +44,11 @@ public class PostMatchScoreScreen : BaseScreen
             Console.WriteLine(group.Competition.Name);
             foreach (var fixture in group.Fixtures)
             {
-                var homeTeam = State.Teams.Where(p => p == fixture.HomeTeam).First();
-                var awayTeam = State.Teams.Where(p => p == fixture.AwayTeam).First();
+                var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
+                var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
                 Console.WriteLine($"{homeTeam,48} v {awayTeam,-48}{"3PM KO",21}");
             }
+            Console.WriteLine("\n");
         }
     }
 }

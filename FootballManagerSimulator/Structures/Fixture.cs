@@ -5,13 +5,14 @@ namespace FootballManagerSimulator.Structures;
 public class Fixture : IFixture
 {
     public int ID { get; set; }
-    public Team HomeTeam { get; set; } = new Team();
-    public Team AwayTeam { get; set; } = new Team();
+    public Club HomeTeam { get; set; } = new Club();
+    public Club AwayTeam { get; set; } = new Club();
     public int WeekNumber { get; set; }
     public int? GoalsHome { get; set; }
     public int? GoalsAway { get; set; }
     public bool Concluded { get; set; }
     public DateOnly Date { get; set; }
+    public ICompetition Competition { get; set; }
 
     public SerialisableFixtureModel SerialisableFixture()
     {
@@ -24,7 +25,8 @@ public class Fixture : IFixture
             GoalsAway = GoalsAway ?? null,
             GoalsHome = GoalsHome ?? null,
             HomeTeamID = HomeTeam.ID,
-            WeekNumber = WeekNumber
+            WeekNumber = WeekNumber,
+            CompetitionID = Competition.ID
         };
     }
 
@@ -38,5 +40,6 @@ public class Fixture : IFixture
         public int? GoalsAway { get; set; }
         public bool Concluded { get; set; }
         public DateOnly Date { get; set; }
+        public int CompetitionID { get; set; }
     }
 }

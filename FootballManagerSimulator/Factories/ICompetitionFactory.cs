@@ -9,6 +9,6 @@ public interface ICompetitionFactory
     string CompetitionType { get; }
     ICompetition CreateCompetition(Competition competition);
     ICompetition Deserialise(JObject s);
-    List<Fixture> GenerateNextRoundOfFixtures(List<Team> teams);
+    List<Fixture> GenerateNextRoundOfFixtures(List<Club> teams, League league);
 }
 

@@ -45,11 +45,11 @@ public class SaveScreen : BaseScreen
             Events = State.Events,
             Competitions = State.Competitions.Select(p => p.SerialisableCompetition()),
             ManagerName = State.ManagerName,
-            MyTeam = State.MyTeam.SerialisableTeam(),
+            MyTeam = State.MyClub.SerialisableTeam(),
             Notifications = State.Notifications,
             Weather = State.Weather,
-            Teams = State.Teams.Select(p => p.SerialisableTeam()),
-            Players = State.Players.Select(p => p.SerialisablePlayer())
+            Teams = State.Clubs.Select(p => p.SerialisableTeam()),
+            Players = State.Players.Select(p => p.SerialisablePlayer()),
         };
 
         try 

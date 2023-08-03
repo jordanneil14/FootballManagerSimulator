@@ -9,14 +9,14 @@ public class ClubScreen : BaseScreen
     public override ScreenType Screen => ScreenType.Club;
 
     private readonly IState State;
-    private readonly IUtils HelperFunction;
+    private readonly IUtils Utils;
 
     public ClubScreen(
         IState state, 
-        IUtils helperFunction) : base(state)
+        IUtils utils) : base(state)
     {
         State = state;
-        HelperFunction = helperFunction;
+        Utils = utils;
     }
 
     public override void HandleInput(string input)
@@ -27,7 +27,10 @@ public class ClubScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             default:
-                var player = HelperFunction.GetPlayerByName(input);
+                int.TryParse(input, out int value);
+                if (value == 0) return;
+                var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
+                var player = Utils.GetPlayerByClubAndShirtNumber(clubScreenObj.Club, value);
                 if (player != null)
                 {
                     State.ScreenStack.Push(PlayerScreen.CreateScreen(player));
@@ -36,35 +39,35 @@ public class ClubScreen : BaseScreen
         }
     }
 
-    public static Screen CreateScreen(Team team)
+    public static Screen CreateScreen(Club club)
     {
         return new Screen
         {
             Type = ScreenType.Club,
             Parameters = new ClubScreenObj
             {
-                Team = team
+                Club = club
             }
         };
     }
 
     public class ClubScreenObj
     {
-        public Team Team { get; set; } = new Team();
+        public Club Club { get; set; } = new Club();
     }
 
     public override void RenderSubscreen()
     {
         var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
 
-        Console.WriteLine($"{clubScreenObj!.Team}");
+        Console.WriteLine($"{clubScreenObj!.Club}");
 
-        Console.WriteLine($"\nStadium:\n{clubScreenObj.Team.Stadium}\n");
+        Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}\n");
 
         Console.WriteLine("Upcoming Fixtures");
         var upcomingFixtures = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeTeam == clubScreenObj.Team || p.AwayTeam == clubScreenObj.Team).Take(5);
+            .Where(p => p.HomeTeam == clubScreenObj.Club || p.AwayTeam == clubScreenObj.Club).Take(5);
         foreach (var fixture in upcomingFixtures)
         {
             Console.WriteLine($"{fixture.HomeTeam} Vs {fixture.AwayTeam}");
@@ -72,13 +75,13 @@ public class ClubScreen : BaseScreen
 
         Console.WriteLine("\nPlayers");
 
-        var players = State.Players.Where(p => p.Contract?.Team == clubScreenObj.Team);
+        var players = State.Players.Where(p => p.Contract?.Club == clubScreenObj.Club);
 
         Console.WriteLine(string.Format("{0,-10}{1,-10}{2,-40}{3,-10}{4,-10}", "Number", "Position", "Name", "Rating", "Weekly Wage"));
 
         foreach (var player in players.OrderBy(p => p.Name))
         {
-            Console.WriteLine($"{player.ShirtNumber,-10}{player.Position,-10}{player,-40}{player.Rating,-10}{player.Contract!.WeeklyWageFriendly}");
+            Console.WriteLine($"{player.ShirtNumber,-10}{player.Position,-10}{player.Name,-40}{player.Rating,-10}{player.Contract!.WeeklyWageFriendly}");
         }
     }
 

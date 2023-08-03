@@ -11,14 +11,14 @@ public class LoadGameScreen : IBaseScreen
 {
     private readonly IState State;
     private readonly List<LoadGamePreview> Games = new();
-    private readonly IUtils HelperFunction;
+    private readonly IUtils Utils;
     private readonly IEnumerable<ICompetitionFactory> LeagueFactories;
 
-    public LoadGameScreen(IState state, IUtils helperFunction, IEnumerable<ICompetitionFactory> leagueFactories)
+    public LoadGameScreen(IState state, IUtils utils, IEnumerable<ICompetitionFactory> leagueFactories)
     {
         State = state;
         LeagueFactories = leagueFactories; 
-        HelperFunction = helperFunction;
+        Utils = utils;
     }
 
     public ScreenType Screen => ScreenType.LoadGame;
@@ -56,24 +56,23 @@ public class LoadGameScreen : IBaseScreen
 
             var deserialisedState = JsonConvert.DeserializeObject<SerialisableStateModel>(fileContent);
 
-            var playerItems = HelperFunction.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playersImproved.json");
-
-            State.Teams = HelperFunction.GetResource<IEnumerable<Team>>("teams.json");
-            State.Players = deserialisedState.Players
-                .Select(p => Player.FromPlayerItem(p, p.ShirtNumber, p.Contract?.TeamID == null ? null : HelperFunction.GetTeam(p.Contract.TeamID.Value))).ToList();
+            var playerItems = deserialisedState.Players;
+            Utils.MapPlayersToATeam(playerItems.ToList());
+            State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json");
             State.Date = deserialisedState.Date;
             State.Events = deserialisedState.Events;
 
             foreach (var competition in deserialisedState.Competitions)
             {
                 var serialisableCompetitionModel = competition.ToObject<SerialisableCompetitionModel>();
-                var competitions = deserialisedState.Competitions.Select(p => LeagueFactories.First(p => serialisableCompetitionModel.CompetitionType == p.CompetitionType).Deserialise(p)).ToList();
-                State.Competitions.AddRange(competitions);
+                var comp = LeagueFactories.First(p => serialisableCompetitionModel.CompetitionType == p.CompetitionType);
+                var deserialisedCompetition = comp.Deserialise(competition);
+                State.Competitions.Add(deserialisedCompetition);
             }
             State.Weather = deserialisedState.Weather;
             State.ManagerName = deserialisedState.ManagerName;
             State.Notifications = deserialisedState.Notifications;
-            State.MyTeam = HelperFunction.GetTeam(deserialisedState.MyTeam.ID);
+            State.MyClub = Utils.GetTeam(deserialisedState.MyTeam.ID);
             State.ScreenStack.Clear();
             State.ScreenStack.Push(new Screen()
             {
@@ -103,7 +102,7 @@ public class LoadGameScreen : IBaseScreen
                 Games.Add(new LoadGamePreview
                 {
                     FileName = file.Name,
-                    ClubName = deserialisedContent.MyTeam.Name,
+                    ClubName = deserialisedContent.Club.Name,
                     SaveDate = file.LastWriteTime
                 });
             }

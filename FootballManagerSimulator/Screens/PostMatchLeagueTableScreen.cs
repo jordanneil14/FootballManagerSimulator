@@ -19,7 +19,7 @@ public class PostMatchLeagueTableScreen : BaseScreen
     {
         switch (input)
         {
-            case "A":
+            case "B":
                 State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.FullTime
@@ -33,20 +33,21 @@ public class PostMatchLeagueTableScreen : BaseScreen
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("A) Back");
+        Console.WriteLine("B) Back");
     }
 
     public override void RenderSubscreen()
     {
-        var league = State.Competitions.First(p => p.Name == "Premier League") as League;
+        var league = State.Competitions.First(p => p.ID == State.MyClub.CompetitionID) as League;
         var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"League Table\n");
-        Console.WriteLine(string.Format("{0,-10}{1,-20}{2,-10}", "Position", "Team", "Points"));
+        Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}", "Pos", "Team", "Points", "Gls Scored", "Gls Con", "Goal Diff"));
         for (int i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);
-            Console.WriteLine($"{i + 1,-10}{leagueTablePosition.TeamName,-20}{leagueTablePosition.Points}");
+            Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}",
+                i + 1, leagueTablePosition.TeamName, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
         }
     }
 }

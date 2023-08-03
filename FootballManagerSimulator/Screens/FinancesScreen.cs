@@ -29,7 +29,7 @@ public class FinancesScreen : BaseScreen
                     Date = State.Date.AddDays(2),
                     Recipient = "Chairman",
                     Subject = "Extended Transfer Budget Request",
-                    Message = $"Your request for the transfer budget to be extended from {State.MyTeam.TransferBudgetFriendly} " + 
+                    Message = $"Your request for the transfer budget to be extended from {State.MyClub.TransferBudgetFriendly} " + 
                         "has been rejected. We feel that the current allowance is enough for you to achieve your goals this season"
                 });
                 break;
@@ -49,7 +49,7 @@ public class FinancesScreen : BaseScreen
     {
         Console.WriteLine("Finances\n");
 
-        Console.WriteLine($"Transfer budget: {State.MyTeam.TransferBudgetFriendly}");
-        Console.WriteLine($"Wage Budget: {State.MyTeam.WageBudgetFriendly}");
+        Console.WriteLine($"Transfer budget: {State.MyClub.TransferBudgetFriendly}");
+        Console.WriteLine($"Wage Budget: {State.MyClub.WageBudgetFriendly}");
     }
 }
