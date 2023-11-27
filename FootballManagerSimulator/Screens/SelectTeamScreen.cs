@@ -5,12 +5,12 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class SelectTeamScreen : IBaseScreen
+public class SelectClubScreen : IBaseScreen
 {
     private readonly IState State;
     private readonly IUtils Utils;
 
-    public SelectTeamScreen(
+    public SelectClubScreen(
         IState state, 
         IUtils utils)
     {
@@ -18,15 +18,15 @@ public class SelectTeamScreen : IBaseScreen
         Utils = utils;
     }
 
-    public ScreenType Screen => ScreenType.SelectTeam;
+    public ScreenType Screen => ScreenType.SelectClub;
 
     public void HandleInput(string input)
     {
-        var team = Utils.GetTeamByName(input);
+        var club = Utils.GetClubByName(input);
 
-        if (team != null)
+        if (club != null)
         {
-            State.MyClub = team;
+            State.MyClub = club;
             SetupStateForNewGame();
             State.ScreenStack.Clear();
             State.ScreenStack.Push(new Screen
@@ -82,17 +82,18 @@ public class SelectTeamScreen : IBaseScreen
 
     public void RenderScreen()
     {
-        Console.WriteLine("Select a team to manage:\n");
+        Console.WriteLine("Select a club to manage:\n");
 
-        Console.WriteLine(string.Format("{0,-50}{1,-40}", "Team", "League"));
-        foreach(var team in State.Clubs.OrderBy(p => p.CompetitionID).ThenBy(p => p.Name))
+        Console.WriteLine($"{"Team",-50}{"League",-40}");
+        var clubs = State.Clubs.OrderBy(p => p.CompetitionID).ThenBy(p => p.Name);
+        foreach (var club in clubs)
         {
-            var competition = State.Competitions.FirstOrDefault(p => p.ID == team.CompetitionID);
-            Console.WriteLine($"{team.Name,-50}{competition.Name}");
+            var competition = State.Competitions.First(p => p.ID == club.CompetitionID);
+            Console.WriteLine($"{club.Name,-50}{competition.Name}");
         }
 
         Console.WriteLine("\nOptions:");
         Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Team Name>) To Manage Team");
+        Console.WriteLine("<Enter Club Name>) To Manage Club");
     }
 }

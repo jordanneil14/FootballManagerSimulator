@@ -37,16 +37,16 @@ public class PostMatchScoreScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        Console.WriteLine("Today's Fixtures\n");
+        Console.WriteLine("Today's Results\n");
         var groupedFixtures = State.TodaysFixtures;
         foreach (var group in groupedFixtures)
         {
             Console.WriteLine(group.Competition.Name);
             foreach (var fixture in group.Fixtures)
             {
-                var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
-                var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
-                Console.WriteLine($"{homeTeam,48} v {awayTeam,-48}{"3PM KO",21}");
+                var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
+                var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
+                Console.WriteLine($"{homeClub,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub,-35}{(fixture.Concluded ? "(Latest)" : ""),-5}{"3PM KO",21}");
             }
             Console.WriteLine("\n");
         }

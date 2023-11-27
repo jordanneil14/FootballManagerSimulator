@@ -8,5 +8,4 @@ public interface IContract
     DateOnly ExpiryDate { get; set; }
     int WeeklyWage { get; set; }
     DateOnly StartDate { get; set; }
-
 }

@@ -54,18 +54,18 @@ public abstract class BaseScreen : IBaseScreen
     private string GetNextMatchCaption()
     {
         var nextFixture = State.Competitions.SelectMany(p => p.Fixtures)
-            .Where(p => p.Date >= State.Date && (p.HomeTeam == State.MyClub || p.AwayTeam == State.MyClub))
+            .Where(p => p.Date >= State.Date && (p.HomeClub == State.MyClub || p.AwayClub == State.MyClub))
             .OrderBy(p => p.WeekNumber)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
-        var teamAgainst = nextFixture.HomeTeam == State.MyClub ? nextFixture.AwayTeam : nextFixture.HomeTeam;
+        var clubAgainst = nextFixture.HomeClub == State.MyClub ? nextFixture.AwayClub : nextFixture.HomeClub;
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
         {
-            return $"Next Match: Today Vs {teamAgainst} ({nextFixture.GoalsHome!.Value}:{nextFixture.GoalsAway!.Value})";
+            return $"Last Match: Today {nextFixture.HomeClub} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub}";
         }
-        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {teamAgainst}";
-        return $"Next Match: {(nextFixture.Date.DayNumber - State.Date.DayNumber)} days Vs {teamAgainst}";
+        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst}";
+        return $"Next Match: {(nextFixture.Date.DayNumber - State.Date.DayNumber)} days Vs {clubAgainst}";
 
     }
 }

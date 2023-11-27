@@ -53,7 +53,7 @@ public class WelcomeScreen : IBaseScreen
         State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json"); 
         
         var playerItems = Utils.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playerData.json");
-        Utils.MapPlayersToATeam(playerItems.ToList());
+        Utils.MapPlayersToAClub(playerItems.ToList());
 
         var competitions = Utils.GetResource<IEnumerable<Competition>>("competitions.json");
         foreach(var competition in competitions)

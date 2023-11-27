@@ -27,10 +27,10 @@ public class LeagueTableScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             default:
-                var team = Utils.GetTeamByName(input);
-                if (team != null)
+                var club = Utils.GetClubByName(input);
+                if (club != null)
                 {
-                    State.ScreenStack.Push(ClubScreen.CreateScreen(team));
+                    State.ScreenStack.Push(ClubScreen.CreateScreen(club));
                 }
                 break;
         }
@@ -43,11 +43,11 @@ public class LeagueTableScreen : BaseScreen
 
         Console.WriteLine($"League Table\n");
         Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}", "Pos", "Team", "Points", "Gls Scored", "Gls Con", "Goal Diff"));
-        for (int i = 0; i < leagueTable.Count(); i++)
+        for (var i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);
             Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}", 
-                i+1, leagueTablePosition.TeamName, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
+                i+1, leagueTablePosition.ClubName, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
         }
     }
 

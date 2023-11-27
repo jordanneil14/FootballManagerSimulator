@@ -8,7 +8,8 @@ public class CreateManagerScreen : IBaseScreen
 {
     private readonly IState State;
 
-    public CreateManagerScreen(IState state)
+    public CreateManagerScreen(
+        IState state)
     {
         State = state;
     }
@@ -21,7 +22,7 @@ public class CreateManagerScreen : IBaseScreen
         State.ManagerName = text.ToTitleCase(input.ToLower());
         State.ScreenStack.Push(new Structures.Screen
         {
-            Type = ScreenType.SelectTeam
+            Type = ScreenType.SelectClub
         });
     }
 

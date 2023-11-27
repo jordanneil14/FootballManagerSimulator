@@ -8,6 +8,6 @@ public interface ICompetition
     int ID { get; } 
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
-    IEnumerable<Club> Teams { get; set; }
+    IEnumerable<Club> Clubs { get; set; }
     JObject SerialisableCompetition();
 }

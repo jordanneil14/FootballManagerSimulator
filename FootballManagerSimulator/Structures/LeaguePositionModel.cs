@@ -3,7 +3,7 @@
 
 public class LeaguePositionModel
 {
-    public string TeamName { get; set; } = "";
+    public string ClubName { get; set; } = "";
     public int Points { get; set; }
     public int GoalsScored { get; set; }
     public int GoalsConceded { get; set; }

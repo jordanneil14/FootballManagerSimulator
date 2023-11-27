@@ -24,7 +24,7 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, ScoutScreen>();
         builder.Services.AddSingleton<IBaseScreen, WelcomeScreen>();
         builder.Services.AddSingleton<IBaseScreen, MainScreen>();
-        builder.Services.AddSingleton<IBaseScreen, SelectTeamScreen>();
+        builder.Services.AddSingleton<IBaseScreen, SelectClubScreen>();
         builder.Services.AddSingleton<IBaseScreen, CreateManagerScreen>();
         builder.Services.AddSingleton<IBaseScreen, LoadGameScreen>();
         builder.Services.AddSingleton<IBaseScreen, TacticsScreen>();

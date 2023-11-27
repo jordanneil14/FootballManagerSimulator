@@ -57,19 +57,23 @@ public class FixturesScreen : BaseScreen
 
         var parameters = State.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
-        foreach(var round in State.Competitions.Where(p => p.ID == parameters.Competition.ID).SelectMany(p => p.Fixtures).GroupBy(x => x.WeekNumber))
+        var rounds = State.Competitions
+            .Where(p => p.ID == parameters.Competition.ID)
+            .SelectMany(p => p.Fixtures)
+            .GroupBy(x => x.WeekNumber);
+
+        foreach (var round in rounds)
         {
             Console.WriteLine($"\nRound {round.Key}");
             foreach(var fixture in round)
             {
                 if (fixture.Concluded)
                 {
-                    Console.WriteLine($"{fixture.HomeTeam.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayTeam.Name,-55}");
+                    Console.WriteLine($"{fixture.HomeClub.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayClub.Name,-55}");
+                    continue;
                 }
-                else
-                {
-                    Console.WriteLine($"{fixture.HomeTeam.Name,58} v {fixture.AwayTeam.Name,-58}");
-                }
+
+                Console.WriteLine($"{fixture.HomeClub.Name,58} v {fixture.AwayClub.Name,-58}");
             }
         }
     }

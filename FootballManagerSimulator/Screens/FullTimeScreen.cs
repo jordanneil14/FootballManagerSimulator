@@ -86,7 +86,7 @@ public class FullTimeScreen : BaseScreen
             if (tacticSlotAway.PlayerID != null)
             {
                 var player = Utils.GetPlayerById(tacticSlotAway.PlayerID.Value)!;
-                awayPlayer = $"{player.Name,55}{player.ShirtNumber,3}";
+                awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
             }
 
             Console.WriteLine($"{homePlayer}   {awayPlayer}");
