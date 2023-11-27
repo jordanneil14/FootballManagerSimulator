@@ -39,8 +39,6 @@ public class ScoutScreen : BaseScreen
                         }
                     });
                 }
-
-                
                 break;
         }
     }
@@ -56,7 +54,7 @@ public class ScoutScreen : BaseScreen
     {
         PlayerDetails.Clear();
         var employeedPlayers = State.Players.Where(p => p.Contract != null).OrderBy(p => p.Contract!.Club.Name);
-        for(int i = 0; i < employeedPlayers.Count(); i++) 
+        for(var i = 0; i < employeedPlayers.Count(); i++) 
         {
             PlayerDetails.Add(new PlayerDetailModel
             {
@@ -65,7 +63,7 @@ public class ScoutScreen : BaseScreen
             });
         }
         var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(100);
-        for (int i = 0; i < freeAgents.Count(); i++)
+        for (var i = 0; i < freeAgents.Count(); i++)
         {
             PlayerDetails.Add(new PlayerDetailModel
             {
@@ -75,11 +73,13 @@ public class ScoutScreen : BaseScreen
         }
 
         Console.WriteLine("All Players\n");
-        Console.WriteLine(string.Format("{0,-5}{1,-35}{2,-10}{3,-25}", "Row", "Player", "Rating", "Team"));
-        foreach(var playerDetail in PlayerDetails.OrderBy(p => p.Player.Club))
+        Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}");
+
+        var orderedPlayerDetails = PlayerDetails.OrderBy(p => p.Player.Contract?.Club.Name == null).ThenBy(p => p.Player.Contract?.Club.Name);
+        foreach (var playerDetail in orderedPlayerDetails)
         {
-            var team = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.Club.Name;
-            Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{team,-25}");
+            var club = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.Club.Name;
+            Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{club,-25}");
         }
     }
 }

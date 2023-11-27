@@ -23,8 +23,8 @@ public interface IState
         public DateOnly Date { get; set; }
         public string Weather { get; set; } = "";
         public List<Notification> Notifications { get; set; } = new List<Notification>();
-        public IEnumerable<Club.SerialisableClubModel> Teams { get; set; } = new List<Club.SerialisableClubModel>();
-        public Club.SerialisableClubModel MyTeam { get; set; } = new Club.SerialisableClubModel();
+        public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
+        public Club MyClub { get; set; } = new Club();
         public IEnumerable<Player.SerialisablePlayerModel> Players { get; set; } = new List<Player.SerialisablePlayerModel>();
         public IEnumerable<Event> Events { get; set; } = new List<Event>();
         public string ManagerName { get; set; } = "";
@@ -33,6 +33,6 @@ public interface IState
     public PreviewModel Preview { get; set; }
     public class PreviewModel
     {
-        public Club.SerialisableClubModel Club { get; set; } = new Club.SerialisableClubModel();
+        public Club Club { get; set; } = new Club();
     }
 }

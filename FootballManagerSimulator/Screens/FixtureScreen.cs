@@ -9,7 +9,9 @@ public class FixtureScreen : BaseScreen
     private readonly IState State;
     private readonly ITacticHelper TacticHelper;
 
-    public FixtureScreen(IState state, ITacticHelper tacticHelper) : base(state)
+    public FixtureScreen(
+        IState state, 
+        ITacticHelper tacticHelper) : base(state)
     {
         State = state;
         TacticHelper = tacticHelper;
@@ -26,7 +28,7 @@ public class FixtureScreen : BaseScreen
                 {
                     Type = ScreenType.PreMatch
                 });
-                HandleAITeamSelection();
+                HandleAIClubSelection();
                 break;
             case "B":
                 State.ScreenStack.Pop();
@@ -43,14 +45,13 @@ public class FixtureScreen : BaseScreen
         Console.WriteLine("B) Back");
     }
 
-    private void HandleAITeamSelection()
+    private void HandleAIClubSelection()
     {
-        var aiTeams = State.Clubs.Where(p => p != State.MyClub);
-
-        foreach(var aiTeam in aiTeams)
+        var aiClubs = State.Clubs.Where(p => p != State.MyClub);
+        foreach(var aiClub in aiClubs)
         {
-            TacticHelper.ResetTacticForTeam(aiTeam);
-            TacticHelper.PickTacticSlots(aiTeam); 
+            TacticHelper.ResetTacticForClub(aiClub);
+            TacticHelper.FillEmptyTacticSlotsByClub(aiClub); 
         }
     }
 
@@ -63,9 +64,9 @@ public class FixtureScreen : BaseScreen
             Console.WriteLine(group.Competition.Name);
             foreach (var fixture in group.Fixtures)
             {
-                var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
-                var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
-                Console.WriteLine($"{homeTeam,48} v {awayTeam,-48}{"3PM KO",21}");
+                var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
+                var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
+                Console.WriteLine($"{homeClub,48} v {awayClub,-48}{"3PM KO",21}");
             }
             Console.WriteLine("\n");
         }

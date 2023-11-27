@@ -20,19 +20,19 @@ public class Utils : IUtils
         return data;
     }
 
-    public Club? GetTeamByName(string name)
+    public Club? GetClubByName(string name)
     {
         return State.Clubs.Where(p => p.Name.ToLower() == name.ToLower()).FirstOrDefault();
     }
 
-    public Club GetTeam(int id)
+    public Club GetClub(int id)
     {
         return State.Clubs.Where(p => p.ID == id).First();
     }
 
-    public Player GetPlayer(int id)
+    public Player? GetPlayerById(int id)
     {
-        return State.Players.Where(p => p.ID == id).First();
+        return State.Players.Where(p => p.ID == id).FirstOrDefault();
     }
 
     public Player? GetPlayerByName(string name)
@@ -40,27 +40,32 @@ public class Utils : IUtils
         return State.Players.Where(p => p.Name == name).FirstOrDefault();
     }
 
-    public Player? GetPlayerByClubAndShirtNumber(Club club, int shirtNumber)
+    public void MapPlayersToAClub(List<Player.SerialisablePlayerModel> serialisablePlayers)
     {
-        return State.Clubs.Where(p => p == club).FirstOrDefault()?.Players.Where(p => p.ShirtNumber == shirtNumber).FirstOrDefault();
-    }
-
-    public void MapPlayersToATeam(List<Player.SerialisablePlayerModel> serialisablePlayers)
-    {
-        for (int i = 0; i < serialisablePlayers.Count; i++)
+        for (var i = 0; i < serialisablePlayers.Count; i++)
         {
-            if (serialisablePlayers[i].Name == "De Gea")
-            {
-
-            }
-
             Club? club = null;
             if (serialisablePlayers[i].Contract != null)
             {
-                club = GetTeamByName(serialisablePlayers[i].Contract!.ClubName);
+                club = GetClubByName(serialisablePlayers[i].Contract!.ClubName);
             }
             var player = Player.FromPlayerData(serialisablePlayers[i], i + 1, club);
             State.Players.Add(player);
         }
+    }
+
+    public int GetStartingElevenSumRatingForClub(Club club)
+    {
+        var startingEleven = club.TacticSlots
+            .Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
+
+        var sum = 0;
+        foreach(var slot in startingEleven)
+        {
+            if (slot.PlayerID == null) continue;
+            var playerRating = State.Players.First(p => p.ID == slot.PlayerID).Rating;
+            sum += playerRating;
+        }
+        return sum;
     }
 }

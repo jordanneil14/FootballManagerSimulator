@@ -6,5 +6,5 @@ namespace FootballManagerSimulator.Interfaces;
 public interface ITacticSlot
 {
     public TacticSlotType TacticSlotType { get; set; }
-    public Player? Player { get; set; }
+    public int? PlayerID { get; set; }
 }

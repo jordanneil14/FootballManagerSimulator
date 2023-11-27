@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
+using System.Numerics;
 
 namespace FootballManagerSimulator.Helpers;
 
@@ -13,140 +14,144 @@ public class TacticHelper : ITacticHelper
         State = state;
     }
 
-    public void ResetTacticForTeam(Club team)
+    public void ResetTacticForClub(Club club)
     {
-        team.TacticSlots = new List<TacticSlot>()
+        club.TacticSlots = new List<TacticSlot>()
         {
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.GK
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.RB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.LB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.LM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.RM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             }
         };
 
-        var players = State.Clubs.Where(p => p == team).First().Players;
 
-        foreach(var player in players)
+        var myPlayers = State.Players.Where(p => p.Contract != null && p.Contract.Club.ID == club.ID);
+
+        var reserveSlots = myPlayers.Select(p => new TacticSlot
         {
-            team.TacticSlots.Add(new TacticSlot
-            {
-                Player = player,
-                TacticSlotType = TacticSlotType.RES
-            });
-        }
+            PlayerID = p.ID,
+            TacticSlotType = TacticSlotType.RES
+        });
+
+        club.TacticSlots.AddRange(reserveSlots);
     }
 
-    public void PickTacticSlots(Club team)
+    public void FillEmptyTacticSlotsByClub(Club club)
     {
-        var players = State.Clubs.Where(p => p == team).First().Players;
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.Club.ID == club.ID);
 
         // Move players from the reserves into the starting 11
-        var playingTacticSlots = team.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
+        var playingTacticSlots = club.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
 
         foreach(var slot in playingTacticSlots)
         {
             var position = ResolvePosition(slot.TacticSlotType);
 
-
             var preferredPlayers = players.Where(p => p.Position.Split("/").Contains(position.ToString()));
-            var reserves = team.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.Player != null);
-            var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q == p.Player));
+            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerID != null);
+            var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q.ID == p.PlayerID));
 
-            slot.Player = availablePreferredPlayers?.OrderByDescending(p => p.Player.Rating).FirstOrDefault()?.Player;
-            team.TacticSlots.Where(p => p.Player == slot.Player).Skip(1).First().Player = null;
+
+            slot.PlayerID = availablePreferredPlayers?
+                .FirstOrDefault()?
+                .PlayerID;
+
+            club.TacticSlots.Where(p => p.PlayerID == slot.PlayerID).Skip(1).First().PlayerID = null;
         }
 
         // Move the remaining players from the reserves into the SUB positions
-        foreach(var slot in team.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.SUB))
+        foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.SUB))
         {
-            var reserves = team.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.Player != null);
-            slot.Player = reserves.OrderByDescending(p => p.Player.Rating).FirstOrDefault()?.Player;
-            team.TacticSlots.Where(p => p.Player == slot.Player).Skip(1).First().Player = null;
+            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerID != null);
+            slot.PlayerID = reserves
+                .FirstOrDefault()?.PlayerID;
+            club.TacticSlots.Where(p => p.PlayerID == slot.PlayerID).Skip(1).First().PlayerID = null;
         }
     }
 

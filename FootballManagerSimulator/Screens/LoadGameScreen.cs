@@ -14,7 +14,10 @@ public class LoadGameScreen : IBaseScreen
     private readonly IUtils Utils;
     private readonly IEnumerable<ICompetitionFactory> LeagueFactories;
 
-    public LoadGameScreen(IState state, IUtils utils, IEnumerable<ICompetitionFactory> leagueFactories)
+    public LoadGameScreen(
+        IState state, 
+        IUtils utils, 
+        IEnumerable<ICompetitionFactory> leagueFactories)
     {
         State = state;
         LeagueFactories = leagueFactories; 
@@ -57,7 +60,7 @@ public class LoadGameScreen : IBaseScreen
             var deserialisedState = JsonConvert.DeserializeObject<SerialisableStateModel>(fileContent);
 
             var playerItems = deserialisedState.Players;
-            Utils.MapPlayersToATeam(playerItems.ToList());
+            Utils.MapPlayersToAClub(playerItems.ToList());
             State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json");
             State.Date = deserialisedState.Date;
             State.Events = deserialisedState.Events;
@@ -72,7 +75,13 @@ public class LoadGameScreen : IBaseScreen
             State.Weather = deserialisedState.Weather;
             State.ManagerName = deserialisedState.ManagerName;
             State.Notifications = deserialisedState.Notifications;
-            State.MyClub = Utils.GetTeam(deserialisedState.MyTeam.ID);
+            State.MyClub = Utils.GetClub(deserialisedState.MyClub.ID);
+            State.Players = deserialisedState.Players.Select(p =>
+            {
+                var club = p.Contract == null ? null : Utils.GetClub(p.Contract.ClubID);
+                var player = Player.FromPlayerData(p, p.ID, club);
+                return player;  
+            }).ToList();
             State.ScreenStack.Clear();
             State.ScreenStack.Push(new Screen()
             {
@@ -123,7 +132,7 @@ public class LoadGameScreen : IBaseScreen
         }
 
         Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
-        for(int i = 0; i < Games.Count; i++)
+        for(var i = 0; i < Games.Count; i++)
         {
             Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i+1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
         }

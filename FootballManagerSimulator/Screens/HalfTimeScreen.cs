@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
@@ -7,11 +8,15 @@ public class HalfTimeScreen : BaseScreen
 {
     private readonly IState State;
     private readonly IMatchSimulator MatchSimulator;
+    private readonly IUtils Utils;
 
-    public HalfTimeScreen(IState state, IMatchSimulator matchSimulator) : base(state)
+    public HalfTimeScreen(IState state, 
+        IMatchSimulator matchSimulator,
+        IUtils utils) : base(state)
     {
         State = state;
         MatchSimulator = matchSimulator;
+        Utils = utils;
     }
 
     public override ScreenType Screen => ScreenType.HalfTime;
@@ -51,34 +56,35 @@ public class HalfTimeScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeTeam == State.MyClub || p.AwayTeam == State.MyClub).First();
-        var homeTeam = State.Clubs.Where(p => p == fixture.HomeTeam).First();
-        var awayTeam = State.Clubs.Where(p => p == fixture.AwayTeam).First();
+        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub).First();
+        var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
+        var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
 
-        Console.WriteLine($"{homeTeam,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayTeam,-53}\n{"** HALF TIME **",67}\n");
+        Console.WriteLine($"{homeClub,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub,-53}\n{"** HALF TIME **",67}\n");
 
-        var homeTeamPlayers = State.Clubs.Where(p => p == homeTeam).First().TacticSlots;
-        var awayTeamPlayers = State.Clubs.Where(p => p == awayTeam).First().TacticSlots;
+        var homeClubPlayers = State.Clubs.Where(p => p == homeClub).First().TacticSlots;
+        var awayClubPlayers = State.Clubs.Where(p => p == awayClub).First().TacticSlots;
 
-        for (int i = 0; i < 18; i++)
+        for (var i = 0; i < 18; i++)
         {
             if (i == 11)
-            {
-                Console.WriteLine(string.Format("{0, 58}{1,-58}", "------------", "   ------------"));
-            }
+                Console.WriteLine($"{"------------",58}{"   ------------",-58}");
 
-            var tacticSlotHome = homeTeamPlayers.ElementAt(i);
             var homePlayer = "EMPTY SLOT";
-            if (tacticSlotHome.Player != null)
+            var awayPlayer = "EMPTY SLOT";
+
+            var tacticSlotHome = homeClubPlayers.ElementAt(i);
+            if (tacticSlotHome.PlayerID != null)
             {
-                homePlayer = $"{tacticSlotHome.Player.Name,55}{tacticSlotHome.Player.ShirtNumber,3}";
+                var player = Utils.GetPlayerById(tacticSlotHome.PlayerID.Value)!;
+                homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
             }
 
-            var tacticSlotAway = awayTeamPlayers.ElementAt(i);
-            var awayPlayer = "EMPTY SLOT";
-            if (tacticSlotAway.Player != null)
+            var tacticSlotAway = awayClubPlayers.ElementAt(i);
+            if (tacticSlotAway.PlayerID != null)
             {
-                awayPlayer = $"{tacticSlotAway.Player.ShirtNumber,-3}{tacticSlotAway.Player.Name,-55}";
+                var player = Utils.GetPlayerById(tacticSlotAway.PlayerID.Value)!;
+                awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
             }
 
             Console.WriteLine($"{homePlayer}   {awayPlayer}");

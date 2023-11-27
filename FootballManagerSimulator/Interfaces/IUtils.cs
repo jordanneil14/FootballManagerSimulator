@@ -6,10 +6,10 @@ namespace FootballManagerSimulator.Interfaces;
 public interface IUtils
 {
     Player? GetPlayerByName(string name);
-    Player? GetPlayerByClubAndShirtNumber(Club club, int shirtNumber);
-    Club? GetTeamByName(string name);
-    Club GetTeam(int id);
-    Player GetPlayer(int id);
+    Club? GetClubByName(string name);
+    Club GetClub(int id);
+    Player? GetPlayerById(int id);
     T GetResource<T>(string filename);
-    void MapPlayersToATeam(List<Player.SerialisablePlayerModel> serialisablePlayers);
+    void MapPlayersToAClub(List<Player.SerialisablePlayerModel> serialisablePlayers);
+    int GetStartingElevenSumRatingForClub(Club club);
 }

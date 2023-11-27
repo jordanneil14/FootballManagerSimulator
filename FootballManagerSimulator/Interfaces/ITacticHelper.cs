@@ -4,6 +4,6 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface ITacticHelper
 {
-    void PickTacticSlots(Club team);
-    void ResetTacticForTeam(Club team);
+    void FillEmptyTacticSlotsByClub(Club club);
+    void ResetTacticForClub(Club club);
 }

@@ -9,20 +9,14 @@ public class Club
     public int TransferBudget { get; set; }
     public int CompetitionID { get; set; }
 
-    public string Stadium { get; set; }
+    public string Stadium { get; set; } = "";
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
 
     public string WageBudgetFriendly { get => $"£{RemainingWageBudget:n}"; }
 
-    private int RemainingWageBudget => WageBudget - Players.Sum(p => p.Contract!.WeeklyWage);
+    private int RemainingWageBudget => 0; // WageBudget - Players.Sum(p => p.Contract!.WeeklyWage);
 
     public int WageBudget { get; set; }
-
-    public int FirstTeamTotalRating { get => TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.Player != null)
-            .Sum(p => p.Player!.Rating); }
-
-    public List<Player> Players { get ; set; } = new List<Player>();
 
     public List<TacticSlot> TacticSlots { get; set; } = GenerateBlankTactic();
 
@@ -37,92 +31,92 @@ public class Club
         {
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.GK
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
+                TacticSlotType = TacticSlotType.RB
+            },
+            new TacticSlot
+            {
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.RCB
             },
             new TacticSlot
             {
-                Player = null,
-                TacticSlotType = TacticSlotType.RCB
+                PlayerID = null,
+                TacticSlotType = TacticSlotType.LCB
             },
             new TacticSlot
             {
-                Player = null,
-                TacticSlotType = TacticSlotType.RCB
+                PlayerID = null,
+                TacticSlotType = TacticSlotType.LB
             },
             new TacticSlot
             {
-                Player = null,
-                TacticSlotType = TacticSlotType.RCB
+                PlayerID = null,
+                TacticSlotType = TacticSlotType.RM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                Player = null,
-                TacticSlotType = TacticSlotType.CM
+                PlayerID = null,
+                TacticSlotType = TacticSlotType.LM
             },
             new TacticSlot
             {
-                Player = null,
-                TacticSlotType = TacticSlotType.CM
-            },
-            new TacticSlot
-            {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                Player = null,
+                PlayerID = null,
                 TacticSlotType = TacticSlotType.SUB
             }
         };
@@ -141,7 +135,7 @@ public class Club
 
     public void AddPlayer(Player player)
     {
-        Players.Add(player);
+        //Players.Add(player);
         player.Contract = new Contract
         {
             Club = this,
@@ -151,32 +145,9 @@ public class Club
         };
         TacticSlots.Add(new TacticSlot
         {
-            Player = player,
+            PlayerID = player.ID,
             TacticSlotType = TacticSlotType.RES
         });
-    }
-
-    public SerialisableClubModel SerialisableTeam()
-    {
-        return new SerialisableClubModel
-        {
-            ID = ID,
-            Name = Name,
-            TransferBudget = TransferBudget,
-            WageBudget = WageBudget,
-            Players = Players.Select(p => p.SerialisablePlayer()),
-            TacticSlots = TacticSlots.Select(p => p.SerialisableTacticSlot())
-        };
-    }
-
-    public class SerialisableClubModel
-    {
-        public int ID { get; set; }
-        public string Name { get; set; } = "";
-        public int WageBudget { get; set; }
-        public int TransferBudget { get; set; }
-        public IEnumerable<Player.SerialisablePlayerModel> Players { get; set; } = new List<Player.SerialisablePlayerModel>();
-        public IEnumerable<TacticSlot.SerialisableTacticSlotModel> TacticSlots { get; set; } = new List<TacticSlot.SerialisableTacticSlotModel>();
     }
 }
 

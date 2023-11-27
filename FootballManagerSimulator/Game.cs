@@ -29,12 +29,11 @@ public class Game : IGame
             var peek = State.ScreenStack.Peek();
             var screen = Screens.First(s => s.Screen == peek.Type);
             Console.Clear();
+            Console.WriteLine("\x1b[3J");
+            Console.Clear();
             screen.RenderScreen();
             var input = Console.ReadLine();
-            if (input != null)
-            {
-                screen.HandleInput(input.ToUpper());
-            }
+            screen.HandleInput(input.ToUpper());
         }
     }
 }

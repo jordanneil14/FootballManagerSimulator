@@ -7,11 +7,15 @@ public class TacticsScreen : BaseScreen
 {
     private readonly IState State;
     private readonly ITacticHelper TacticHelper;
+    private readonly IUtils Utils;
 
-    public TacticsScreen(IState state, ITacticHelper tacticHelper) : base(state)
+    public TacticsScreen(IState state, 
+        ITacticHelper tacticHelper,
+        IUtils utils) : base(state)
     {
         State = state;
         TacticHelper = tacticHelper;
+        Utils = utils;
     }
 
     public override ScreenType Screen => ScreenType.Tactics;
@@ -22,14 +26,14 @@ public class TacticsScreen : BaseScreen
 
         if (parts.Length > 1)
         {
-            var fromPlayerID = int.Parse(parts[0]) - 1;
-            var toPlayerID = int.Parse(parts[1]) - 1;
+            var fromPlayerIndex = int.Parse(parts[0]) - 1;
+            var toPlayerIndex = int.Parse(parts[1]) - 1;
 
-            var fromPlayer = State.MyClub.TacticSlots.ElementAt(fromPlayerID).Player;
-            var toPlayer = State.MyClub.TacticSlots.ElementAt(toPlayerID).Player;
+            var fromPlayerId = State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerID;
+            var toPlayerId = State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerID;
 
-            State.MyClub.TacticSlots.ElementAt(toPlayerID).Player = fromPlayer;
-            State.MyClub.TacticSlots.ElementAt(fromPlayerID).Player = toPlayer;
+            State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerID = fromPlayerId;
+            State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerID = toPlayerId;
             return;
         }
 
@@ -39,8 +43,8 @@ public class TacticsScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             case "C":
-                TacticHelper.ResetTacticForTeam(State.MyClub);
-                TacticHelper.PickTacticSlots(State.MyClub);
+                TacticHelper.ResetTacticForClub(State.MyClub);
+                TacticHelper.FillEmptyTacticSlotsByClub(State.MyClub);
                 break;
             default:
                 break;
@@ -57,18 +61,17 @@ public class TacticsScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        Console.WriteLine(string.Format("{0,-10}{1,-10}{2,-10}{3,-40}{4,-10}", "Number", "Slot", "Position", "Name", "Rating"));
-        for(int i = 0; i < State.MyClub.TacticSlots.Count; i++)
+        Console.WriteLine($"{"Number",-10}{"Slot",-10}{"Position",-10}{"Name",-40}{"Rating",-10}");
+        for(var i = 0; i < State.MyClub.TacticSlots.Count; i++)
         {
-            var element = State.MyClub.TacticSlots.ElementAt(i);
-            if (element?.Player != null)
+            var tacticSlot = State.MyClub.TacticSlots.ElementAt(i);
+            if (tacticSlot.PlayerID == null)
             {
-                Console.WriteLine($"{i + 1,-10}{element.TacticSlotType,-10}{element.Player.Position,-10}{element.Player.Name,-40}{element.Player.Rating,-10}");
+                Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");
+                continue;
             }
-            else
-            {
-                Console.WriteLine($"{i + 1,-10}{element.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");
-            }
-        }   
+            var player = State.Players.First(p => p.ID == tacticSlot.PlayerID);
+            Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{player.Position,-10}{player.Name,-40}{player.Rating,-10}");
+        }
     }
 }

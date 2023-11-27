@@ -58,7 +58,6 @@ public class Player : IPerson
     public int GKReflexes { get; set; }
     // Only players which are signed to a team will have a contract
     public Contract? Contract { get; set; }
-    public Club? Club { get; set; }
 
     public SerialisablePlayerModel SerialisablePlayer()
     {
@@ -182,11 +181,6 @@ public class Player : IPerson
         };
         club?.AddPlayer(player);
         return player;
-    }
-
-    public void AddToTeam(Club team)
-    {
-        team.AddPlayer(this);
     }
 
     public class SerialisablePlayerModel
