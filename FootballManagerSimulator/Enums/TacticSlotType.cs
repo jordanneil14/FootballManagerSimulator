@@ -8,15 +8,12 @@ public enum TacticSlotType
     RW,
     LW,
     ST,
-    RCB,
     RB,
     LB,
     RM,
     LM,
     CM,
     CB,
-    LCB,
-
     SUB,
     RES
 }

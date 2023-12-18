@@ -22,6 +22,7 @@ public enum ScreenType
     Fixtures,
     Tactics,
     Welcome,
+    SelectLeague,
     LoadGame,
     CreateManager,
     SelectClub,

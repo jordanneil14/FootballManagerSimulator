@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
-using System.Numerics;
 
 namespace FootballManagerSimulator.Helpers;
 
@@ -136,7 +135,6 @@ public class TacticHelper : ITacticHelper
             var preferredPlayers = players.Where(p => p.Position.Split("/").Contains(position.ToString()));
             var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerID != null);
             var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q.ID == p.PlayerID));
-
 
             slot.PlayerID = availablePreferredPlayers?
                 .FirstOrDefault()?

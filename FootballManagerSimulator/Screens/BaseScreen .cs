@@ -64,8 +64,8 @@ public abstract class BaseScreen : IBaseScreen
         {
             return $"Last Match: Today {nextFixture.HomeClub} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub}";
         }
-        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst}";
-        return $"Next Match: {(nextFixture.Date.DayNumber - State.Date.DayNumber)} days Vs {clubAgainst}";
+        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
+        return $"Next Match: {nextFixture.Date.DayNumber - State.Date.DayNumber} days Vs {clubAgainst.Name}";
 
     }
 }

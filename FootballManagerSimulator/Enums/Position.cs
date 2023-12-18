@@ -15,6 +15,5 @@ public enum Position
     LM,
     CM,
     CB,
-    LCB,
-
+    LCB
 }

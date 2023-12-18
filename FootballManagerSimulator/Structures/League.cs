@@ -8,7 +8,7 @@ public class League : ICompetition
     public int ID { get; set; }
     public string Name { get; set; } = "";
     public string CompetitionType { get; set; } = "";
-    public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
+    public IEnumerable<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
     public JObject SerialisableCompetition()
     {

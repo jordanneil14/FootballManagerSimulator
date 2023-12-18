@@ -8,22 +8,12 @@ public class Club
     public string Name { get; set; } = "";
     public int TransferBudget { get; set; }
     public int CompetitionID { get; set; }
-
     public string Stadium { get; set; } = "";
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
-
     public string WageBudgetFriendly { get => $"£{RemainingWageBudget:n}"; }
-
     private int RemainingWageBudget => 0; // WageBudget - Players.Sum(p => p.Contract!.WeeklyWage);
-
     public int WageBudget { get; set; }
-
     public List<TacticSlot> TacticSlots { get; set; } = GenerateBlankTactic();
-
-    public override string ToString()
-    {
-        return Name;
-    }
 
     private static List<TacticSlot> GenerateBlankTactic()
     {
@@ -42,12 +32,12 @@ public class Club
             new TacticSlot
             {
                 PlayerID = null,
-                TacticSlotType = TacticSlotType.RCB
+                TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
                 PlayerID = null,
-                TacticSlotType = TacticSlotType.LCB
+                TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
