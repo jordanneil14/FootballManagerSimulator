@@ -6,10 +6,14 @@ namespace FootballManagerSimulator.Screens;
 public class MainScreen : BaseScreen
 {
     private readonly IState State;
+    private readonly IProcessHelper Processor;
 
-    public MainScreen(IState state) : base(state)
+    public MainScreen(
+        IState state,
+        IProcessHelper processor) : base(state)
     {
         State = state;
+        Processor = processor;
     }
 
     public override ScreenType Screen => ScreenType.Main;
@@ -19,7 +23,7 @@ public class MainScreen : BaseScreen
         switch (input.ToUpper())
         {
             case "A":
-                Process();
+                Processor.Process();
                 break;
             case "B":
                 State.Notifications.RemoveRange(0, 1);
@@ -31,8 +35,8 @@ public class MainScreen : BaseScreen
                 });
                 break;
             case "D":
-                var myLeague = State.Competitions.FirstOrDefault(p => p.ID == State.MyClub.CompetitionID);
-                State.ScreenStack.Push(FixturesScreen.CreateScreen(myLeague));
+                var league = State.Leagues.First(p => p.Id == State.MyClub.LeagueId);
+                State.ScreenStack.Push(FixturesScreen.CreateScreen(league));
                 break;
             case "E":
                 State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyClub));
@@ -69,26 +73,11 @@ public class MainScreen : BaseScreen
         }
     }
 
-    private void Process()
-    {
-        State.UserFeedbackUpdates.Clear();
-
-        if (State.TodaysFixtures.SelectMany(p => p.Fixtures).Any(p => !p.Concluded))
-        {
-            State.ScreenStack.Push(new Structures.Screen
-            {
-                Type = ScreenType.Fixture
-            });
-            return;
-        }
-
-        State.Date = State.Date.AddDays(1);
-    }
-
     public override void RenderSubscreen()
     {
         Console.WriteLine("Notifications");
-        Console.WriteLine($"You have {State.Notifications.Where(p => p.Date <= State.Date).Count()} unread notifications\n");
+        var unreadMessagesCount = State.Notifications.Where(p => p.Date <= State.Date).Count();
+        Console.WriteLine($"You have {unreadMessagesCount} unread notifications\n");
         if (State.Notifications.Where(p => p.Date <= State.Date).Any())
         {
             Console.WriteLine(State.Notifications.Where(p => p.Date <= State.Date).First());

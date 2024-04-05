@@ -1,16 +1,19 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
 public class FinancesScreen : BaseScreen
 {
     private readonly IState State;
+    private readonly INotificationFactory NotificationFactory;
 
-    public FinancesScreen(IState state) : base(state)
+    public FinancesScreen(
+        IState state,
+        INotificationFactory notificationFactory) : base(state)
     {
         State = state;
+        NotificationFactory = notificationFactory;
     }
 
     public override ScreenType Screen => ScreenType.Finances;
@@ -23,15 +26,12 @@ public class FinancesScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             case "C":
-                State.UserFeedbackUpdates.Add("Request has been submitted");
-                State.Notifications.Add(new Notification()
-                {
-                    Date = State.Date.AddDays(2),
-                    Recipient = "Chairman",
-                    Subject = "Extended Transfer Budget Request",
-                    Message = $"Your request for the transfer budget to be extended from {State.MyClub.TransferBudgetFriendly} " + 
-                        "has been rejected. We feel that the current allowance is enough for you to achieve your goals this season"
-                });
+                State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
+                NotificationFactory.AddNotification(
+                    State.Date.AddDays(2),
+                    "Chairman",
+                    "Extended Transfer Budget Request",
+                    $"Your request for the transfer budget to be extended from {State.MyClub.TransferBudgetFriendly} has been rejected. We feel that the current allowance is enough for you to achieve your goals this season");
                 break;
             default:
                 break;

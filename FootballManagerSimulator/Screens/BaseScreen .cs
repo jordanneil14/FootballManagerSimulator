@@ -53,19 +53,18 @@ public abstract class BaseScreen : IBaseScreen
 
     private string GetNextMatchCaption()
     {
-        var nextFixture = State.Competitions.SelectMany(p => p.Fixtures)
-            .Where(p => p.Date >= State.Date && (p.HomeClub == State.MyClub || p.AwayClub == State.MyClub))
+        var nextFixture = State.Leagues.SelectMany(p => p.Fixtures)
+            .Where(p => p.Date >= State.Date && (p.HomeClub.Id == State.MyClub.Id || p.AwayClub.Id == State.MyClub.Id))
             .OrderBy(p => p.WeekNumber)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
-        var clubAgainst = nextFixture.HomeClub == State.MyClub ? nextFixture.AwayClub : nextFixture.HomeClub;
+        var clubAgainst = nextFixture.HomeClub.Id == State.MyClub.Id ? nextFixture.AwayClub : nextFixture.HomeClub;
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
         {
             return $"Last Match: Today {nextFixture.HomeClub} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub}";
         }
         if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
         return $"Next Match: {nextFixture.Date.DayNumber - State.Date.DayNumber} days Vs {clubAgainst.Name}";
-
     }
 }

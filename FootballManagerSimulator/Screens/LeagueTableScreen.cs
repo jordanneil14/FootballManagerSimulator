@@ -7,14 +7,14 @@ namespace FootballManagerSimulator.Screens;
 public class LeagueTableScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly IUtils Utils;
+    private readonly IClubHelper ClubHelper;
 
     public LeagueTableScreen(
         IState state, 
-        IUtils utils) : base(state)
+        IClubHelper clubHelper) : base(state)
     {
         State = state;
-        Utils = utils;
+        ClubHelper = clubHelper;
     }
 
     public override ScreenType Screen => ScreenType.LeagueTable;
@@ -27,7 +27,7 @@ public class LeagueTableScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             default:
-                var club = Utils.GetClubByName(input);
+                var club = ClubHelper.GetClubByName(input);
                 if (club != null)
                 {
                     State.ScreenStack.Push(ClubScreen.CreateScreen(club));
@@ -38,15 +38,15 @@ public class LeagueTableScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var league = State.Competitions.First(p => p.ID == State.MyClub.CompetitionID) as League;
+        var league = State.Leagues.First(p => p.Id == State.MyClub.LeagueId) as League;
         var leagueTable = league.GenerateLeagueTable(); 
 
         Console.WriteLine($"League Table\n");
-        Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}", "Pos", "Team", "Points", "Gls Scored", "Gls Con", "Goal Diff"));
+        Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{3,-9}{4,-9}{5,-9}", "Pos", "Team", "Points", "For", "Against", "GD"));
         for (var i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);
-            Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-8}{3,-12}{4,-12}{5,-12}", 
+            Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{3,-9}{4,-9}{5,-9}", 
                 i+1, leagueTablePosition.ClubName, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
         }
     }

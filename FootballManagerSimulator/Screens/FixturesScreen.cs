@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 
@@ -28,21 +27,21 @@ public class FixturesScreen : BaseScreen
         }
     }
 
-    public static Screen CreateScreen(ICompetition competition)
+    public static Screen CreateScreen(ILeague competition)
     {
         return new Screen
         {
             Type = ScreenType.Fixtures,
             Parameters = new FixturesScreenObj
             {
-                Competition = competition 
+                League = competition 
             }
         };
     }
 
     public class FixturesScreenObj
     {
-        public ICompetition Competition { get; set; }
+        public ILeague League { get; set; }
     }
 
     public override void RenderOptions()
@@ -57,14 +56,14 @@ public class FixturesScreen : BaseScreen
 
         var parameters = State.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
-        var rounds = State.Competitions
-            .Where(p => p.ID == parameters.Competition.ID)
+        var rounds = State.Leagues
+            .Where(p => p.Id == parameters.League.Id)
             .SelectMany(p => p.Fixtures)
             .GroupBy(x => x.WeekNumber);
 
         foreach (var round in rounds)
         {
-            Console.WriteLine($"\nRound {round.Key}");
+            Console.WriteLine($"\nRound {round.Key} - {round.First().Date}");
             foreach(var fixture in round)
             {
                 if (fixture.Concluded)

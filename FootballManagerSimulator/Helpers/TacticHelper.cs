@@ -8,7 +8,8 @@ public class TacticHelper : ITacticHelper
 {
     private readonly IState State;
 
-    public TacticHelper(IState state)
+    public TacticHelper(
+        IState state)
     {
         State = state;
     }
@@ -19,102 +20,101 @@ public class TacticHelper : ITacticHelper
         {
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.GK
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.RB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.CB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.LB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.LM
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.CM
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.RM
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.ST
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             },
             new TacticSlot
             {
-                PlayerID = null,
+                PlayerId = null,
                 TacticSlotType = TacticSlotType.SUB
             }
         };
 
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id);
 
-        var myPlayers = State.Players.Where(p => p.Contract != null && p.Contract.Club.ID == club.ID);
-
-        var reserveSlots = myPlayers.Select(p => new TacticSlot
+        var reserveSlots = players.Select(p => new TacticSlot
         {
-            PlayerID = p.ID,
+            PlayerId = p.Id,
             TacticSlotType = TacticSlotType.RES
         });
 
@@ -123,7 +123,7 @@ public class TacticHelper : ITacticHelper
 
     public void FillEmptyTacticSlotsByClub(Club club)
     {
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.Club.ID == club.ID);
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id);
 
         // Move players from the reserves into the starting 11
         var playingTacticSlots = club.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
@@ -132,24 +132,31 @@ public class TacticHelper : ITacticHelper
         {
             var position = ResolvePosition(slot.TacticSlotType);
 
-            var preferredPlayers = players.Where(p => p.Position.Split("/").Contains(position.ToString()));
-            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerID != null);
-            var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q.ID == p.PlayerID));
+            var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString()));
+            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+            var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q.Id == p.PlayerId));
 
-            slot.PlayerID = availablePreferredPlayers?
+            slot.PlayerId = availablePreferredPlayers?
                 .FirstOrDefault()?
-                .PlayerID;
+                .PlayerId;
 
-            club.TacticSlots.Where(p => p.PlayerID == slot.PlayerID).Skip(1).First().PlayerID = null;
+            club.TacticSlots
+                .Where(p => p.PlayerId == slot.PlayerId)
+                .Skip(1)
+                .First().PlayerId = null;
         }
 
         // Move the remaining players from the reserves into the SUB positions
         foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.SUB))
         {
-            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerID != null);
-            slot.PlayerID = reserves
-                .FirstOrDefault()?.PlayerID;
-            club.TacticSlots.Where(p => p.PlayerID == slot.PlayerID).Skip(1).First().PlayerID = null;
+            var reserves = club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+            slot.PlayerId = reserves
+                .FirstOrDefault()?.PlayerId;
+
+            club.TacticSlots
+                .Where(p => p.PlayerId == slot.PlayerId)
+                .Skip(1)
+                .First().PlayerId = null;
         }
     }
 

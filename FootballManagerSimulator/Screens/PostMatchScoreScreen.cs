@@ -41,11 +41,18 @@ public class PostMatchScoreScreen : BaseScreen
         var groupedFixtures = State.TodaysFixtures;
         foreach (var group in groupedFixtures)
         {
-            Console.WriteLine(group.Competition.Name);
+            var leagueName = State.Leagues.First(p => p.Id == group.LeagueId).Name;
+            Console.WriteLine(leagueName);
             foreach (var fixture in group.Fixtures)
             {
-                var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
-                var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
+                var homeClub = State.Clubs
+                    .Where(p => p == fixture.HomeClub)
+                    .First();
+
+                var awayClub = State.Clubs
+                    .Where(p => p == fixture.AwayClub
+                    ).First();
+
                 Console.WriteLine($"{homeClub,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub,-35}{(fixture.Concluded ? "(Latest)" : ""),-5}{"3PM KO",21}");
             }
             Console.WriteLine("\n");

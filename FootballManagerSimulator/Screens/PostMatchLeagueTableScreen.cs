@@ -38,7 +38,7 @@ public class PostMatchLeagueTableScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var league = State.Competitions.First(p => p.ID == State.MyClub.CompetitionID) as League;
+        var league = State.Leagues.First(p => p.Id == State.MyClub.LeagueId) as League;
         var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"League Table\n");

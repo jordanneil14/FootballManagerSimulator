@@ -11,38 +11,32 @@ public class State : IState
     public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
     public Club MyClub { get; set; } = new Club();
     public List<Player> Players { get; set; } = new List<Player>();
-    public IEnumerable<Event> Events { get; set; } = new List<Event>();
     public List<string> UserFeedbackUpdates { get; set; } = new List<string>();
     public string ManagerName { get; set; } = "";
 
-    public IEnumerable<CompetitionFixtureModel> TodaysFixtures { get => GetTodaysFixtures(); }
+    public List<CompetitionFixture> TodaysFixtures { get => GetTodaysFixtures(); }
 
-    private IEnumerable<CompetitionFixtureModel> GetTodaysFixtures()
+    private List<CompetitionFixture> GetTodaysFixtures()
     {
-        var fixtureModel = new List<CompetitionFixtureModel>();
-        foreach(var competition in Competitions)
+        var fixtureModel = new List<CompetitionFixture>();
+        foreach(var league in Leagues)
         {
-            fixtureModel.Add(new CompetitionFixtureModel()
+            var todaysFixturesForLeague = league.Fixtures.Where(p => p.Date == Date).ToList();
+            if (todaysFixturesForLeague.Any())
             {
-                Competition = competition,
-                Fixtures = competition.Fixtures.Where(p => p.Date == Date)
-            });
+                fixtureModel.Add(new CompetitionFixture()
+                {
+                    LeagueId = league.Id,
+                    Fixtures = league.Fixtures.Where(p => p.Date == Date)
+                });
+            }
         }
         return fixtureModel;
     }
 
-    // The state has a few self referencing loops which prevents it from being serialised
-    // A serialisable version is required to allow saving to a text file
-    // If someone knows of a better solution that this please let me know :)
-    public SerialisableStateModel SerialisableState { get; set; } = new SerialisableStateModel();
-    public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
+    public List<League> Leagues { get; set; } = new List<League>();
     public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
 
     public PreviewModel Preview { get; set; } = new PreviewModel();
 }
 
-public class CompetitionFixtureModel
-{
-    public ICompetition Competition { get; set; }
-    public IEnumerable<Fixture> Fixtures { get; set; }
-}

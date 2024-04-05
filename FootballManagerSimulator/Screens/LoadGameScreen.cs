@@ -1,8 +1,9 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using static FootballManagerSimulator.Interfaces.IState;
 
 namespace FootballManagerSimulator.Screens;
@@ -10,18 +11,12 @@ namespace FootballManagerSimulator.Screens;
 public class LoadGameScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly List<LoadGamePreview> Games = new();
-    private readonly IUtils Utils;
-    private readonly IEnumerable<ICompetitionFactory> LeagueFactories;
+    private readonly List<LoadGamePreview> Games = new List<LoadGamePreview>();
 
     public LoadGameScreen(
-        IState state, 
-        IUtils utils, 
-        IEnumerable<ICompetitionFactory> leagueFactories)
+        IState state)
     {
         State = state;
-        LeagueFactories = leagueFactories; 
-        Utils = utils;
     }
 
     public ScreenType Screen => ScreenType.LoadGame;
@@ -43,6 +38,11 @@ public class LoadGameScreen : IBaseScreen
                     var game = Games.ElementAt(int.Parse(input) - 1);
                     if (game == null) return;
                     TryLoadGame(game.FileName);
+                    State.ScreenStack.Clear();
+                    State.ScreenStack.Push(new Screen()
+                    {
+                        Type = ScreenType.Main
+                    });
                 }
                 break;
         }
@@ -51,46 +51,28 @@ public class LoadGameScreen : IBaseScreen
     private void TryLoadGame(string fileName)
     {
         var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var fileContent = "";
 
         try
         {
-            fileContent = File.ReadAllText(path + $"\\{fileName}");
+            var fileContent = File.ReadAllText(path + $"\\{fileName}");
+            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent);
+            if (deserialisedState == null)
+                throw new Exception("Unable to load game");
 
-            var deserialisedState = JsonConvert.DeserializeObject<SerialisableStateModel>(fileContent);
-
-            var playerItems = deserialisedState.Players;
-            Utils.MapPlayersToAClub(playerItems.ToList());
-            State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json");
-            State.Date = deserialisedState.Date;
-            State.Events = deserialisedState.Events;
-
-            foreach (var competition in deserialisedState.Competitions)
-            {
-                var serialisableCompetitionModel = competition.ToObject<SerialisableCompetitionModel>();
-                var comp = LeagueFactories.First(p => serialisableCompetitionModel.CompetitionType == p.CompetitionType);
-                var deserialisedCompetition = comp.Deserialise(competition);
-                State.Competitions.Add(deserialisedCompetition);
-            }
             State.Weather = deserialisedState.Weather;
-            State.ManagerName = deserialisedState.ManagerName;
+            State.ScreenStack = deserialisedState.ScreenStack;
             State.Notifications = deserialisedState.Notifications;
-            State.MyClub = Utils.GetClub(deserialisedState.MyClub.ID);
-            State.Players = deserialisedState.Players.Select(p =>
-            {
-                var club = p.Contract == null ? null : Utils.GetClub(p.Contract.ClubID);
-                var player = Player.FromPlayerData(p, p.ID, club);
-                return player;  
-            }).ToList();
-            State.ScreenStack.Clear();
-            State.ScreenStack.Push(new Screen()
-            {
-                Type = ScreenType.Main
-            });
+            State.ManagerName = deserialisedState.ManagerName;
+            State.Clubs = deserialisedState.Clubs;
+            State.Date = deserialisedState.Date;
+            State.MyClub = deserialisedState.MyClub;
+            State.Players = deserialisedState.Players;
+            State.Leagues = deserialisedState.Leagues;
+            State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            State.UserFeedbackUpdates.Add("Unable to load game");
+            State.UserFeedbackUpdates.Add(ex.Message);
         }
     }
 

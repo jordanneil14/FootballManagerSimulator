@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
@@ -8,15 +7,15 @@ public class HalfTimeScreen : BaseScreen
 {
     private readonly IState State;
     private readonly IMatchSimulator MatchSimulator;
-    private readonly IUtils Utils;
+    private readonly IPlayerHelper PlayerHelper;
 
     public HalfTimeScreen(IState state, 
         IMatchSimulator matchSimulator,
-        IUtils utils) : base(state)
+        IPlayerHelper playerHelper) : base(state)
     {
         State = state;
         MatchSimulator = matchSimulator;
-        Utils = utils;
+        PlayerHelper = playerHelper;
     }
 
     public override ScreenType Screen => ScreenType.HalfTime;
@@ -28,8 +27,7 @@ public class HalfTimeScreen : BaseScreen
             case "A":
                 foreach (var fixture in State.TodaysFixtures.SelectMany(p => p.Fixtures))
                 {
-                    MatchSimulator.SimulateSecondHalf(fixture);
-                    fixture.Concluded = true;
+                    MatchSimulator.ProcessMatch(fixture);
                 }
                 State.ScreenStack.Push(new Structures.Screen
                 {
@@ -56,14 +54,24 @@ public class HalfTimeScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub).First();
-        var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
-        var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
+        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub).ToList().First();
+        var homeClub = State.Clubs
+            .Where(p => p == fixture.HomeClub)
+            .First();
 
-        Console.WriteLine($"{homeClub,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub,-53}\n{"** HALF TIME **",67}\n");
+        var awayClub = State.Clubs
+            .Where(p => p == fixture.AwayClub)
+            .First();
 
-        var homeClubPlayers = State.Clubs.Where(p => p == homeClub).First().TacticSlots;
-        var awayClubPlayers = State.Clubs.Where(p => p == awayClub).First().TacticSlots;
+        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{"** HALF TIME **",67}\n");
+
+        var homeClubPlayers = State.Clubs
+            .Where(p => p == homeClub)
+            .First().TacticSlots;
+
+        var awayClubPlayers = State.Clubs
+            .Where(p => p == awayClub)
+            .First().TacticSlots;
 
         for (var i = 0; i < 18; i++)
         {
@@ -74,16 +82,16 @@ public class HalfTimeScreen : BaseScreen
             var awayPlayer = "EMPTY SLOT";
 
             var tacticSlotHome = homeClubPlayers.ElementAt(i);
-            if (tacticSlotHome.PlayerID != null)
+            if (tacticSlotHome.PlayerId != null)
             {
-                var player = Utils.GetPlayerById(tacticSlotHome.PlayerID.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
                 homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
             }
 
             var tacticSlotAway = awayClubPlayers.ElementAt(i);
-            if (tacticSlotAway.PlayerID != null)
+            if (tacticSlotAway.PlayerId != null)
             {
-                var player = Utils.GetPlayerById(tacticSlotAway.PlayerID.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
                 awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
             }
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Factories;
+using Microsoft.Extensions.Configuration;
 
 namespace FootballManagerSimulator;
 
@@ -15,10 +16,15 @@ public class Program
         var builder = Host.CreateApplicationBuilder(args);
 
         builder.Services.AddSingleton<IGame, Game>();
-        builder.Services.AddSingleton<IUtils, Utils>();
+        builder.Services.AddSingleton<IClubHelper, ClubHelper>();
+        builder.Services.AddSingleton<IPlayerHelper, PlayerHelper>();
         builder.Services.AddSingleton<IState, State>();
         builder.Services.AddSingleton<ITacticHelper, TacticHelper>();
-        builder.Services.AddSingleton<IMatchSimulator, MatchSimulator>();
+        builder.Services.AddSingleton<IMatchSimulator, MatchSimulatorHelper>();
+        builder.Services.AddSingleton<IGameCreator, GameCreator>();
+        builder.Services.AddSingleton<INotificationFactory, NotificationFactory>();
+        builder.Services.AddSingleton<IProcessHelper, ProcessHelper>();
+        builder.Services.AddSingleton<IGameFactory, GameFactory>();
 
         builder.Services.AddSingleton<IBaseScreen, FixturesScreen>();
         builder.Services.AddSingleton<IBaseScreen, ScoutScreen>();
@@ -40,8 +46,17 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, PostMatchScoreScreen>();
         builder.Services.AddSingleton<IBaseScreen, PlayerScreen>();
         builder.Services.AddSingleton<IBaseScreen, FinancesScreen>();
+        builder.Services.AddSingleton<IBaseScreen, SelectLeagueScreen>();
 
-        builder.Services.AddSingleton<ICompetitionFactory, LeagueFactory>();
+        var directory = Directory.GetCurrentDirectory() + "\\Resources";
+
+        var settingsConfig = new ConfigurationBuilder()
+            .SetBasePath(directory)
+            .AddJsonFile("settings.json")
+            .Build();
+        builder.Services.AddOptions<Settings>().Bind(settingsConfig);
+
+        builder.Services.AddSingleton<ILeagueFactory, LeagueFactory>();
 
         var host = builder.Build();
         var game = host.Services.GetService<IGame>();

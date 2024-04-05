@@ -7,15 +7,12 @@ public class TacticsScreen : BaseScreen
 {
     private readonly IState State;
     private readonly ITacticHelper TacticHelper;
-    private readonly IUtils Utils;
 
     public TacticsScreen(IState state, 
-        ITacticHelper tacticHelper,
-        IUtils utils) : base(state)
+        ITacticHelper tacticHelper) : base(state)
     {
         State = state;
         TacticHelper = tacticHelper;
-        Utils = utils;
     }
 
     public override ScreenType Screen => ScreenType.Tactics;
@@ -29,11 +26,11 @@ public class TacticsScreen : BaseScreen
             var fromPlayerIndex = int.Parse(parts[0]) - 1;
             var toPlayerIndex = int.Parse(parts[1]) - 1;
 
-            var fromPlayerId = State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerID;
-            var toPlayerId = State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerID;
+            var fromPlayerId = State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerId;
+            var toPlayerId = State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerId;
 
-            State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerID = fromPlayerId;
-            State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerID = toPlayerId;
+            State.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerId = fromPlayerId;
+            State.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerId = toPlayerId;
             return;
         }
 
@@ -65,13 +62,13 @@ public class TacticsScreen : BaseScreen
         for(var i = 0; i < State.MyClub.TacticSlots.Count; i++)
         {
             var tacticSlot = State.MyClub.TacticSlots.ElementAt(i);
-            if (tacticSlot.PlayerID == null)
+            if (tacticSlot.PlayerId == null)
             {
                 Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");
                 continue;
             }
-            var player = State.Players.First(p => p.ID == tacticSlot.PlayerID);
-            Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{player.Position,-10}{player.Name,-40}{player.Rating,-10}");
+            var player = State.Players.First(p => p.Id == tacticSlot.PlayerId);
+            Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}");
         }
     }
 }

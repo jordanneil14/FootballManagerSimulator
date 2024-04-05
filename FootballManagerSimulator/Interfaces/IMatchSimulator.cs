@@ -4,7 +4,6 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface IMatchSimulator
 {
-    void SimulateFirstHalf(Fixture fixture);
-
-    void SimulateSecondHalf(Fixture fixture);
+    void ProcessMatch(Fixture fixture);
+    void PrepareMatch(Fixture fixture);
 }

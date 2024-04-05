@@ -19,21 +19,29 @@ public class Game : IGame
 
     public void Run()
     {
-        State.ScreenStack.Push(new Screen
+        try
         {
-            Type = ScreenType.Welcome
-        });
+            State.ScreenStack.Push(new Screen
+            {
+                Type = ScreenType.Welcome
+            });
 
-        while (true)
+            while (true)
+            {
+                var peek = State.ScreenStack.Peek();
+                var screen = Screens.First(s => s.Screen == peek.Type);
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
+                Console.Clear();
+                screen.RenderScreen();
+                State.UserFeedbackUpdates.Clear();
+                var input = Console.ReadLine();
+                screen.HandleInput(input.ToUpper());
+            }
+        }
+        catch(Exception)
         {
-            var peek = State.ScreenStack.Peek();
-            var screen = Screens.First(s => s.Screen == peek.Type);
-            Console.Clear();
-            Console.WriteLine("\x1b[3J");
-            Console.Clear();
-            screen.RenderScreen();
-            var input = Console.ReadLine();
-            screen.HandleInput(input.ToUpper());
+            //Environment.Exit(0);
         }
     }
 }

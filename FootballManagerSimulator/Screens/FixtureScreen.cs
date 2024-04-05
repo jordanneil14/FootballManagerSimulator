@@ -8,13 +8,16 @@ public class FixtureScreen : BaseScreen
 {
     private readonly IState State;
     private readonly ITacticHelper TacticHelper;
+    private readonly IMatchSimulator MatchSimulator;
 
     public FixtureScreen(
         IState state, 
-        ITacticHelper tacticHelper) : base(state)
+        ITacticHelper tacticHelper,
+        IMatchSimulator matchSimulator) : base(state)
     {
         State = state;
         TacticHelper = tacticHelper;
+        MatchSimulator = matchSimulator;
     }
 
     public override ScreenType Screen => ScreenType.Fixture;
@@ -28,7 +31,12 @@ public class FixtureScreen : BaseScreen
                 {
                     Type = ScreenType.PreMatch
                 });
-                HandleAIClubSelection();
+
+                var todaysFixtures = State.TodaysFixtures.SelectMany(p => p.Fixtures);
+                foreach(var fixture in todaysFixtures)
+                {
+                    MatchSimulator.PrepareMatch(fixture);
+                }
                 break;
             case "B":
                 State.ScreenStack.Pop();
@@ -45,28 +53,19 @@ public class FixtureScreen : BaseScreen
         Console.WriteLine("B) Back");
     }
 
-    private void HandleAIClubSelection()
-    {
-        var aiClubs = State.Clubs.Where(p => p != State.MyClub);
-        foreach(var aiClub in aiClubs)
-        {
-            TacticHelper.ResetTacticForClub(aiClub);
-            TacticHelper.FillEmptyTacticSlotsByClub(aiClub); 
-        }
-    }
-
     public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Fixtures\n");
         var groupedFixtures = State.TodaysFixtures;
         foreach(var group in groupedFixtures)
         {
-            Console.WriteLine(group.Competition.Name);
+            var leagueName = State.Leagues.First(p => p.Id == group.LeagueId).Name;
+            Console.WriteLine(leagueName);
             foreach (var fixture in group.Fixtures)
             {
-                var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
-                var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
-                Console.WriteLine($"{homeClub,48} v {awayClub,-48}{"3PM KO",21}");
+                var homeClub = State.Clubs.Where(p => p.Id == fixture.HomeClub.Id).First();
+                var awayClub = State.Clubs.Where(p => p.Id == fixture.AwayClub.Id).First();
+                Console.WriteLine($"{homeClub.Name,48} v {awayClub.Name,-48}{"3PM KO",21}");
             }
             Console.WriteLine("\n");
         }

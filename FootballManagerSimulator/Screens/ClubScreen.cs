@@ -9,14 +9,14 @@ public class ClubScreen : BaseScreen
     public override ScreenType Screen => ScreenType.Club;
 
     private readonly IState State;
-    private readonly IUtils Utils;
+    private readonly IPlayerHelper PlayerHelper;
 
     public ClubScreen(
         IState state, 
-        IUtils utils) : base(state)
+        IPlayerHelper utils) : base(state)
     {
         State = state;
-        Utils = utils;
+        PlayerHelper = utils;
     }
 
     public override void HandleInput(string input)
@@ -29,7 +29,7 @@ public class ClubScreen : BaseScreen
             default:
                 var isInt = int.TryParse(input, out int value);
                 if (!isInt) return;
-                var player = Utils.GetPlayerById(value);
+                var player = PlayerHelper.GetPlayerById(value);
                 if (player != null)
                 {
                     State.ScreenStack.Push(PlayerScreen.CreateScreen(player));
@@ -59,12 +59,12 @@ public class ClubScreen : BaseScreen
     {
         var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
 
-        Console.WriteLine($"{clubScreenObj!.Club}");
+        Console.WriteLine($"{clubScreenObj!.Club.Name}");
 
         Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}\n");
 
         Console.WriteLine("Upcoming Fixtures:");
-        var upcomingFixtures = State.Competitions
+        var upcomingFixtures = State.Leagues
             .SelectMany(p => p.Fixtures)
             .Where(p => p.HomeClub == clubScreenObj.Club || p.AwayClub == clubScreenObj.Club).Take(5);
         foreach (var fixture in upcomingFixtures)
@@ -74,13 +74,13 @@ public class ClubScreen : BaseScreen
 
         Console.WriteLine("\nPlayers:");
 
-        var players = State.Players.Where(p => p.Contract?.Club == clubScreenObj.Club);
+        var players = State.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
 
         Console.WriteLine($"{"ID",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Weekly Wage", -20}");
 
         foreach (var player in players.OrderBy(p => p.Name))
         {
-            Console.WriteLine($"{player.ID,-10}{player.ShirtNumber,-10}{player.Position,-10}{player.Name,-40}{player.Rating,-10}{player.Contract!.WeeklyWageFriendly, -20}");
+            Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}");
         }
     }
 

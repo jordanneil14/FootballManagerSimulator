@@ -6,6 +6,6 @@ namespace FootballManagerSimulator.Structures;
 public class TacticSlot : ITacticSlot
 {
     public TacticSlotType TacticSlotType { get; set; }
-    public int? PlayerID { get; set; }
+    public int? PlayerId { get; set; }
     
 }

@@ -53,7 +53,10 @@ public class ScoutScreen : BaseScreen
     public override void RenderSubscreen()
     {
         PlayerDetails.Clear();
-        var employeedPlayers = State.Players.Where(p => p.Contract != null).OrderBy(p => p.Contract!.Club.Name);
+        var employeedPlayers = State.Players
+            .Where(p => p.Contract != null)
+            .OrderBy(p => p.Contract!.ClubName);
+
         for(var i = 0; i < employeedPlayers.Count(); i++) 
         {
             PlayerDetails.Add(new PlayerDetailModel
@@ -62,7 +65,12 @@ public class ScoutScreen : BaseScreen
                 Row = i+1
             });
         }
-        var freeAgents = State.Players.Where(p => p.Contract == null).OrderByDescending(p => p.Rating).Take(100);
+
+        var freeAgents = State.Players
+            .Where(p => p.Contract == null)
+            .OrderByDescending(p => p.Rating)
+            .Take(100);
+
         for (var i = 0; i < freeAgents.Count(); i++)
         {
             PlayerDetails.Add(new PlayerDetailModel
@@ -75,10 +83,13 @@ public class ScoutScreen : BaseScreen
         Console.WriteLine("All Players\n");
         Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}");
 
-        var orderedPlayerDetails = PlayerDetails.OrderBy(p => p.Player.Contract?.Club.Name == null).ThenBy(p => p.Player.Contract?.Club.Name);
+        var orderedPlayerDetails = PlayerDetails
+            .OrderBy(p => p.Player.Contract?.ClubName == null)
+            .ThenBy(p => p.Player.Contract?.ClubName);
+
         foreach (var playerDetail in orderedPlayerDetails)
         {
-            var club = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.Club.Name;
+            var club = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.ClubName;
             Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{club,-25}");
         }
     }

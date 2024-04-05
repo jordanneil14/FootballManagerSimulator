@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 
@@ -8,17 +7,11 @@ namespace FootballManagerSimulator.Screens;
 public class WelcomeScreen : IBaseScreen
 {
     private readonly IState State;
-    private readonly IUtils Utils;
-    private readonly ICompetitionFactory LeagueFactory;
 
     public WelcomeScreen(
-        IState state, 
-        IUtils utils,
-        ICompetitionFactory leagueFactory)
+        IState state)
     {
         State = state;
-        Utils = utils;
-        LeagueFactory = leagueFactory;
     }
 
     public ScreenType Screen => ScreenType.Welcome;
@@ -28,7 +21,6 @@ public class WelcomeScreen : IBaseScreen
         switch (input)
         {
             case "A":
-                SetupStateForNewGame();
                 State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.CreateManager
@@ -45,21 +37,6 @@ public class WelcomeScreen : IBaseScreen
                 break;
             default:
                 break;
-        }
-    }
-
-    public void SetupStateForNewGame()
-    {
-        State.Clubs = Utils.GetResource<IEnumerable<Club>>("teams.json"); 
-        
-        var playerItems = Utils.GetResource<IEnumerable<Player.SerialisablePlayerModel>>("playerData.json");
-        Utils.MapPlayersToAClub(playerItems.ToList());
-
-        var competitions = Utils.GetResource<IEnumerable<Competition>>("competitions.json");
-        foreach(var competition in competitions)
-        {
-            var league = LeagueFactory.CreateCompetition(competition);
-            State.Competitions.Add(league);
         }
     }
 

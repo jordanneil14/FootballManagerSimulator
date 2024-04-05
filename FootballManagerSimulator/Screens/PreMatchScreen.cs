@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
@@ -8,15 +7,15 @@ public class PreMatchScreen : BaseScreen
 {
     private readonly IState State;
     private readonly IMatchSimulator MatchSimulator;
-    private readonly IUtils Utils;
+    private readonly IPlayerHelper PlayerHelper;
 
     public PreMatchScreen(IState state, 
         IMatchSimulator matchSimulator,
-        IUtils utils) : base(state)
+        IPlayerHelper playerHelper) : base(state)
     {
         State = state;
         MatchSimulator = matchSimulator;
-        Utils = utils;
+        PlayerHelper = playerHelper;
     }
 
     public override ScreenType Screen => ScreenType.PreMatch;
@@ -26,15 +25,12 @@ public class PreMatchScreen : BaseScreen
         switch (input)
         {
             case "A":
-                var result = ValidateStartMatch();
-                if (result != null)
+                ValidateStartMatch();
+                if (State.UserFeedbackUpdates.Any()) return;
+                var fixtures = State.TodaysFixtures.SelectMany(p => p.Fixtures);
+                foreach (var fixture in fixtures)
                 {
-                    State.UserFeedbackUpdates.Add(result);
-                    return;
-                }
-                foreach(var fixture in State.TodaysFixtures.SelectMany(p => p.Fixtures))
-                {
-                    MatchSimulator.SimulateFirstHalf(fixture);
+                    MatchSimulator.ProcessMatch(fixture);
                 }
                 State.ScreenStack.Push(new Structures.Screen
                 {
@@ -55,14 +51,11 @@ public class PreMatchScreen : BaseScreen
         }
     }
 
-    private string? ValidateStartMatch()
+    private void ValidateStartMatch()
     {
         var positions = State.MyClub.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
-        if (positions.Where(p => p.PlayerID == null).Any())
-        {
-            return "Unable to start game. Your team has not been fully selected";
-        }
-        return null;
+        if (positions.Where(p => p.PlayerId == null).Any())
+            State.UserFeedbackUpdates.Add("Unable to start game. Your team has not been fully selected");
     }
 
     public override void RenderOptions()
@@ -75,14 +68,23 @@ public class PreMatchScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub).First();
-        var homeClub = State.Clubs.Where(p => p == fixture.HomeClub).First();
-        var awayClub = State.Clubs.Where(p => p == fixture.AwayClub).First();
+        var fixture = State.TodaysFixtures
+            .SelectMany(p => p.Fixtures)
+            .Where(p => p.HomeClub.Id == State.MyClub.Id || p.AwayClub.Id == State.MyClub.Id)
+            .First();
 
-        Console.WriteLine($"{homeClub, 58} v {awayClub, -58}\n");
+        var homeClub = State.Clubs
+            .Where(p => p.Id == fixture.HomeClub.Id)
+            .First();
 
-        var homeClubPlayers = State.Clubs.Where(p => p == homeClub).First().TacticSlots;
-        var awayClubPlayers = State.Clubs.Where(p => p == awayClub).First().TacticSlots;
+        var awayClub = State.Clubs
+            .Where(p => p.Id == fixture.AwayClub.Id)
+            .First();
+
+        Console.WriteLine($"{homeClub.Name, 58} v {awayClub.Name, -58}\n");
+
+        var homeClubPlayers = State.Clubs.First(p => p.Id == homeClub.Id).TacticSlots;
+        var awayClubPlayers = State.Clubs.First(p => p.Id == awayClub.Id).TacticSlots;
 
         for (var i = 0; i < 18; i++)
         {
@@ -93,16 +95,16 @@ public class PreMatchScreen : BaseScreen
             var awayPlayer = "EMPTY SLOT";
 
             var tacticSlotHome = homeClubPlayers.ElementAt(i);
-            if (tacticSlotHome.PlayerID != null)
+            if (tacticSlotHome.PlayerId != null)
             {
-                var player = Utils.GetPlayerById(tacticSlotHome.PlayerID.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
                 homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
             }
 
             var tacticSlotAway = awayClubPlayers.ElementAt(i);
-            if (tacticSlotAway.PlayerID != null)
+            if (tacticSlotAway.PlayerId != null)
             {
-                var player = Utils.GetPlayerById(tacticSlotAway.PlayerID.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
                 awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
             }
 

@@ -49,7 +49,7 @@ public class PlayerScreen : BaseScreen
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = screenParameters.Player;
 
-        Console.WriteLine($"{player.Name}\n\nGeneral Information:");
+        Console.WriteLine($"{player.Name}\n\nGeneral Information");
 
         Console.WriteLine(
             $"Age:{player.Age}\n" +
@@ -57,26 +57,25 @@ public class PlayerScreen : BaseScreen
             $"Height:{player.Height}\n" +
             $"Weight:{player.Weight}\n" +
             $"Rating:{player.Rating}\n" +
-            $"Position:{player.Position}\n" +
+            $"Position:{player.PreferredPosition}\n" +
             $"Nationality:{player.Nationality}\n");
 
-        Console.WriteLine($"Playing Stats:");
-
-        if (player.Position == "GK")
+        if (player.PreferredPosition == "GK")
         {
+            Console.WriteLine($"Goalkeeper Stats");
+
             Console.WriteLine($"Positioning:{player.GKPositioning}Diving:{player.GKDiving}Kicking:{player.GKKicking}Handling:{player.GKHandling}Reflexes:{player.GKReflexes}");
             return;
         }
 
-        Console.WriteLine($"Aggression:{player.Aggression,-10}Agility:{player.Agility,-10}Ball Control:{player.BallControl,-10}Dribbling:{player.Dribbling,-10}Marking:{player.Marking,-10}Sliding Tackle:{player.SlidingTackle,-10}");
-
-        Console.WriteLine($"Crossing:{player.Crossing,-10}Short Passing:{player.ShortPass,-10}Long Passing:{player.LongPass,-10}Work Rate:{player.WorkRate,-10}Acceleration:{player.Acceleration,-10}Speed:{player.Speed,-10}");
-
-        Console.WriteLine($"Stamina:{player.Stamina,-10}Strength:{player.Strength,-10}Balance:{player.Balance,-10}Skill Moves:{player.SkillMoves,-10}Jumping:{player.Jumping,-10}Heading:{player.Heading,-10}");
-
-        Console.WriteLine($"Shot Power:{player.ShotPower,-10}Finishing:{player.Finishing,-10}Long Shots:{player.LongShots,-10}Curve:{player.Curve,-10}Freekick Accuracy:{player.FreekickAccuracy,-10}Volleys:{player.Volleys,-10}");
-
-        Console.WriteLine($"Penalties:{player.Penalties,-10}Long Shots:{player.LongShots,-10}Curve:{player.Curve,-10}Freekick Accuracy:{player.FreekickAccuracy,-10}");
+        Console.WriteLine($"Playing Stats");
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Aggression:{player.Aggression}", $"Agility:{player.Agility}", $"Ball Control:{player.BallControl}", $"Dribbling:{player.Dribbling}"));
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Marking:{player.Marking}", $"Sliding Tackle:{player.SlidingTackle}", $"Crossing:{player.Crossing}", $"Short Passing:{player.ShortPass}"));
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Long Passing:{player.LongPass}", $"Work Rate:{player.WorkRate}", $"Acceleration:{player.Acceleration}", $"Speed:{player.Speed}"));
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Stamina:{player.Stamina}", $"Strength:{player.Strength}", $"Balance:{player.Balance}", $"Skill Moves:{player.SkillMoves}"));
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Jumping:{player.Jumping}", $"Heading:{player.Heading}", $"Shot Power:{player.ShotPower}", $"Finising:{player.Finishing}"));
+        Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Long Shots:{player.LongShots}", $"Curve:{player.Curve}", $"FK Accuracy:{player.FreekickAccuracy}", $"Volleys:{player.Volleys}"));
+        Console.WriteLine(string.Format("{0,-25}", $"Penalties:{player.Penalties}"));
     }
 
     public override void RenderOptions()
