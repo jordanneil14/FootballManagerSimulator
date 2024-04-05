@@ -70,7 +70,7 @@ public class FullTimeScreen : BaseScreen
             .Where(p => p == fixture.AwayClub)
             .First();
 
-        Console.WriteLine($"{homeClub,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub,-53}\n{"** FULL TIME **",67}\n");
+        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{"** FULL TIME **",67}\n");
 
         var homeClubPlayers = State.Clubs
             .Where(p => p == homeClub)
@@ -97,7 +97,7 @@ public class FullTimeScreen : BaseScreen
                 homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
             }
 
-            var tacticSlotAway = homeClubPlayers.ElementAt(i);
+            var tacticSlotAway = awayClubPlayers.ElementAt(i);
             if (tacticSlotAway.PlayerId != null)
             {
                 var player = PlayerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;

@@ -6,11 +6,14 @@ namespace FootballManagerSimulator.Helpers;
 public class ProcessHelper : IProcessHelper
 {
     private readonly IState State;
+    private readonly IWeatherHelper WeatherHelper;
 
     public ProcessHelper(
-        IState state)
+        IState state,
+        IWeatherHelper weatherHelper)
     {
         State = state;
+        WeatherHelper = weatherHelper;
     }
 
     public void Process()
@@ -19,6 +22,7 @@ public class ProcessHelper : IProcessHelper
         {
             ValidateProcess();
             State.Date = State.Date.AddDays(1);
+            State.Weather = WeatherHelper.GetTodaysWeather();
         } catch (ProcessException ex)
         {
             State.ScreenStack.Push(new Structures.Screen

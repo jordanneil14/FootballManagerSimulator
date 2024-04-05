@@ -6,11 +6,11 @@ namespace FootballManagerSimulator.Screens;
 public class PreMatchScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly IMatchSimulator MatchSimulator;
+    private readonly IMatchSimulatorHelper MatchSimulator;
     private readonly IPlayerHelper PlayerHelper;
 
     public PreMatchScreen(IState state, 
-        IMatchSimulator matchSimulator,
+        IMatchSimulatorHelper matchSimulator,
         IPlayerHelper playerHelper) : base(state)
     {
         State = state;

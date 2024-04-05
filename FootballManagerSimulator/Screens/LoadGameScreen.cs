@@ -2,9 +2,6 @@
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using static FootballManagerSimulator.Interfaces.IState;
 
 namespace FootballManagerSimulator.Screens;
 

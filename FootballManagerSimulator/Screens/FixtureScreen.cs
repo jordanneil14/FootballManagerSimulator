@@ -8,12 +8,12 @@ public class FixtureScreen : BaseScreen
 {
     private readonly IState State;
     private readonly ITacticHelper TacticHelper;
-    private readonly IMatchSimulator MatchSimulator;
+    private readonly IMatchSimulatorHelper MatchSimulator;
 
     public FixtureScreen(
         IState state, 
         ITacticHelper tacticHelper,
-        IMatchSimulator matchSimulator) : base(state)
+        IMatchSimulatorHelper matchSimulator) : base(state)
     {
         State = state;
         TacticHelper = tacticHelper;

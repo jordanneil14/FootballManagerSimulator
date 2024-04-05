@@ -69,7 +69,7 @@ public class ClubScreen : BaseScreen
             .Where(p => p.HomeClub == clubScreenObj.Club || p.AwayClub == clubScreenObj.Club).Take(5);
         foreach (var fixture in upcomingFixtures)
         {
-            Console.WriteLine($"{fixture.HomeClub} Vs {fixture.AwayClub}");
+            Console.WriteLine($"{fixture.HomeClub.Name} Vs {fixture.AwayClub.Name}");
         }
 
         Console.WriteLine("\nPlayers:");

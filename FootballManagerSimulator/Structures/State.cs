@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using static FootballManagerSimulator.Interfaces.IState;
 
 namespace FootballManagerSimulator.Structures;
 
@@ -27,7 +26,7 @@ public class State : IState
                 fixtureModel.Add(new CompetitionFixture()
                 {
                     LeagueId = league.Id,
-                    Fixtures = league.Fixtures.Where(p => p.Date == Date)
+                    Fixtures = todaysFixturesForLeague
                 });
             }
         }
@@ -36,7 +35,6 @@ public class State : IState
 
     public List<League> Leagues { get; set; } = new List<League>();
     public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
-
     public PreviewModel Preview { get; set; } = new PreviewModel();
 }
 

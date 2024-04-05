@@ -62,7 +62,7 @@ public abstract class BaseScreen : IBaseScreen
         var clubAgainst = nextFixture.HomeClub.Id == State.MyClub.Id ? nextFixture.AwayClub : nextFixture.HomeClub;
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
         {
-            return $"Last Match: Today {nextFixture.HomeClub} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub}";
+            return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
         }
         if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
         return $"Next Match: {nextFixture.Date.DayNumber - State.Date.DayNumber} days Vs {clubAgainst.Name}";

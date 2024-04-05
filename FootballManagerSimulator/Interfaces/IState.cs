@@ -16,8 +16,4 @@ public interface IState
     List<CompetitionFixture> TodaysFixtures { get; }
     string Weather { get; set; }
     public PreviewModel Preview { get; set; }
-    public class PreviewModel
-    {
-        public Club Club { get; set; } = new Club();
-    }
 }

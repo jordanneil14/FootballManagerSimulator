@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Helpers;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -15,6 +16,7 @@ public class GameFactory : IGameFactory
     private readonly IGameCreator GameCreator;
     private readonly Settings Settings;
     private readonly ITacticHelper TacticHelper;
+    private readonly IWeatherHelper WeatherHelper;
 
     public GameFactory(
         IClubHelper clubHelper,
@@ -24,7 +26,8 @@ public class GameFactory : IGameFactory
         INotificationFactory notificationFactory,
         IGameCreator gameCreator,
         IOptions<Settings> settings,
-        ITacticHelper tacticHelper)
+        ITacticHelper tacticHelper,
+        IWeatherHelper weatherHelper)
     {
         ClubHelper = clubHelper;
         PlayerHelper = playerHelper;
@@ -34,6 +37,7 @@ public class GameFactory : IGameFactory
         GameCreator = gameCreator;
         Settings = settings.Value;
         TacticHelper = tacticHelper;
+        WeatherHelper = weatherHelper;  
     }
 
     public void CreateGame()
@@ -42,7 +46,7 @@ public class GameFactory : IGameFactory
 
         State.Date = Settings.General.StartDateAsDate;
 
-        State.Weather = "Sunny 28c";
+        State.Weather = WeatherHelper.GetTodaysWeather();
 
         State.Clubs = Settings.Clubs.Select(p => new Club
         {
@@ -89,8 +93,7 @@ public class GameFactory : IGameFactory
             State.Date.AddDays(1),
             "Scout",
             "Players With Expired Contracts",
-            $@"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. 
-                Here is a small list of players which you might be interested in:
+            $@"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a small list of players which you might be interested in:
                 {string.Join('\n', freeAgents)}{Environment.NewLine}All free agents can be found on the Scout page.");
     }
 }

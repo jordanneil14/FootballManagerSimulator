@@ -6,11 +6,11 @@ namespace FootballManagerSimulator.Screens;
 public class HalfTimeScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly IMatchSimulator MatchSimulator;
+    private readonly IMatchSimulatorHelper MatchSimulator;
     private readonly IPlayerHelper PlayerHelper;
 
     public HalfTimeScreen(IState state, 
-        IMatchSimulator matchSimulator,
+        IMatchSimulatorHelper matchSimulator,
         IPlayerHelper playerHelper) : base(state)
     {
         State = state;
@@ -54,7 +54,12 @@ public class HalfTimeScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var fixture = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub).ToList().First();
+        var fixture = State.TodaysFixtures
+            .SelectMany(p => p.Fixtures)
+            .Where(p => p.HomeClub == State.MyClub || p.AwayClub == State.MyClub)
+            .ToList()
+            .First();
+
         var homeClub = State.Clubs
             .Where(p => p == fixture.HomeClub)
             .First();

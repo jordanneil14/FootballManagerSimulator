@@ -20,11 +20,12 @@ public class Program
         builder.Services.AddSingleton<IPlayerHelper, PlayerHelper>();
         builder.Services.AddSingleton<IState, State>();
         builder.Services.AddSingleton<ITacticHelper, TacticHelper>();
-        builder.Services.AddSingleton<IMatchSimulator, MatchSimulatorHelper>();
+        builder.Services.AddSingleton<IMatchSimulatorHelper, MatchSimulatorHelper>();
         builder.Services.AddSingleton<IGameCreator, GameCreator>();
         builder.Services.AddSingleton<INotificationFactory, NotificationFactory>();
         builder.Services.AddSingleton<IProcessHelper, ProcessHelper>();
         builder.Services.AddSingleton<IGameFactory, GameFactory>();
+        builder.Services.AddSingleton<IWeatherHelper, WeatherHelper>();
 
         builder.Services.AddSingleton<IBaseScreen, FixturesScreen>();
         builder.Services.AddSingleton<IBaseScreen, ScoutScreen>();

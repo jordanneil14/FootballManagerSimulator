@@ -3,7 +3,7 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class MatchSimulatorHelper : IMatchSimulator
+public class MatchSimulatorHelper : IMatchSimulatorHelper
 {
     private static readonly Random Random = new();
 
@@ -45,6 +45,8 @@ public class MatchSimulatorHelper : IMatchSimulator
         var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub);
 
+        awayClubRating = (int)(awayClubRating * .94);
+
         var max = homeClubRating + awayClubRating;
 
         fixture.GoalsHome = 0;
@@ -54,11 +56,11 @@ public class MatchSimulatorHelper : IMatchSimulator
         {
             var randomNumber = Random.Next(0, max);
             fixture.Minute += Random.Next(1, 12);
-            if (randomNumber > homeClubRating && Random.Next(1,4) == 3)
+            if (randomNumber <= homeClubRating && Random.Next(1,6) == 3)
             {
                 fixture.GoalsHome += 1;
             }
-            else if (randomNumber < homeClubRating && Random.Next(1,4) == 3)
+            else if (randomNumber > homeClubRating && Random.Next(1,6) == 3)
             {
                 fixture.GoalsAway += 1;
             }
@@ -75,21 +77,25 @@ public class MatchSimulatorHelper : IMatchSimulator
         var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub);
 
+        awayClubRating = (int)(awayClubRating * .94);
+
         var max = homeClubRating + awayClubRating;
-        var minute = 0;
-        while (minute <= 45)
+        var minute = 45;
+        while (minute <= 90)
         {
             var randomNumber = Random.Next(0, max);
             minute += Random.Next(1, 12);
-            if (randomNumber > homeClubRating && Random.Next(1, 4) == 3)
+            if (randomNumber <= homeClubRating && Random.Next(1, 5) == 3)
             {
                 fixture.GoalsHome += 1;
             }
-            else if (randomNumber < homeClubRating && Random.Next(1, 4) == 3)
+            else if (randomNumber > homeClubRating && Random.Next(1, 5) == 3)
             {
                 fixture.GoalsAway += 1;
             }
         }
+
+        fixture.Minute = 90;
     }
 
     private static void ConcludeFixture(Fixture fixture)

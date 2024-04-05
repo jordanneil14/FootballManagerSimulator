@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Interfaces;
 
-public interface IMatchSimulator
+public interface IMatchSimulatorHelper
 {
     void ProcessMatch(Fixture fixture);
     void PrepareMatch(Fixture fixture);
