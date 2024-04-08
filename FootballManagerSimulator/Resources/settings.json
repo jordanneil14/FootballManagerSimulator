@@ -318,7 +318,7 @@
     },
     {
       "ID": 40,
-      "Name": "Burton",
+      "Name": "Burton Albion",
       "TransferBudget": 8000000,
       "WageBudget": 1000000,
       "Stadium": "Perelli Stadium",
@@ -374,7 +374,7 @@
     },
     {
       "ID": 47,
-      "Name": "Scunthorpe",
+      "Name": "Scunthorpe Utd",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -382,7 +382,7 @@
     },
     {
       "ID": 48,
-      "Name": "Fleetwood",
+      "Name": "Fleetwood Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -390,7 +390,7 @@
     },
     {
       "ID": 49,
-      "Name": "Bradford",
+      "Name": "Bradford City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -406,7 +406,7 @@
     },
     {
       "ID": 51,
-      "Name": "Southend",
+      "Name": "Southend United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -414,7 +414,7 @@
     },
     {
       "ID": 52,
-      "Name": "Oxford",
+      "Name": "Oxford United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -454,7 +454,7 @@
     },
     {
       "ID": 57,
-      "Name": "Charlton",
+      "Name": "Charlton Ath",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -526,7 +526,7 @@
     },
     {
       "ID": 66,
-      "Name": "Swindon",
+      "Name": "Swindon Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -534,7 +534,7 @@
     },
     {
       "ID": 67,
-      "Name": "Coventry",
+      "Name": "Coventry City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -558,7 +558,7 @@
     },
     {
       "ID": 70,
-      "Name": "Plymouth",
+      "Name": "Plymouth Argyle",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -574,7 +574,7 @@
     },
     {
       "ID": 72,
-      "Name": "Luton",
+      "Name": "Luton Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -582,7 +582,7 @@
     },
     {
       "ID": 73,
-      "Name": "Exeter",
+      "Name": "Exeter City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -590,7 +590,7 @@
     },
     {
       "ID": 74,
-      "Name": "Carlisle",
+      "Name": "Carlisle United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -630,7 +630,7 @@
     },
     {
       "ID": 79,
-      "Name": "Cambridge",
+      "Name": "Cambridge Utd",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -654,7 +654,7 @@
     },
     {
       "ID": 82,
-      "Name": "Grimsby",
+      "Name": "Grimsby Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -678,7 +678,7 @@
     },
     {
       "ID": 85,
-      "Name": "Crewe",
+      "Name": "Crewe Alexandra",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -686,7 +686,7 @@
     },
     {
       "ID": 86,
-      "Name": "Morecombe",
+      "Name": "Morecambe",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -694,7 +694,7 @@
     },
     {
       "ID": 87,
-      "Name": "Crawley",
+      "Name": "Crawley Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -702,7 +702,7 @@
     },
     {
       "ID": 88,
-      "Name": "Yeovil",
+      "Name": "Yeovil Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -710,7 +710,7 @@
     },
     {
       "ID": 89,
-      "Name": "Cheltenham",
+      "Name": "Cheltenham Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",
@@ -718,7 +718,7 @@
     },
     {
       "ID": 90,
-      "Name": "Newport",
+      "Name": "Newport County",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
       "Stadium": "Bramell Lane",

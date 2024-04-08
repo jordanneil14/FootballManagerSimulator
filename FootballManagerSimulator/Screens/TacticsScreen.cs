@@ -41,7 +41,7 @@ public class TacticsScreen : BaseScreen
                 break;
             case "C":
                 TacticHelper.ResetTacticForClub(State.MyClub);
-                TacticHelper.FillEmptyTacticSlotsByClub(State.MyClub);
+                TacticHelper.FillEmptyTacticSlotsByClubId(State.MyClub.Id);
                 break;
             case "D":
                 TacticHelper.ResetTacticForClub(State.MyClub);
