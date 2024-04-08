@@ -7,6 +7,8 @@ public class MatchSimulatorHelper : IMatchSimulatorHelper
 {
     private static readonly Random Random = new();
 
+    private static readonly object syncLock = new object();
+
     private readonly IClubHelper ClubHelper;
     private readonly ITacticHelper TacticHelper;
     private readonly IState State;
@@ -45,7 +47,7 @@ public class MatchSimulatorHelper : IMatchSimulatorHelper
         var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub);
 
-        awayClubRating = (int)(awayClubRating * .94);
+        awayClubRating = (int)(awayClubRating * .9);
 
         var max = homeClubRating + awayClubRating;
 
@@ -54,13 +56,16 @@ public class MatchSimulatorHelper : IMatchSimulatorHelper
 
         while (fixture.Minute <= 45)
         {
-            var randomNumber = Random.Next(0, max);
-            fixture.Minute += Random.Next(1, 12);
-            if (randomNumber <= homeClubRating && Random.Next(1,6) == 3)
+            var randomNumber = RandomNumberHelper.Next(0, max);
+            var isGoal = RandomNumberHelper.Next(1, 12) == 3;
+            fixture.Minute += RandomNumberHelper.Next(1, 13);
+            if (!isGoal) continue;
+
+            if (randomNumber <= homeClubRating)
             {
                 fixture.GoalsHome += 1;
             }
-            else if (randomNumber > homeClubRating && Random.Next(1,6) == 3)
+            else if (randomNumber > homeClubRating)
             {
                 fixture.GoalsAway += 1;
             }
@@ -77,19 +82,21 @@ public class MatchSimulatorHelper : IMatchSimulatorHelper
         var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub);
 
-        awayClubRating = (int)(awayClubRating * .94);
+        awayClubRating = (int)(awayClubRating * .9);
 
         var max = homeClubRating + awayClubRating;
-        var minute = 45;
-        while (minute <= 90)
+        while (fixture.Minute <= 90)
         {
-            var randomNumber = Random.Next(0, max);
-            minute += Random.Next(1, 12);
-            if (randomNumber <= homeClubRating && Random.Next(1, 5) == 3)
+            var randomNumber = RandomNumberHelper.Next(0, max);
+            var isGoal = RandomNumberHelper.Next(1, 12) == 4;
+            fixture.Minute += RandomNumberHelper.Next(1, 12);
+            if (!isGoal) continue;
+
+            if (randomNumber <= homeClubRating)
             {
                 fixture.GoalsHome += 1;
             }
-            else if (randomNumber > homeClubRating && Random.Next(1, 5) == 3)
+            else if (randomNumber > homeClubRating)
             {
                 fixture.GoalsAway += 1;
             }
