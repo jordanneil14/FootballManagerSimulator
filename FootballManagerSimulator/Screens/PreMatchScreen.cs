@@ -9,7 +9,8 @@ public class PreMatchScreen : BaseScreen
     private readonly IMatchSimulatorHelper MatchSimulator;
     private readonly IPlayerHelper PlayerHelper;
 
-    public PreMatchScreen(IState state, 
+    public PreMatchScreen(
+        IState state, 
         IMatchSimulatorHelper matchSimulator,
         IPlayerHelper playerHelper) : base(state)
     {

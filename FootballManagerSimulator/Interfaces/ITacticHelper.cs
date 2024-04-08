@@ -6,5 +6,4 @@ public interface ITacticHelper
 {
     void FillEmptyTacticSlotsByClub(Club club);
     void ResetTacticForClub(Club club);
-    //void ResetTacticForClub(Club club);
 }
