@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Exceptions;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Helpers;
@@ -40,16 +41,5 @@ public class ProcessHelper : IProcessHelper
 
         if (existsOutstandingFixtures)
             throw new ProcessException(ScreenType.Fixture);
-    }
-}
-
-public class ProcessException : Exception
-{
-    private ScreenType _screenType;
-    public ScreenType ScreenType { get { return _screenType; } }
-
-    public ProcessException(ScreenType screenType) : base()
-    {
-        _screenType = screenType;
     }
 }

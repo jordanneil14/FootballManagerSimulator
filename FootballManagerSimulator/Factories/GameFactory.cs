@@ -1,5 +1,4 @@
-﻿using FootballManagerSimulator.Helpers;
-using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -67,7 +66,10 @@ public class GameFactory : IGameFactory
 
         PlayerHelper.AddPlayersToState(playerData);
 
-        TacticHelper.ResetTacticForClub(State.MyClub);
+        foreach(var club in State.Clubs)
+        {
+            TacticHelper.ResetTacticForClub(club);
+        }
 
         State.Leagues = Settings.Leagues.Select(p => LeagueFactory.CreateLeague(p)).ToList();
 

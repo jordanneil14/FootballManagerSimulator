@@ -46,22 +46,22 @@ public class TacticHelper : ITacticHelper
             new TacticSlot
             {
                 PlayerId = null,
-                TacticSlotType = TacticSlotType.LM
-            },
-            new TacticSlot
-            {
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CM
-            },
-            new TacticSlot
-            {
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CM
-            },
-            new TacticSlot
-            {
-                PlayerId = null,
                 TacticSlotType = TacticSlotType.RM
+            },
+            new TacticSlot
+            {
+                PlayerId = null,
+                TacticSlotType = TacticSlotType.CM
+            },
+            new TacticSlot
+            {
+                PlayerId = null,
+                TacticSlotType = TacticSlotType.CM
+            },
+            new TacticSlot
+            {
+                PlayerId = null,
+                TacticSlotType = TacticSlotType.LM
             },
             new TacticSlot
             {
@@ -110,15 +110,22 @@ public class TacticHelper : ITacticHelper
             }
         };
 
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id);
-
-        var reserveSlots = players.Select(p => new TacticSlot
+        for (var i = 0; i < 81; i++)
         {
-            PlayerId = p.Id,
-            TacticSlotType = TacticSlotType.RES
-        });
+            club.TacticSlots.Add(new TacticSlot
+            {
+                PlayerId = null,
+                TacticSlotType = TacticSlotType.RES
+            });
+        }
 
-        club.TacticSlots.AddRange(reserveSlots);
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
+        foreach (var player in players)
+        {
+            var tacticSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
+            if (tacticSlot == null) break;
+            tacticSlot.PlayerId = player.Id;
+        }
     }
 
     public void FillEmptyTacticSlotsByClub(Club club)

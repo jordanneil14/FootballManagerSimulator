@@ -43,6 +43,9 @@ public class TacticsScreen : BaseScreen
                 TacticHelper.ResetTacticForClub(State.MyClub);
                 TacticHelper.FillEmptyTacticSlotsByClub(State.MyClub);
                 break;
+            case "D":
+                TacticHelper.ResetTacticForClub(State.MyClub);
+                break;
             default:
                 break;
         }
@@ -54,6 +57,7 @@ public class TacticsScreen : BaseScreen
         Console.WriteLine("B) Back");
         Console.WriteLine("<Enter Number> -> <Enter Number>) Switch Places");
         Console.WriteLine("C) Get Assistant To Pick Team");
+        Console.WriteLine("D) Reset Tactic");
     }
 
     public override void RenderSubscreen()
