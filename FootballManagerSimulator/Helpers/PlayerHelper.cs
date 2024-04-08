@@ -53,4 +53,23 @@ public class PlayerHelper : IPlayerHelper
 
         State.Players.AddRange(playerData.Players);
     }
+
+    public int GetTransferValue(Player player)
+    {
+        if (player.Contract == null) return 0;
+
+        return player.Rating switch
+        {
+            < 50 => player.Rating * 1000,
+            < 55 => player.Rating * 1500,
+            < 60 => player.Rating * 2500,
+            < 65 => player.Rating * 4000,
+            < 70 => player.Rating * 7500,
+            < 75 => player.Rating * 12000,
+            < 80 => player.Rating * 20000,
+            < 85 => player.Rating * 200000,
+            < 90 => player.Rating * 600000,
+            _ => player.Rating * 1400000,
+        };
+    }
 }

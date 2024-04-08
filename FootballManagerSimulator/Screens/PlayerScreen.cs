@@ -9,10 +9,14 @@ public class PlayerScreen : BaseScreen
     public override ScreenType Screen => ScreenType.Player;
 
     private readonly IState State;
+    private readonly IPlayerHelper PlayerHelper;
 
-    public PlayerScreen(IState state) : base(state)
+    public PlayerScreen(
+        IState state,
+        IPlayerHelper playerHelper) : base(state)
     {
         State = state;
+        PlayerHelper = playerHelper;
     }
 
     public static Screen CreateScreen(Player player)
@@ -51,6 +55,9 @@ public class PlayerScreen : BaseScreen
 
         Console.WriteLine($"{player.Name}\n\nGeneral Information");
 
+        var transferValue = PlayerHelper.GetTransferValue(player);
+        var transferValueFriendly = $"£{transferValue:n}";
+
         Console.WriteLine(
             $"Age:{player.Age}\n" +
             $"Birth Date:{player.BirthDate}\n" +
@@ -58,7 +65,8 @@ public class PlayerScreen : BaseScreen
             $"Weight:{player.Weight}\n" +
             $"Rating:{player.Rating}\n" +
             $"Position:{player.PreferredPosition}\n" +
-            $"Nationality:{player.Nationality}\n");
+            $"Nationality:{player.Nationality}\n" +
+            $"Transfer Value:{transferValueFriendly}\n");
 
         if (player.PreferredPosition == "GK")
         {
