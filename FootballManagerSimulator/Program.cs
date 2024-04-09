@@ -27,6 +27,7 @@ public class Program
         builder.Services.AddSingleton<IGameFactory, GameFactory>();
         builder.Services.AddSingleton<IWeatherHelper, WeatherHelper>();
         builder.Services.AddSingleton<ITransferListHelper, TransferListHelper>();
+        builder.Services.AddSingleton<ILeagueFactory, LeagueFactory>();
 
         builder.Services.AddSingleton<IBaseScreen, FixturesScreen>();
         builder.Services.AddSingleton<IBaseScreen, ScoutScreen>();
@@ -50,6 +51,7 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, FinancesScreen>();
         builder.Services.AddSingleton<IBaseScreen, SelectLeagueScreen>();
         builder.Services.AddSingleton<IBaseScreen, TransferListScreen>();
+        builder.Services.AddSingleton<IBaseScreen, TransferPlayerScreen>();
 
         var directory = Directory.GetCurrentDirectory() + "\\Resources";
 
@@ -59,7 +61,6 @@ public class Program
             .Build();
         builder.Services.AddOptions<Settings>().Bind(settingsConfig);
 
-        builder.Services.AddSingleton<ILeagueFactory, LeagueFactory>();
 
         var host = builder.Build();
         var game = host.Services.GetService<IGame>();

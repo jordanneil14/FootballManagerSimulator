@@ -16,6 +16,15 @@ public class TransferListHelper : ITransferListHelper
         PlayerHelper = playerHelper;
     }
 
+    public void AddPlayerToTransferList(int playerId, int askingPrice)
+    {
+        State.TransferListItems.Add(new TransferListItem
+        {
+            PlayerId = playerId,
+            AskingPrice = askingPrice
+        });
+    }
+
     public void BuyPlayerByPlayerId(int playerId)
     {
         var transferListItem = State.TransferListItems.First(p => p.PlayerId == playerId);
@@ -34,6 +43,16 @@ public class TransferListHelper : ITransferListHelper
     public TransferListItem? GetTransferListItemByPlayerId(int playerId)
     {
         return State.TransferListItems.FirstOrDefault(p => p.PlayerId == playerId);
+    }
+
+    public bool IsPlayerTransferListed(int playerId)
+    {
+        return State.TransferListItems.Any(p => p.PlayerId == playerId);
+    }
+
+    public void RemovePlayerFromTransferList(int playerId)
+    {
+        State.TransferListItems.RemoveAll(p => p.PlayerId == playerId);
     }
 
     public void UpdateTransferList()

@@ -1,6 +1,8 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
+using System.Numerics;
+using static FootballManagerSimulator.Screens.TransferPlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -43,6 +45,19 @@ public class PlayerScreen : BaseScreen
             case "B":
                 State.ScreenStack.Pop();
                 break;
+            case "C":
+                var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+                var player = screenParameters.Player;
+
+                State.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.TransferPlayer,
+                    Parameters = new TransferPlayerScreenObj
+                    {
+                        Player = player,
+                    }
+                });
+                break;
             default:
                 break;
         }
@@ -72,7 +87,8 @@ public class PlayerScreen : BaseScreen
         {
             Console.WriteLine($"Goalkeeper Stats");
 
-            Console.WriteLine($"Positioning:{player.GKPositioning}Diving:{player.GKDiving}Kicking:{player.GKKicking}Handling:{player.GKHandling}Reflexes:{player.GKReflexes}");
+            Console.WriteLine(string.Format("{0,-25}{1,-25}{2,-25}{3,-25}", $"Positioning:{player.GKPositioning}", $"Diving:{player.GKDiving}", $"Kicking:{player.GKKicking}", $"Handling:{player.GKHandling}"));
+            Console.WriteLine(string.Format("{0,-25}", $"Reflexes:{player.GKReflexes}"));
             return;
         }
 
@@ -90,5 +106,16 @@ public class PlayerScreen : BaseScreen
     {
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
+
+        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var player = screenParameters.Player;
+
+        if (PlayerHelper.PlayerPlaysForClub(player.Id, State.MyClub.Id))
+        {
+            Console.WriteLine("C) Transfer Options");
+        }
+
     }
+
+
 }

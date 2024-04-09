@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
+using System.Numerics;
 
 namespace FootballManagerSimulator.Helpers;
 
@@ -17,6 +18,12 @@ public class PlayerHelper : IPlayerHelper
         return State.Clubs
             .Where(p => p.Name.ToLower() == name.ToLower())
             .FirstOrDefault();
+    }
+
+    public bool PlayerPlaysForClub(int playerId, int clubId)
+    {
+        var player = State.Players.First(p => p.Id == playerId);
+        return player.Contract != null && clubId == player.Contract.ClubId;
     }
 
     public Player? GetPlayerById(int id)

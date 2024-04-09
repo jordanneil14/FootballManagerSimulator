@@ -8,4 +8,5 @@ public interface IPlayerHelper
     int GetTransferValue(Player player);
     Player? GetPlayerById(int id);
     Player? GetPlayerByName(string name);
+    bool PlayerPlaysForClub(int playerId, int clubId);
 }

@@ -67,6 +67,8 @@ public class TransferListScreen : BaseScreen
         foreach(var transferListItem in State.TransferListItems.OrderBy(p => p.PlayerId))
         {
             var player = PlayerHelper.GetPlayerById(transferListItem.PlayerId);
+            if (player.Contract.ClubId == State.MyClub.Id) continue;
+
             var playerValue = PlayerHelper.GetTransferValue(player);
 
             var askingPriceFriendly = $"£{transferListItem.AskingPrice:n}";

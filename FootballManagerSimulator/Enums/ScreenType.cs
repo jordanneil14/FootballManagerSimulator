@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FootballManagerSimulator.Enums;
+﻿namespace FootballManagerSimulator.Enums;
 
 public enum ScreenType
 {
@@ -30,5 +24,6 @@ public enum ScreenType
     PostMatchScores,
     PostMatchLeagueTable,
     Finances,
-    TransferList
+    TransferList,
+    TransferPlayer
 }
