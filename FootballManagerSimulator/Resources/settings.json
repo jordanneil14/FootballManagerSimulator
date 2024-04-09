@@ -1,7 +1,6 @@
 {
   "General": {
-    "StartDate": "2016-08-01",
-    "AnotherValue": "a"
+    "StartDate": "2016-08-01"
   },
   "Clubs": [
     {
@@ -25,7 +24,7 @@
       "Name": "Manchester City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "",
+      "Stadium": "Etihad Stadium",
       "LeagueId": 1
     },
     {
@@ -73,7 +72,7 @@
       "Name": "Bournemouth",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "",
+      "Stadium": "Vitality Stadium",
       "LeagueId": 1
     },
     {
@@ -241,7 +240,7 @@
       "Name": "Brentford",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "",
+      "Stadium": "Gtech Community Stadium",
       "LeagueId": 2
     },
     {
@@ -345,7 +344,7 @@
       "Name": "Wigan Athletic",
       "TransferBudget": 8000000,
       "WageBudget": 1000000,
-      "Stadium": "Ewood Park",
+      "Stadium": "DW Stadium",
       "LeagueId": 2
     },
     {
@@ -369,7 +368,7 @@
       "Name": "Bolton",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Reebok Stadium",
       "LeagueId": 3
     },
     {
@@ -377,7 +376,7 @@
       "Name": "Scunthorpe Utd",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Glanford Park",
       "LeagueId": 3
     },
     {
@@ -385,7 +384,7 @@
       "Name": "Fleetwood Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Highbury Stadium",
       "LeagueId": 3
     },
     {
@@ -393,7 +392,7 @@
       "Name": "Bradford City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Valley Parade",
       "LeagueId": 3
     },
     {
@@ -409,7 +408,7 @@
       "Name": "Southend United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Roots Hall Stadium",
       "LeagueId": 3
     },
     {
@@ -417,7 +416,7 @@
       "Name": "Oxford United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Kassam Stadium",
       "LeagueId": 3
     },
     {
@@ -425,7 +424,7 @@
       "Name": "Rochdale",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Crown Oil Arena",
       "LeagueId": 3
     },
     {
@@ -433,7 +432,7 @@
       "Name": "Bristol Rovers",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Memorial Stadium",
       "LeagueId": 3
     },
     {
@@ -441,7 +440,7 @@
       "Name": "Peterborough",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Weston Homes Stadium",
       "LeagueId": 3
     },
     {
@@ -449,7 +448,7 @@
       "Name": "MK Dons",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Stadium MK",
       "LeagueId": 3
     },
     {
@@ -457,7 +456,7 @@
       "Name": "Charlton Ath",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "The Valley",
       "LeagueId": 3
     },
     {
@@ -465,7 +464,7 @@
       "Name": "Walsall",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Bescot Stadium",
       "LeagueId": 3
     },
     {
@@ -473,7 +472,7 @@
       "Name": "AFC Wimbledon",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Cherry Reds Records Stadium",
       "LeagueId": 3
     },
     {
@@ -481,7 +480,7 @@
       "Name": "Northampton",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Sixfields",
       "LeagueId": 3
     },
     {
@@ -489,7 +488,7 @@
       "Name": "Oldham Athletic",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Boundary Park",
       "LeagueId": 3
     },
     {
@@ -497,7 +496,7 @@
       "Name": "Shrewsbury",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Crowd Meadow",
       "LeagueId": 3
     },
     {
@@ -505,7 +504,7 @@
       "Name": "Bury",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Gigg Lane",
       "LeagueId": 3
     },
     {
@@ -513,7 +512,7 @@
       "Name": "Gillingham",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Priestfield Stadium",
       "LeagueId": 3
     },
     {
@@ -521,7 +520,7 @@
       "Name": "Port Vale",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Vale Park",
       "LeagueId": 3
     },
     {
@@ -529,7 +528,7 @@
       "Name": "Swindon Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "County Ground",
       "LeagueId": 3
     },
     {
@@ -537,7 +536,7 @@
       "Name": "Coventry City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Ricoh Arena",
       "LeagueId": 3
     },
     {
@@ -545,7 +544,7 @@
       "Name": "Chesterfield",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "SMH Group Stadium",
       "LeagueId": 3
     },
     {
@@ -553,7 +552,7 @@
       "Name": "Portsmouth",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Fratton Park",
       "LeagueId": 4
     },
     {
@@ -561,7 +560,7 @@
       "Name": "Plymouth Argyle",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Home Park Stadium",
       "LeagueId": 4
     },
     {
@@ -569,7 +568,7 @@
       "Name": "Doncaster",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Eco-Power Stadium",
       "LeagueId": 4
     },
     {
@@ -577,7 +576,7 @@
       "Name": "Luton Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Kenilworth Road",
       "LeagueId": 4
     },
     {
@@ -585,7 +584,7 @@
       "Name": "Exeter City",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "St James Park",
       "LeagueId": 4
     },
     {
@@ -593,7 +592,7 @@
       "Name": "Carlisle United",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Brunton Park",
       "LeagueId": 4
     },
     {
@@ -601,7 +600,7 @@
       "Name": "Blackpool",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Bloomfield Road",
       "LeagueId": 4
     },
     {
@@ -609,7 +608,7 @@
       "Name": "Colchester",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "JobServe Community Stadium",
       "LeagueId": 4
     },
     {
@@ -617,7 +616,7 @@
       "Name": "Wycombe",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Adams Park",
       "LeagueId": 4
     },
     {
@@ -625,7 +624,7 @@
       "Name": "Stevenage",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "The Lamex Stadium",
       "LeagueId": 4
     },
     {
@@ -633,7 +632,7 @@
       "Name": "Cambridge Utd",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Cledara Abbey Stadium",
       "LeagueId": 4
     },
     {
@@ -641,7 +640,7 @@
       "Name": "Mansfield Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Field Mill",
       "LeagueId": 4
     },
     {
@@ -649,7 +648,7 @@
       "Name": "Accrington",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Crown Ground",
       "LeagueId": 4
     },
     {
@@ -657,7 +656,7 @@
       "Name": "Grimsby Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Blundell Park",
       "LeagueId": 4
     },
     {
@@ -665,7 +664,7 @@
       "Name": "Barnet",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Hive London",
       "LeagueId": 4
     },
     {
@@ -673,7 +672,7 @@
       "Name": "Notts County",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Meadow Lane",
       "LeagueId": 4
     },
     {
@@ -681,7 +680,7 @@
       "Name": "Crewe Alexandra",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Mornflake Stadium",
       "LeagueId": 4
     },
     {
@@ -689,7 +688,7 @@
       "Name": "Morecambe",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Mazuma Stadium",
       "LeagueId": 4
     },
     {
@@ -697,7 +696,7 @@
       "Name": "Crawley Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Broadfield Stadium",
       "LeagueId": 4
     },
     {
@@ -705,7 +704,7 @@
       "Name": "Yeovil Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Huish Park",
       "LeagueId": 4
     },
     {
@@ -713,7 +712,7 @@
       "Name": "Cheltenham Town",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "The Completely-Suzuki Stadium",
       "LeagueId": 4
     },
     {
@@ -721,7 +720,7 @@
       "Name": "Newport County",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Rodney Parade",
       "LeagueId": 4
     },
     {
@@ -729,7 +728,7 @@
       "Name": "Hartlepool",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "The Suit Direct Stadium",
       "LeagueId": 4
     },
     {
@@ -737,7 +736,7 @@
       "Name": "Leyton Orient",
       "TransferBudget": 50000000,
       "WageBudget": 1500000,
-      "Stadium": "Bramell Lane",
+      "Stadium": "Gaughan Group Stadium",
       "LeagueId": 4
     }
   ],
