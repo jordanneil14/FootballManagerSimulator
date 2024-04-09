@@ -65,6 +65,12 @@ public class MainScreen : BaseScreen
                     Type = ScreenType.Finances
                 });
                 break;
+            case "I":
+                State.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.TransferList
+                });
+                break;
             case "Q":
                 Environment.Exit(0);
                 break;
@@ -98,6 +104,7 @@ public class MainScreen : BaseScreen
         Console.WriteLine("F) Scout");
         Console.WriteLine("G) Tactics");
         Console.WriteLine("H) Finances");
+        Console.WriteLine("I) Transfer List");
         Console.WriteLine("S) Save Game");
         Console.WriteLine("Q) Quit Game");
     }

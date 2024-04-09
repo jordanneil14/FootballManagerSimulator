@@ -8,13 +8,16 @@ public class ProcessHelper : IProcessHelper
 {
     private readonly IState State;
     private readonly IWeatherHelper WeatherHelper;
+    private readonly ITransferListHelper TransferListHelper;
 
     public ProcessHelper(
         IState state,
-        IWeatherHelper weatherHelper)
+        IWeatherHelper weatherHelper,
+        ITransferListHelper transferListHelper)
     {
         State = state;
         WeatherHelper = weatherHelper;
+        TransferListHelper = transferListHelper;
     }
 
     public void Process()
@@ -24,6 +27,10 @@ public class ProcessHelper : IProcessHelper
             ValidateProcess();
             State.Date = State.Date.AddDays(1);
             State.Weather = WeatherHelper.GetTodaysWeather();
+
+            if (State.Date.DayOfWeek == DayOfWeek.Monday)
+                TransferListHelper.UpdateTransferList();
+
         } catch (ProcessException ex)
         {
             State.ScreenStack.Push(new Structures.Screen

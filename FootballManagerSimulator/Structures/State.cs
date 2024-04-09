@@ -36,5 +36,6 @@ public class State : IState
     public List<League> Leagues { get; set; } = new List<League>();
     public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
     public PreviewModel Preview { get; set; } = new PreviewModel();
+    public List<TransferListItem> TransferListItems { get; set; } = new List<TransferListItem>();
 }
 

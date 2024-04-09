@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Helpers;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -16,6 +17,7 @@ public class GameFactory : IGameFactory
     private readonly Settings Settings;
     private readonly ITacticHelper TacticHelper;
     private readonly IWeatherHelper WeatherHelper;
+    private readonly ITransferListHelper TransferListHelper;
 
     public GameFactory(
         IClubHelper clubHelper,
@@ -26,7 +28,8 @@ public class GameFactory : IGameFactory
         IGameCreator gameCreator,
         IOptions<Settings> settings,
         ITacticHelper tacticHelper,
-        IWeatherHelper weatherHelper)
+        IWeatherHelper weatherHelper,
+        ITransferListHelper transferListHelper)
     {
         ClubHelper = clubHelper;
         PlayerHelper = playerHelper;
@@ -36,7 +39,8 @@ public class GameFactory : IGameFactory
         GameCreator = gameCreator;
         Settings = settings.Value;
         TacticHelper = tacticHelper;
-        WeatherHelper = weatherHelper;  
+        WeatherHelper = weatherHelper;
+        TransferListHelper = transferListHelper;
     }
 
     public void CreateGame()
@@ -71,7 +75,10 @@ public class GameFactory : IGameFactory
             TacticHelper.ResetTacticForClub(club);
         }
 
+
         State.Leagues = Settings.Leagues.Select(p => LeagueFactory.CreateLeague(p)).ToList();
+
+        TransferListHelper.UpdateTransferList();
 
         var freeAgents = State.Players
             .Where(p => p.Contract == null)
