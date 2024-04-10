@@ -1,6 +1,4 @@
-﻿using FootballManagerSimulator.Enums;
-
-namespace FootballManagerSimulator.Structures;
+﻿namespace FootballManagerSimulator.Structures;
 
 public class Club
 {

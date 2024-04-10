@@ -10,7 +10,8 @@ public class ScoutScreen : BaseScreen
     private readonly IState State;
     private readonly List<PlayerDetailModel> PlayerDetails = new(); 
 
-    public ScoutScreen(IState state) : base(state)
+    public ScoutScreen(
+        IState state) : base(state)
     {
         State = state;
     }
@@ -62,7 +63,7 @@ public class ScoutScreen : BaseScreen
             PlayerDetails.Add(new PlayerDetailModel
             {
                 Player = employeedPlayers.ElementAt(i),
-                Row = i+1
+                Row = i + 1
             });
         }
 
