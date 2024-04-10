@@ -743,19 +743,43 @@
   "Leagues": [
     {
       "Id": 1,
-      "Name": "Premier League"
+      "Name": "Premier League",
+      "LeagueTable": {
+        "Places": 20,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 3
+      }
     },
     {
       "Id": 2,
-      "Name": "EFL Championship"
+      "Name": "EFL Championship",
+      "LeagueTable": {
+        "Places": 24,
+        "AutomaticPromotionPlaces": 2,
+        "PlayoffPlaces": 4,
+        "RelegationPlaces": 3
+      }
     },
     {
       "Id": 3,
-      "Name": "EFL League One"
+      "Name": "EFL League One",
+      "LeagueTable": {
+        "Places": 24,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 4
+      }
     },
     {
       "Id": 4,
-      "Name": "EFL League Two"
+      "Name": "EFL League Two",
+      "LeagueTable": {
+        "Places": 24,
+        "AutomaticPromotionPlaces": 3,
+        "PlayoffPlaces": 4,
+        "RelegationPlaces": 2
+      }
     }
   ]
   
