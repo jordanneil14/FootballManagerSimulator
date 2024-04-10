@@ -164,14 +164,17 @@ public class TacticHelper : ITacticHelper
 
         foreach(var slot in playingTacticSlots)
         {
+            if (slot.PlayerId != null) continue;
+
             var position = ResolvePosition(slot.TacticSlotType);
  
-            var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString()));
+            var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString())).ToList();
             if (!preferredPlayers.Any())
             {
                 var fallbackPosition = GetFallbackPosition(position);
                 var secondaryPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(fallbackPosition.ToString()));
-                preferredPlayers.Concat(secondaryPlayers);
+                if (!secondaryPlayers.Any()) continue;
+                preferredPlayers.AddRange(secondaryPlayers);
             }
 
             var reserves = State.Clubs
@@ -179,14 +182,20 @@ public class TacticHelper : ITacticHelper
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
 
-            var availablePreferredPlayers = reserves.Where(p => preferredPlayers.Any(q => q.Id == p.PlayerId));
-            if (!availablePreferredPlayers.Any()) continue;
+            var selectedPlayer = reserves.Join(preferredPlayers, arg => arg.PlayerId, arg2 => arg2.Id,
+                (first, second) => new
+                {
+                    first.PlayerId,
+                    second.Rating,
+                }).OrderBy(p => p.Rating).First();
+
+            if (selectedPlayer == null) continue;
 
             State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == slot.Id)
-                .PlayerId = availablePreferredPlayers.First().PlayerId;
+                .PlayerId = selectedPlayer.PlayerId;
 
             State.Clubs.First(p => p.Id == clubId)
                 .TacticSlots
