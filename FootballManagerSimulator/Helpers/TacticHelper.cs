@@ -187,7 +187,7 @@ public class TacticHelper : ITacticHelper
                 {
                     first.PlayerId,
                     second.Rating,
-                }).OrderBy(p => p.Rating).First();
+                }).OrderByDescending(p => p.Rating).First();
 
             if (selectedPlayer == null) continue;
 
