@@ -42,12 +42,12 @@ public class LeagueTableScreen : BaseScreen
         var leagueTable = league.GenerateLeagueTable(); 
 
         Console.WriteLine($"League Table\n");
-        Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{3,-9}{4,-9}{5,-9}", "Pos", "Team", "Points", "For", "Against", "GD"));
+        Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{3,-9}{4,-9}{5,-9}{6,-9}", "Pos", "Team", "Pld", "Points", "For", "Against", "GD"));
         for (var i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);
-            Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{3,-9}{4,-9}{5,-9}", 
-                i+1, leagueTablePosition.ClubName, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
+            Console.WriteLine(string.Format("{0,-8}{1,-20}{2,-9}{2,-9}{3,-9}{4,-9}{5,-9}", 
+                i+1, leagueTablePosition.ClubName, leagueTablePosition.Played, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
         }
     }
 

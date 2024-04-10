@@ -7,6 +7,7 @@ public class LeaguePositionModel
     public int Points { get; set; }
     public int GoalsScored { get; set; }
     public int GoalsConceded { get; set; }
+    public int Played { get; set; }
     public string GoalDifference => FormatGoalDifference();
 
     public string FormatGoalDifference()

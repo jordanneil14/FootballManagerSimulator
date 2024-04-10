@@ -31,6 +31,7 @@ public class League : ILeague
                 Points = homeWinPoints + awayWinPoints + drawPoints,
                 GoalsScored = goalsScoredHome.GetValueOrDefault() + goalsScoredAway.GetValueOrDefault(),
                 GoalsConceded = goalsConcededHome.GetValueOrDefault() + goalsConcededAway.GetValueOrDefault(),
+                Played = clubFixtures.Count()
             });
         }
 
