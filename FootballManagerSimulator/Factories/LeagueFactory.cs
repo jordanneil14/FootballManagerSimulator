@@ -35,6 +35,7 @@ public class LeagueFactory : ILeagueFactory
         {
             Id = leagueModel.Id,
             Name = leagueModel.Name,
+            Rank = leagueModel.Rank,
             Clubs = clubs.ToList(),
             Fixtures = GenerateNextRoundOfFixtures(clubs.ToList())
         };

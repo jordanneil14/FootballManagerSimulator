@@ -6,6 +6,7 @@ namespace FootballManagerSimulator.Structures;
 public class League : ILeague
 {
     public int Id { get; set; }
+    public int Rank { get; set; }
     public string Name { get; set; } = string.Empty;
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public List<Club> Clubs { get; set; } = new List<Club>();

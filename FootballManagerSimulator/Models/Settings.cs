@@ -23,6 +23,7 @@ public class Settings
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int Rank { get; set; }
         public LeagueTableModel LeagueTable { get; set; } = new LeagueTableModel();
         public class LeagueTableModel
         {
@@ -30,6 +31,7 @@ public class Settings
             public int PlayoffPlaces { get; set; }
             public int RelegationPlaces { get; set; }
             public int Places { get; set; }
+            
         }
     }
 }

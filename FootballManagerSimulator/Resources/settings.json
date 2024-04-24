@@ -743,6 +743,7 @@
   "Leagues": [
     {
       "Id": 1,
+      "Rank":  1,
       "Name": "Premier League",
       "LeagueTable": {
         "Places": 20,
@@ -753,6 +754,7 @@
     },
     {
       "Id": 2,
+      "Rank": 2,
       "Name": "EFL Championship",
       "LeagueTable": {
         "Places": 24,
@@ -763,16 +765,18 @@
     },
     {
       "Id": 3,
+      "Rank": 3,
       "Name": "EFL League One",
       "LeagueTable": {
         "Places": 24,
-        "AutomaticPromotionPlaces": 1,
-        "PlayoffPlaces": 0,
+        "AutomaticPromotionPlaces": 2,
+        "PlayoffPlaces": 4,
         "RelegationPlaces": 4
       }
     },
     {
       "Id": 4,
+      "Rank": 4,
       "Name": "EFL League Two",
       "LeagueTable": {
         "Places": 24,
@@ -782,5 +786,4 @@
       }
     }
   ]
-  
 }
