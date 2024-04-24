@@ -25,7 +25,31 @@ public class TransferListHelper : ITransferListHelper
         });
     }
 
-    public void BuyPlayerByPlayerId(int playerId)
+    private DateOnly GetEndOfCurrentSeasonDate()
+    {
+        var year = State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1;
+        var date = new DateOnly(year, 6, 30);
+        return date;
+    }
+
+    public void SignFreeAgentByPlayerId(int playerId)
+    {
+        State.Players.First(p => p.Id == playerId).Contract = new Player.ContractModel
+        {
+            ClubId = State.MyClub.Id,
+            ClubName = State.MyClub.Name,
+            ExpiryDate = GetEndOfCurrentSeasonDate()
+        };
+
+        // Add player to reserve tactic slot
+        State.Clubs
+            .First(p => p.Id == State.MyClub.Id)
+            .TacticSlots
+            .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)
+            .PlayerId = playerId;
+    }
+
+    public void BuyContractedPlayerByPlayerId(int playerId)
     {
         var transferListItem = State.TransferListItems.First(p => p.PlayerId == playerId);
         State.Players.First(p => p.Id == playerId).Contract!.ClubId = State.MyClub.Id;

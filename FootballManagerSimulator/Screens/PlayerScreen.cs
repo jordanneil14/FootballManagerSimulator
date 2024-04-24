@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
-using System.Numerics;
 using static FootballManagerSimulator.Screens.TransferPlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
@@ -12,13 +11,16 @@ public class PlayerScreen : BaseScreen
 
     private readonly IState State;
     private readonly IPlayerHelper PlayerHelper;
+    private readonly ITransferListHelper TransferListHelper;
 
     public PlayerScreen(
         IState state,
-        IPlayerHelper playerHelper) : base(state)
+        IPlayerHelper playerHelper,
+        ITransferListHelper transferListHelper) : base(state)
     {
         State = state;
         PlayerHelper = playerHelper;
+        TransferListHelper = transferListHelper;
     }
 
     public static Screen CreateScreen(Player player)
@@ -46,21 +48,39 @@ public class PlayerScreen : BaseScreen
                 State.ScreenStack.Pop();
                 break;
             case "C":
-                var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
-                var player = screenParameters.Player;
-
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.TransferPlayer,
-                    Parameters = new TransferPlayerScreenObj
-                    {
-                        Player = player,
-                    }
-                });
+                HandleTransferOptionsInput();
+                break;
+            case "D":
+                HandleSignFreeAgentInput();
                 break;
             default:
                 break;
         }
+    }
+
+    private void HandleSignFreeAgentInput()
+    {
+        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
+
+        TransferListHelper.SignFreeAgentByPlayerId(player.Id);
+
+        State.UserFeedbackUpdates.Add($"{player.Name} has been signed");
+    }
+
+    private void HandleTransferOptionsInput()
+    {
+        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var player = screenParameters.Player;
+
+        State.ScreenStack.Push(new Screen
+        {
+            Type = ScreenType.TransferPlayer,
+            Parameters = new TransferPlayerScreenObj
+            {
+                Player = player,
+            }
+        });
     }
 
     public override void RenderSubscreen()
@@ -108,14 +128,18 @@ public class PlayerScreen : BaseScreen
         Console.WriteLine("B) Back");
 
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
-        var player = screenParameters.Player;
+        var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
 
-        if (PlayerHelper.PlayerPlaysForClub(player.Id, State.MyClub.Id))
+        var playerPlaysForMyClub = PlayerHelper.PlayerPlaysForClub(player.Id, State.MyClub.Id);
+        var playerIsFreeAgent = player.Contract == null;
+
+        if (playerPlaysForMyClub)
         {
             Console.WriteLine("C) Transfer Options");
         }
-
+        else if (playerIsFreeAgent)
+        {
+            Console.WriteLine("D) Sign Free Agent");
+        }
     }
-
-
 }
