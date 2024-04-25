@@ -7,7 +7,6 @@
       "ID": 1,
       "Name": "Chelsea",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Stamford Bridge",
       "LeagueId": 1
     },
@@ -15,7 +14,6 @@
       "ID": 2,
       "Name": "Spurs",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "The Tottenham Hotspur Stadium",
       "LeagueId": 1
     },
@@ -23,7 +21,6 @@
       "ID": 3,
       "Name": "Manchester City",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Etihad Stadium",
       "LeagueId": 1
     },
@@ -31,7 +28,6 @@
       "ID": 4,
       "Name": "Liverpool",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Anfield",
       "LeagueId": 1
     },
@@ -39,7 +35,6 @@
       "ID": 5,
       "Name": "Arsenal",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "The Emirates",
       "LeagueId": 1
     },
@@ -47,7 +42,6 @@
       "ID": 6,
       "Name": "Manchester Utd",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Old Trafford",
       "LeagueId": 1
     },
@@ -55,15 +49,13 @@
       "ID": 7,
       "Name": "Everton",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Goodison Park",
       "LeagueId": 1
     },
     {
       "ID": 8,
       "Name": "Southampton",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "St Mary's Stadium",
       "LeagueId": 1
     },
@@ -71,15 +63,13 @@
       "ID": 9,
       "Name": "Bournemouth",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Vitality Stadium",
       "LeagueId": 1
     },
     {
       "ID": 10,
       "Name": "West Brom",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Hawthorns",
       "LeagueId": 1
     },
@@ -87,23 +77,20 @@
       "ID": 11,
       "Name": "West Ham",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Upton Park",
       "LeagueId": 1
     },
     {
       "ID": 12,
       "Name": "Leicester City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "King Power Stadium",
       "LeagueId": 1
     },
     {
       "ID": 13,
       "Name": "Stoke City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Bet 365 Stadium",
       "LeagueId": 1
     },
@@ -111,15 +98,13 @@
       "ID": 14,
       "Name": "Crystal Palace",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Selhurst Park",
       "LeagueId": 1
     },
     {
       "ID": 15,
       "Name": "Swansea City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "The Liberty Stadium",
       "LeagueId": 1
     },
@@ -127,335 +112,293 @@
       "ID": 16,
       "Name": "Burnley",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Turf Moor",
       "LeagueId": 1
     },
     {
       "ID": 17,
       "Name": "Watford",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Vicarage Road",
       "LeagueId": 1
     },
     {
       "ID": 18,
       "Name": "Hull City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Mkm Stadium",
       "LeagueId": 1
     },
     {
       "ID": 19,
       "Name": "Middlesbrough",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Riverside Stadium",
       "LeagueId": 1
     },
     {
       "ID": 20,
       "Name": "Sunderland",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 50000000,
       "Stadium": "Stadium of Light",
       "LeagueId": 1
     },
     {
       "ID": 21,
       "Name": "Newcastle Utd",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "St. James' Park",
       "LeagueId": 2
     },
     {
       "ID": 22,
       "Name": "Brighton",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "The AMEX",
       "LeagueId": 2
     },
     {
       "ID": 23,
       "Name": "Reading",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Madejski Stadium",
       "LeagueId": 2
     },
     {
       "ID": 24,
       "Name": "Sheffield Wed",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Hillsbrough",
       "LeagueId": 2
     },
     {
       "ID": 25,
       "Name": "Huddersfield",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "John Smith's Stadium'",
       "LeagueId": 2
     },
     {
       "ID": 26,
       "Name": "Fulham",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Craven Cottage",
       "LeagueId": 2
     },
     {
       "ID": 27,
       "Name": "Leeds United",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Elland Road",
       "LeagueId": 2
     },
     {
       "ID": 28,
       "Name": "Norwich",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Carrow Road",
       "LeagueId": 2
     },
     {
       "ID": 29,
       "Name": "Derby County",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Pride Park",
       "LeagueId": 2
     },
     {
       "ID": 30,
       "Name": "Brentford",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Gtech Community Stadium",
       "LeagueId": 2
     },
     {
       "ID": 31,
       "Name": "Preston",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Deepdale Stadium",
       "LeagueId": 2
     },
     {
       "ID": 32,
       "Name": "Cardiff City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Cardiff City Stadium",
       "LeagueId": 2
     },
     {
       "ID": 33,
       "Name": "Aston Villa",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Villa Park",
       "LeagueId": 2
     },
     {
       "ID": 34,
       "Name": "Barnsley",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Oakwell",
       "LeagueId": 2
     },
     {
       "ID": 35,
       "Name": "Wolves",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "Molineux",
       "LeagueId": 2
     },
     {
       "ID": 36,
       "Name": "Ipswich",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Portman Road",
       "LeagueId": 2
     },
     {
       "ID": 37,
       "Name": "Bristol City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Ashton Gate",
       "LeagueId": 2
     },
     {
       "ID": 38,
       "Name": "QPR",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Loftus Road",
       "LeagueId": 2
     },
     {
       "ID": 39,
       "Name": "Birmingham City",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "St. Andrews",
       "LeagueId": 2
     },
     {
       "ID": 40,
       "Name": "Burton Albion",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Perelli Stadium",
       "LeagueId": 2
     },
     {
       "ID": 41,
       "Name": "Nott'm Forest",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 5000000,
       "Stadium": "The City Ground",
       "LeagueId": 2
     },
     {
       "ID": 42,
       "Name": "Blackburn Rovers",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "Ewood Park",
       "LeagueId": 2
     },
     {
       "ID": 43,
       "Name": "Wigan Athletic",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "DW Stadium",
       "LeagueId": 2
     },
     {
       "ID": 44,
       "Name": "Rotherham Utd",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 5000000,
       "Stadium": "AESSEAL New York Stadium",
       "LeagueId": 2
     },
     {
       "ID": 45,
       "Name": "Sheffield Utd",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Bramell Lane",
       "LeagueId": 3
     },
     {
       "ID": 46,
       "Name": "Bolton",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Reebok Stadium",
       "LeagueId": 3
     },
     {
       "ID": 47,
       "Name": "Scunthorpe Utd",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Glanford Park",
       "LeagueId": 3
     },
     {
       "ID": 48,
       "Name": "Fleetwood Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Highbury Stadium",
       "LeagueId": 3
     },
     {
       "ID": 49,
       "Name": "Bradford City",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Valley Parade",
       "LeagueId": 3
     },
     {
       "ID": 50,
       "Name": "Millwall",
-      "TransferBudget": 8000000,
-      "WageBudget": 1000000,
+      "TransferBudget": 1000000,
       "Stadium": "The Den",
       "LeagueId": 3
     },
     {
       "ID": 51,
       "Name": "Southend United",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Roots Hall Stadium",
       "LeagueId": 3
     },
     {
       "ID": 52,
       "Name": "Oxford United",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Kassam Stadium",
       "LeagueId": 3
     },
     {
       "ID": 53,
       "Name": "Rochdale",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Crown Oil Arena",
       "LeagueId": 3
     },
     {
       "ID": 54,
       "Name": "Bristol Rovers",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Memorial Stadium",
       "LeagueId": 3
     },
     {
       "ID": 55,
       "Name": "Peterborough",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Weston Homes Stadium",
       "LeagueId": 3
     },
     {
       "ID": 56,
       "Name": "MK Dons",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Stadium MK",
       "LeagueId": 3
     },
     {
       "ID": 57,
       "Name": "Charlton Ath",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "The Valley",
       "LeagueId": 3
     },
@@ -463,31 +406,27 @@
       "ID": 58,
       "Name": "Walsall",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Bescot Stadium",
       "LeagueId": 3
     },
     {
       "ID": 59,
       "Name": "AFC Wimbledon",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Cherry Reds Records Stadium",
       "LeagueId": 3
     },
     {
       "ID": 60,
       "Name": "Northampton",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Sixfields",
       "LeagueId": 3
     },
     {
       "ID": 61,
       "Name": "Oldham Athletic",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Boundary Park",
       "LeagueId": 3
     },
@@ -495,247 +434,216 @@
       "ID": 62,
       "Name": "Shrewsbury",
       "TransferBudget": 50000000,
-      "WageBudget": 1500000,
       "Stadium": "Crowd Meadow",
       "LeagueId": 3
     },
     {
       "ID": 63,
       "Name": "Bury",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Gigg Lane",
       "LeagueId": 3
     },
     {
       "ID": 64,
       "Name": "Gillingham",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Priestfield Stadium",
       "LeagueId": 3
     },
     {
       "ID": 65,
       "Name": "Port Vale",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Vale Park",
       "LeagueId": 3
     },
     {
       "ID": 66,
       "Name": "Swindon Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "County Ground",
       "LeagueId": 3
     },
     {
       "ID": 67,
       "Name": "Coventry City",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "Ricoh Arena",
       "LeagueId": 3
     },
     {
       "ID": 68,
       "Name": "Chesterfield",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 1000000,
       "Stadium": "SMH Group Stadium",
       "LeagueId": 3
     },
     {
       "ID": 69,
       "Name": "Portsmouth",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Fratton Park",
       "LeagueId": 4
     },
     {
       "ID": 70,
       "Name": "Plymouth Argyle",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Home Park Stadium",
       "LeagueId": 4
     },
     {
       "ID": 71,
       "Name": "Doncaster",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Eco-Power Stadium",
       "LeagueId": 4
     },
     {
       "ID": 72,
       "Name": "Luton Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Kenilworth Road",
       "LeagueId": 4
     },
     {
       "ID": 73,
       "Name": "Exeter City",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "St James Park",
       "LeagueId": 4
     },
     {
       "ID": 74,
       "Name": "Carlisle United",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Brunton Park",
       "LeagueId": 4
     },
     {
       "ID": 75,
       "Name": "Blackpool",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Bloomfield Road",
       "LeagueId": 4
     },
     {
       "ID": 76,
       "Name": "Colchester",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "JobServe Community Stadium",
       "LeagueId": 4
     },
     {
       "ID": 77,
       "Name": "Wycombe",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Adams Park",
       "LeagueId": 4
     },
     {
       "ID": 78,
       "Name": "Stevenage",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "The Lamex Stadium",
       "LeagueId": 4
     },
     {
       "ID": 79,
       "Name": "Cambridge Utd",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Cledara Abbey Stadium",
       "LeagueId": 4
     },
     {
       "ID": 80,
       "Name": "Mansfield Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Field Mill",
       "LeagueId": 4
     },
     {
       "ID": 81,
       "Name": "Accrington",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Crown Ground",
       "LeagueId": 4
     },
     {
       "ID": 82,
       "Name": "Grimsby Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Blundell Park",
       "LeagueId": 4
     },
     {
       "ID": 83,
       "Name": "Barnet",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Hive London",
       "LeagueId": 4
     },
     {
       "ID": 84,
       "Name": "Notts County",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Meadow Lane",
       "LeagueId": 4
     },
     {
       "ID": 85,
       "Name": "Crewe Alexandra",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Mornflake Stadium",
       "LeagueId": 4
     },
     {
       "ID": 86,
       "Name": "Morecambe",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Mazuma Stadium",
       "LeagueId": 4
     },
     {
       "ID": 87,
       "Name": "Crawley Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Broadfield Stadium",
       "LeagueId": 4
     },
     {
       "ID": 88,
       "Name": "Yeovil Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Huish Park",
       "LeagueId": 4
     },
     {
       "ID": 89,
       "Name": "Cheltenham Town",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "The Completely-Suzuki Stadium",
       "LeagueId": 4
     },
     {
       "ID": 90,
       "Name": "Newport County",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Rodney Parade",
       "LeagueId": 4
     },
     {
       "ID": 91,
       "Name": "Hartlepool",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "The Suit Direct Stadium",
       "LeagueId": 4
     },
     {
       "ID": 92,
       "Name": "Leyton Orient",
-      "TransferBudget": 50000000,
-      "WageBudget": 1500000,
+      "TransferBudget": 400000,
       "Stadium": "Gaughan Group Stadium",
       "LeagueId": 4
     }
