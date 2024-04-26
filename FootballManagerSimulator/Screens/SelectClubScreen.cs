@@ -46,13 +46,14 @@ public class SelectClubScreen : IBaseScreen
     public void RenderScreen()
     {
         Console.WriteLine("Select a club to manage:\n");
-        Console.WriteLine($"{"Team",-50}");
+        Console.WriteLine($"{"Team",-50}{"Transfer Budget", -12}");
 
         var clubs = GameCreator.Clubs.Where(p => p.LeagueId == GameCreator.LeagueId);
         var orderedClubs = clubs.OrderBy(p => p.Name);
         foreach (var club in orderedClubs)
         {
-            Console.WriteLine($"{club.Name,-50}");
+            var transferValueFriendly = $"£{club.TransferBudget:n}";
+            Console.WriteLine($"{club.Name,-50}{transferValueFriendly, -12}");
         }
 
         Console.WriteLine("\nOptions:");
