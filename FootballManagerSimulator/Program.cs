@@ -1,12 +1,7 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Screens;
 using FootballManagerSimulator.Structures;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using FootballManagerSimulator.Helpers;
-using FootballManagerSimulator.Factories;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 using NetCore.AutoRegisterDi;
 
 namespace FootballManagerSimulator;
