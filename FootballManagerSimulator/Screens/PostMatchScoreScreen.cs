@@ -53,7 +53,7 @@ public class PostMatchScoreScreen : BaseScreen
                     .Where(p => p == fixture.AwayClub
                     ).First();
 
-                Console.WriteLine($"{homeClub.Name,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub.Name,-35}{(fixture.Concluded ? "(Latest)" : ""),-5}{"3PM KO",21}");
+                Console.WriteLine($"{homeClub.Name,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub.Name,-35}{(fixture.Concluded ? "" : "(Latest)"),-5}{"3PM KO",21}");
             }
             Console.WriteLine("\n");
         }

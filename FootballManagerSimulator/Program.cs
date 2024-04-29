@@ -45,7 +45,6 @@ public class Program
         builder.Services.AddSingleton<IBaseScreen, SaveScreen>();
         builder.Services.AddSingleton<IBaseScreen, HalfTimeScreen>();
         builder.Services.AddSingleton<IBaseScreen, FullTimeScreen>();
-        builder.Services.AddSingleton<IBaseScreen, PostMatchLeagueTableScreen>();
         builder.Services.AddSingleton<IBaseScreen, PostMatchScoreScreen>();
         builder.Services.AddSingleton<IBaseScreen, PlayerScreen>();
         builder.Services.AddSingleton<IBaseScreen, FinancesScreen>();

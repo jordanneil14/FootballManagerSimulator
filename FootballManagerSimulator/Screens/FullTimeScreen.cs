@@ -39,7 +39,7 @@ public class FullTimeScreen : BaseScreen
             case "C":
                 State.ScreenStack.Push(new Screen
                 {
-                    Type = ScreenType.PostMatchLeagueTable
+                    Type = ScreenType.LeagueTable
                 });
                 break;
             default:
