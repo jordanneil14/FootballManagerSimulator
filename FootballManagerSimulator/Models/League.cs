@@ -38,7 +38,8 @@ public class League : ILeague
 
         return table
             .OrderByDescending(p => p.Points)
-            .ThenByDescending(p => p.GoalDifference)
+            .ThenByDescending(p => p.GoalsScored - p.GoalsConceded)
+            .ThenByDescending(p => p.GoalsScored)
             .ThenBy(p => p.ClubName);
     }
 }
