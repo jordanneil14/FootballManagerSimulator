@@ -7,13 +7,19 @@ public class TransferListHelper : ITransferListHelper
 {
     private readonly IState State;
     private readonly IPlayerHelper PlayerHelper;
+    private readonly IClubHelper ClubHelper;
+    private readonly INotificationFactory NotificationFactory;
 
     public TransferListHelper(
         IState state,
-        IPlayerHelper playerHelper)
+        IPlayerHelper playerHelper,
+        IClubHelper clubHelper,
+        INotificationFactory notificationFactory)
     {
         State = state;
         PlayerHelper = playerHelper;
+        ClubHelper = clubHelper;
+        NotificationFactory = notificationFactory;  
     }
 
     public void AddPlayerToTransferList(int playerId, int askingPrice)
@@ -21,7 +27,8 @@ public class TransferListHelper : ITransferListHelper
         State.TransferListItems.Add(new TransferListItem
         {
             PlayerId = playerId,
-            AskingPrice = askingPrice
+            AskingPrice = askingPrice,
+            ClubId = State.Players.First(p => p.Id == playerId).Contract!.ClubId
         });
     }
 
@@ -49,16 +56,16 @@ public class TransferListHelper : ITransferListHelper
             .PlayerId = playerId;
     }
 
-    public void BuyContractedPlayerByPlayerId(int playerId)
+    public void TransferContractedPlayerByPlayerIdAndClubId(int playerId, int clubId)
     {
         var transferListItem = State.TransferListItems.First(p => p.PlayerId == playerId);
-        State.Players.First(p => p.Id == playerId).Contract!.ClubId = State.MyClub.Id;
+        State.Players.First(p => p.Id == playerId).Contract!.ClubId = clubId;
         State.TransferListItems.Remove(transferListItem);
-        State.MyClub.TransferBudget -= transferListItem.AskingPrice;
+        State.Clubs.First(p => p.Id == clubId).TransferBudget -= transferListItem.AskingPrice;
 
         // Add player to reserve tactic slot
         State.Clubs
-            .First(p => p.Id == State.MyClub.Id)
+            .First(p => p.Id == clubId)
             .TacticSlots
             .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)
             .PlayerId = transferListItem.PlayerId;
@@ -96,11 +103,52 @@ public class TransferListHelper : ITransferListHelper
                 return new TransferListItem
                 {
                     PlayerId = p.Id,
-                    AskingPrice = askingPrice
+                    AskingPrice = askingPrice,
+                    ClubId = p.Contract.ClubId
                 };
             });
 
             State.TransferListItems.AddRange(transferListItems);
+        }
+    }
+
+    public void ProcessAITransfers()
+    {
+        var randomNoOfTransfers = RandomNumberHelper.Next(3);
+        for(int i = 0; i < randomNoOfTransfers; i++)
+        {
+            var randomNumber = RandomNumberHelper.Next(State.TransferListItems.Count);
+            var randomPlayer = State.TransferListItems[randomNumber];
+            var randomPlayerAskingPrice = randomPlayer.AskingPrice;
+
+            var groupedPlayers = State.Players
+                .Where(p => p.Contract != null)
+                .GroupBy(p => p.Contract.ClubId, r => r.Rating)
+                .Select(p => new
+                {
+                    ClubId = p.Key,
+                    Rating = p.Average()
+                });
+
+            var min = State.Players.First(p => p.Id == randomPlayer.PlayerId).Rating - 5;
+            var max = State.Players.First(p => p.Id == randomPlayer.PlayerId).Rating + 5;
+
+            var suitableClub = groupedPlayers
+                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != State.MyClub.Id && ClubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
+            if (suitableClub == null)
+                continue;
+
+            TransferContractedPlayerByPlayerIdAndClubId(randomPlayer.PlayerId, suitableClub.ClubId);
+
+            var previousClub = ClubHelper.GetClubById(randomPlayer.ClubId);
+            var club = ClubHelper.GetClubById(suitableClub.ClubId);
+            var player = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
+
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Press Officer",
+                $"{club.Name} sign {player.Name}",
+                $"{player.Name} signs for {club.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
         }
     }
 }

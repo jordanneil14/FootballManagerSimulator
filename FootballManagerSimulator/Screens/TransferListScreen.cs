@@ -44,7 +44,7 @@ public class TransferListScreen : BaseScreen
                     State.UserFeedbackUpdates.Add("Insufficent funds to purchase this player");
                     return;
                 }
-                TransferListHelper.BuyContractedPlayerByPlayerId(transferListItem.PlayerId);
+                TransferListHelper.TransferContractedPlayerByPlayerIdAndClubId(transferListItem.PlayerId, State.MyClub.Id);
                 break;
         }
     }

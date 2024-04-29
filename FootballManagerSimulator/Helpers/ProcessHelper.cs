@@ -31,6 +31,8 @@ public class ProcessHelper : IProcessHelper
             if (State.Date.DayOfWeek == DayOfWeek.Monday)
                 TransferListHelper.UpdateTransferList();
 
+            TransferListHelper.ProcessAITransfers();
+
         } catch (ProcessException ex)
         {
             State.ScreenStack.Push(new Structures.Screen
