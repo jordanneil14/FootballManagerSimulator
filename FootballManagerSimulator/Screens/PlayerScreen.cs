@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using static FootballManagerSimulator.Screens.TransferPlayerScreen;
@@ -8,7 +9,8 @@ namespace FootballManagerSimulator.Screens;
 public class PlayerScreen(
     IState state,
     IPlayerHelper playerHelper,
-    ITransferListHelper transferListHelper) : BaseScreen(state)
+    ITransferListHelper transferListHelper,
+    IClubHelper clubHelper) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.Player;
 
@@ -82,6 +84,8 @@ public class PlayerScreen(
         var transferValue = playerHelper.GetTransferValue(player);
         var transferValueFriendly = $"£{transferValue:n}";
 
+        var club = player.Contract == null ? "Free Agent" : clubHelper.GetClubById(player.Contract.ClubId).Name;
+
         Console.WriteLine(
             $"Age:{player.Age}\n" +
             $"Birth Date:{player.BirthDate}\n" +
@@ -90,6 +94,7 @@ public class PlayerScreen(
             $"Rating:{player.Rating}\n" +
             $"Position:{player.PreferredPosition}\n" +
             $"Nationality:{player.Nationality}\n" +
+            $"Club:{club}\n" +
             $"Transfer Value:{transferValueFriendly}\n");
 
         if (player.PreferredPosition == "GK")
