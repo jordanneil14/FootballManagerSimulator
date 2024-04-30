@@ -32,7 +32,7 @@ public class FixtureScreen(
             Type = ScreenType.PreMatch
         });
 
-        var todaysFixtures = state.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub.Id != state.MyClub.Id && p.AwayClub.Id != state.MyClub.Id);
+        var todaysFixtures = state.TodaysFixtures.SelectMany(p => p.Fixtures);
         foreach (var fixture in todaysFixtures)
         {
             matchSimulator.PrepareMatch(fixture);
