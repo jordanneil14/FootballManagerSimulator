@@ -5,21 +5,21 @@ namespace FootballManagerSimulator.Structures;
 public class Player : IPerson
 {
     public int Id { get; set; }
-    public string Name { get; set; }
-    public string Nationality { get; set; }
-    public string NationalKit { get; set; }
-    public string Position { get; set; }
+    public string Name { get; set; } = "";
+    public string Nationality { get; set; } = "";
+    public string NationalKit { get; set; } = "";
+    public string Position { get; set; } = "";
     public int? ShirtNumber { get; set; }
-    public string ClubJoining { get; set; }
+    public string ClubJoining { get; set; } = "";
     public DateOnly? ContractExpiry { get; set; }
     public int Rating { get; set; }
-    public string Height { get; set; }
-    public string Weight { get; set; }
-    public string PreferredFoot { get; set; }
-    public string BirthDate { get; set; }
+    public string Height { get; set; } = "";
+    public string Weight { get; set; } = "";
+    public string PreferredFoot { get; set; } = "";
+    public string BirthDate { get; set; } = "";
     public int Age { get; set; }
-    public string PreferredPosition { get; set; }
-    public string WorkRate { get; set; }
+    public string PreferredPosition { get; set; } = "";
+    public string WorkRate { get; set; } = "";
     public int Weakfoot { get; set; }
     public int SkillMoves { get; set; }
     public int BallControl { get; set; }
@@ -61,7 +61,7 @@ public class Player : IPerson
     public class ContractModel
     {
         public int ClubId { get; set; }
-        public string ClubName { get; set; }
+        public string ClubName { get; set; } = "";
         public DateOnly ExpiryDate { get; set; }
     }
 }

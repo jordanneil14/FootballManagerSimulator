@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Structures;
 

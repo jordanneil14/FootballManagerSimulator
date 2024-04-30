@@ -13,7 +13,7 @@ public class GameCreator : IGameCreator
         Settings = settings.Value;
     }
 
-    public string ManagerName { get; set; } = string.Empty;
+    public string ManagerName { get; set; } = "";
     public int LeagueId { get; set; }
     public int ClubId { get; set; }
     public IEnumerable<Settings.ClubModel> Clubs => Settings.Clubs;

@@ -36,7 +36,6 @@ public class CreateManagerScreen : IBaseScreen
                 });
                 break;
         }
-        
     }
 
     public void RenderScreen()

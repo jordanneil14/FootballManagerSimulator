@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
@@ -28,13 +29,6 @@ public class LeagueTableScreen : BaseScreen
             });
             key++;
         }
-    }
-
-    public class LeagueKeyModel
-    {
-        public char Key { get; set; }
-        public League League { get; set; } = new League();
-        public bool IsCurrent { get; set; }
     }
 
     public LeagueTableScreen(
