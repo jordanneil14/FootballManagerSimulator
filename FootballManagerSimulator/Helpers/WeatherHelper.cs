@@ -7,8 +7,6 @@ public class WeatherHelper : IWeatherHelper
 {
     private readonly IState State;
 
-    private static readonly Random random = new Random();
-
     private readonly IEnumerable<Weather> Weathers = new List<Weather>
     {
         new Weather
@@ -110,7 +108,7 @@ public class WeatherHelper : IWeatherHelper
         var weather = Weathers.First(p => p.MonthNumber == month);
 
         var weatherType = weather.WeatherTypes.OrderBy(s => Guid.NewGuid()).First();
-        var temperature = random.Next(weather.MinTemperature, weather.MaxTemperature);
+        var temperature = RandomNumberHelper.Next(weather.MinTemperature, weather.MaxTemperature);
 
         return $"{weatherType} {temperature}c";
     }

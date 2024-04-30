@@ -123,7 +123,7 @@ public class TransferListHelper : ITransferListHelper
 
             var groupedPlayers = State.Players
                 .Where(p => p.Contract != null)
-                .GroupBy(p => p.Contract.ClubId, r => r.Rating)
+                .GroupBy(p => p.Contract!.ClubId, r => r.Rating)
                 .Select(p => new
                 {
                     ClubId = p.Key,

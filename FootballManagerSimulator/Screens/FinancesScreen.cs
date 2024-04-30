@@ -50,6 +50,5 @@ public class FinancesScreen : BaseScreen
         Console.WriteLine("Finances\n");
 
         Console.WriteLine($"Transfer budget: {State.MyClub.TransferBudgetFriendly}");
-        Console.WriteLine($"Wage Budget: {State.MyClub.WageBudgetFriendly}");
     }
 }

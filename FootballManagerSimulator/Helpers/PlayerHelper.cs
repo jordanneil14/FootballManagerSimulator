@@ -1,6 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
-using System.Numerics;
 
 namespace FootballManagerSimulator.Helpers;
 

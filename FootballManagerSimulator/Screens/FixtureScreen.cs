@@ -7,16 +7,13 @@ namespace FootballManagerSimulator.Screens;
 public class FixtureScreen : BaseScreen
 {
     private readonly IState State;
-    private readonly ITacticHelper TacticHelper;
     private readonly IMatchSimulatorHelper MatchSimulator;
 
     public FixtureScreen(
         IState state, 
-        ITacticHelper tacticHelper,
         IMatchSimulatorHelper matchSimulator) : base(state)
     {
         State = state;
-        TacticHelper = tacticHelper;
         MatchSimulator = matchSimulator;
     }
 
@@ -27,22 +24,27 @@ public class FixtureScreen : BaseScreen
         switch (input)
         {
             case "A":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.PreMatch
-                });
-
-                var todaysFixtures = State.TodaysFixtures.SelectMany(p => p.Fixtures);
-                foreach(var fixture in todaysFixtures)
-                {
-                    MatchSimulator.PrepareMatch(fixture);
-                }
+                HandleAdvanceInput();
                 break;
             case "B":
                 State.ScreenStack.Pop();
                 break;
             default:
                 break;
+        }
+    }
+
+    private void HandleAdvanceInput()
+    {
+        State.ScreenStack.Push(new Screen
+        {
+            Type = ScreenType.PreMatch
+        });
+
+        var todaysFixtures = State.TodaysFixtures.SelectMany(p => p.Fixtures).Where(p => p.HomeClub.Id != State.MyClub.Id && p.AwayClub.Id != State.MyClub.Id);
+        foreach (var fixture in todaysFixtures)
+        {
+            MatchSimulator.PrepareMatch(fixture);
         }
     }
 

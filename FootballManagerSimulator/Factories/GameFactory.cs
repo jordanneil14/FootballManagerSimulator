@@ -75,7 +75,6 @@ public class GameFactory : IGameFactory
             TacticHelper.ResetTacticForClub(club);
         }
 
-
         State.Leagues = Settings.Leagues.Select(p => LeagueFactory.CreateLeague(p)).ToList();
 
         TransferListHelper.UpdateTransferList();
