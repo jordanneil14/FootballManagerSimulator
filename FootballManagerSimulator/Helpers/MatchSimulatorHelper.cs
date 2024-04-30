@@ -107,9 +107,16 @@ public class MatchSimulatorHelper(
 
     public void PrepareMatch(Fixture fixture)
     {
-        tacticHelper.ResetTacticForClub(fixture.HomeClub);
-        tacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
-        tacticHelper.ResetTacticForClub(fixture.AwayClub);
-        tacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);
+        if (fixture.HomeClub.Id != state.MyClub.Id)
+        {
+            tacticHelper.ResetTacticForClub(fixture.HomeClub);
+            tacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
+        }
+
+        if (fixture.AwayClub.Id != state.MyClub.Id)
+        {
+            tacticHelper.ResetTacticForClub(fixture.AwayClub);
+            tacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);
+        }
     }
 }
