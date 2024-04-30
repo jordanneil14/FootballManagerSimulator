@@ -144,11 +144,6 @@ public class TacticHelper(
     {
         var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
 
-        if (clubId == 16)
-        {
-
-        }
-
         // Move players from the reserves into the starting 11
         var playingTacticSlots = state.Clubs
             .First(p => p.Id == clubId)
