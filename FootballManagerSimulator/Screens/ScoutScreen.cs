@@ -22,7 +22,7 @@ public class ScoutScreen(
             default:
                 var success = int.TryParse(input, out int result);
                 if (!success) return;
-                if (PlayerDetails.Count > result && result > 0)
+                if (PlayerDetails.Count >= result && result > 0)
                 {
                     var playerDetail = PlayerDetails.First(p => p.Row == result);
                     state.ScreenStack.Push(new Screen
