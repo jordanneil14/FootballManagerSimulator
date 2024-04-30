@@ -5,7 +5,8 @@ using FootballManagerSimulator.Structures;
 namespace FootballManagerSimulator.Helpers;
 
 public class TacticHelper(
-    IState state) : ITacticHelper
+    IState state,
+    IPlayerHelper playerHelper) : ITacticHelper
 {
     public void ResetTacticForClub(Club club)
     {
@@ -140,22 +141,20 @@ public class TacticHelper(
         }
     }
 
-    public void FillEmptyTacticSlotsByClubId(int clubId)
+    private void FillEmptyFirstElevenTacticSlotsByClubId(int clubId)
     {
         var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
 
         // Move players from the reserves into the starting 11
-        var playingTacticSlots = state.Clubs
+        var tacticSlots = state.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
+            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
-        foreach(var slot in playingTacticSlots)
+        foreach (var slot in tacticSlots)
         {
-            if (slot.PlayerId != null) continue;
-
             var position = ResolvePosition(slot.TacticSlotType);
- 
+
             var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString())).ToList();
             if (!preferredPlayers.Any())
             {
@@ -191,62 +190,96 @@ public class TacticHelper(
                 .Skip(1)
                 .First().PlayerId = null;
         }
+    }
 
+    private void FillEmptySubTacticSlotsByClubId(int clubId)
+    {
         // Move the remaining players from the reserves into the SUB positions
-        var subSlots = state.Clubs
+        var tacticSlots = state.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
-            .Where(p => p.TacticSlotType == TacticSlotType.SUB);
+            .Where(p => p.TacticSlotType == TacticSlotType.SUB && p.PlayerId == null)
+            .ToList();
 
-        foreach (var subSlot in subSlots)
+        for (var i = 0;i < tacticSlots.Count; i++)
         {
             var reserves = state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null)
+                .Select(p => new
+                {
+                    TacticSlot = p,
+                    Player = playerHelper.GetPlayerById(p.PlayerId.Value)
+                });
+
+            if (!reserves.Any())
+                return;
+
+            int? playerId = null;
+            if (i == 0)
+                playerId = reserves!.First(p => p.Player.PreferredPosition == "GK").Player?.Id;
+
+            if (playerId == null)
+                playerId = reserves!.First().Player?.Id;
 
             state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .First(p => p.Id == subSlot.Id)
-                .PlayerId = reserves.First().PlayerId;
+                .First(p => p.Id == tacticSlots.ElementAt(i).Id)
+                .PlayerId = playerId;
 
             state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.PlayerId == reserves.First().PlayerId)
+                .Where(p => p.PlayerId == playerId)
                 .Skip(1)
-                .First().PlayerId = null;
-        }
-
-        // Fill empty playing slots which couldnt be resolved above
-        var emptyPlayingSlots = state.Clubs
-            .First(p => p.Id == clubId)
-            .TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
-
-        foreach(var emptyPlayingSlot in emptyPlayingSlots)
-        {
-            var reserves = state.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
-
-            state.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .First(p => p.Id == emptyPlayingSlot.Id)
-                .PlayerId = reserves.First().PlayerId;
-
-            state.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .Where(p => p.PlayerId == reserves.First().PlayerId)
                 .First().PlayerId = null;
         }
     }
 
-    private Position GetFallbackPosition(Position position)
+    private void FillEmptyReserveSlotsByClubId(int clubId)
+    {
+        var reservePlayers = state.Clubs
+            .First(p => p.Id == clubId)
+            .TacticSlots
+            .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+
+        for (var i = 0; i < reservePlayers.Count(); i++)
+        {
+            var lowerSlotId = state.Clubs
+                .First(p => p.Id == clubId)
+                .TacticSlots
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null)
+                .OrderBy(p => p.Id)
+                .FirstOrDefault()?.Id;
+
+            if (lowerSlotId == null)
+                continue;
+
+            state.Clubs
+                .First(p => p.Id == clubId)
+                .TacticSlots
+                .First(p => p.Id == lowerSlotId)
+                .PlayerId = reservePlayers.ElementAt(i).PlayerId;
+
+            state.Clubs
+                .First(p => p.Id == clubId)
+                .TacticSlots
+                .Where(p => p.PlayerId == reservePlayers.ElementAt(i).PlayerId)
+                .Skip(1)
+                .First().PlayerId = null;
+        }
+    }
+
+    public void FillEmptyTacticSlotsByClubId(int clubId)
+    {
+        FillEmptyFirstElevenTacticSlotsByClubId(clubId);
+        FillEmptySubTacticSlotsByClubId(clubId);
+        FillEmptyReserveSlotsByClubId(clubId);
+    }
+
+    private static Position GetFallbackPosition(Position position)
     {
         return position switch
         {
