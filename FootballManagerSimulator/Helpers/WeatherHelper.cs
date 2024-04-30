@@ -3,10 +3,9 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class WeatherHelper : IWeatherHelper
+public class WeatherHelper(
+    IState state) : IWeatherHelper
 {
-    private readonly IState State;
-
     private readonly IEnumerable<Weather> Weathers = new List<Weather>
     {
         new Weather
@@ -95,15 +94,9 @@ public class WeatherHelper : IWeatherHelper
         },
     };
 
-    public WeatherHelper(
-        IState state)
-    {
-        State = state;
-    }
-
     public string GetTodaysWeather()
     {
-        var month = State.Date.Month;
+        var month = state.Date.Month;
 
         var weather = Weathers.First(p => p.MonthNumber == month);
 

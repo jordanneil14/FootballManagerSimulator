@@ -5,18 +5,11 @@ using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Factories;
 
-public class LeagueFactory : ILeagueFactory
+public class LeagueFactory(
+    IClubHelper clubHelper,
+    IOptions<Settings> settings) : ILeagueFactory
 {
-    private readonly IClubHelper ClubHelper;
-    private readonly Settings Settings;
-
-    public LeagueFactory(
-        IClubHelper clubHelper,
-        IOptions<Settings> settings)
-    {
-        ClubHelper = clubHelper;
-        Settings = settings.Value;
-    }
+    private readonly Settings Settings = settings.Value;
 
     public League CreateLeague(Settings.LeagueModel leagueModel)
     {
@@ -85,8 +78,8 @@ public class LeagueFactory : ILeagueFactory
 
             output.Add(new Fixture
             {
-                HomeClub = ClubHelper.GetClubById(clubs.ElementAt(0).Id),
-                AwayClub = ClubHelper.GetClubById(clubIndices[clubIdx].Id),
+                HomeClub = clubHelper.GetClubById(clubs.ElementAt(0).Id),
+                AwayClub = clubHelper.GetClubById(clubIndices[clubIdx].Id),
                 WeekNumber = randomHelper.WeekNumber,
                 Date = randomHelper.Date
             });
@@ -98,8 +91,8 @@ public class LeagueFactory : ILeagueFactory
 
                 output.Add(new Fixture
                 {
-                    HomeClub = ClubHelper.GetClubById(clubIndices[firstClubIdx].Id),
-                    AwayClub = ClubHelper.GetClubById(clubIndices[secondClubIdx].Id),
+                    HomeClub = clubHelper.GetClubById(clubIndices[firstClubIdx].Id),
+                    AwayClub = clubHelper.GetClubById(clubIndices[secondClubIdx].Id),
                     WeekNumber = randomHelper.WeekNumber,
                     Date = randomHelper.Date
                 });
@@ -117,8 +110,8 @@ public class LeagueFactory : ILeagueFactory
 
             output.Add(new Fixture
             {
-                HomeClub = ClubHelper.GetClubById(clubIndices[clubIdx].Id),
-                AwayClub = ClubHelper.GetClubById(clubs.ElementAt(0).Id),
+                HomeClub = clubHelper.GetClubById(clubIndices[clubIdx].Id),
+                AwayClub = clubHelper.GetClubById(clubs.ElementAt(0).Id),
                 WeekNumber = randomHelper.WeekNumber,
                 Date = randomHelper.Date
             });
@@ -130,8 +123,8 @@ public class LeagueFactory : ILeagueFactory
 
                 output.Add(new Fixture
                 {
-                    HomeClub = ClubHelper.GetClubById(clubIndices[secondClubIdx].Id),
-                    AwayClub = ClubHelper.GetClubById(clubIndices[firstClubIdx].Id),
+                    HomeClub = clubHelper.GetClubById(clubIndices[secondClubIdx].Id),
+                    AwayClub = clubHelper.GetClubById(clubIndices[firstClubIdx].Id),
                     WeekNumber = randomHelper.WeekNumber,
                     Date = randomHelper.Date
                 });

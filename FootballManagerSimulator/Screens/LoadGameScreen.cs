@@ -5,16 +5,10 @@ using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Screens;
 
-public class LoadGameScreen : IBaseScreen
+public class LoadGameScreen(
+    IState state) : IBaseScreen
 {
-    private readonly IState State;
     private readonly List<LoadGamePreview> Games = new List<LoadGamePreview>();
-
-    public LoadGameScreen(
-        IState state)
-    {
-        State = state;
-    }
 
     public ScreenType Screen => ScreenType.LoadGame;
 
@@ -23,8 +17,8 @@ public class LoadGameScreen : IBaseScreen
         switch(input)
         {
             case "B":
-                State.ScreenStack.Clear();
-                State.ScreenStack.Push(new Screen
+                state.ScreenStack.Clear();
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Welcome
                 });
@@ -35,8 +29,8 @@ public class LoadGameScreen : IBaseScreen
                     var game = Games.ElementAt(int.Parse(input) - 1);
                     if (game == null) return;
                     TryLoadGame(game.FileName);
-                    State.ScreenStack.Clear();
-                    State.ScreenStack.Push(new Screen()
+                    state.ScreenStack.Clear();
+                    state.ScreenStack.Push(new Screen()
                     {
                         Type = ScreenType.Main
                     });
@@ -56,20 +50,20 @@ public class LoadGameScreen : IBaseScreen
             if (deserialisedState == null)
                 throw new Exception("Unable to load game");
 
-            State.Weather = deserialisedState.Weather;
-            State.ScreenStack = deserialisedState.ScreenStack;
-            State.Notifications = deserialisedState.Notifications;
-            State.ManagerName = deserialisedState.ManagerName;
-            State.Clubs = deserialisedState.Clubs;
-            State.Date = deserialisedState.Date;
-            State.MyClub = deserialisedState.MyClub;
-            State.Players = deserialisedState.Players;
-            State.Leagues = deserialisedState.Leagues;
-            State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
+            state.Weather = deserialisedState.Weather;
+            state.ScreenStack = deserialisedState.ScreenStack;
+            state.Notifications = deserialisedState.Notifications;
+            state.ManagerName = deserialisedState.ManagerName;
+            state.Clubs = deserialisedState.Clubs;
+            state.Date = deserialisedState.Date;
+            state.MyClub = deserialisedState.MyClub;
+            state.Players = deserialisedState.Players;
+            state.Leagues = deserialisedState.Leagues;
+            state.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
         }
         catch (Exception ex)
         {
-            State.UserFeedbackUpdates.Add(ex.Message);
+            state.UserFeedbackUpdates.Add(ex.Message);
         }
     }
 

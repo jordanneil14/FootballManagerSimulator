@@ -4,16 +4,9 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class TacticHelper : ITacticHelper
+public class TacticHelper(
+    IState state) : ITacticHelper
 {
-    private readonly IState State;
-
-    public TacticHelper(
-        IState state)
-    {
-        State = state;
-    }
-
     public void ResetTacticForClub(Club club)
     {
         club.TacticSlots = new List<TacticSlot>()
@@ -138,7 +131,7 @@ public class TacticHelper : ITacticHelper
             });
         }
 
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
+        var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
         foreach (var player in players)
         {
             var tacticSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
@@ -149,7 +142,7 @@ public class TacticHelper : ITacticHelper
 
     public void FillEmptyTacticSlotsByClubId(int clubId)
     {
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
+        var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
 
         if (clubId == 16)
         {
@@ -157,7 +150,7 @@ public class TacticHelper : ITacticHelper
         }
 
         // Move players from the reserves into the starting 11
-        var playingTacticSlots = State.Clubs
+        var playingTacticSlots = state.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB);
@@ -177,7 +170,7 @@ public class TacticHelper : ITacticHelper
                 preferredPlayers.AddRange(secondaryPlayers);
             }
 
-            var reserves = State.Clubs
+            var reserves = state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
@@ -191,13 +184,13 @@ public class TacticHelper : ITacticHelper
 
             if (selectedPlayer == null) continue;
 
-            State.Clubs
+            state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == slot.Id)
                 .PlayerId = selectedPlayer.PlayerId;
 
-            State.Clubs.First(p => p.Id == clubId)
+            state.Clubs.First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == slot.PlayerId)
                 .Skip(1)
@@ -205,25 +198,25 @@ public class TacticHelper : ITacticHelper
         }
 
         // Move the remaining players from the reserves into the SUB positions
-        var subSlots = State.Clubs
+        var subSlots = state.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType == TacticSlotType.SUB);
 
         foreach (var subSlot in subSlots)
         {
-            var reserves = State.Clubs
+            var reserves = state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
 
-            State.Clubs
+            state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == subSlot.Id)
                 .PlayerId = reserves.First().PlayerId;
 
-            State.Clubs
+            state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == reserves.First().PlayerId)
@@ -232,25 +225,25 @@ public class TacticHelper : ITacticHelper
         }
 
         // Fill empty playing slots which couldnt be resolved above
-        var emptyPlayingSlots = State.Clubs
+        var emptyPlayingSlots = state.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
         foreach(var emptyPlayingSlot in emptyPlayingSlots)
         {
-            var reserves = State.Clubs
+            var reserves = state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
 
-            State.Clubs
+            state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == emptyPlayingSlot.Id)
                 .PlayerId = reserves.First().PlayerId;
 
-            State.Clubs
+            state.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == reserves.First().PlayerId)

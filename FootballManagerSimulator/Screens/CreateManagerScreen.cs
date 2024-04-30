@@ -4,19 +4,10 @@ using System.Globalization;
 
 namespace FootballManagerSimulator.Screens;
 
-public class CreateManagerScreen : IBaseScreen
+public class CreateManagerScreen(
+    IState state,
+    IGameCreator gameCreator) : IBaseScreen
 {
-    private readonly IState State;
-    private readonly IGameCreator GameCreator;
-
-    public CreateManagerScreen(
-        IState state,
-        IGameCreator gameCreator)
-    {
-        State = state;
-        GameCreator = gameCreator;
-    }
-
     public ScreenType Screen => ScreenType.CreateManager;
 
     public void HandleInput(string input)
@@ -24,13 +15,13 @@ public class CreateManagerScreen : IBaseScreen
         switch(input.ToLower())
         {
             case "b":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
             default:
                 if (string.IsNullOrWhiteSpace(input)) return;
                 var text = new CultureInfo("en-US", false).TextInfo;
-                GameCreator.ManagerName = text.ToTitleCase(input.ToLower());
-                State.ScreenStack.Push(new Structures.Screen
+                gameCreator.ManagerName = text.ToTitleCase(input.ToLower());
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.SelectLeague
                 });

@@ -5,30 +5,23 @@ using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Screens;
 
-public class SaveScreen : BaseScreen
+public class SaveScreen(IState state) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.SaveGame;
-
-    private readonly IState State;
-
-    public SaveScreen(IState state) : base(state)
-    {
-        State = state;
-    }
 
     public override void HandleInput(string input)
     {
         switch (input)
         {
             case "B":
-                State.ScreenStack.Clear();
+                state.ScreenStack.Clear();
                 break;
             default:
                 SaveGame(input);
                 break;
         }
 
-        State.ScreenStack.Push(new Screen
+        state.ScreenStack.Push(new Screen
         {
             Type = ScreenType.Main
         });
@@ -39,13 +32,13 @@ public class SaveScreen : BaseScreen
         try
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var stateAsJson = JsonConvert.SerializeObject(State);
+            var stateAsJson = JsonConvert.SerializeObject(state);
             File.WriteAllText(path + $"\\{fileName}.fms", stateAsJson);
-            State.UserFeedbackUpdates.Add("Game saved successfully");
+            state.UserFeedbackUpdates.Add("Game saved successfully");
         }
         catch (Exception)
         {
-            State.UserFeedbackUpdates.Add("Unable to save game");
+            state.UserFeedbackUpdates.Add("Unable to save game");
         }
     }
 

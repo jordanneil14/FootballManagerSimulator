@@ -5,16 +5,10 @@ using static FootballManagerSimulator.Screens.PlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
 
-public class ScoutScreen : BaseScreen
+public class ScoutScreen(
+    IState state) : BaseScreen(state)
 {
-    private readonly IState State;
-    private readonly List<PlayerDetailModel> PlayerDetails = new(); 
-
-    public ScoutScreen(
-        IState state) : base(state)
-    {
-        State = state;
-    }
+    private readonly List<PlayerDetailModel> PlayerDetails = new();
 
     public override ScreenType Screen => ScreenType.Scout;
 
@@ -23,7 +17,7 @@ public class ScoutScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
             default:
                 var success = int.TryParse(input, out int result);
@@ -31,7 +25,7 @@ public class ScoutScreen : BaseScreen
                 if (PlayerDetails.Count > result && result > 0)
                 {
                     var playerDetail = PlayerDetails.First(p => p.Row == result);
-                    State.ScreenStack.Push(new Screen
+                    state.ScreenStack.Push(new Screen
                     {
                         Type = ScreenType.Player,
                         Parameters = new PlayerScreenObj()
@@ -54,7 +48,7 @@ public class ScoutScreen : BaseScreen
     public override void RenderSubscreen()
     {
         PlayerDetails.Clear();
-        var employeedPlayers = State.Players
+        var employeedPlayers = state.Players
             .Where(p => p.Contract != null)
             .OrderBy(p => p.Contract!.ClubName);
 
@@ -67,7 +61,7 @@ public class ScoutScreen : BaseScreen
             });
         }
 
-        var freeAgents = State.Players
+        var freeAgents = state.Players
             .Where(p => p.Contract == null)
             .OrderByDescending(p => p.Rating)
             .Take(100);

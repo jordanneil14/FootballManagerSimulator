@@ -5,23 +5,12 @@ using static FootballManagerSimulator.Screens.TransferPlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
 
-public class PlayerScreen : BaseScreen
+public class PlayerScreen(
+    IState state,
+    IPlayerHelper playerHelper,
+    ITransferListHelper transferListHelper) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.Player;
-
-    private readonly IState State;
-    private readonly IPlayerHelper PlayerHelper;
-    private readonly ITransferListHelper TransferListHelper;
-
-    public PlayerScreen(
-        IState state,
-        IPlayerHelper playerHelper,
-        ITransferListHelper transferListHelper) : base(state)
-    {
-        State = state;
-        PlayerHelper = playerHelper;
-        TransferListHelper = transferListHelper;
-    }
 
     public static Screen CreateScreen(Player player)
     {
@@ -45,7 +34,7 @@ public class PlayerScreen : BaseScreen
         switch(input)
         {
             case "B":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
             case "C":
                 HandleTransferOptionsInput();
@@ -60,20 +49,20 @@ public class PlayerScreen : BaseScreen
 
     private void HandleSignFreeAgentInput()
     {
-        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
-        var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
+        var screenParameters = state.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var player = playerHelper.GetPlayerById(screenParameters.Player.Id);
 
-        TransferListHelper.SignFreeAgentByPlayerId(player.Id);
+        transferListHelper.SignFreeAgentByPlayerId(player.Id);
 
-        State.UserFeedbackUpdates.Add($"{player.Name} has been signed");
+        state.UserFeedbackUpdates.Add($"{player.Name} has been signed");
     }
 
     private void HandleTransferOptionsInput()
     {
-        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var screenParameters = state.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = screenParameters.Player;
 
-        State.ScreenStack.Push(new Screen
+        state.ScreenStack.Push(new Screen
         {
             Type = ScreenType.TransferPlayer,
             Parameters = new TransferPlayerScreenObj
@@ -85,12 +74,12 @@ public class PlayerScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var screenParameters = state.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = screenParameters.Player;
 
         Console.WriteLine($"{player.Name}\n\nGeneral Information");
 
-        var transferValue = PlayerHelper.GetTransferValue(player);
+        var transferValue = playerHelper.GetTransferValue(player);
         var transferValueFriendly = $"£{transferValue:n}";
 
         Console.WriteLine(
@@ -127,10 +116,10 @@ public class PlayerScreen : BaseScreen
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
 
-        var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
-        var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
+        var screenParameters = state.ScreenStack.Peek().Parameters as PlayerScreenObj;
+        var player = playerHelper.GetPlayerById(screenParameters.Player.Id);
 
-        var playerPlaysForMyClub = PlayerHelper.PlayerPlaysForClub(player.Id, State.MyClub.Id);
+        var playerPlaysForMyClub = playerHelper.PlayerPlaysForClub(player.Id, state.MyClub.Id);
         var playerIsFreeAgent = player.Contract == null;
 
         if (playerPlaysForMyClub)

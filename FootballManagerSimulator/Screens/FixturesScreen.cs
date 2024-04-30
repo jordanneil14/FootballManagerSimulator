@@ -4,15 +4,8 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class FixturesScreen : BaseScreen
+public class FixturesScreen(IState state) : BaseScreen(state)
 {
-    private readonly IState State;
-
-    public FixturesScreen(IState state) : base(state)
-    {
-        State = state;
-    }
-
     public override ScreenType Screen => ScreenType.Fixtures;
 
     public override void HandleInput(string input)
@@ -20,7 +13,7 @@ public class FixturesScreen : BaseScreen
         switch (input)
         {
             case "B":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -54,9 +47,9 @@ public class FixturesScreen : BaseScreen
     {
         Console.WriteLine("Fixtures & Results");
 
-        var parameters = State.ScreenStack.Peek().Parameters as FixturesScreenObj;
+        var parameters = state.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
-        var rounds = State.Leagues
+        var rounds = state.Leagues
             .Where(p => p.Id == parameters.League.Id)
             .SelectMany(p => p.Fixtures)
             .GroupBy(x => x.WeekNumber);

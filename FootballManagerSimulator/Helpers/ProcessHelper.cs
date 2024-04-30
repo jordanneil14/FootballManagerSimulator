@@ -4,38 +4,27 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class ProcessHelper : IProcessHelper
+public class ProcessHelper(
+    IState state,
+    IWeatherHelper weatherHelper,
+    ITransferListHelper transferListHelper) : IProcessHelper
 {
-    private readonly IState State;
-    private readonly IWeatherHelper WeatherHelper;
-    private readonly ITransferListHelper TransferListHelper;
-
-    public ProcessHelper(
-        IState state,
-        IWeatherHelper weatherHelper,
-        ITransferListHelper transferListHelper)
-    {
-        State = state;
-        WeatherHelper = weatherHelper;
-        TransferListHelper = transferListHelper;
-    }
-
     public void Process()
     {
         try
         {
             ValidateProcess();
-            State.Date = State.Date.AddDays(1);
-            State.Weather = WeatherHelper.GetTodaysWeather();
+            state.Date = state.Date.AddDays(1);
+            state.Weather = weatherHelper.GetTodaysWeather();
 
-            if (State.Date.DayOfWeek == DayOfWeek.Monday)
-                TransferListHelper.UpdateTransferList();
+            if (state.Date.DayOfWeek == DayOfWeek.Monday)
+                transferListHelper.UpdateTransferList();
 
-            TransferListHelper.ProcessAITransfers();
+            transferListHelper.ProcessAITransfers();
 
         } catch (ProcessException ex)
         {
-            State.ScreenStack.Push(new Structures.Screen
+            state.ScreenStack.Push(new Structures.Screen
             {
                 Type = ex.ScreenType
             });
@@ -44,7 +33,7 @@ public class ProcessHelper : IProcessHelper
 
     private void ValidateProcess()
     {
-        var existsOutstandingFixtures = State.TodaysFixtures
+        var existsOutstandingFixtures = state.TodaysFixtures
             .SelectMany(p => p.Fixtures)
             .Any(p => !p.Concluded);
 

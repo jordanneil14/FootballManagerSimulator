@@ -4,35 +4,26 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class ClubScreen : BaseScreen
+public class ClubScreen(
+    IState state,
+    IPlayerHelper utils) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.Club;
-
-    private readonly IState State;
-    private readonly IPlayerHelper PlayerHelper;
-
-    public ClubScreen(
-        IState state, 
-        IPlayerHelper utils) : base(state)
-    {
-        State = state;
-        PlayerHelper = utils;
-    }
 
     public override void HandleInput(string input)
     {
         switch (input)
         {
             case "B":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
             default:
                 var isInt = int.TryParse(input, out int value);
                 if (!isInt) return;
-                var player = PlayerHelper.GetPlayerById(value);
+                var player = utils.GetPlayerById(value);
                 if (player != null)
                 {
-                    State.ScreenStack.Push(PlayerScreen.CreateScreen(player));
+                    state.ScreenStack.Push(PlayerScreen.CreateScreen(player));
                 }
                 break;
         }
@@ -57,14 +48,14 @@ public class ClubScreen : BaseScreen
 
     public override void RenderSubscreen()
     {
-        var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
+        var clubScreenObj = state.ScreenStack.Peek().Parameters as ClubScreenObj;
 
         Console.WriteLine($"{clubScreenObj!.Club.Name}");
 
         Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}\n");
 
         Console.WriteLine("Upcoming Fixtures:");
-        var upcomingFixtures = State.Leagues
+        var upcomingFixtures = state.Leagues
             .SelectMany(p => p.Fixtures)
             .Where(p => p.HomeClub == clubScreenObj.Club || p.AwayClub == clubScreenObj.Club).Take(5);
         foreach (var fixture in upcomingFixtures)
@@ -74,13 +65,13 @@ public class ClubScreen : BaseScreen
 
         Console.WriteLine("\nPlayers:");
 
-        var players = State.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
+        var players = state.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
 
         Console.WriteLine($"{"ID",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Transfer Value", -20}");
 
         foreach (var player in players.OrderBy(p => p.Name))
         {
-            var transferValue = PlayerHelper.GetTransferValue(player);
+            var transferValue = utils.GetTransferValue(player);
             var transferValueFriendly = $"£{transferValue:n}";
             Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}{transferValueFriendly,-10}");
         }

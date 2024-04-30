@@ -3,16 +3,9 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
 
-public abstract class BaseScreen : IBaseScreen
+public abstract class BaseScreen(IState state) : IBaseScreen
 {
     public abstract ScreenType Screen { get; }
-
-    private readonly IState State;
-
-    public BaseScreen(IState state)
-    {
-        State = state;
-    }
 
     public abstract void HandleInput(string input);
 
@@ -29,11 +22,11 @@ public abstract class BaseScreen : IBaseScreen
 
     public void RenderUserFeedbackUpdates()
     {
-        foreach(var update in State.UserFeedbackUpdates)
+        foreach(var update in state.UserFeedbackUpdates)
         {
             Console.WriteLine($"** {update} **");
         }
-        if (State.UserFeedbackUpdates.Any())
+        if (state.UserFeedbackUpdates.Any())
         {
             Console.WriteLine("\n");
         }
@@ -45,33 +38,33 @@ public abstract class BaseScreen : IBaseScreen
     {
         var nextMatchCaption = GetNextMatchCaption();
 
-        Console.WriteLine($"{State.MyClub.Name,-100}{State.Date,20}");
-        Console.WriteLine($"{State.ManagerName,-100}{State.Weather,20}");
+        Console.WriteLine($"{state.MyClub.Name,-100}{state.Date,20}");
+        Console.WriteLine($"{state.ManagerName,-100}{state.Weather,20}");
         Console.WriteLine(nextMatchCaption);
         Console.WriteLine("------------------------------------------------------------------------------------------------------------------------");
     }
 
     private string GetNextMatchCaption()
     {
-        var nextFixture = State.Leagues.SelectMany(p => p.Fixtures)
-            .Where(p => p.Date >= State.Date && (p.HomeClub.Id == State.MyClub.Id || p.AwayClub.Id == State.MyClub.Id))
+        var nextFixture = state.Leagues.SelectMany(p => p.Fixtures)
+            .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id))
             .OrderBy(p => p.WeekNumber)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
-        var clubAgainst = nextFixture.HomeClub.Id == State.MyClub.Id ? nextFixture.AwayClub : nextFixture.HomeClub;
+        var clubAgainst = nextFixture.HomeClub.Id == state.MyClub.Id ? nextFixture.AwayClub : nextFixture.HomeClub;
 
-        if (nextFixture.Date == State.Date && nextFixture.Concluded)
+        if (nextFixture.Date == state.Date && nextFixture.Concluded)
         {
             return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
         }
 
-        if (nextFixture.Date == State.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
+        if (nextFixture.Date == state.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
 
-        var diff = nextFixture.Date.DayNumber - State.Date.DayNumber;
+        var diff = nextFixture.Date.DayNumber - state.Date.DayNumber;
         if (diff == 1)
             return $"Next Match: Tomorrow Vs {clubAgainst.Name}";       
                 
-        return $"Next Match: {nextFixture.Date.DayNumber - State.Date.DayNumber} days Vs {clubAgainst.Name}";
+        return $"Next Match: {nextFixture.Date.DayNumber - state.Date.DayNumber} days Vs {clubAgainst.Name}";
     }
 }

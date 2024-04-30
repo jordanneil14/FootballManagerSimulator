@@ -3,19 +3,10 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
 
-public class MainScreen : BaseScreen
+public class MainScreen(
+    IState state,
+    IProcessHelper processor) : BaseScreen(state)
 {
-    private readonly IState State;
-    private readonly IProcessHelper Processor;
-
-    public MainScreen(
-        IState state,
-        IProcessHelper processor) : base(state)
-    {
-        State = state;
-        Processor = processor;
-    }
-
     public override ScreenType Screen => ScreenType.Main;
 
     public override void HandleInput(string input)
@@ -23,50 +14,50 @@ public class MainScreen : BaseScreen
         switch (input.ToUpper())
         {
             case "A":
-                Processor.Process();
+                processor.Process();
                 break;
             case "B":
-                State.Notifications.RemoveRange(0, 1);
+                state.Notifications.RemoveRange(0, 1);
                 break;
             case "C":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.LeagueTable
                 });
                 break;
             case "D":
-                var league = State.Leagues.First(p => p.Id == State.MyClub.LeagueId);
-                State.ScreenStack.Push(FixturesScreen.CreateScreen(league));
+                var league = state.Leagues.First(p => p.Id == state.MyClub.LeagueId);
+                state.ScreenStack.Push(FixturesScreen.CreateScreen(league));
                 break;
             case "E":
-                State.ScreenStack.Push(ClubScreen.CreateScreen(State.MyClub));
+                state.ScreenStack.Push(ClubScreen.CreateScreen(state.MyClub));
                 break;
             case "F":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.Scout
                 });
                 break;
             case "S":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.SaveGame
                 });
                 break;
             case "G":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.Tactics
                 });
                 break;
             case "H":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 { 
                     Type = ScreenType.Finances
                 });
                 break;
             case "I":
-                State.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Structures.Screen
                 {
                     Type = ScreenType.TransferList
                 });
@@ -82,11 +73,11 @@ public class MainScreen : BaseScreen
     public override void RenderSubscreen()
     {
         Console.WriteLine("Notifications");
-        var unreadMessagesCount = State.Notifications.Where(p => p.Date <= State.Date).Count();
+        var unreadMessagesCount = state.Notifications.Where(p => p.Date <= state.Date).Count();
         Console.WriteLine($"You have {unreadMessagesCount} unread notifications\n");
-        if (State.Notifications.Where(p => p.Date <= State.Date).Any())
+        if (state.Notifications.Where(p => p.Date <= state.Date).Any())
         {
-            Console.WriteLine(State.Notifications.Where(p => p.Date <= State.Date).First());
+            Console.WriteLine(state.Notifications.Where(p => p.Date <= state.Date).First());
         }
     }
 
@@ -94,7 +85,7 @@ public class MainScreen : BaseScreen
     {
         Console.WriteLine("Options:");
         Console.WriteLine("A) Advance");
-        if (State.Notifications.Where(p => p.Date <= State.Date).Any())
+        if (state.Notifications.Where(p => p.Date <= state.Date).Any())
         {
             Console.WriteLine("B) Get next notification");
         }

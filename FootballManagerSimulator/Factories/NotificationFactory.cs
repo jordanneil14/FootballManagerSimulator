@@ -3,16 +3,9 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Factories;
 
-public class NotificationFactory : INotificationFactory
+public class NotificationFactory(
+    IState state) : INotificationFactory
 {
-    private readonly IState State;
-
-    public NotificationFactory(
-        IState state)
-    {
-        State = state;
-    }
-
     public void AddNotification(DateOnly date, string recipient, string subject, string message)
     {
         var notification = new Notification
@@ -22,6 +15,6 @@ public class NotificationFactory : INotificationFactory
             Subject = subject,
             Message = message
         };
-        State.Notifications.Add(notification);
+        state.Notifications.Add(notification);
     }
 }

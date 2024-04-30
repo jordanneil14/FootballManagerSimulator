@@ -4,16 +4,9 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class WelcomeScreen : IBaseScreen
+public class WelcomeScreen(
+    IState state) : IBaseScreen
 {
-    private readonly IState State;
-
-    public WelcomeScreen(
-        IState state)
-    {
-        State = state;
-    }
-
     public ScreenType Screen => ScreenType.Welcome;
 
     public void HandleInput(string input)
@@ -21,13 +14,13 @@ public class WelcomeScreen : IBaseScreen
         switch (input)
         {
             case "A":
-                State.ScreenStack.Push(new Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.CreateManager
                 });
                 break;
             case "B":
-                State.ScreenStack.Push(new Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.LoadGame
                 });

@@ -3,38 +3,31 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Helpers;
 
-public class PlayerHelper : IPlayerHelper
+public class PlayerHelper(IState state) : IPlayerHelper
 {
-    private readonly IState State;
-
-    public PlayerHelper(IState state)
-    {
-        State = state;
-    }
-
     public Club? GetClubByName(string name)
     {
-        return State.Clubs
+        return state.Clubs
             .Where(p => p.Name.ToLower() == name.ToLower())
             .FirstOrDefault();
     }
 
     public bool PlayerPlaysForClub(int playerId, int clubId)
     {
-        var player = State.Players.First(p => p.Id == playerId);
+        var player = state.Players.First(p => p.Id == playerId);
         return player.Contract != null && clubId == player.Contract.ClubId;
     }
 
     public Player? GetPlayerById(int id)
     {
-        return State.Players
+        return state.Players
             .Where(p => p.Id == id)
             .FirstOrDefault();
     }
 
     public Player? GetPlayerByName(string name)
     {
-        return State.Players
+        return state.Players
             .Where(p => p.Name == name)
             .FirstOrDefault();
     }
@@ -57,7 +50,7 @@ public class PlayerHelper : IPlayerHelper
             playerData.Players.ElementAt(i).Contract!.ClubId = club.Id;
         }
 
-        State.Players.AddRange(playerData.Players);
+        state.Players.AddRange(playerData.Players);
     }
 
     public int GetTransferValue(Player player)

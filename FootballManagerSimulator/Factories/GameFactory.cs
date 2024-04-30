@@ -6,52 +6,29 @@ using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Factories;
 
-public class GameFactory : IGameFactory
+public class GameFactory(
+    IClubHelper clubHelper,
+    IPlayerHelper playerHelper,
+    IState state,
+    ILeagueFactory leagueFactory,
+    INotificationFactory notificationFactory,
+    IGameCreator gameCreator,
+    IOptions<Settings> settings,
+    ITacticHelper tacticHelper,
+    IWeatherHelper weatherHelper,
+    ITransferListHelper transferListHelper) : IGameFactory
 {
-    private readonly IClubHelper ClubHelper;
-    private readonly IPlayerHelper PlayerHelper;
-    private readonly IState State;
-    private readonly ILeagueFactory LeagueFactory;
-    private readonly INotificationFactory NotificationFactory;
-    private readonly IGameCreator GameCreator;
-    private readonly Settings Settings;
-    private readonly ITacticHelper TacticHelper;
-    private readonly IWeatherHelper WeatherHelper;
-    private readonly ITransferListHelper TransferListHelper;
-
-    public GameFactory(
-        IClubHelper clubHelper,
-        IPlayerHelper playerHelper,
-        IState state,
-        ILeagueFactory leagueFactory,
-        INotificationFactory notificationFactory,
-        IGameCreator gameCreator,
-        IOptions<Settings> settings,
-        ITacticHelper tacticHelper,
-        IWeatherHelper weatherHelper,
-        ITransferListHelper transferListHelper)
-    {
-        ClubHelper = clubHelper;
-        PlayerHelper = playerHelper;
-        State = state;
-        LeagueFactory = leagueFactory;
-        NotificationFactory = notificationFactory;
-        GameCreator = gameCreator;
-        Settings = settings.Value;
-        TacticHelper = tacticHelper;
-        WeatherHelper = weatherHelper;
-        TransferListHelper = transferListHelper;
-    }
+    private readonly Settings Settings = settings.Value;
 
     public void CreateGame()
     {
-        State.ManagerName = GameCreator.ManagerName;
+        state.ManagerName = gameCreator.ManagerName;
 
-        State.Date = Settings.General.StartDateAsDate;
+        state.Date = Settings.General.StartDateAsDate;
 
-        State.Weather = WeatherHelper.GetTodaysWeather();
+        state.Weather = weatherHelper.GetTodaysWeather();
 
-        State.Clubs = Settings.Clubs.Select(p => new Club
+        state.Clubs = Settings.Clubs.Select(p => new Club
         {
             Id = p.Id,
             Name = p.Name,
@@ -61,44 +38,44 @@ public class GameFactory : IGameFactory
             LeagueId = p.LeagueId
         }).ToList();
 
-        State.MyClub = ClubHelper.GetClubById(GameCreator.ClubId);
+        state.MyClub = clubHelper.GetClubById(gameCreator.ClubId);
 
         var content = File.ReadAllText($"Resources\\playerData.json");
         var playerData = JsonConvert.DeserializeObject<PlayerData>(content);
         if (playerData == null)
             throw new Exception("Unable to load players from playerData.json");
 
-        PlayerHelper.AddPlayersToState(playerData);
+        playerHelper.AddPlayersToState(playerData);
 
-        foreach(var club in State.Clubs)
+        foreach(var club in state.Clubs)
         {
-            TacticHelper.ResetTacticForClub(club);
+            tacticHelper.ResetTacticForClub(club);
         }
 
-        State.Leagues = Settings.Leagues.Select(p => LeagueFactory.CreateLeague(p)).ToList();
+        state.Leagues = Settings.Leagues.Select(p => leagueFactory.CreateLeague(p)).ToList();
 
-        TransferListHelper.UpdateTransferList();
+        transferListHelper.UpdateTransferList();
 
-        var freeAgents = State.Players
+        var freeAgents = state.Players
             .Where(p => p.Contract == null)
             .OrderByDescending(p => p.Rating)
             .Select(p => p.Name)
             .Take(4);
 
-        NotificationFactory.AddNotification(
-            State.Date,
+        notificationFactory.AddNotification(
+            state.Date,
             "Chairman",
-            $"Welcome to {State.MyClub.Name}",
+            $"Welcome to {state.MyClub.Name}",
             "Everyone at the club wishes you a successful reign as manager.");
 
-        NotificationFactory.AddNotification(
-            State.Date,
+        notificationFactory.AddNotification(
+            state.Date,
             "Chairman",
             "Transfer Budget",
-            $"Your transfer budget for the upcoming season is {State.MyClub.TransferBudgetFriendly}.");
+            $"Your transfer budget for the upcoming season is {state.MyClub.TransferBudgetFriendly}.");
 
-        NotificationFactory.AddNotification(
-            State.Date.AddDays(1),
+        notificationFactory.AddNotification(
+            state.Date.AddDays(1),
             "Scout",
             "Players With Expired Contracts",
             $"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +

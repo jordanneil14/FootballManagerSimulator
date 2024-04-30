@@ -4,37 +4,28 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator;
 
-public class Game : IGame
+public class Game(
+    IEnumerable<IBaseScreen> screens,
+    IState state) : IGame
 {
-    private readonly IEnumerable<IBaseScreen> Screens;
-    private readonly IState State;
-
-    public Game(
-        IEnumerable<IBaseScreen> screens,
-        IState state)
-    {
-        Screens = screens;
-        State = state;
-    }
-
     public void Run()
     {
         try
         {
-            State.ScreenStack.Push(new Screen
+            state.ScreenStack.Push(new Screen
             {
                 Type = ScreenType.Welcome
             });
 
             while (true)
             {
-                var peek = State.ScreenStack.Peek();
-                var screen = Screens.First(s => s.Screen == peek.Type);
+                var peek = state.ScreenStack.Peek();
+                var screen = screens.First(s => s.Screen == peek.Type);
                 Console.Clear();
                 Console.WriteLine("\x1b[3J");
                 Console.Clear();
                 screen.RenderScreen();
-                State.UserFeedbackUpdates.Clear();
+                state.UserFeedbackUpdates.Clear();
                 var input = Console.ReadLine();
                 screen.HandleInput(input.ToUpper());
             }

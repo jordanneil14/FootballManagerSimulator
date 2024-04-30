@@ -2,14 +2,8 @@
 
 namespace FootballManagerSimulator.Exceptions;
 
-public class ProcessException : Exception
+public class ProcessException(
+    ScreenType screenType) : Exception()
 {
-    private ScreenType _screenType;
-    public ScreenType ScreenType { get { return _screenType; } }
-
-    public ProcessException(
-        ScreenType screenType) : base()
-    {
-        _screenType = screenType;
-    }
+    public ScreenType ScreenType { get { return screenType; } }
 }

@@ -4,32 +4,23 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class SelectLeagueScreen : IBaseScreen
+public class SelectLeagueScreen(
+    IState state,
+    IGameCreator gameCreator) : IBaseScreen
 {
-    private readonly IState State;
-    private readonly IGameCreator GameCreator;
-
     public ScreenType Screen => ScreenType.SelectLeague;
-
-    public SelectLeagueScreen(
-        IState state,
-        IGameCreator gameCreator)
-    {
-        State = state;
-        GameCreator = gameCreator;
-    }
 
     public void HandleInput(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
             return;
 
-        var league = GameCreator.Leagues.FirstOrDefault(p => p.Id.ToString() == input);
+        var league = gameCreator.Leagues.FirstOrDefault(p => p.Id.ToString() == input);
         if (league != null)
         {
-            GameCreator.LeagueId = league.Id;
+            gameCreator.LeagueId = league.Id;
 
-            State.ScreenStack.Push(new Screen
+            state.ScreenStack.Push(new Screen
             {
                 Type = ScreenType.SelectClub
             });
@@ -38,7 +29,7 @@ public class SelectLeagueScreen : IBaseScreen
         switch (input)
         {
             case "B":
-                State.ScreenStack.Pop();
+                state.ScreenStack.Pop();
                 break;
         }
     }
@@ -48,7 +39,7 @@ public class SelectLeagueScreen : IBaseScreen
         Console.WriteLine("Select a league to manage in:\n");
         Console.WriteLine($"{"Id",-10}{"League",-40}");
 
-        foreach (var league in GameCreator.Leagues)
+        foreach (var league in gameCreator.Leagues)
         {
             Console.WriteLine($"{league.Id, -10}{league.Name, -40}");
         }
