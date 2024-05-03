@@ -96,7 +96,7 @@ public class LeagueTableScreen(
             var leagueTablePosition = leagueTable.ElementAt(i);
             
             Console.WriteLine(string.Format("{0,-8}{1,-40}{2,-7}{3,-7}{4,-7}{5,-7}{6,-7}", 
-                i+1, leagueTablePosition.ClubName, leagueTablePosition.Played, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
+                i+1, leagueTablePosition.Club.Name, leagueTablePosition.Played, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
             if (ShouldAddSeperator(i + 1, league.Id))
             {
                 Console.WriteLine("-------------------------------------------------------------------------------");

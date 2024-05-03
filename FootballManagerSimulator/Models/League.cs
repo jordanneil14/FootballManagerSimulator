@@ -27,7 +27,7 @@ public class League : ILeague
 
             table.Add(new LeaguePositionModel
             {
-                ClubName = club.Name,
+                Club = club,
                 Points = homeWinPoints + awayWinPoints + drawPoints,
                 GoalsScored = goalsScoredHome.GetValueOrDefault() + goalsScoredAway.GetValueOrDefault(),
                 GoalsConceded = goalsConcededHome.GetValueOrDefault() + goalsConcededAway.GetValueOrDefault(),
@@ -39,7 +39,7 @@ public class League : ILeague
             .OrderByDescending(p => p.Points)
             .ThenByDescending(p => p.GoalsScored - p.GoalsConceded)
             .ThenByDescending(p => p.GoalsScored)
-            .ThenBy(p => p.ClubName);
+            .ThenBy(p => p.Club.Name);
     }
 }
 

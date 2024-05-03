@@ -7,6 +7,7 @@ namespace FootballManagerSimulator.Helpers;
 public class ProcessHelper(
     IState state,
     IWeatherHelper weatherHelper,
+    INotificationHelper notificationHelper,
     ITransferListHelper transferListHelper) : IProcessHelper
 {
     public void Process()
@@ -21,6 +22,14 @@ public class ProcessHelper(
                 transferListHelper.UpdateTransferList();
 
             transferListHelper.ProcessAITransfers();
+
+            var nextFixture = state.Leagues.SelectMany(p => p.Fixtures)
+                .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id))
+                .OrderBy(p => p.WeekNumber)
+                .FirstOrDefault();
+
+            if (nextFixture != null && nextFixture.Date.DayNumber == state.Date.DayNumber + 1)
+                notificationHelper.GeneratePreMatchReportForFixture(nextFixture);
 
         } catch (ProcessException ex)
         {
