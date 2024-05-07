@@ -20,6 +20,12 @@ public class ClubHelper(
             .First();
     }
 
+    public IEnumerable<TacticSlot> GetStartingElevenByClub(Club club)
+    {
+        return club.TacticSlots
+            .Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
+    }
+
     public int GetStartingElevenSumRatingForClub(Club club)
     {
         var startingEleven = club.TacticSlots

@@ -4,6 +4,13 @@ namespace FootballManagerSimulator.Structures;
 
 public class Player : IPerson
 {
+    public double ScoringProbability => GetGoalScoringRate();
+
+    public double GetGoalScoringRate()
+    {
+        return Finishing * ShotPower * (AttackingPosition * 0.75);
+    }
+
     public int Id { get; set; }
     public string Name { get; set; } = "";
     public string Nationality { get; set; } = "";

@@ -13,4 +13,13 @@ public class Fixture : IFixture
     public bool Concluded { get; set; }
     public DateOnly Date { get; set; }
     public int Minute { get; set; }
+
+    public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
+    public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();
+
+    public class GoalModel
+    {
+        public int Minute { get; set; }
+        public int PlayerId { get; set; }
+    }
 }

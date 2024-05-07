@@ -190,6 +190,32 @@ public class TacticHelper(
                 .Skip(1)
                 .First().PlayerId = null;
         }
+
+        var emptySlots = state.Clubs
+            .First(p => p.Id == clubId)
+            .TacticSlots
+            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
+
+        foreach(var emptySlot in emptySlots)
+        {
+            var selectedPlayer = state.Clubs
+                .First(p => p.Id == clubId)
+                .TacticSlots
+                .FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+            if (selectedPlayer == null) continue;
+
+            state.Clubs
+                .First(p => p.Id == clubId)
+                .TacticSlots
+                .First(p => p.Id == emptySlot.Id)
+                .PlayerId = selectedPlayer.PlayerId;
+
+            state.Clubs.First(p => p.Id == clubId)
+                .TacticSlots
+                .Where(p => p.PlayerId == emptySlot.PlayerId)
+                .Skip(1)
+                .First().PlayerId = null;
+        }
     }
 
     private void FillEmptySubTacticSlotsByClubId(int clubId)
@@ -218,7 +244,7 @@ public class TacticHelper(
 
             int? playerId = null;
             if (i == 0)
-                playerId = reserves!.First(p => p.Player.PreferredPosition == "GK").Player?.Id;
+                playerId = reserves?.FirstOrDefault(p => p.Player.PreferredPosition == "GK").Player?.Id;
 
             if (playerId == null)
                 playerId = reserves!.First().Player?.Id;

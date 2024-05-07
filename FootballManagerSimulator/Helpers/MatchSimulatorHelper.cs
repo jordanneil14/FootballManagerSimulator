@@ -1,11 +1,14 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
+using System.Numerics;
+using static FootballManagerSimulator.Structures.Fixture;
 
 namespace FootballManagerSimulator.Helpers;
 
 public class MatchSimulatorHelper(
     IClubHelper clubHelper,
     ITacticHelper tacticHelper,
+    IPlayerHelper playerHelper,
     IState state) : IMatchSimulatorHelper
 {
     public void ProcessMatch(Fixture fixture)
@@ -28,6 +31,9 @@ public class MatchSimulatorHelper(
     {
         var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
         var awayClub = clubHelper.GetClubById(fixture.AwayClub.Id);
+
+        var homeClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.HomeClub);
+        var awayClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.AwayClub);
 
         var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub);
@@ -53,10 +59,20 @@ public class MatchSimulatorHelper(
 
             if (randomNumber <= homeClubRating)
             {
+                fixture.HomeScorers.Add(new GoalModel
+                {
+                    Minute = fixture.Minute,
+                    PlayerId = GetGoalScorer(homeClubTacticSlots)
+                });
                 fixture.GoalsHome += 1;
             }
             else if (randomNumber > homeClubRating)
             {
+                fixture.AwayScorers.Add(new GoalModel
+                {
+                    Minute = fixture.Minute,
+                    PlayerId = GetGoalScorer(awayClubTacticSlots)
+                });
                 fixture.GoalsAway += 1;
             }
         }
@@ -64,10 +80,41 @@ public class MatchSimulatorHelper(
         fixture.Minute = 45;
     }
 
+    private int GetGoalScorer(IEnumerable<TacticSlot> tacticSlots)
+    {
+        var playerRatingModels = new List<PlayerRatingModel>();
+        foreach(var slot in tacticSlots)
+        {
+            var player = playerHelper.GetPlayerById(slot.PlayerId.Value);
+            playerRatingModels.Add(new PlayerRatingModel
+            {
+                PlayerId = slot.PlayerId.Value,
+                Rating = playerRatingModels.Sum(x => x.Rating) + player.ScoringProbability
+            });
+        }
+
+        var sum = playerRatingModels.Max(p => p.Rating);
+        var randomNumber = RandomNumberHelper.Next(1, (int)sum);
+
+        return playerRatingModels
+            .Where(p => randomNumber <= p.Rating)
+            .First()
+            .PlayerId;
+    }
+
+    public class PlayerRatingModel
+    {
+        public int PlayerId { get; set; }
+        public double Rating { get; set; }
+    }
+
     private void SimulateSecondHalf(Fixture fixture)
     {
         var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
         var awayClub = clubHelper.GetClubById(fixture.AwayClub.Id);
+
+        var homeClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.HomeClub);
+        var awayClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.AwayClub);
 
         var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub);
         var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub);
@@ -89,10 +136,20 @@ public class MatchSimulatorHelper(
 
             if (randomNumber <= homeClubRating)
             {
+                fixture.HomeScorers.Add(new GoalModel
+                {
+                    Minute = fixture.Minute,
+                    PlayerId = GetGoalScorer(homeClubTacticSlots)
+                });
                 fixture.GoalsHome += 1;
             }
             else if (randomNumber > homeClubRating)
             {
+                fixture.AwayScorers.Add(new GoalModel
+                {
+                    Minute = fixture.Minute,
+                    PlayerId = GetGoalScorer(awayClubTacticSlots)
+                });
                 fixture.GoalsAway += 1;
             }
         }

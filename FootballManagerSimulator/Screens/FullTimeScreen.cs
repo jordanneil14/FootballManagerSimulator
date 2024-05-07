@@ -85,14 +85,32 @@ public class FullTimeScreen(
             if (tacticSlotHome.PlayerId != null)
             {
                 var player = playerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
-                homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
+
+                var goalCaption = string.Empty;
+                var goals = fixture.HomeScorers.Where(p => p.PlayerId == player.Id).Select(p => p.Minute);
+                if (goals.Any())
+                {
+                    var q = string.Join(", ", goals.Select(x => string.Format("{0}'", x)));
+                    goalCaption = $"({q})";
+                }
+
+                homePlayer = $"{goalCaption + " " + player.Name,55}{player.ShirtNumber,3}";
             }
 
             var tacticSlotAway = awayClubPlayers.ElementAt(i);
             if (tacticSlotAway.PlayerId != null)
             {
                 var player = playerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
-                awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
+
+                var goalCaption = string.Empty;
+                var goals = fixture.AwayScorers.Where(p => p.PlayerId == player.Id).Select(p => p.Minute);
+                if (goals.Any())
+                {
+                    var q = string.Join(", ", goals.Select(x => string.Format("{0}'", x)));
+                    goalCaption = $"({q})";
+                }
+
+                awayPlayer = $"{player.ShirtNumber,-3}{player.Name + " " + goalCaption,-55}";
             }
 
             Console.WriteLine($"{homePlayer}   {awayPlayer}");

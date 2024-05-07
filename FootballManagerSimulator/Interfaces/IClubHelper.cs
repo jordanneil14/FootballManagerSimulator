@@ -7,4 +7,5 @@ public interface IClubHelper
     Club? GetClubByName(string name);
     Club GetClubById(int id);
     int GetStartingElevenSumRatingForClub(Club club);
+    IEnumerable<TacticSlot> GetStartingElevenByClub(Club club);
 }
