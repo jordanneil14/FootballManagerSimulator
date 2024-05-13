@@ -646,12 +646,293 @@
       "TransferBudget": 400000,
       "Stadium": "Gaughan Group Stadium",
       "LeagueId": 4
+    },
+    {
+      "ID": 93,
+      "Name": "Real Madrid",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 94,
+      "Name": "FC Barcelona",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 95,
+      "Name": "Atlético Madrid",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 96,
+      "Name": "Sevilla FC",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 97,
+      "Name": "Villarreal CF",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 98,
+      "Name": "Real Sociedad",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 99,
+      "Name": "Athletic Bilbao",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 100,
+      "Name": "RCD Espanyol",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 101,
+      "Name": "RC Deportivo",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 102,
+      "Name": "SD Eibar",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 103,
+      "Name": "Málaga CF",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 104,
+      "Name": "Valencia CF",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 105,
+      "Name": "Celta de Vigo",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 106,
+      "Name": "UD Las Palmas",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 107,
+      "Name": "Real Betis",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 108,
+      "Name": "Deport. Alavés",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 109,
+      "Name": "CD Leganés",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 110,
+      "Name": "Sporting Gijón",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 111,
+      "Name": "CA Osasuna",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 112,
+      "Name": "Granada CF",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 5
+    },
+    {
+      "ID": 113,
+      "Name": "FC Bayern",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 114,
+      "Name": "Bor. Dortmund",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 115,
+      "Name": "Bayer 04",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 116,
+      "Name": "Bor. M'gladbach",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 117,
+      "Name": "FC Schalke 04",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 118,
+      "Name": "1. FSV Mainz 05",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 119,
+      "Name": "Hertha BSC",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 120,
+      "Name": "VfL Wolfsburg",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 121,
+      "Name": "1. FC Köln",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 122,
+      "Name": "Hamburger SV",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 123,
+      "Name": "FC Ingolstadt",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 124,
+      "Name": "FC Augsburg",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 125,
+      "Name": "Werder Bremen",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 126,
+      "Name": "SV Darmstadt",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 127,
+      "Name": "1899 Hoffenheim",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 128,
+      "Name": "Frankfurt",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 129,
+      "Name": "VfB Stuttgart",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    },
+    {
+      "ID": 130,
+      "Name": "Hannover 96",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "LeagueId": 6
+    }
+  ],
+  "Countries": [
+    {
+      "Id": 1,
+      "Name": "England"
+    },
+    {
+      "Id": 2,
+      "Name": "Spain"
+    },
+    {
+      "Id": 3,
+      "Name": "Germany"
     }
   ],
   "Leagues": [
     {
       "Id": 1,
-      "Rank":  1,
+      "CountryId": 1,
+      "Rank": 1,
       "Name": "Premier League",
       "LeagueTable": {
         "Places": 20,
@@ -662,6 +943,7 @@
     },
     {
       "Id": 2,
+      "CountryId": 1,
       "Rank": 2,
       "Name": "EFL Championship",
       "LeagueTable": {
@@ -673,6 +955,7 @@
     },
     {
       "Id": 3,
+      "CountryId": 1,
       "Rank": 3,
       "Name": "EFL League One",
       "LeagueTable": {
@@ -684,12 +967,37 @@
     },
     {
       "Id": 4,
+      "CountryId": 1,
       "Rank": 4,
       "Name": "EFL League Two",
       "LeagueTable": {
         "Places": 24,
         "AutomaticPromotionPlaces": 3,
         "PlayoffPlaces": 4,
+        "RelegationPlaces": 2
+      }
+    },
+    {
+      "Id": 5,
+      "CountryId": 2,
+      "Rank": 1,
+      "Name": "La Liga",
+      "LeagueTable": {
+        "Places": 20,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 3
+      }
+    },
+    {
+      "Id": 6,
+      "CountryId": 3,
+      "Rank": 1,
+      "Name": "Bundesliga",
+      "LeagueTable": {
+        "Places": 18,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
         "RelegationPlaces": 2
       }
     }
