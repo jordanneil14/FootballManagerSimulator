@@ -76,7 +76,7 @@ public class ScoutScreen(
         }
 
         Console.WriteLine("All Players\n");
-        Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}");
+        Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}{"Position",-10}");
 
         var orderedPlayerDetails = PlayerDetails
             .OrderBy(p => p.Player.Contract?.ClubName == null)
@@ -85,7 +85,7 @@ public class ScoutScreen(
         foreach (var playerDetail in orderedPlayerDetails)
         {
             var club = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.ClubName;
-            Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{club,-25}");
+            Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{club,-25}{playerDetail.Player.PreferredPosition}");
         }
     }
 }
