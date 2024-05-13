@@ -12,7 +12,9 @@ public enum TacticSlotType
     LB,
     RM,
     LM,
+    CDM,
     CM,
+    CAM,
     CB,
     SUB,
     RES

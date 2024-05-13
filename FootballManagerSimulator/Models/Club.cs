@@ -10,5 +10,6 @@ public class Club
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
     public int WageBudget { get; set; }
     public List<TacticSlot> TacticSlots { get; set; } = new List<TacticSlot>();
+    public string Formation { get; set; } = "4-4-2";
 }
 

@@ -25,5 +25,6 @@ public enum ScreenType
     PostMatchLeagueTable,
     Finances,
     TransferList,
-    TransferPlayer
+    TransferPlayer,
+    Formation
 }

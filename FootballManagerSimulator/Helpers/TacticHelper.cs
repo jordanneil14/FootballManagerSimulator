@@ -10,116 +10,452 @@ public class TacticHelper(
 {
     public void ResetTacticForClub(Club club)
     {
-        club.TacticSlots = new List<TacticSlot>()
+        club.TacticSlots = club.Formation switch
         {
-            new TacticSlot
-            {
-                Id = 1,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.GK
-            },
-            new TacticSlot
-            {   
-                Id = 2,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.RB
-            },
-            new TacticSlot
-            {
-                Id = 3,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CB
-            },
-            new TacticSlot
-            {
-                Id = 4,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CB
-            },
-            new TacticSlot
-            {
-                Id = 5,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.LB
-            },
-            new TacticSlot
-            {
-                Id = 6,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.RM
-            },
-            new TacticSlot
-            {
-                Id = 7,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CM
-            },
-            new TacticSlot
-            {
-                Id = 8,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.CM
-            },
-            new TacticSlot
-            {
-                Id = 9,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.LM
-            },
-            new TacticSlot
-            {
-                Id = 10,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.ST
-            },
-            new TacticSlot
-            {
-                Id = 11,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.ST
-            },
-            new TacticSlot
-            {
-                Id = 12,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 13,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 14,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 15,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 16,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 17,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            },
-            new TacticSlot
-            {
-                Id = 18,
-                PlayerId = null,
-                TacticSlotType = TacticSlotType.SUB
-            }
+            "4-3-3" => new List<TacticSlot>()
+                {
+                    new TacticSlot
+                    {
+                        Id = 1,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.GK
+                    },
+                    new TacticSlot
+                    {
+                        Id = 2,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 3,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 4,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 5,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 6,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 7,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 8,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 9,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RW
+                    },
+                    new TacticSlot
+                    {
+                        Id = 10,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 11,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LW
+                    },
+                    new TacticSlot
+                    {
+                        Id = 12,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 13,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 14,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 15,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 16,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 17,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 18,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    }
+                },
+            "4-5-1" => new List<TacticSlot>()
+                {
+                    new TacticSlot
+                    {
+                        Id = 1,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.GK
+                    },
+                    new TacticSlot
+                    {
+                        Id = 2,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 3,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 4,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 5,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 6,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 7,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 8,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 9,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 10,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 11,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 12,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 13,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 14,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 15,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 16,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 17,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 18,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    }
+                },
+            "4-1-2-1-2" => new List<TacticSlot>()
+                {
+                    new TacticSlot
+                    {
+                        Id = 1,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.GK
+                    },
+                    new TacticSlot
+                    {
+                        Id = 2,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 3,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 4,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 5,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 6,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CDM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 7,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 8,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 9,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CAM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 10,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 11,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 12,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 13,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 14,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 15,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 16,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 17,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 18,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    }
+                },
+            _ => new List<TacticSlot>()
+                {
+                    new TacticSlot
+                    {
+                        Id = 1,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.GK
+                    },
+                    new TacticSlot
+                    {
+                        Id = 2,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 3,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 4,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 5,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 6,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.RM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 7,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 8,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.CM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 9,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.LM
+                    },
+                    new TacticSlot
+                    {
+                        Id = 10,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 11,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.ST
+                    },
+                    new TacticSlot
+                    {
+                        Id = 12,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 13,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 14,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 15,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 16,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 17,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    },
+                    new TacticSlot
+                    {
+                        Id = 18,
+                        PlayerId = null,
+                        TacticSlotType = TacticSlotType.SUB
+                    }
+                },
         };
 
         for (var i = 19; i <= 99; i++)
@@ -156,13 +492,11 @@ public class TacticHelper(
             var position = ResolvePosition(slot.TacticSlotType);
 
             var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString())).ToList();
-            if (!preferredPlayers.Any())
-            {
-                var fallbackPosition = GetFallbackPosition(position);
-                var secondaryPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(fallbackPosition.ToString()));
-                if (!secondaryPlayers.Any()) continue;
-                preferredPlayers.AddRange(secondaryPlayers);
-            }
+
+            var fallbackPosition = GetFallbackPosition(position);
+            var secondaryPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(fallbackPosition.ToString()));
+            preferredPlayers.AddRange(secondaryPlayers);
+            if (!preferredPlayers.Any()) continue;
 
             var reserves = state.Clubs
                 .First(p => p.Id == clubId)

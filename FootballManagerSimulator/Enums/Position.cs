@@ -13,7 +13,9 @@ public enum Position
     LB,
     RM,
     LM,
+    CDM,
     CM,
+    CAM,
     CB,
     LCB
 }

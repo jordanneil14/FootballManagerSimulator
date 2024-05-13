@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -37,6 +38,12 @@ public class TacticsScreen(IState state,
             case "D":
                 tacticHelper.ResetTacticForClub(state.MyClub);
                 break;
+            case "E":
+                state.ScreenStack.Push(new Structures.Screen
+                {
+                    Type = ScreenType.Formation
+                });
+                break;
             default:
                 break;
         }
@@ -49,6 +56,7 @@ public class TacticsScreen(IState state,
         Console.WriteLine("<Enter Number> -> <Enter Number>) Switch Places");
         Console.WriteLine("C) Get Assistant To Pick Team");
         Console.WriteLine("D) Reset Tactic");
+        Console.WriteLine("E) Change Formation");
     }
 
     public override void RenderSubscreen()
