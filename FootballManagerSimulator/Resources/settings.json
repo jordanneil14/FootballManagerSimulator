@@ -912,6 +912,146 @@
       "TransferBudget": 50000000,
       "Stadium": "",
       "LeagueId": 6
+    },
+    {
+      "ID": 131,
+      "Name": "Juventus",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 132,
+      "Name": "Roma",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 133,
+      "Name": "Napoli",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 134,
+      "Name": "Atalanta",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 135,
+      "Name": "Lazio",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 136,
+      "Name": "Milan",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 137,
+      "Name": "Inter",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 138,
+      "Name": "Fiorentina",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 139,
+      "Name": "Torino",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 140,
+      "Name": "Sampdoria",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 141,
+      "Name": "Cagliari",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 142,
+      "Name": "Sassuolo",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 143,
+      "Name": "Udinese",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 144,
+      "Name": "Chievo Verona",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 145,
+      "Name": "Bologna",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 146,
+      "Name": "Genoa",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 147,
+      "Name": "Crotone",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 148,
+      "Name": "Empoli",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 149,
+      "Name": "Palermo",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
+    },
+    {
+      "ID": 150,
+      "Name": "Pescara",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 7
     }
   ],
   "Countries": [
@@ -926,6 +1066,10 @@
     {
       "Id": 3,
       "Name": "Germany"
+    },
+    {
+      "Id": 4,
+      "Name": "Italy"
     }
   ],
   "Leagues": [
@@ -995,10 +1139,22 @@
       "Rank": 1,
       "Name": "Bundesliga",
       "LeagueTable": {
-        "Places": 18,
+        "Places": 20,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
         "RelegationPlaces": 2
+      }
+    },
+    {
+      "Id": 7,
+      "CountryId": 4,
+      "Rank": 1,
+      "Name": "Serie A",
+      "LeagueTable": {
+        "Places": 18,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 3
       }
     }
   ]
