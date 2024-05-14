@@ -24,7 +24,7 @@ public class FormationScreen(
                 state.ScreenStack.Pop();
                 break;
             case "C":
-                state.MyClub.Formation = "4-4-3";
+                state.MyClub.Formation = "4-3-3";
                 tacticHelper.ResetTacticForClub(state.MyClub);
                 state.ScreenStack.Pop();
                 break;

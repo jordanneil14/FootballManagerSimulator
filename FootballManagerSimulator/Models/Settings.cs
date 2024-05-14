@@ -18,9 +18,10 @@ public class Settings
         public string Stadium { get; set; } = "";
         public int LeagueId { get; set; }
     }
-    public IEnumerable<LeagueModel> Leagues { get; set; } = new List<LeagueModel>();
-    public class LeagueModel
+    public IEnumerable<CompetitionModel> Competitions { get; set; } = new List<CompetitionModel>();
+    public class CompetitionModel
     {
+        public string Type { get; set; }
         public int Id { get; set; }
         public string Name { get; set; } = "";
         public int Rank { get; set; }

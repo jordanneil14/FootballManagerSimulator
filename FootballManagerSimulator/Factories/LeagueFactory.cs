@@ -7,33 +7,11 @@ namespace FootballManagerSimulator.Factories;
 
 public class LeagueFactory(
     IClubHelper clubHelper,
-    IOptions<Settings> settings) : ILeagueFactory
+    IOptions<Settings> settings) : ICompetitionFactory
 {
     private readonly Settings Settings = settings.Value;
 
-    public League CreateLeague(Settings.LeagueModel leagueModel)
-    {
-        var clubs = Settings.Clubs
-            .Where(p => p.LeagueId == leagueModel.Id)
-            .Select(p => new Club
-            {
-                Id = p.Id,
-                Name = p.Name
-            });
-
-        if (clubs == null || !clubs.Any())
-            throw new Exception($"Unable to get clubs by leagueResourceId {leagueModel.Id}");
-
-        var league = new League()
-        {
-            Id = leagueModel.Id,
-            Name = leagueModel.Name,
-            Rank = leagueModel.Rank,
-            Clubs = clubs.ToList(),
-            Fixtures = GenerateNextRoundOfFixtures(clubs.ToList())
-        };
-        return league;
-    }
+    public string Type => "League";
 
     public class RandomFixture
     {
@@ -80,7 +58,7 @@ public class LeagueFactory(
             {
                 HomeClub = clubHelper.GetClubById(clubs.ElementAt(0).Id),
                 AwayClub = clubHelper.GetClubById(clubIndices[clubIdx].Id),
-                WeekNumber = randomHelper.WeekNumber,
+                Round = randomHelper.WeekNumber,
                 Date = randomHelper.Date
             });
 
@@ -93,7 +71,7 @@ public class LeagueFactory(
                 {
                     HomeClub = clubHelper.GetClubById(clubIndices[firstClubIdx].Id),
                     AwayClub = clubHelper.GetClubById(clubIndices[secondClubIdx].Id),
-                    WeekNumber = randomHelper.WeekNumber,
+                    Round = randomHelper.WeekNumber,
                     Date = randomHelper.Date
                 });
             }
@@ -112,7 +90,7 @@ public class LeagueFactory(
             {
                 HomeClub = clubHelper.GetClubById(clubIndices[clubIdx].Id),
                 AwayClub = clubHelper.GetClubById(clubs.ElementAt(0).Id),
-                WeekNumber = randomHelper.WeekNumber,
+                Round = randomHelper.WeekNumber,
                 Date = randomHelper.Date
             });
 
@@ -125,7 +103,7 @@ public class LeagueFactory(
                 {
                     HomeClub = clubHelper.GetClubById(clubIndices[secondClubIdx].Id),
                     AwayClub = clubHelper.GetClubById(clubIndices[firstClubIdx].Id),
-                    WeekNumber = randomHelper.WeekNumber,
+                    Round = randomHelper.WeekNumber,
                     Date = randomHelper.Date
                 });
             }
@@ -133,6 +111,30 @@ public class LeagueFactory(
             date = date.AddDays(7);
         }
 
-        return output.OrderBy(p => p.WeekNumber).ThenBy(p => p.HomeClub.Name).ToList();
+        return output.OrderBy(p => p.Round).ThenBy(p => p.HomeClub.Name).ToList();
+    }
+
+    public ICompetition CreateCompetition(Settings.CompetitionModel competition)
+    {
+        var clubs = Settings.Clubs
+            .Where(p => p.LeagueId == competition.Id)
+            .Select(p => new Club
+            {
+                Id = p.Id,
+                Name = p.Name
+            });
+
+        if (clubs == null || !clubs.Any())
+            throw new Exception($"Unable to get clubs by leagueResourceId {competition.Id}");
+
+        var league = new League()
+        {
+            Id = competition.Id,
+            Name = competition.Name,
+            Rank = competition.Rank,
+            Clubs = clubs.ToList(),
+            Fixtures = GenerateNextRoundOfFixtures(clubs.ToList())
+        };
+        return league;
     }
 }

@@ -1072,11 +1072,12 @@
       "Name": "Italy"
     }
   ],
-  "Leagues": [
+  "Competitions": [
     {
       "Id": 1,
       "CountryId": 1,
       "Rank": 1,
+      "Type": "League",
       "Name": "Premier League",
       "LeagueTable": {
         "Places": 20,
@@ -1089,6 +1090,7 @@
       "Id": 2,
       "CountryId": 1,
       "Rank": 2,
+      "Type": "League",
       "Name": "EFL Championship",
       "LeagueTable": {
         "Places": 24,
@@ -1101,6 +1103,7 @@
       "Id": 3,
       "CountryId": 1,
       "Rank": 3,
+      "Type": "League",
       "Name": "EFL League One",
       "LeagueTable": {
         "Places": 24,
@@ -1113,6 +1116,7 @@
       "Id": 4,
       "CountryId": 1,
       "Rank": 4,
+      "Type": "League",
       "Name": "EFL League Two",
       "LeagueTable": {
         "Places": 24,
@@ -1125,6 +1129,7 @@
       "Id": 5,
       "CountryId": 2,
       "Rank": 1,
+      "Type": "League",
       "Name": "La Liga",
       "LeagueTable": {
         "Places": 20,
@@ -1137,6 +1142,7 @@
       "Id": 6,
       "CountryId": 3,
       "Rank": 1,
+      "Type": "League",
       "Name": "Bundesliga",
       "LeagueTable": {
         "Places": 20,
@@ -1149,6 +1155,7 @@
       "Id": 7,
       "CountryId": 4,
       "Rank": 1,
+      "Type": "League",
       "Name": "Serie A",
       "LeagueTable": {
         "Places": 18,
@@ -1156,6 +1163,12 @@
         "PlayoffPlaces": 0,
         "RelegationPlaces": 3
       }
+    },
+    {
+      "Id": 8,
+      "CountryId": 1,
+      "Type": "Cup",
+      "Name": "English League Cup"
     }
   ]
 }

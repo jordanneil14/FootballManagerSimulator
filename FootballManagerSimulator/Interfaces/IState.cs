@@ -11,7 +11,8 @@ public interface IState
     List<Notification> Notifications { get; set; }
     List<Player> Players { get; set; }
     IEnumerable<Club> Clubs { get; set; }
-    List<League> Leagues { get; set; }
+    List<ICompetition> Competitions { get; set; }
+
     List<string> UserFeedbackUpdates { get; set; }
     List<CompetitionFixture> TodaysFixtures { get; }
     string Weather { get; set; }

@@ -45,26 +45,26 @@ public class HalfTimeScreen(IState state,
     {
         var fixture = state.TodaysFixtures
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub == state.MyClub || p.AwayClub == state.MyClub)
+            .Where(p => p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id)
             .ToList()
             .First();
 
         var homeClub = state.Clubs
-            .Where(p => p == fixture.HomeClub)
+            .Where(p => p.Id == fixture.HomeClub.Id)
             .First();
 
         var awayClub = state.Clubs
-            .Where(p => p == fixture.AwayClub)
+            .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
         Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{"** HALF TIME **",67}\n");
 
         var homeClubPlayers = state.Clubs
-            .Where(p => p == homeClub)
+            .Where(p => p.Id == homeClub.Id)
             .First().TacticSlots;
 
         var awayClubPlayers = state.Clubs
-            .Where(p => p == awayClub)
+            .Where(p => p.Id == awayClub.Id)
             .First().TacticSlots;
 
         for (var i = 0; i < 18; i++)

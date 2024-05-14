@@ -18,7 +18,7 @@ public class NotificationHelper(
             ? state.Clubs.First(p => p.Id == fixture.AwayClub.Id)
             : state.Clubs.First(p => p.Id == fixture.HomeClub.Id);
 
-        var league = state.Leagues.First(p => p.Id == state.MyClub.LeagueId);
+        var league = state.Competitions.First(p => p.Id == state.MyClub.LeagueId) as League;
         var leagueTable = league.GenerateLeagueTable().ToList();
 
         var leaguePosition = leagueTable.First(p => p.Club.Id == oppositionClub.Id);

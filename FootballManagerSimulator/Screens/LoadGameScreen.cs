@@ -58,7 +58,7 @@ public class LoadGameScreen(
             state.Date = deserialisedState.Date;
             state.MyClub = deserialisedState.MyClub;
             state.Players = deserialisedState.Players;
-            state.Leagues = deserialisedState.Leagues;
+            state.Competitions = deserialisedState.Competitions;
             state.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
         }
         catch (Exception ex)

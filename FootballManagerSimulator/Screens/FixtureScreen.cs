@@ -52,7 +52,7 @@ public class FixtureScreen(
         var groupedFixtures = state.TodaysFixtures;
         foreach(var group in groupedFixtures)
         {
-            var leagueName = state.Leagues.First(p => p.Id == group.LeagueId).Name;
+            var leagueName = state.Competitions.First(p => p.Id == group.LeagueId).Name;
             Console.WriteLine(leagueName);
             foreach (var fixture in group.Fixtures)
             {

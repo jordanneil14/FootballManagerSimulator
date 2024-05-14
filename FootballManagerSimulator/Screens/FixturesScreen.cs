@@ -22,7 +22,7 @@ public class FixturesScreen(
         }
     }
 
-    public static Screen CreateScreen(ILeague competition)
+    public static Screen CreateScreen(ICompetition competition)
     {
         return new Screen
         {
@@ -36,7 +36,7 @@ public class FixturesScreen(
 
     public class FixturesScreenObj
     {
-        public ILeague League { get; set; }
+        public ICompetition League { get; set; }
     }
 
     public override void RenderOptions()
@@ -51,31 +51,45 @@ public class FixturesScreen(
 
         var parameters = state.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
-        var rounds = state.Leagues
-            .Where(p => p.Id == parameters.League.Id)
+        var dates = state.Competitions
+            .Where(p => p.Clubs.Select(p => p.Id).Contains(state.MyClub.Id))
             .SelectMany(p => p.Fixtures)
-            .GroupBy(x => x.WeekNumber);
+            .GroupBy(p => p.Date)
+            .Select(p => p.Key)
+            .OrderBy(p => p);
 
-        foreach (var round in rounds)
+        foreach(var date in dates)
         {
-            Console.WriteLine($"\nRound {round.Key} - {round.First().Date}");
-            foreach(var fixture in round)
-            {
-                if (fixture.Concluded)
-                {
-                    Console.WriteLine($"{fixture.HomeClub.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayClub.Name,-55}");
+            var fixturesByCompetition = state.Competitions
+                .Where(p => p.Clubs.Select(p => p.Id).Contains(state.MyClub.Id));
 
+            foreach(var f in fixturesByCompetition)
+            {
+                var fixturesOnDate = f.Fixtures.Where(p => p.Date == date);
+                if (!fixturesOnDate.Any()) continue;
+
+                Console.WriteLine($"\n{f.Name} - {date}");
+
+                foreach (var fixture in f.Fixtures.Where(p => p.Date == date))
+                {
+                    if (!fixture.Concluded)
+                    {
+                        Console.WriteLine($"{fixture.HomeClub.Name,55}    v    {fixture.AwayClub.Name,-55}");
+                        continue;
+                    }
+
+                    Console.WriteLine($"{fixture.HomeClub.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayClub.Name,-55}");
 
                     var homeGoals = fixture.HomeScorers.GroupBy(p => p.PlayerId);
                     var awayGoals = fixture.AwayScorers.GroupBy(p => p.PlayerId);
 
-                    for(int i = 0; i < Math.Max(homeGoals.Count(), awayGoals.Count()); i++) 
+                    for (int i = 0; i < Math.Max(homeGoals.Count(), awayGoals.Count()); i++)
                     {
                         var homeCaption = string.Empty;
                         var awayCaption = string.Empty;
 
                         var homeGroupedElement = homeGoals.ElementAtOrDefault(i);
-                        if (homeGroupedElement != null) 
+                        if (homeGroupedElement != null)
                         {
                             var homePlayerName = playerHelper.GetPlayerById(homeGroupedElement.Key).Name;
                             homeCaption = $"{homePlayerName} ({string.Join(",", homeGroupedElement.Select(p => string.Format("{0}'", p.Minute)))})";
@@ -92,10 +106,7 @@ public class FixturesScreen(
                     }
 
                     Console.WriteLine("");
-                    continue;
                 }
-
-                Console.WriteLine($"{fixture.HomeClub.Name,58} v {fixture.AwayClub.Name,-58}");
             }
         }
     }

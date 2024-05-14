@@ -10,7 +10,7 @@ public class GameFactory(
     IClubHelper clubHelper,
     IPlayerHelper playerHelper,
     IState state,
-    ILeagueFactory leagueFactory,
+    IEnumerable<ICompetitionFactory> competitionFactories,
     INotificationFactory notificationFactory,
     IGameCreator gameCreator,
     IOptions<Settings> settings,
@@ -52,7 +52,15 @@ public class GameFactory(
             tacticHelper.ResetTacticForClub(club);
         }
 
-        state.Leagues = Settings.Leagues.Select(p => leagueFactory.CreateLeague(p)).ToList();
+        foreach(var comp in Settings.Competitions)
+        {
+            var s = competitionFactories.First(p => p.Type == comp.Type).CreateCompetition(comp);
+            state.Competitions.Add(s);
+
+            //state.Competitions.Add(new )
+        }    
+
+        //state.Competitions = Settings.Competitions.Select(p => competitionFactories.First(p => p.).CreateCompetition(p)).ToList();
 
         transferListHelper.UpdateTransferList();
 

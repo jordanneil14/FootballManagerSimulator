@@ -46,9 +46,9 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
     private string GetNextMatchCaption()
     {
-        var nextFixture = state.Leagues.SelectMany(p => p.Fixtures)
+        var nextFixture = state.Competitions.SelectMany(p => p.Fixtures)
             .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id))
-            .OrderBy(p => p.WeekNumber)
+            .OrderBy(p => p.Round)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";

@@ -3,8 +3,9 @@ using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Interfaces;
 
-public interface ILeague
+public interface ICompetition
 {
+    string Type { get; }
     int Id { get; } 
     string Name { get; }
     List<Fixture> Fixtures { get; set; }

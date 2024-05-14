@@ -17,7 +17,7 @@ public class LeagueTableScreen(
     public void GenerateLeagueKeyModels(int currentLeagueId)
     {
         LeagueKeyModels.Clear();
-        var leagues = state.Leagues;
+        var leagues = state.Competitions.Where(p => p.Type == "League");
         var key = (int)'C';
 
         foreach (var league in leagues)
@@ -25,7 +25,7 @@ public class LeagueTableScreen(
             LeagueKeyModels.Add(new LeagueKeyModel
             {
                 Key = Convert.ToChar(key),
-                League = league,
+                League = (League)league,
                 IsCurrent = league.Id == currentLeagueId
             });
             key++;
@@ -86,7 +86,7 @@ public class LeagueTableScreen(
 
         GenerateLeagueKeyModels(leagueId);
 
-        var league = state.Leagues.First(p => p.Id == leagueId);
+        var league = state.Competitions.First(p => p.Id == leagueId) as League;
         var leagueTable = league.GenerateLeagueTable(); 
 
         Console.WriteLine($"{league.Name} League Table\n");
@@ -106,7 +106,7 @@ public class LeagueTableScreen(
 
     private bool ShouldAddSeperator(int index, int leagueId)
     {
-        var leagueTableSettings = Settings.Leagues.First(p => p.Id == leagueId).LeagueTable;
+        var leagueTableSettings = Settings.Competitions.First(p => p.Id == leagueId).LeagueTable;
 
         if (leagueTableSettings.AutomaticPromotionPlaces == index)
             return true;

@@ -2,13 +2,15 @@
 
 namespace FootballManagerSimulator.Structures;
 
-public class League : ILeague
+public class League : ICompetition
 {
     public int Id { get; set; }
     public int Rank { get; set; }
     public string Name { get; set; } = string.Empty;
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public List<Club> Clubs { get; set; } = new List<Club>();
+
+    public string Type => "League";
 
     public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {

@@ -55,7 +55,7 @@ public class ClubScreen(
         Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}\n");
 
         Console.WriteLine("Upcoming Fixtures:");
-        var upcomingFixtures = state.Leagues
+        var upcomingFixtures = state.Competitions
             .SelectMany(p => p.Fixtures)
             .Where(p => p.HomeClub == clubScreenObj.Club || p.AwayClub == clubScreenObj.Club).Take(5);
         foreach (var fixture in upcomingFixtures)

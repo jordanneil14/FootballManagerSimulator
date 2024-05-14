@@ -26,7 +26,7 @@ public class MainScreen(
                 });
                 break;
             case "D":
-                var league = state.Leagues.First(p => p.Id == state.MyClub.LeagueId);
+                var league = state.Competitions.First(p => p.Id == state.MyClub.LeagueId);
                 state.ScreenStack.Push(FixturesScreen.CreateScreen(league));
                 break;
             case "E":

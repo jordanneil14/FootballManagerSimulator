@@ -18,7 +18,7 @@ public class State : IState
     private List<CompetitionFixture> GetTodaysFixtures()
     {
         var fixtureModel = new List<CompetitionFixture>();
-        foreach(var league in Leagues)
+        foreach(var league in Competitions)
         {
             var todaysFixturesForLeague = league.Fixtures.Where(p => p.Date == Date).ToList();
             if (todaysFixturesForLeague.Any())
@@ -33,7 +33,7 @@ public class State : IState
         return fixtureModel;
     }
 
-    public List<League> Leagues { get; set; } = new List<League>();
+    public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
     public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
     public PreviewModel Preview { get; set; } = new PreviewModel();
     public List<TransferListItem> TransferListItems { get; set; } = new List<TransferListItem>();

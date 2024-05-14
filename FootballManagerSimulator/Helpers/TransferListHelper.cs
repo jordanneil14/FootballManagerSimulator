@@ -77,7 +77,7 @@ public class TransferListHelper(
     {
         state.TransferListItems.Clear();
 
-        foreach (var league in state.Leagues)
+        foreach (var league in state.Competitions)
         {
             var clubIds = league.Clubs.Select(p => p.Id);
             var players = state.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId));
