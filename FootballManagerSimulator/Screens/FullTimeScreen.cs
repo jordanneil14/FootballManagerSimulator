@@ -50,7 +50,7 @@ public class FullTimeScreen(
     {
         var fixture = state.TodaysFixtures
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id)
+            .Where(p => p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
             .First();
 
         var homeClub = state.Clubs

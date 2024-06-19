@@ -46,7 +46,8 @@ public class LoadGameScreen(
         try
         {
             var fileContent = File.ReadAllText(path + $"\\{fileName}");
-            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent);
+            var s = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent, s);
             if (deserialisedState == null)
                 throw new Exception("Unable to load game");
 
@@ -56,10 +57,11 @@ public class LoadGameScreen(
             state.ManagerName = deserialisedState.ManagerName;
             state.Clubs = deserialisedState.Clubs;
             state.Date = deserialisedState.Date;
-            state.MyClub = deserialisedState.MyClub;
+            state.MyClubId = deserialisedState.MyClubId;
             state.Players = deserialisedState.Players;
             state.Competitions = deserialisedState.Competitions;
             state.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
+            state.TransferListItems = deserialisedState.TransferListItems;
         }
         catch (Exception ex)
         {

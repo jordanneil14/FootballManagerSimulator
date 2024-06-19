@@ -43,7 +43,7 @@ public class PreMatchScreen(
 
     private void ValidateStartMatch()
     {
-        var positions = state.MyClub.TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
+        var positions = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
         if (positions.Where(p => p.PlayerId == null).Any())
             state.UserFeedbackUpdates.Add("Unable to start game. Your team has not been fully selected");
     }
@@ -60,7 +60,7 @@ public class PreMatchScreen(
     {
         var fixture = state.TodaysFixtures
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id)
+            .Where(p => p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
             .First();
 
         var homeClub = state.Clubs

@@ -52,7 +52,7 @@ public class FixturesScreen(
         var parameters = state.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
         var dates = state.Competitions
-            .Where(p => p.Clubs.Select(p => p.Id).Contains(state.MyClub.Id))
+            .Where(p => p.Clubs.Select(p => p.Id).Contains(state.Clubs.First(p => p.Id == state.MyClubId).Id))
             .SelectMany(p => p.Fixtures)
             .GroupBy(p => p.Date)
             .Select(p => p.Key)
@@ -61,7 +61,7 @@ public class FixturesScreen(
         foreach(var date in dates)
         {
             var fixturesByCompetition = state.Competitions
-                .Where(p => p.Clubs.Select(p => p.Id).Contains(state.MyClub.Id));
+                .Where(p => p.Clubs.Select(p => p.Id).Contains(state.Clubs.First(p => p.Id == state.MyClubId).Id));
 
             foreach(var f in fixturesByCompetition)
             {

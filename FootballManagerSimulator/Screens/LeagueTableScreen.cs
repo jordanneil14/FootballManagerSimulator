@@ -81,7 +81,7 @@ public class LeagueTableScreen(
     {
         var screen = state.ScreenStack.Peek();
         var leagueId = screen.Parameters == null
-            ? state.MyClub.LeagueId
+            ? state.Clubs.First(p => p.Id == state.MyClubId).LeagueId
             : (screen.Parameters as LeagueTableObj)!.LeagueId;
 
         GenerateLeagueKeyModels(leagueId);

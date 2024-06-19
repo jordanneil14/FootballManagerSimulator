@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
 
@@ -11,6 +12,8 @@ public class League : ICompetition
     public List<Club> Clubs { get; set; } = new List<Club>();
 
     public string Type => "League";
+
+    public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
 
     public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {

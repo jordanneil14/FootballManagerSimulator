@@ -18,11 +18,11 @@ public class TacticsScreen(IState state,
             var fromPlayerIndex = int.Parse(parts[0]) - 1;
             var toPlayerIndex = int.Parse(parts[1]) - 1;
 
-            var fromPlayerId = state.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerId;
-            var toPlayerId = state.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerId;
+            var fromPlayerId = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId;
+            var toPlayerId = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId;
 
-            state.MyClub.TacticSlots.ElementAt(toPlayerIndex).PlayerId = fromPlayerId;
-            state.MyClub.TacticSlots.ElementAt(fromPlayerIndex).PlayerId = toPlayerId;
+            state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId = fromPlayerId;
+            state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId = toPlayerId;
             return;
         }
 
@@ -32,11 +32,11 @@ public class TacticsScreen(IState state,
                 state.ScreenStack.Pop();
                 break;
             case "C":
-                tacticHelper.ResetTacticForClub(state.MyClub);
-                tacticHelper.FillEmptyTacticSlotsByClubId(state.MyClub.Id);
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
+                tacticHelper.FillEmptyTacticSlotsByClubId(state.Clubs.First(p => p.Id == state.MyClubId).Id);
                 break;
             case "D":
-                tacticHelper.ResetTacticForClub(state.MyClub);
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 break;
             case "E":
                 state.ScreenStack.Push(new Structures.Screen
@@ -62,9 +62,9 @@ public class TacticsScreen(IState state,
     public override void RenderSubscreen()
     {
         Console.WriteLine($"{"Number",-10}{"Slot",-10}{"Position",-10}{"Name",-40}{"Rating",-10}");
-        for(var i = 0; i < state.MyClub.TacticSlots.Count; i++)
+        for(var i = 0; i < state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Count; i++)
         {
-            var tacticSlot = state.MyClub.TacticSlots.ElementAt(i);
+            var tacticSlot = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(i);
             if (tacticSlot.PlayerId == null)
             {
                 Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");

@@ -38,7 +38,7 @@ public abstract class BaseScreen(IState state) : IBaseScreen
     {
         var nextMatchCaption = GetNextMatchCaption();
 
-        Console.WriteLine($"{state.MyClub.Name,-100}{state.Date,20}");
+        Console.WriteLine($"{state.Clubs.First(p => p.Id == state.MyClubId).Name,-100}{state.Date,20}");
         Console.WriteLine($"{state.ManagerName,-100}{state.Weather,20}");
         Console.WriteLine(nextMatchCaption);
         Console.WriteLine("------------------------------------------------------------------------------------------------------------------------");
@@ -47,12 +47,12 @@ public abstract class BaseScreen(IState state) : IBaseScreen
     private string GetNextMatchCaption()
     {
         var nextFixture = state.Competitions.SelectMany(p => p.Fixtures)
-            .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id))
-            .OrderBy(p => p.Round)
+            .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id))
+            .OrderBy(p => p.Date)
             .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
-        var clubAgainst = nextFixture.HomeClub.Id == state.MyClub.Id ? nextFixture.AwayClub : nextFixture.HomeClub;
+        var clubAgainst = nextFixture.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id ? nextFixture.AwayClub : nextFixture.HomeClub;
 
         if (nextFixture.Date == state.Date && nextFixture.Concluded)
         {

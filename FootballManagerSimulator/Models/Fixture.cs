@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
 
@@ -13,13 +14,8 @@ public class Fixture : IFixture
     public bool Concluded { get; set; }
     public DateOnly Date { get; set; }
     public int Minute { get; set; }
+    public Club? ClubWon { get; set; } = null;
 
     public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
     public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();
-
-    public class GoalModel
-    {
-        public int Minute { get; set; }
-        public int PlayerId { get; set; }
-    }
 }

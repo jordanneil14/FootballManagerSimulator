@@ -1,5 +1,4 @@
-﻿using FootballManagerSimulator.Helpers;
-using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -7,7 +6,6 @@ using Newtonsoft.Json;
 namespace FootballManagerSimulator.Factories;
 
 public class GameFactory(
-    IClubHelper clubHelper,
     IPlayerHelper playerHelper,
     IState state,
     IEnumerable<ICompetitionFactory> competitionFactories,
@@ -38,7 +36,7 @@ public class GameFactory(
             LeagueId = p.LeagueId
         }).ToList();
 
-        state.MyClub = clubHelper.GetClubById(gameCreator.ClubId);
+        state.MyClubId = gameCreator.ClubId;
 
         var content = File.ReadAllText($"Resources\\playerData.json");
         var playerData = JsonConvert.DeserializeObject<PlayerData>(content);
@@ -52,15 +50,11 @@ public class GameFactory(
             tacticHelper.ResetTacticForClub(club);
         }
 
-        foreach(var comp in Settings.Competitions)
+        foreach(var competition in Settings.Competitions)
         {
-            var s = competitionFactories.First(p => p.Type == comp.Type).CreateCompetition(comp);
-            state.Competitions.Add(s);
-
-            //state.Competitions.Add(new )
+            var competitionFactory = competitionFactories.First(p => p.Type == competition.Type).CreateCompetition(competition);
+            state.Competitions.Add(competitionFactory);
         }    
-
-        //state.Competitions = Settings.Competitions.Select(p => competitionFactories.First(p => p.).CreateCompetition(p)).ToList();
 
         transferListHelper.UpdateTransferList();
 
@@ -73,14 +67,14 @@ public class GameFactory(
         notificationFactory.AddNotification(
             state.Date,
             "Chairman",
-            $"Welcome to {state.MyClub.Name}",
+            $"Welcome to {state.Clubs.First(p => p.Id == state.MyClubId).Name}",
             "Everyone at the club wishes you a successful reign as manager.");
 
         notificationFactory.AddNotification(
             state.Date,
             "Chairman",
             "Transfer Budget",
-            $"Your transfer budget for the upcoming season is {state.MyClub.TransferBudgetFriendly}.");
+            $"Your transfer budget for the upcoming season is {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly}.");
 
         notificationFactory.AddNotification(
             state.Date.AddDays(1),

@@ -1,5 +1,5 @@
-﻿using FootballManagerSimulator.Structures;
-using Newtonsoft.Json.Linq;
+﻿using FootballManagerSimulator.Models;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Interfaces;
 
@@ -10,4 +10,5 @@ public interface ICompetition
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
     List<Club> Clubs { get; set; }
+    List<DrawDateModel> DrawDates { get; set; }
 }

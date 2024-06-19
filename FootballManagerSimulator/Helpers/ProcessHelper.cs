@@ -7,8 +7,8 @@ namespace FootballManagerSimulator.Helpers;
 public class ProcessHelper(
     IState state,
     IWeatherHelper weatherHelper,
-    INotificationHelper notificationHelper,
-    ITransferListHelper transferListHelper) : IProcessHelper
+    ITransferListHelper transferListHelper,
+    IEnumerable<ICompetitionFactory> competitionFactories) : IProcessHelper
 {
     public void Process()
     {
@@ -23,14 +23,24 @@ public class ProcessHelper(
 
             transferListHelper.ProcessAITransfers();
 
-            var nextFixture = state.Competitions.SelectMany(p => p.Fixtures)
-                .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.MyClub.Id || p.AwayClub.Id == state.MyClub.Id))
-                .OrderBy(p => p.Round)
-                .FirstOrDefault();
+            foreach(var comp in state.Competitions)
+            {
+                var drawDate = comp.DrawDates.FirstOrDefault(p => p.DrawDate == state.Date);
+                if (drawDate != null)
+                    competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp, drawDate.FixtureDate);
+            }
 
-            if (nextFixture != null && nextFixture.Date.DayNumber == state.Date.DayNumber + 1)
-                notificationHelper.GeneratePreMatchReportForFixture(nextFixture);
+            foreach(var comp in state.Competitions)
+            {
+                var fixture = comp.Fixtures
+                    .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id))
+                    .OrderBy(p => p.Round)
+                    .FirstOrDefault();
 
+                if (fixture != null && fixture.Date.DayNumber == state.Date.DayNumber + 1)
+                    competitionFactories.First(p => p.Type == comp.Type).GeneratePreMatchReportForFixture(fixture);
+
+            }
         } catch (ProcessException ex)
         {
             state.ScreenStack.Push(new Structures.Screen

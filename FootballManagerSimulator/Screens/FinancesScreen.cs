@@ -22,7 +22,7 @@ public class FinancesScreen(
                     state.Date.AddDays(2),
                     "Chairman",
                     "Extended Transfer Budget Request",
-                    $"Your request for the transfer budget to be extended from {state.MyClub.TransferBudgetFriendly} has been rejected. We feel that the current allowance is enough for you to achieve your goals this season");
+                    $"Your request for the transfer budget to be extended from {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly} has been rejected. We feel that the current allowance is enough for you to achieve your goals this season");
                 break;
             default:
                 break;
@@ -40,6 +40,6 @@ public class FinancesScreen(
     {
         Console.WriteLine("Finances\n");
 
-        Console.WriteLine($"Transfer budget: {state.MyClub.TransferBudgetFriendly}");
+        Console.WriteLine($"Transfer budget: {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly}");
     }
 }

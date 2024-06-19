@@ -30,14 +30,14 @@ public class TransferListHelper(
     {
         state.Players.First(p => p.Id == playerId).Contract = new Player.ContractModel
         {
-            ClubId = state.MyClub.Id,
-            ClubName = state.MyClub.Name,
+            ClubId = state.Clubs.First(p => p.Id == state.MyClubId).Id,
+            ClubName = state.Clubs.First(p => p.Id == state.MyClubId).Name,
             ExpiryDate = GetEndOfCurrentSeasonDate()
         };
 
         // Add player to reserve tactic slot
         state.Clubs
-            .First(p => p.Id == state.MyClub.Id)
+            .First(p => p.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
             .TacticSlots
             .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)
             .PlayerId = playerId;
@@ -121,7 +121,7 @@ public class TransferListHelper(
             var max = state.Players.First(p => p.Id == randomPlayer.PlayerId).Rating + 5;
 
             var suitableClub = groupedPlayers
-                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != state.MyClub.Id && clubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
+                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != state.Clubs.First(p => p.Id == state.MyClubId).Id && clubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
             if (suitableClub == null)
                 continue;
 

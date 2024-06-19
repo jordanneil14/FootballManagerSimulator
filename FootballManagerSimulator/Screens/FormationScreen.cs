@@ -24,23 +24,23 @@ public class FormationScreen(
                 state.ScreenStack.Pop();
                 break;
             case "C":
-                state.MyClub.Formation = "4-3-3";
-                tacticHelper.ResetTacticForClub(state.MyClub);
+                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-3-3";
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 state.ScreenStack.Pop();
                 break;
             case "D":
-                state.MyClub.Formation = "4-4-2";
-                tacticHelper.ResetTacticForClub(state.MyClub);
+                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-4-2";
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 state.ScreenStack.Pop();
                 break;
             case "E":
-                state.MyClub.Formation = "4-5-1";
-                tacticHelper.ResetTacticForClub(state.MyClub);
+                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-5-1";
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 state.ScreenStack.Pop();
                 break;
             case "F":
-                state.MyClub.Formation = "4-1-2-1-2";
-                tacticHelper.ResetTacticForClub(state.MyClub);
+                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-1-2-1-2";
+                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 state.ScreenStack.Pop();
                 break;
             default:
@@ -60,6 +60,6 @@ public class FormationScreen(
 
     public override void RenderSubscreen()
     {
-        Console.WriteLine($"Current Formation is: {state.MyClub.Formation}");
+        Console.WriteLine($"Current Formation is: {state.Clubs.First(p => p.Id == state.MyClubId).Formation}");
     }
 }

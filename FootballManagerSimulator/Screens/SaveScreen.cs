@@ -32,7 +32,7 @@ public class SaveScreen(IState state) : BaseScreen(state)
         try
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var stateAsJson = JsonConvert.SerializeObject(state);
+            var stateAsJson = JsonConvert.SerializeObject(state, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
             File.WriteAllText(path + $"\\{fileName}.fms", stateAsJson);
             state.UserFeedbackUpdates.Add("Game saved successfully");
         }

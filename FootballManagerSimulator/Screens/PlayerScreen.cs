@@ -124,7 +124,7 @@ public class PlayerScreen(
         var screenParameters = state.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = playerHelper.GetPlayerById(screenParameters.Player.Id);
 
-        var playerPlaysForMyClub = playerHelper.PlayerPlaysForClub(player.Id, state.MyClub.Id);
+        var playerPlaysForMyClub = playerHelper.PlayerPlaysForClub(player.Id, state.Clubs.First(p => p.Id == state.MyClubId).Id);
         var playerIsFreeAgent = player.Contract == null;
 
         if (playerPlaysForMyClub)

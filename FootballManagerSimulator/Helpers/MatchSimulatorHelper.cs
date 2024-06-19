@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
-using System.Numerics;
-using static FootballManagerSimulator.Structures.Fixture;
 
 namespace FootballManagerSimulator.Helpers;
 
@@ -38,7 +37,7 @@ public class MatchSimulatorHelper(
         var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
         var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
-        if (homeClub.Id == state.MyClub.Id)
+        if (homeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
             homeClubRating = (int)(homeClubRating * 1.3);
         else
             awayClubRating = (int)(awayClubRating * 1.3);
@@ -102,12 +101,6 @@ public class MatchSimulatorHelper(
             .PlayerId;
     }
 
-    public class PlayerRatingModel
-    {
-        public int PlayerId { get; set; }
-        public double Rating { get; set; }
-    }
-
     private void SimulateSecondHalf(Fixture fixture)
     {
         var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
@@ -119,7 +112,7 @@ public class MatchSimulatorHelper(
         var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
         var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
-        if (homeClub.Id == state.MyClub.Id)
+        if (homeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
             homeClubRating = (int)(homeClubRating * 1.3);
         else
             awayClubRating = (int)(awayClubRating * 1.3);
@@ -160,17 +153,23 @@ public class MatchSimulatorHelper(
     private static void ConcludeFixture(Fixture fixture)
     {
         fixture.Concluded = true;
+
+        if (fixture.GoalsAway > fixture.GoalsHome)
+            fixture.ClubWon = fixture.AwayClub;
+        else
+            fixture.ClubWon = fixture.HomeClub;
+
     }
 
     public void PrepareMatch(Fixture fixture)
     {
-        if (fixture.HomeClub.Id != state.MyClub.Id)
+        if (fixture.HomeClub.Id != state.Clubs.First(p => p.Id == state.MyClubId).Id)
         {
             tacticHelper.ResetTacticForClub(fixture.HomeClub);
             tacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
         }
 
-        if (fixture.AwayClub.Id != state.MyClub.Id)
+        if (fixture.AwayClub.Id != state.Clubs.First(p => p.Id == state.MyClubId).Id)
         {
             tacticHelper.ResetTacticForClub(fixture.AwayClub);
             tacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);

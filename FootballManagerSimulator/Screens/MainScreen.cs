@@ -26,11 +26,11 @@ public class MainScreen(
                 });
                 break;
             case "D":
-                var league = state.Competitions.First(p => p.Id == state.MyClub.LeagueId);
+                var league = state.Competitions.First(p => p.Id == state.Clubs.First(p => p.Id == state.MyClubId).LeagueId);
                 state.ScreenStack.Push(FixturesScreen.CreateScreen(league));
                 break;
             case "E":
-                state.ScreenStack.Push(ClubScreen.CreateScreen(state.MyClub));
+                state.ScreenStack.Push(ClubScreen.CreateScreen(state.Clubs.First(p => p.Id == state.MyClubId)));
                 break;
             case "F":
                 state.ScreenStack.Push(new Structures.Screen
