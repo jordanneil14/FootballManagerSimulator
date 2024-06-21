@@ -1,30 +1,51 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class HalfTimeScreen(IState state,
+public class MatchScreen(IState state,
     IMatchSimulatorHelper matchSimulator,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
-    public override ScreenType Screen => ScreenType.HalfTime;
+    public override ScreenType Screen => ScreenType.Match;
 
     public override void HandleInput(string input)
     {
         switch (input)
         {
             case "A":
-                foreach (var fixture in state.TodaysFixtures.SelectMany(p => p.Fixtures))
+                foreach(var comp in state.Competitions)
                 {
-                    matchSimulator.ProcessMatch(fixture);
+                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+                    foreach(var fixture in todaysFixtures)
+                    {
+                        matchSimulator.ProcessMatch(fixture, comp);
+                    }
                 }
-                state.ScreenStack.Push(new Structures.Screen
+
+                var myFixture = state.Competitions
+                    .SelectMany(p => p.Fixtures)
+                    .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
+                if (myFixture.Concluded)
                 {
-                    Type = ScreenType.FullTime
-                });
+                    foreach (var comp in state.Competitions)
+                    {
+                        var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date && !p.Concluded);
+                        foreach (var fixture in todaysFixtures)
+                        {
+                            matchSimulator.ProcessMatch(fixture, comp);
+                        }
+                    }
+
+                    state.ScreenStack.Push(new Screen
+                    {
+                        Type = ScreenType.PostMatchScores
+                    });
+                }
                 break;
             case "B":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });
@@ -41,13 +62,18 @@ public class HalfTimeScreen(IState state,
         Console.WriteLine("B) Tactics");
     }
 
+    private string GetDisplayCaption(Fixture fixture)
+    {
+        if (fixture.Minute == 45) return "** HALF TIME **";
+        return "** EXTRA TIME REQUIRED **";
+    }
+
     public override void RenderSubscreen()
     {
-        var fixture = state.TodaysFixtures
+        var fixture = state.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
-            .ToList()
-            .First();
+            .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
+        var comp = state.Competitions.First(p => p.Fixtures.Contains(fixture));
 
         var homeClub = state.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)
@@ -57,7 +83,7 @@ public class HalfTimeScreen(IState state,
             .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
-        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{"** HALF TIME **",67}\n");
+        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{GetDisplayCaption(fixture),67}\n");
 
         var homeClubPlayers = state.Clubs
             .Where(p => p.Id == homeClub.Id)

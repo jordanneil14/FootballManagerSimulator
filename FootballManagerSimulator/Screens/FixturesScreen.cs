@@ -68,9 +68,11 @@ public class FixturesScreen(
                 var fixturesOnDate = f.Fixtures.Where(p => p.Date == date);
                 if (!fixturesOnDate.Any()) continue;
 
-                Console.WriteLine($"\n{f.Name} - {date}");
+                var q = f.Fixtures.Where(p => p.Date == date);
+                var round = q.First().Round;
+                Console.WriteLine($"\n{f.Name} Round {round} - {date}");
 
-                foreach (var fixture in f.Fixtures.Where(p => p.Date == date))
+                foreach (var fixture in q)
                 {
                     if (!fixture.Concluded)
                     {

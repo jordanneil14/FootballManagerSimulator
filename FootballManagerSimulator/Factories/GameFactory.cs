@@ -52,7 +52,7 @@ public class GameFactory(
 
         foreach(var competition in Settings.Competitions)
         {
-            var competitionFactory = competitionFactories.First(p => p.Type == competition.Type).CreateCompetition(competition);
+            var competitionFactory = competitionFactories.First(p => p.Type.ToString() == competition.Type).CreateCompetition(competition);
             state.Competitions.Add(competitionFactory);
         }    
 

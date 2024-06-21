@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
@@ -12,7 +13,7 @@ public class EnglishLeagueCupFactory(
 {
     private readonly Settings Settings = settings.Value;
 
-    public string Type => "Cup";
+    public CompetitionType Type => CompetitionType.Cup;
 
     public ICompetition CreateCompetition(Settings.CompetitionModel competition)
     {
@@ -81,7 +82,8 @@ public class EnglishLeagueCupFactory(
                 HomeClub = clubs.ElementAt(i),
                 AwayClub = clubs.ElementAt(i + 1),
                 Date = date,
-                Round = round
+                Round = round,
+                KickOffTime = new TimeOnly(19, 45)
             });
         }
         return fixtures;

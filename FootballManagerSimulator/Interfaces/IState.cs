@@ -12,7 +12,6 @@ public interface IState
     IEnumerable<Club> Clubs { get; set; }
     List<ICompetition> Competitions { get; set; }
     List<string> UserFeedbackUpdates { get; set; }
-    List<CompetitionFixture> TodaysFixtures { get; }
     string Weather { get; set; }
     public PreviewModel Preview { get; set; }
     public List<TransferListItem> TransferListItems { get; set; }

@@ -11,10 +11,10 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
     {
         switch (input)
         {
-            case "B":
+            case "A":
                 state.ScreenStack.Push(new Structures.Screen
                 {
-                    Type = ScreenType.FullTime
+                    Type = ScreenType.Main
                 });
                 break;
             default:
@@ -25,28 +25,33 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
+        Console.WriteLine("A) Continue");
     }
 
     public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Results\n");
-        var groupedFixtures = state.TodaysFixtures;
-        foreach (var group in groupedFixtures)
+        foreach (var comp in state.Competitions)
         {
-            var leagueName = state.Competitions.First(p => p.Id == group.LeagueId).Name;
-            Console.WriteLine(leagueName);
-            foreach (var fixture in group.Fixtures)
+            
+            var todaysFixtures = comp.Fixtures
+                .Where(p => p.Date == state.Date);
+            
+            if (!todaysFixtures.Any()) continue;
+            Console.WriteLine(comp.Name);
+            foreach (var fixture in todaysFixtures)
             {
                 var homeClub = state.Clubs
-                    .Where(p => p == fixture.HomeClub)
+                    .Where(p => p.Id == fixture.HomeClub.Id)
                     .First();
 
                 var awayClub = state.Clubs
-                    .Where(p => p == fixture.AwayClub
-                    ).First();
+                    .Where(p => p.Id == fixture.AwayClub.Id)
+                    .First();
 
-                Console.WriteLine($"{homeClub.Name,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub.Name,-35}{(fixture.Concluded ? "" : "(Latest)"),-5}{"3PM KO",21}");
+                var kickOffTime = fixture.KickOffTime.ToString("HH:mm");
+                Console.WriteLine($"{homeClub.Name,45}{fixture.GoalsHome,3} v {fixture.GoalsAway,-3}{awayClub.Name,-35}{(fixture.Concluded ? "" : "(Latest)"),-5}{$"{kickOffTime} KO",21}");
+
             }
             Console.WriteLine("\n");
         }

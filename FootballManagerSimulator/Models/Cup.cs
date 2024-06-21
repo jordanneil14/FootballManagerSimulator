@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Factories;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 
@@ -6,7 +7,7 @@ namespace FootballManagerSimulator.Models;
 
 public class Cup : ICompetition
 {
-    public string Type => "Cup";
+    public CompetitionType Type => CompetitionType.Cup;
     public int? Round { get; set; }
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

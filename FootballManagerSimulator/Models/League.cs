@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
@@ -11,7 +12,7 @@ public class League : ICompetition
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public List<Club> Clubs { get; set; } = new List<Club>();
 
-    public string Type => "League";
+    public CompetitionType Type => CompetitionType.League;
 
     public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
 

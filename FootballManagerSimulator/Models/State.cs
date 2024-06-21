@@ -13,26 +13,6 @@ public class State : IState
     public List<string> UserFeedbackUpdates { get; set; } = new List<string>();
     public string ManagerName { get; set; } = "";
 
-    public List<CompetitionFixture> TodaysFixtures { get => GetTodaysFixtures(); }
-
-    private List<CompetitionFixture> GetTodaysFixtures()
-    {
-        var fixtureModel = new List<CompetitionFixture>();
-        foreach(var league in Competitions)
-        {
-            var todaysFixturesForLeague = league.Fixtures.Where(p => p.Date == Date).ToList();
-            if (todaysFixturesForLeague.Any())
-            {
-                fixtureModel.Add(new CompetitionFixture()
-                {
-                    LeagueId = league.Id,
-                    Fixtures = todaysFixturesForLeague
-                });
-            }
-        }
-        return fixtureModel;
-    }
-
     public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
     public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
     public PreviewModel Preview { get; set; } = new PreviewModel();

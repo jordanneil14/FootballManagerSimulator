@@ -17,7 +17,7 @@ public class LeagueTableScreen(
     public void GenerateLeagueKeyModels(int currentLeagueId)
     {
         LeagueKeyModels.Clear();
-        var leagues = state.Competitions.Where(p => p.Type == "League");
+        var leagues = state.Competitions.Where(p => p.Type.ToString() == "League");
         var key = (int)'C';
 
         foreach (var league in leagues)

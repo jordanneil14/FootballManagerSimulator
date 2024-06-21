@@ -3,7 +3,7 @@
 public enum ScreenType
 {
     Scout,
-    HalfTime,
+    Match,
     Main,
     Club,
     Player,
@@ -20,7 +20,6 @@ public enum ScreenType
     LoadGame,
     CreateManager,
     SelectClub,
-    FullTime,
     PostMatchScores,
     PostMatchLeagueTable,
     Finances,

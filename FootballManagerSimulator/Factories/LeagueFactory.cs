@@ -1,8 +1,8 @@
-﻿using FootballManagerSimulator.Helpers;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace FootballManagerSimulator.Factories;
 
@@ -13,7 +13,7 @@ public class LeagueFactory(
 {
     private readonly Settings Settings = settings.Value;
 
-    public string Type => "League";
+    public CompetitionType Type => CompetitionType.League;
 
     public class RandomFixture
     {
@@ -117,7 +117,8 @@ public class LeagueFactory(
                 HomeClub = league.Clubs.ElementAt(0),
                 AwayClub = clubIndices[clubIdx],
                 Round = randomHelper.WeekNumber,
-                Date = randomHelper.Date
+                Date = randomHelper.Date,
+                KickOffTime = new TimeOnly(15, 00)
             });
 
             for (int idx = 1; idx < halfSize; idx++)
@@ -130,7 +131,8 @@ public class LeagueFactory(
                     HomeClub = clubIndices[firstClubIdx],
                     AwayClub = clubIndices[secondClubIdx],
                     Round = randomHelper.WeekNumber,
-                    Date = randomHelper.Date
+                    Date = randomHelper.Date,
+                    KickOffTime = new TimeOnly(15, 00)
                 });
             }
 
@@ -149,7 +151,8 @@ public class LeagueFactory(
                 HomeClub = clubIndices[clubIdx],
                 AwayClub = league.Clubs.ElementAt(0),
                 Round = randomHelper.WeekNumber,
-                Date = randomHelper.Date
+                Date = randomHelper.Date,
+                KickOffTime = new TimeOnly(15, 00)
             });
 
             for (var idx = 1; idx < halfSize; idx++)
@@ -162,7 +165,8 @@ public class LeagueFactory(
                     HomeClub = clubIndices[secondClubIdx],
                     AwayClub = clubIndices[firstClubIdx],
                     Round = randomHelper.WeekNumber,
-                    Date = randomHelper.Date
+                    Date = randomHelper.Date,
+                    KickOffTime = new TimeOnly(15, 00)
                 });
             }
 

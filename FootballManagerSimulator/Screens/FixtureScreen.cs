@@ -27,16 +27,44 @@ public class FixtureScreen(
 
     private void HandleAdvanceInput()
     {
-        state.ScreenStack.Push(new Screen
-        {
-            Type = ScreenType.PreMatch
-        });
+        var includesMyClub = state.Competitions
+            .SelectMany(p => p.Fixtures)
+            .Any(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
 
-        var todaysFixtures = state.TodaysFixtures.SelectMany(p => p.Fixtures);
-        foreach (var fixture in todaysFixtures)
+        
+
+        if (includesMyClub)
         {
-            matchSimulator.PrepareMatch(fixture);
+            state.ScreenStack.Push(new Screen
+            {
+                Type = ScreenType.PreMatch
+            });
+
+            var todaysFixtures = state.Competitions
+                .SelectMany(p => p.Fixtures)
+                .Where(p => p.Date == state.Date);
+
+            foreach (var fixture in todaysFixtures)
+            {
+                matchSimulator.PrepareMatch(fixture);
+            }
+            return;
         }
+
+        foreach(var comp in state.Competitions)
+        {
+            var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+            foreach (var fixture in todaysFixtures)
+            {
+                matchSimulator.PrepareMatch(fixture);
+                matchSimulator.ConcludeFixture(fixture, comp);
+            }
+        }
+
+        state.ScreenStack.Push(new Structures.Screen
+        {
+            Type = ScreenType.PostMatchScores
+        });
     }
 
     public override void RenderOptions()
@@ -49,16 +77,19 @@ public class FixtureScreen(
     public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Fixtures\n");
-        var groupedFixtures = state.TodaysFixtures;
-        foreach(var group in groupedFixtures)
+
+        foreach(var comp in state.Competitions)
         {
-            var leagueName = state.Competitions.First(p => p.Id == group.LeagueId).Name;
-            Console.WriteLine(leagueName);
-            foreach (var fixture in group.Fixtures)
+            var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+            if (!todaysFixtures.Any()) continue;
+            Console.WriteLine(comp.Name);
+            foreach (var fixture in todaysFixtures)
             {
                 var homeClub = state.Clubs.Where(p => p.Id == fixture.HomeClub.Id).First();
                 var awayClub = state.Clubs.Where(p => p.Id == fixture.AwayClub.Id).First();
-                Console.WriteLine($"{homeClub.Name,48} v {awayClub.Name,-48}{"3PM KO",21}");
+                var kickOffTime = fixture.KickOffTime.ToString("HH:mm");
+
+                Console.WriteLine($"{homeClub.Name,48} v {awayClub.Name,-48}{$"{kickOffTime} KO",21}");
             }
             Console.WriteLine("\n");
         }

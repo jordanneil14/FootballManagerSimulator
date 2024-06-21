@@ -18,4 +18,5 @@ public class Fixture : IFixture
 
     public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
     public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();
+    public TimeOnly KickOffTime { get; set; }
 }

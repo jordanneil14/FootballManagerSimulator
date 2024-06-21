@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -16,15 +17,19 @@ public class PreMatchScreen(
         {
             case "A":
                 ValidateStartMatch();
-                if (state.UserFeedbackUpdates.Any()) return;
-                var fixtures = state.TodaysFixtures.SelectMany(p => p.Fixtures);
-                foreach (var fixture in fixtures)
+                if (state.UserFeedbackUpdates.Count != 0) return;
+                foreach(var comp in state.Competitions)
                 {
-                    matchSimulator.ProcessMatch(fixture);
+                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+                    foreach (var fixture in todaysFixtures)
+                    {
+                        matchSimulator.ProcessMatch(fixture, comp);
+                    }
                 }
+
                 state.ScreenStack.Push(new Structures.Screen
                 {
-                    Type = ScreenType.HalfTime
+                    Type = ScreenType.Match
                 });
                 break;
             case "B":
@@ -58,10 +63,9 @@ public class PreMatchScreen(
 
     public override void RenderSubscreen()
     {
-        var fixture = state.TodaysFixtures
+        var fixture = state.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
-            .First();
+            .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
 
         var homeClub = state.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)

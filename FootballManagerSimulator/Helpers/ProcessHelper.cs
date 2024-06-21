@@ -8,7 +8,8 @@ public class ProcessHelper(
     IState state,
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
-    IEnumerable<ICompetitionFactory> competitionFactories) : IProcessHelper
+    IEnumerable<ICompetitionFactory> competitionFactories,
+    INotificationFactory notificationFactory) : IProcessHelper
 {
     public void Process()
     {
@@ -26,8 +27,25 @@ public class ProcessHelper(
             foreach(var comp in state.Competitions)
             {
                 var drawDate = comp.DrawDates.FirstOrDefault(p => p.DrawDate == state.Date);
-                if (drawDate != null)
-                    competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp, drawDate.FixtureDate);
+                if (drawDate == null) continue;
+                competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp, drawDate.FixtureDate);
+
+                var clubIds = comp.Clubs.Select(p => p.Id);
+                if (clubIds.Any() && clubIds.Contains(state.MyClubId.GetValueOrDefault()))
+                {
+                    var fixtures = comp.Fixtures.Where(p => p.Round == drawDate.Round);
+
+                    var message = $"Fixtures have been drawn for the next round of the {comp.Name}";
+                    var fixtureString = fixtures.Select(p => $"{p.HomeClub.Name} v {p.AwayClub.Name}");
+                    message += "\n" + string.Join("\n", fixtureString);
+
+                    notificationFactory.AddNotification(
+                        state.Date,
+                        "Assistant",
+                        $"{comp.Name} Round {drawDate.Round}",
+                        message);
+                }
+
             }
 
             foreach(var comp in state.Competitions)
@@ -52,9 +70,9 @@ public class ProcessHelper(
 
     private void ValidateProcess()
     {
-        var existsOutstandingFixtures = state.TodaysFixtures
+        var existsOutstandingFixtures = state.Competitions
             .SelectMany(p => p.Fixtures)
-            .Any(p => !p.Concluded);
+            .Any(p => !p.Concluded && p.Date == state.Date);
 
         if (existsOutstandingFixtures)
             throw new ProcessException(ScreenType.Fixture);
