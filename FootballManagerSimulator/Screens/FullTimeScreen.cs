@@ -4,50 +4,27 @@ using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
-public class MatchScreen(IState state,
-    IMatchSimulatorHelper matchSimulator,
+public class FullTimeScreen(
+    IState state,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
-    public override ScreenType Screen => ScreenType.Match;
+    public override ScreenType Screen => ScreenType.FullTime;
 
     public override void HandleInput(string input)
     {
         switch (input)
         {
             case "A":
-                foreach(var comp in state.Competitions)
-                {
-                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
-                    foreach(var fixture in todaysFixtures)
-                    {
-                        matchSimulator.ProcessMatch(fixture, comp);
-                    }
-                }
-
-                var myFixture = state.Competitions
-                    .SelectMany(p => p.Fixtures)
-                    .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
-                if (myFixture.Concluded)
-                {
-                    foreach (var comp in state.Competitions)
-                    {
-                        var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date && !p.Concluded);
-                        foreach (var fixture in todaysFixtures)
-                        {
-                            matchSimulator.ProcessMatch(fixture, comp);
-                        }
-                    }
-
-                    state.ScreenStack.Push(new Screen
-                    {
-                        Type = ScreenType.FullTime
-                    });
-                }
-                break;
-            case "B":
+                state.ScreenStack.Clear();
                 state.ScreenStack.Push(new Screen
                 {
-                    Type = ScreenType.Tactics
+                    Type = ScreenType.PostMatchScores
+                });
+                break;                
+            case "C":
+                state.ScreenStack.Push(new Screen
+                {
+                    Type = ScreenType.LeagueTable
                 });
                 break;
             default:
@@ -58,14 +35,8 @@ public class MatchScreen(IState state,
     public override void RenderOptions()
     {
         Console.WriteLine("Options:");
-        Console.WriteLine("A) Continue Match");
-        Console.WriteLine("B) Tactics");
-    }
-
-    private string GetDisplayCaption(Fixture fixture)
-    {
-        if (fixture.Minute == 45) return "** HALF TIME **";
-        return "** EXTRA TIME REQUIRED **";
+        Console.WriteLine("A) Continue");
+        Console.WriteLine("C) League Table");
     }
 
     public override void RenderSubscreen()
@@ -73,7 +44,6 @@ public class MatchScreen(IState state,
         var fixture = state.Competitions
             .SelectMany(p => p.Fixtures)
             .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
-        var comp = state.Competitions.First(p => p.Fixtures.Contains(fixture));
 
         var homeClub = state.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)
@@ -83,20 +53,22 @@ public class MatchScreen(IState state,
             .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
-        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{GetDisplayCaption(fixture),67}\n");
+        Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{"** FULL TIME **",67}\n");
 
         var homeClubPlayers = state.Clubs
             .Where(p => p.Id == homeClub.Id)
-            .First().TacticSlots;
+            .First()
+            .TacticSlots;
 
         var awayClubPlayers = state.Clubs
             .Where(p => p.Id == awayClub.Id)
-            .First().TacticSlots;
+            .First()
+            .TacticSlots;
 
         for (var i = 0; i < 18; i++)
         {
             if (i == 11)
-                Console.WriteLine($"{"------------",58}{"   ------------",-58}");
+                Console.WriteLine($"{"------------", 58}{"   ------------",-58}");
 
             var homePlayer = "EMPTY SLOT";
             var awayPlayer = "EMPTY SLOT";

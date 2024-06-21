@@ -57,10 +57,11 @@ public class ClubScreen(
         Console.WriteLine("Upcoming Fixtures:");
         var upcomingFixtures = state.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub == clubScreenObj.Club || p.AwayClub == clubScreenObj.Club).Take(5);
+            .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id).Take(5);
         foreach (var fixture in upcomingFixtures)
         {
-            Console.WriteLine($"{fixture.HomeClub.Name} Vs {fixture.AwayClub.Name}");
+            var comp = state.Competitions.First(p => p.Fixtures.Contains(fixture));
+            Console.WriteLine($"{comp.Name} - {fixture.HomeClub.Name} v {fixture.AwayClub.Name}");
         }
 
         Console.WriteLine("\nPlayers:");

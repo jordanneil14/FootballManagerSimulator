@@ -25,5 +25,6 @@ public enum ScreenType
     Finances,
     TransferList,
     TransferPlayer,
-    Formation
+    Formation,
+    FullTime
 }
