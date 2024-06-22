@@ -15,7 +15,7 @@ public class EnglishLeagueCupFactory(
 
     public CompetitionType Type => CompetitionType.Cup;
 
-    public ICompetition CreateCompetition(Settings.CompetitionModel competition)
+    public ICompetition CreateCompetition(CompetitionModel competition)
     {
         var clubs = Settings.Clubs
             .Where(p => new List<int> { 1, 2, 3, 4 }.Contains(p.LeagueId))
@@ -43,13 +43,13 @@ public class EnglishLeagueCupFactory(
         return cup;
     }
 
-    public void GenerateNextRoundOfFixtures(ICompetition competition, DateOnly fixtureDate)
+    public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var cup = (Cup)competition;
-
-        var s = cup.DrawDates.First(p => p.FixtureDate == fixtureDate);
-
         cup.Round = cup.Round.GetValueOrDefault() + 1;
+
+        var drawDate = cup.DrawDates.First(p => p.Round == cup.Round);
+
         if (cup.Round == 1)
         {
             var clubs = cup.Clubs
@@ -59,23 +59,23 @@ public class EnglishLeagueCupFactory(
                     Id = p.Id,
                     Name = p.Name
                 }).ToList();
-            cup.Fixtures = GenerateFixtures(clubs.ToList(), fixtureDate, cup.Round.Value);
+            cup.Fixtures = GenerateFixtures(clubs.ToList(), drawDate.FixtureDate, cup.Round.Value);
             return;
         }
 
         var lastRoundOfFixtures = cup.Fixtures.Where(p => p.Round == cup.Round - 1);
 
         var winningClubs = lastRoundOfFixtures.Select(p => p.ClubWon);
-        var includedClubs = s.IncludedClubs == null ? Enumerable.Empty<Club>() : cup.Clubs.Where(p => s.IncludedClubs.Contains(p.Id));
+        var includedClubs = drawDate.IncludedClubs == null ? Enumerable.Empty<Club>() : cup.Clubs.Where(p => drawDate.IncludedClubs.Contains(p.Id));
         var nextRoundClubs = winningClubs.Concat(includedClubs);
 
-        cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs.ToList(), fixtureDate, cup.Round.Value));
+        cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs.ToList(), drawDate.FixtureDate, cup.Round.Value));
     }
 
     private List<Fixture> GenerateFixtures(List<Club> clubs, DateOnly date, int round)
     {
         var fixtures = new List<Fixture>();
-        for (int i = 0; i < clubs.Count; i += 2)
+        for (var i = 0; i < clubs.Count; i += 2)
         {
             fixtures.Add(new Fixture()
             {
@@ -92,9 +92,9 @@ public class EnglishLeagueCupFactory(
     public void GeneratePreMatchReportForFixture(Fixture fixture)
     {
         notificationFactory.AddNotification(
-                   state.Date,
-                   "Club Analyst",
-                   "Pre-Match Report",
-                   "English league Cup match incoming");
+            state.Date,
+            "Club Analyst",
+            "Pre-Match Report",
+            "English league Cup match incoming");
     }
 }

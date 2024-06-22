@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Structures;
@@ -16,6 +17,6 @@ public class GameCreator : IGameCreator
     public string ManagerName { get; set; } = "";
     public int LeagueId { get; set; }
     public int ClubId { get; set; }
-    public IEnumerable<Settings.ClubModel> Clubs => Settings.Clubs;
-    public IEnumerable<Settings.CompetitionModel> Leagues => Settings.Competitions;
+    public IEnumerable<Club> Clubs => Settings.Clubs;
+    public IEnumerable<CompetitionModel> Leagues => Settings.Competitions;
 }

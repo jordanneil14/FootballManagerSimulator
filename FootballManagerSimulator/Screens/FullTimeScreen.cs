@@ -21,12 +21,6 @@ public class FullTimeScreen(
                     Type = ScreenType.PostMatchScores
                 });
                 break;                
-            case "C":
-                state.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.LeagueTable
-                });
-                break;
             default:
                 break;
         }
@@ -36,7 +30,6 @@ public class FullTimeScreen(
     {
         Console.WriteLine("Options:");
         Console.WriteLine("A) Continue");
-        Console.WriteLine("C) League Table");
     }
 
     public override void RenderSubscreen()

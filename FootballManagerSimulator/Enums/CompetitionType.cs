@@ -3,5 +3,6 @@
 public enum CompetitionType
 {
     League = 0,
-    Cup = 1
+    Cup = 1,
+    Friendly = 2
 }

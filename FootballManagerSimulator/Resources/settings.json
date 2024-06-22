@@ -1,6 +1,6 @@
 {
   "General": {
-    "StartDate": "2016-08-01"
+    "StartDate": "2016-07-10"
   },
   "Clubs": [
     {
@@ -1209,6 +1209,25 @@
         }
       ]
 
+    },
+    {
+      "Id": 9,
+      "Type": "Friendly",
+      "Name": "Friendly",
+      "DrawDates": [
+        {
+          "Round": 1,
+          "FixtureDate": "2016-07-15"
+        },
+        {
+          "Round": 2,
+          "FixtureDate": "2016-07-22"
+        },
+        {
+          "Round": 3,
+          "FixtureDate": "2016-07-29"
+        }
+      ]
     }
 
   ]

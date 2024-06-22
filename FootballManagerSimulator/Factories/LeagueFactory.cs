@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
@@ -21,7 +22,7 @@ public class LeagueFactory(
         public DateOnly Date { get; set; }
     }
 
-    public ICompetition CreateCompetition(Settings.CompetitionModel competition)
+    public ICompetition CreateCompetition(CompetitionModel competition)
     {
         var clubs = Settings.Clubs
             .Where(p => p.LeagueId == competition.Id)
@@ -42,7 +43,7 @@ public class LeagueFactory(
             Clubs = clubs.ToList()
         };
 
-        GenerateNextRoundOfFixtures(league, new DateOnly(2016, 08, 06));
+        GenerateNextRoundOfFixtures(league);
 
         return league;
     }
@@ -76,7 +77,7 @@ public class LeagueFactory(
             message);
     }
 
-    public void GenerateNextRoundOfFixtures(ICompetition competition, DateOnly fixtureDate)
+    public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var league = (League)competition;
 
@@ -91,7 +92,7 @@ public class LeagueFactory(
 
         var clubIdxSize = clubIndices.Count;
 
-        var date = fixtureDate;
+        var date = new DateOnly(2016, 08, 05);
 
         var randomHelpers = new List<RandomFixture>();
         for (int i = 1; i <= numRounds * 2; i++)

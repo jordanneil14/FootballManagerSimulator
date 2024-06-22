@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -49,9 +50,13 @@ public abstract class BaseScreen(IState state) : IBaseScreen
         var nextFixture = state.Competitions.SelectMany(p => p.Fixtures)
             .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id))
             .OrderBy(p => p.Date)
-            .FirstOrDefault();
+        .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
+
+        var comp = state.Competitions.First(p => p.Fixtures.Contains(nextFixture));
+
+
         var clubAgainst = nextFixture.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id ? nextFixture.AwayClub : nextFixture.HomeClub;
 
         if (nextFixture.Date == state.Date && nextFixture.Concluded)
@@ -59,12 +64,12 @@ public abstract class BaseScreen(IState state) : IBaseScreen
             return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
         }
 
-        if (nextFixture.Date == state.Date) return $"Next Match: Today Vs {clubAgainst.Name}";
+        if (nextFixture.Date == state.Date) return $"Next Match: {comp.Name} Vs {clubAgainst.Name} today";
 
         var diff = nextFixture.Date.DayNumber - state.Date.DayNumber;
         if (diff == 1)
-            return $"Next Match: Tomorrow Vs {clubAgainst.Name}";       
+            return $"Next Match: {comp.Name} Vs {clubAgainst.Name} tomorrow";       
                 
-        return $"Next Match: {nextFixture.Date.DayNumber - state.Date.DayNumber} days Vs {clubAgainst.Name}";
+        return $"Next Match: {comp.Name} vs {clubAgainst.Name} in {nextFixture.Date.DayNumber - state.Date.DayNumber} days";
     }
 }

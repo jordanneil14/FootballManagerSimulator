@@ -28,7 +28,7 @@ public class ProcessHelper(
             {
                 var drawDate = comp.DrawDates.FirstOrDefault(p => p.DrawDate == state.Date);
                 if (drawDate == null) continue;
-                competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp, drawDate.FixtureDate);
+                competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp);
 
                 var clubIds = comp.Clubs.Select(p => p.Id);
                 if (clubIds.Any() && clubIds.Contains(state.MyClubId.GetValueOrDefault()))
