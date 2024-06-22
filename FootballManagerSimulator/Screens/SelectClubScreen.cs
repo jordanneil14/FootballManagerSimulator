@@ -20,7 +20,8 @@ public class SelectClubScreen(
                 break;
             default:
                 if (string.IsNullOrWhiteSpace(input)) return;
-                var club = gameCreator.Clubs.FirstOrDefault(c => c.Name.ToLower() == input.ToLower() && c.LeagueId == gameCreator.LeagueId);
+                var club = gameCreator.Clubs
+                    .FirstOrDefault(c => c.Name.ToLower() == input.ToLower() && c.LeagueId == gameCreator.LeagueId);
                 if (club == null) return;
                 gameCreator.ClubId = club.Id;
                 gameFactory.CreateGame();
@@ -35,14 +36,14 @@ public class SelectClubScreen(
     public void RenderScreen()
     {
         Console.WriteLine("Select a club to manage:\n");
-        Console.WriteLine($"{"Team",-50}{"Transfer Budget", -12}");
+        Console.WriteLine($"{"Team",-30}{"Transfer Budget", -20}{"Stadium", -20}");
 
         var clubs = gameCreator.Clubs.Where(p => p.LeagueId == gameCreator.LeagueId);
         var orderedClubs = clubs.OrderBy(p => p.Name);
         foreach (var club in orderedClubs)
         {
             var transferValueFriendly = $"£{club.TransferBudget:n}";
-            Console.WriteLine($"{club.Name,-50}{transferValueFriendly, -12}");
+            Console.WriteLine($"{club.Name,-30}{transferValueFriendly, -20}{club.Stadium, -20}");
         }
 
         Console.WriteLine("\nOptions:");

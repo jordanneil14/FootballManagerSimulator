@@ -1,13 +1,17 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Screens;
 
 public class SelectLeagueScreen(
     IState state,
+    IOptions<Settings> settings,
     IGameCreator gameCreator) : IBaseScreen
 {
+    private readonly Settings Settings = settings.Value;
+
     public ScreenType Screen => ScreenType.SelectLeague;
 
     public void HandleInput(string input)
@@ -15,7 +19,7 @@ public class SelectLeagueScreen(
         if (string.IsNullOrWhiteSpace(input))
             return;
 
-        var league = gameCreator.Leagues.FirstOrDefault(p => p.Id.ToString() == input);
+        var league = gameCreator.Competitions.FirstOrDefault(p => p.Id.ToString() == input);
         if (league != null)
         {
             gameCreator.LeagueId = league.Id;
@@ -37,11 +41,14 @@ public class SelectLeagueScreen(
     public void RenderScreen()
     {
         Console.WriteLine("Select a league to manage in:\n");
-        Console.WriteLine($"{"Id",-10}{"League",-40}");
+        Console.WriteLine($"{"Id",-10}{"League",-30}{"Country", -20}{"Rank", -10}{"No of Teams", -15}");
 
-        foreach (var league in gameCreator.Leagues)
+        var leagues = gameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString());
+
+        foreach (var league in leagues)
         {
-            Console.WriteLine($"{league.Id, -10}{league.Name, -40}");
+            var countryName = Settings.Countries.First(p => p.Id == league.CountryId).Name;
+            Console.WriteLine($"{league.Id, -10}{league.Name, -30}{countryName, -20}{league.Rank, -10}{league.LeagueTable.Places, -15}");
         }
 
         Console.WriteLine("\nOptions:");
