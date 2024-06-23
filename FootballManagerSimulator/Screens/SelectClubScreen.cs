@@ -37,6 +37,7 @@ public class SelectClubScreen(
     {
         Console.WriteLine("Select a club to manage:\n");
         Console.WriteLine($"{"Team",-30}{"Transfer Budget", -20}{"Stadium", -20}");
+        Console.WriteLine("----------------------------------------------------------------------------------");
 
         var clubs = gameCreator.Clubs.Where(p => p.LeagueId == gameCreator.LeagueId);
         var orderedClubs = clubs.OrderBy(p => p.Name);

@@ -18,5 +18,5 @@ public class GameCreator : IGameCreator
     public int LeagueId { get; set; }
     public int ClubId { get; set; }
     public IEnumerable<Club> Clubs => Settings.Clubs;
-    public IEnumerable<CompetitionModel> Leagues => Settings.Competitions;
+    public IEnumerable<CompetitionModel> Competitions => Settings.Competitions;
 }

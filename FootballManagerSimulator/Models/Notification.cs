@@ -8,6 +8,6 @@ public class Notification
     public string Message { get; set; } = "";
     public override string ToString()
     {
-        return $"From: {Recipient}\nSubject: {Subject}\nMessage: {Message}";
+        return $"From: {Recipient}\nDate: {Date}\nSubject: {Subject}\nMessage: {Message}";
     }
 }

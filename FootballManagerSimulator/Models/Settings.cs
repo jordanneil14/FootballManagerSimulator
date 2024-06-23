@@ -12,5 +12,12 @@ public class Settings
     }
     public List<Club> Clubs { get; set; } = new List<Club>();
     public IEnumerable<CompetitionModel> Competitions { get; set; } = new List<CompetitionModel>();
+    public IEnumerable<IdNameModel> Countries { get; set; } = new List<IdNameModel>();
+
+    public class IdNameModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Id { get; set; }
+    }
     
 }

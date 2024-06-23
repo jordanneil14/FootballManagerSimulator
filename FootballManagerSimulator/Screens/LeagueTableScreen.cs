@@ -91,6 +91,8 @@ public class LeagueTableScreen(
 
         Console.WriteLine($"{league.Name} League Table\n");
         Console.WriteLine(string.Format("{0,-8}{1,-40}{2,-7}{3,-7}{4,-7}{5,-7}{6,-7}", "Pos", "Team", "Pld", "Pnts", "F", "A", "GD"));
+        Console.WriteLine("-------------------------------------------------------------------------------");
+
         for (var i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);

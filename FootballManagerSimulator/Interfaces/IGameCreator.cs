@@ -9,5 +9,5 @@ public interface IGameCreator
     int LeagueId { get; set; }
     int ClubId { get; set; }
     IEnumerable<Club> Clubs { get; }
-    IEnumerable<CompetitionModel> Leagues { get; }
+    IEnumerable<CompetitionModel> Competitions { get; }
 }

@@ -68,7 +68,8 @@ public class ClubScreen(
 
         var players = state.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
 
-        Console.WriteLine($"{"ID",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Transfer Value", -20}");
+        Console.WriteLine($"{"Id",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Transfer Value", -20}");
+        Console.WriteLine("----------------------------------------------------------------------------------");
 
         foreach (var player in players.OrderBy(p => p.Name))
         {

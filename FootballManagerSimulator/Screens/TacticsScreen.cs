@@ -61,8 +61,11 @@ public class TacticsScreen(IState state,
 
     public override void RenderSubscreen()
     {
+        Console.WriteLine("Tactics\n");
         Console.WriteLine($"{"Number",-10}{"Slot",-10}{"Position",-10}{"Name",-40}{"Rating",-10}");
-        for(var i = 0; i < state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Count; i++)
+        Console.WriteLine("----------------------------------------------------------------------------------");
+
+        for (var i = 0; i < state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Count; i++)
         {
             var tacticSlot = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(i);
             if (tacticSlot.PlayerId == null)
