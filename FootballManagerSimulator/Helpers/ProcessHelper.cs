@@ -24,7 +24,7 @@ public class ProcessHelper(
 
             transferListHelper.ProcessAITransfers();
 
-            foreach(var comp in state.Competitions)
+            foreach (var comp in state.Competitions)
             {
                 var drawDate = comp.DrawDates.FirstOrDefault(p => p.DrawDate == state.Date);
                 if (drawDate == null) continue;
@@ -48,7 +48,7 @@ public class ProcessHelper(
 
             }
 
-            foreach(var comp in state.Competitions)
+            foreach (var comp in state.Competitions)
             {
                 var fixture = comp.Fixtures
                     .Where(p => p.Date >= state.Date && (p.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id || p.AwayClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id))
@@ -59,7 +59,8 @@ public class ProcessHelper(
                     competitionFactories.First(p => p.Type == comp.Type).GeneratePreMatchReportForFixture(fixture);
 
             }
-        } catch (ProcessException ex)
+        }
+        catch (ProcessException ex)
         {
             state.ScreenStack.Push(new Structures.Screen
             {

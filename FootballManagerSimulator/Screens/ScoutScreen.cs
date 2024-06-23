@@ -52,7 +52,7 @@ public class ScoutScreen(
             .Where(p => p.Contract != null)
             .OrderBy(p => p.Contract!.ClubName);
 
-        for(var i = 0; i < employeedPlayers.Count(); i++) 
+        for (var i = 0; i < employeedPlayers.Count(); i++)
         {
             PlayerDetails.Add(new PlayerDetailModel
             {

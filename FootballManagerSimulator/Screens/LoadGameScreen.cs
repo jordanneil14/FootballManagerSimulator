@@ -14,7 +14,7 @@ public class LoadGameScreen(
 
     public void HandleInput(string input)
     {
-        switch(input)
+        switch (input)
         {
             case "B":
                 state.ScreenStack.Clear();
@@ -76,7 +76,7 @@ public class LoadGameScreen(
         var directoryInfo = new DirectoryInfo(path);
         var files = directoryInfo.GetFiles("*.fms");
 
-        foreach(var file in files)
+        foreach (var file in files)
         {
             try
             {
@@ -107,9 +107,9 @@ public class LoadGameScreen(
         }
 
         Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
-        for(var i = 0; i < Games.Count; i++)
+        for (var i = 0; i < Games.Count; i++)
         {
-            Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i+1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
+            Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i + 1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
         }
         Console.WriteLine("\nOptions:");
         Console.WriteLine("B) Back");

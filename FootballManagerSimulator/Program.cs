@@ -1,7 +1,7 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NetCore.AutoRegisterDi;
 
 namespace FootballManagerSimulator;

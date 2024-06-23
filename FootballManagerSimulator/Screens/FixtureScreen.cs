@@ -31,7 +31,7 @@ public class FixtureScreen(
             .SelectMany(p => p.Fixtures)
             .Any(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
 
-        
+
 
         if (includesMyClub)
         {
@@ -51,7 +51,7 @@ public class FixtureScreen(
             return;
         }
 
-        foreach(var comp in state.Competitions)
+        foreach (var comp in state.Competitions)
         {
             var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
             foreach (var fixture in todaysFixtures)
@@ -78,7 +78,7 @@ public class FixtureScreen(
     {
         Console.WriteLine("Today's Fixtures\n");
 
-        foreach(var comp in state.Competitions)
+        foreach (var comp in state.Competitions)
         {
             var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
             if (!todaysFixtures.Any()) continue;

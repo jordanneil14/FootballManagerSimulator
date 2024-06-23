@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Structures;
 using static FootballManagerSimulator.Screens.TransferPlayerScreen;
@@ -33,7 +32,7 @@ public class PlayerScreen(
 
     public override void HandleInput(string input)
     {
-        switch(input)
+        switch (input)
         {
             case "B":
                 state.ScreenStack.Pop();

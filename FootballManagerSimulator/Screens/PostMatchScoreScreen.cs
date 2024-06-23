@@ -33,10 +33,10 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
         Console.WriteLine("Today's Results\n");
         foreach (var comp in state.Competitions)
         {
-            
+
             var todaysFixtures = comp.Fixtures
                 .Where(p => p.Date == state.Date);
-            
+
             if (!todaysFixtures.Any()) continue;
             Console.WriteLine(comp.Name);
             foreach (var fixture in todaysFixtures)

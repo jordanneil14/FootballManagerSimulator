@@ -1,6 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -23,7 +22,7 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
     public void RenderUserFeedbackUpdates()
     {
-        foreach(var update in state.UserFeedbackUpdates)
+        foreach (var update in state.UserFeedbackUpdates)
         {
             Console.WriteLine($"** {update} **");
         }
@@ -68,8 +67,8 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
         var diff = nextFixture.Date.DayNumber - state.Date.DayNumber;
         if (diff == 1)
-            return $"Next Match: {comp.Name} Vs {clubAgainst.Name} tomorrow";       
-                
+            return $"Next Match: {comp.Name} Vs {clubAgainst.Name} tomorrow";
+
         return $"Next Match: {comp.Name} vs {clubAgainst.Name} in {nextFixture.Date.DayNumber - state.Date.DayNumber} days";
     }
 }

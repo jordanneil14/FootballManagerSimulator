@@ -4,7 +4,7 @@ public enum Position
 {
     GK,
     LF,
-    LS, 
+    LS,
     RW,
     LW,
     ST,

@@ -35,7 +35,7 @@ public class MatchSimulatorHelper(
             SimulateExtraTime(fixture);
             return;
         }
-            
+
         if (fixture.Minute == 120)
         {
             SimulatePenalties(fixture);
@@ -158,7 +158,7 @@ public class MatchSimulatorHelper(
     private int GetGoalScorer(IEnumerable<TacticSlot> tacticSlots)
     {
         var playerRatingModels = new List<PlayerRatingModel>();
-        foreach(var slot in tacticSlots)
+        foreach (var slot in tacticSlots)
         {
             var player = playerHelper.GetPlayerById(slot.PlayerId.Value);
             playerRatingModels.Add(new PlayerRatingModel

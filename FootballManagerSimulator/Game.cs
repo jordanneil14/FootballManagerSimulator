@@ -30,7 +30,7 @@ public class Game(
                 screen.HandleInput(input.ToUpper());
             }
         }
-        catch(Exception)
+        catch (Exception)
         {
             //Environment.Exit(0);
         }

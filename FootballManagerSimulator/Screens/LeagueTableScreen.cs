@@ -38,7 +38,7 @@ public class LeagueTableScreen(
     {
         if (input == "B")
         {
-            while(true)
+            while (true)
             {
                 var screen = state.ScreenStack.Peek();
                 if (screen.Type != ScreenType.LeagueTable)
@@ -87,7 +87,7 @@ public class LeagueTableScreen(
         GenerateLeagueKeyModels(leagueId);
 
         var league = state.Competitions.First(p => p.Id == leagueId) as League;
-        var leagueTable = league.GenerateLeagueTable(); 
+        var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"{league.Name} League Table\n");
         Console.WriteLine(string.Format("{0,-8}{1,-40}{2,-7}{3,-7}{4,-7}{5,-7}{6,-7}", "Pos", "Team", "Pld", "Pnts", "F", "A", "GD"));
@@ -96,9 +96,9 @@ public class LeagueTableScreen(
         for (var i = 0; i < leagueTable.Count(); i++)
         {
             var leagueTablePosition = leagueTable.ElementAt(i);
-            
-            Console.WriteLine(string.Format("{0,-8}{1,-40}{2,-7}{3,-7}{4,-7}{5,-7}{6,-7}", 
-                i+1, leagueTablePosition.Club.Name, leagueTablePosition.Played, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
+
+            Console.WriteLine(string.Format("{0,-8}{1,-40}{2,-7}{3,-7}{4,-7}{5,-7}{6,-7}",
+                i + 1, leagueTablePosition.Club.Name, leagueTablePosition.Played, leagueTablePosition.Points, leagueTablePosition.GoalsScored, leagueTablePosition.GoalsConceded, leagueTablePosition.GoalDifference));
             if (ShouldAddSeperator(i + 1, league.Id))
             {
                 Console.WriteLine("-------------------------------------------------------------------------------");
@@ -126,8 +126,8 @@ public class LeagueTableScreen(
     {
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
-        
-        foreach(var leagueKeyModel in LeagueKeyModels)
+
+        foreach (var leagueKeyModel in LeagueKeyModels)
         {
             if (leagueKeyModel.IsCurrent) continue;
             Console.WriteLine($"{leagueKeyModel.Key}) View {leagueKeyModel.League.Name}");

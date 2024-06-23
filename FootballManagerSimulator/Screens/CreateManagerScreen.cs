@@ -12,7 +12,7 @@ public class CreateManagerScreen(
 
     public void HandleInput(string input)
     {
-        switch(input.ToLower())
+        switch (input.ToLower())
         {
             case "b":
                 state.ScreenStack.Pop();

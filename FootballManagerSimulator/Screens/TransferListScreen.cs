@@ -52,7 +52,7 @@ public class TransferListScreen(
 
         Console.WriteLine($"{"Id",-10}{"Name",-30}{"Club",-20}{"Position",-10}{"Rating",-10}{"Asking Price",-20}{"Value",-20}");
 
-        foreach(var transferListItem in state.TransferListItems.OrderBy(p => p.PlayerId))
+        foreach (var transferListItem in state.TransferListItems.OrderBy(p => p.PlayerId))
         {
             var player = playerHelper.GetPlayerById(transferListItem.PlayerId);
             if (player.Contract.ClubId == state.Clubs.First(p => p.Id == state.MyClubId).Id) continue;
@@ -62,7 +62,7 @@ public class TransferListScreen(
             var askingPriceFriendly = $"£{transferListItem.AskingPrice:n}";
             var playerValueFriendly = $"£{playerValue:n}";
 
-            Console.WriteLine($"{transferListItem.PlayerId,-10}{player.Name,-30}{player.Contract!.ClubName,-20}{player.PreferredPosition,-10}{player.Rating,-10}{askingPriceFriendly,-20}{playerValueFriendly, -20}");
+            Console.WriteLine($"{transferListItem.PlayerId,-10}{player.Name,-30}{player.Contract!.ClubName,-20}{player.PreferredPosition,-10}{player.Rating,-10}{askingPriceFriendly,-20}{playerValueFriendly,-20}");
         }
     }
 }

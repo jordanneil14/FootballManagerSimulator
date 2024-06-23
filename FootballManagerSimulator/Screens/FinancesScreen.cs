@@ -11,7 +11,7 @@ public class FinancesScreen(
 
     public override void HandleInput(string input)
     {
-        switch(input)
+        switch (input)
         {
             case "B":
                 state.ScreenStack.Pop();

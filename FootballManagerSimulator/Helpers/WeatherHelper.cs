@@ -44,7 +44,7 @@ public class WeatherHelper(
             MaxTemperature = 20
         },
         new Weather
-        { 
+        {
             MonthNumber = 6,
             WeatherTypes = new List<string> { "Sunny", "Rainy", "Windy", "Cloudy" },
             MinTemperature = 20,

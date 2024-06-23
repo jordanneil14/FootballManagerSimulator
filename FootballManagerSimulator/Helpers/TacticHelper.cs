@@ -530,7 +530,7 @@ public class TacticHelper(
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
-        foreach(var emptySlot in emptySlots)
+        foreach (var emptySlot in emptySlots)
         {
             var selectedPlayer = state.Clubs
                 .First(p => p.Id == clubId)
@@ -561,7 +561,7 @@ public class TacticHelper(
             .Where(p => p.TacticSlotType == TacticSlotType.SUB && p.PlayerId == null)
             .ToList();
 
-        for (var i = 0;i < tacticSlots.Count; i++)
+        for (var i = 0; i < tacticSlots.Count; i++)
         {
             var reserves = state.Clubs
                 .First(p => p.Id == clubId)

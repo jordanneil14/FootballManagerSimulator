@@ -102,7 +102,7 @@ public class TransferListHelper(
     public void ProcessAITransfers()
     {
         var randomNoOfTransfers = RandomNumberHelper.Next(3);
-        for(int i = 0; i < randomNoOfTransfers; i++)
+        for (int i = 0; i < randomNoOfTransfers; i++)
         {
             var randomNumber = RandomNumberHelper.Next(state.TransferListItems.Count);
             var randomPlayer = state.TransferListItems[randomNumber];

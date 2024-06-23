@@ -13,7 +13,7 @@ public class SelectClubScreen(
 
     public void HandleInput(string input)
     {
-        switch(input.ToLower())
+        switch (input.ToLower())
         {
             case "b":
                 state.ScreenStack.Pop();
@@ -36,7 +36,7 @@ public class SelectClubScreen(
     public void RenderScreen()
     {
         Console.WriteLine("Select a club to manage:\n");
-        Console.WriteLine($"{"Team",-30}{"Transfer Budget", -20}{"Stadium", -20}");
+        Console.WriteLine($"{"Team",-30}{"Transfer Budget",-20}{"Stadium",-20}");
         Console.WriteLine("----------------------------------------------------------------------------------");
 
         var clubs = gameCreator.Clubs.Where(p => p.LeagueId == gameCreator.LeagueId);
@@ -44,7 +44,7 @@ public class SelectClubScreen(
         foreach (var club in orderedClubs)
         {
             var transferValueFriendly = $"£{club.TransferBudget:n}";
-            Console.WriteLine($"{club.Name,-30}{transferValueFriendly, -20}{club.Stadium, -20}");
+            Console.WriteLine($"{club.Name,-30}{transferValueFriendly,-20}{club.Stadium,-20}");
         }
 
         Console.WriteLine("\nOptions:");

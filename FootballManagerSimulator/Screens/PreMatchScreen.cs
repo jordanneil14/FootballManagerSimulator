@@ -1,6 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -18,7 +17,7 @@ public class PreMatchScreen(
             case "A":
                 ValidateStartMatch();
                 if (state.UserFeedbackUpdates.Count != 0) return;
-                foreach(var comp in state.Competitions)
+                foreach (var comp in state.Competitions)
                 {
                     var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
                     foreach (var fixture in todaysFixtures)
@@ -75,7 +74,7 @@ public class PreMatchScreen(
             .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
-        Console.WriteLine($"{homeClub.Name, 58} v {awayClub.Name, -58}\n");
+        Console.WriteLine($"{homeClub.Name,58} v {awayClub.Name,-58}\n");
 
         var homeClubPlayers = state.Clubs.First(p => p.Id == homeClub.Id).TacticSlots;
         var awayClubPlayers = state.Clubs.First(p => p.Id == awayClub.Id).TacticSlots;

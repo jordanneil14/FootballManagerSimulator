@@ -20,7 +20,7 @@ public class FullTimeScreen(
                 {
                     Type = ScreenType.PostMatchScores
                 });
-                break;                
+                break;
             default:
                 break;
         }
@@ -61,7 +61,7 @@ public class FullTimeScreen(
         for (var i = 0; i < 18; i++)
         {
             if (i == 11)
-                Console.WriteLine($"{"------------", 58}{"   ------------",-58}");
+                Console.WriteLine($"{"------------",58}{"   ------------",-58}");
 
             var homePlayer = "EMPTY SLOT";
             var awayPlayer = "EMPTY SLOT";

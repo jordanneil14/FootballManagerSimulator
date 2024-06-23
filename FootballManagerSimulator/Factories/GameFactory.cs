@@ -45,17 +45,17 @@ public class GameFactory(
 
         playerHelper.AddPlayersToState(playerData);
 
-        foreach(var club in state.Clubs)
+        foreach (var club in state.Clubs)
         {
             tacticHelper.ResetTacticForClub(club);
         }
 
-        foreach(var competition in Settings.Competitions)
+        foreach (var competition in Settings.Competitions)
         {
             var competitionFactory = competitionFactories
                 .First(p => p.Type.ToString() == competition.Type).CreateCompetition(competition);
             state.Competitions.Add(competitionFactory);
-        }    
+        }
 
         transferListHelper.UpdateTransferList();
 

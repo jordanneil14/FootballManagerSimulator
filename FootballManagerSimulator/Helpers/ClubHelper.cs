@@ -22,7 +22,7 @@ public class ClubHelper(
 
     public IEnumerable<TacticSlot> GetStartingElevenByClub(int clubId)
     {
-        return state.Clubs.First(p => p.Id == clubId).TacticSlots.Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);   
+        return state.Clubs.First(p => p.Id == clubId).TacticSlots.Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
     }
 
     public int GetStartingElevenSumRatingForClub(int clubId)

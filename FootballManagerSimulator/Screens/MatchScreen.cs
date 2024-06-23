@@ -15,10 +15,10 @@ public class MatchScreen(IState state,
         switch (input)
         {
             case "A":
-                foreach(var comp in state.Competitions)
+                foreach (var comp in state.Competitions)
                 {
                     var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
-                    foreach(var fixture in todaysFixtures)
+                    foreach (var fixture in todaysFixtures)
                     {
                         matchSimulator.ProcessMatch(fixture, comp);
                     }

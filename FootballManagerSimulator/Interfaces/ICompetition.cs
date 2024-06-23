@@ -7,7 +7,7 @@ namespace FootballManagerSimulator.Interfaces;
 public interface ICompetition
 {
     CompetitionType Type { get; }
-    int Id { get; } 
+    int Id { get; }
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
     List<Club> Clubs { get; set; }

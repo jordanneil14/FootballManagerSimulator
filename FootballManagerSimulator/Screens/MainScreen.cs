@@ -52,7 +52,7 @@ public class MainScreen(
                 break;
             case "H":
                 state.ScreenStack.Push(new Structures.Screen
-                { 
+                {
                     Type = ScreenType.Finances
                 });
                 break;

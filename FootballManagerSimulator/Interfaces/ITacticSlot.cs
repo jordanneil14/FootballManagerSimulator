@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Interfaces;
 

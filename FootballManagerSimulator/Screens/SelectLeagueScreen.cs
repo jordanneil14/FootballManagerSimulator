@@ -42,7 +42,7 @@ public class SelectLeagueScreen(
     public void RenderScreen()
     {
         Console.WriteLine("Select a league to manage in:\n");
-        Console.WriteLine($"{"Id",-10}{"League",-30}{"Country", -20}{"Rank", -10}{"No of Teams", -15}");
+        Console.WriteLine($"{"Id",-10}{"League",-30}{"Country",-20}{"Rank",-10}{"No of Teams",-15}");
         Console.WriteLine("----------------------------------------------------------------------------------");
 
         var leagues = gameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString());
@@ -50,7 +50,7 @@ public class SelectLeagueScreen(
         foreach (var league in leagues)
         {
             var countryName = Settings.Countries.First(p => p.Id == league.CountryId).Name;
-            Console.WriteLine($"{league.Id, -10}{league.Name, -30}{countryName, -20}{league.Rank, -10}{league.LeagueTable.Places, -15}");
+            Console.WriteLine($"{league.Id,-10}{league.Name,-30}{countryName,-20}{league.Rank,-10}{league.LeagueTable.Places,-15}");
         }
 
         Console.WriteLine("\nOptions:");

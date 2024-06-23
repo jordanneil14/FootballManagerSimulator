@@ -1,12 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -18,7 +11,7 @@ public class FormationScreen(
 
     public override void HandleInput(string input)
     {
-        switch(input)
+        switch (input)
         {
             case "B":
                 state.ScreenStack.Pop();

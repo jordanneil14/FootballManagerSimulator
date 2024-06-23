@@ -29,7 +29,7 @@ public class FixturesScreen(
             Type = ScreenType.Fixtures,
             Parameters = new FixturesScreenObj
             {
-                League = competition 
+                League = competition
             }
         };
     }
@@ -58,12 +58,12 @@ public class FixturesScreen(
             .Select(p => p.Key)
             .OrderBy(p => p);
 
-        foreach(var date in dates)
+        foreach (var date in dates)
         {
             var fixturesByCompetition = state.Competitions
                 .Where(p => p.Clubs.Select(p => p.Id).Contains(state.Clubs.First(p => p.Id == state.MyClubId).Id));
 
-            foreach(var f in fixturesByCompetition)
+            foreach (var f in fixturesByCompetition)
             {
                 var fixturesOnDate = f.Fixtures.Where(p => p.Date == date);
                 if (!fixturesOnDate.Any()) continue;
