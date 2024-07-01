@@ -64,12 +64,17 @@ public class TacticsScreen(IState state,
         Console.WriteLine($"{"Number",-10}{"Slot",-10}{"Position",-10}{"Name",-40}{"Rating",-10}");
         Console.WriteLine("----------------------------------------------------------------------------------");
 
+        var hasEmptyReserveSlot = false;
         for (var i = 0; i < state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Count; i++)
         {
             var tacticSlot = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(i);
+            if (tacticSlot.TacticSlotType == TacticSlotType.RES && tacticSlot.PlayerId == null && hasEmptyReserveSlot)
+                continue;
+
             if (tacticSlot.PlayerId == null)
             {
                 Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");
+                hasEmptyReserveSlot = true;
                 continue;
             }
             var player = state.Players.First(p => p.Id == tacticSlot.PlayerId);
