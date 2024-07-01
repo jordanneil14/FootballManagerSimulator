@@ -1,11 +1,13 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
 
 public class FinancesScreen(
     IState state,
-    INotificationFactory notificationFactory) : BaseScreen(state)
+    INotificationFactory notificationFactory,
+    IEnumerable<IEvent> baseEvents) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.Finances;
 
@@ -17,12 +19,12 @@ public class FinancesScreen(
                 state.ScreenStack.Pop();
                 break;
             case "C":
-                state.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
-                notificationFactory.AddNotification(
-                    state.Date.AddDays(2),
-                    "Chairman",
-                    "Extended Transfer Budget Request",
-                    $"Your request for the transfer budget to be extended from {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly} has been rejected. We feel that the current allowance is enough for you to achieve your goals this season");
+                var transferBudgetRequestEvent = baseEvents.First(p => p.Event == EventType.RequestHigherTransferBudget);
+                transferBudgetRequestEvent.Start();
+                break;
+            case "D":
+                var stadiumExpansionRequestEvent = baseEvents.First(p => p.Event == EventType.RequestStadiumExpansion);
+                stadiumExpansionRequestEvent.Start();
                 break;
             default:
                 break;
@@ -34,6 +36,7 @@ public class FinancesScreen(
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
         Console.WriteLine("C) Request a Higher Transfer Budget");
+        Console.WriteLine("D) Expand Stadium Capacity by 20%");
     }
 
     public override void RenderSubscreen()

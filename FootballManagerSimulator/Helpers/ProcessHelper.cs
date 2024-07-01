@@ -45,7 +45,6 @@ public class ProcessHelper(
                         $"{comp.Name} Round {drawDate.Round}",
                         message);
                 }
-
             }
 
             foreach (var comp in state.Competitions)
@@ -57,8 +56,11 @@ public class ProcessHelper(
 
                 if (fixture != null && fixture.Date.DayNumber == state.Date.DayNumber + 1)
                     competitionFactories.First(p => p.Type == comp.Type).GeneratePreMatchReportForFixture(fixture);
-
             }
+
+            var completedEvents = state.Events.Where(p => p.CompletionDate == state.Date).ToList();
+            foreach(var completedEvent in completedEvents)
+                completedEvent.Complete();
         }
         catch (ProcessException ex)
         {

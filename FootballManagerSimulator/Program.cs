@@ -14,7 +14,7 @@ public class Program
 
         serviceProvider
             .RegisterAssemblyPublicNonGenericClasses()
-            .Where(p => p.Name.EndsWith("Screen") || p.Name.EndsWith("Helper") || p.Name.EndsWith("Factory"))
+            .Where(p => p.Name.EndsWith("Screen") || p.Name.EndsWith("Helper") || p.Name.EndsWith("Factory") || p.Name.EndsWith("Event"))
             .AsPublicImplementedInterfaces();
 
         serviceProvider.AddSingleton<IGame, Game>();

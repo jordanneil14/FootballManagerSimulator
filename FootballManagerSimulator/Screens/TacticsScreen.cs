@@ -74,7 +74,8 @@ public class TacticsScreen(IState state,
             if (tacticSlot.PlayerId == null)
             {
                 Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{"",-10}{"EMPTY SLOT",-40}");
-                hasEmptyReserveSlot = true;
+                if (tacticSlot.TacticSlotType == TacticSlotType.RES)
+                    hasEmptyReserveSlot = true;
                 continue;
             }
             var player = state.Players.First(p => p.Id == tacticSlot.PlayerId);
