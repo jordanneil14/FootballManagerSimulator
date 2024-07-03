@@ -46,6 +46,10 @@ public class TransferListHelper(
     public void TransferContractedPlayerByPlayerIdAndClubId(int playerId, int clubId)
     {
         var transferListItem = state.TransferListItems.First(p => p.PlayerId == playerId);
+
+        var existingClubId = state.Players.First(p => p.Id == playerId).Contract.ClubId;
+        state.Clubs.First(p => p.Id == existingClubId).TransferBudget += transferListItem.AskingPrice;
+
         state.Players.First(p => p.Id == playerId).Contract!.ClubId = clubId;
         state.TransferListItems.Remove(transferListItem);
         state.Clubs.First(p => p.Id == clubId).TransferBudget -= transferListItem.AskingPrice;
