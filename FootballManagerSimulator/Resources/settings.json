@@ -1192,6 +1192,132 @@
       "TransferBudget": 50000000,
       "Stadium": "",
       "leagueid": 10
+    },
+    {
+      "ID": 171,
+      "Name": "SL Benfica",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 172,
+      "Name": "FC Porto",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 173,
+      "Name": "Sporting CP",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 174,
+      "Name": "V. Guimarães",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 175,
+      "Name": "SC Braga",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 176,
+      "Name": "Marítimo",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 177,
+      "Name": "Rio Ave",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 178,
+      "Name": "F. Santa Maria",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 179,
+      "Name": "Boavista",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 180,
+      "Name": "Estoril Praia",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 181,
+      "Name": "Chaves",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 182,
+      "Name": "V. Setúbal",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 183,
+      "Name": "Pacos Ferreira",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 184,
+      "Name": "Belenenses",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 185,
+      "Name": "Moreirense",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 186,
+      "Name": "Tondela",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 187,
+      "Name": "Arouca",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
+    },
+    {
+      "ID": 188,
+      "Name": "Nacional",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 11
     }
   ],
   "Countries": [
@@ -1214,6 +1340,10 @@
     {
       "Id": 5,
       "Name": "France"
+    },
+    {
+      "Id": 6,
+      "Name": "Portugal"
     }
   ],
   "Competitions": [
@@ -1384,6 +1514,19 @@
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
         "RelegationPlaces": 4
+      }
+    },
+    {
+      "Id": 11,
+      "CountryId": 6,
+      "Rank": 1,
+      "Type": "League",
+      "Name": "Primeira Liga",
+      "LeagueTable": {
+        "Places": 18,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 2
       }
     }
 
