@@ -7,6 +7,7 @@ public class RequestHigherTransferBudgetEvent(IState state) : EventBase(state)
 {
     public override EventType Type => EventType.RequestHigherTransferBudget;
 
-    public override DateOnly CompletionDate { get; }
+    private readonly DateOnly completionDate = state.Date.AddDays(2);
+    public override DateOnly CompletionDate => completionDate;
 
 }
