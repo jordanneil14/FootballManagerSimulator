@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -12,7 +13,7 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
         switch (input)
         {
             case "A":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Main
                 });

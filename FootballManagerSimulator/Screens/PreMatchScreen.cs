@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -26,13 +27,13 @@ public class PreMatchScreen(
                     }
                 }
 
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Match
                 });
                 break;
             case "B":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });

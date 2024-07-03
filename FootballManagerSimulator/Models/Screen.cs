@@ -1,6 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Models;
 
 public class Screen
 {

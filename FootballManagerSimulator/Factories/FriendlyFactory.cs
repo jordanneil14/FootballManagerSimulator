@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Factories;
@@ -34,29 +33,29 @@ public class FriendlyFactory(
             }).ToList()
         };
 
-        GenerateNextRoundOfFixtures(friendy);
-
         return friendy;
     }
 
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
-        var fixtures = new List<Fixture>();
-        foreach (var drawDate in competition.DrawDates)
-        {
-            var randomlySortedClubs = competition.Clubs.OrderBy(p => Guid.NewGuid()).ToList();
+        var friendly = (Friendly)competition;
+        friendly.Round = friendly.Round.GetValueOrDefault() + 1;
 
-            for (var i = 0; i < randomlySortedClubs.Count; i += 2)
+        var drawDate = friendly.DrawDates.First(p => p.Round == friendly.Round);
+
+        var fixtures = new List<Fixture>();
+        var randomlySortedClubs = competition.Clubs.OrderBy(p => Guid.NewGuid()).ToList();
+
+        for (var i = 0; i < randomlySortedClubs.Count; i += 2)
+        {
+            fixtures.Add(new Fixture()
             {
-                fixtures.Add(new Fixture()
-                {
-                    HomeClub = randomlySortedClubs.ElementAt(i),
-                    AwayClub = randomlySortedClubs.ElementAt(i + 1),
-                    Date = drawDate.FixtureDate,
-                    Round = drawDate.Round,
-                    KickOffTime = new TimeOnly(15, 00)
-                });
-            }
+                HomeClub = randomlySortedClubs.ElementAt(i),
+                AwayClub = randomlySortedClubs.ElementAt(i + 1),
+                Date = drawDate.FixtureDate,
+                Round = drawDate.Round,
+                KickOffTime = new TimeOnly(15, 00)
+            });
         }
 
         competition.Fixtures.AddRange(fixtures);

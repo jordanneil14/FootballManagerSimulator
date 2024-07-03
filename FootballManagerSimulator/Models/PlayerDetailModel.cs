@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Structures;
+﻿using FootballManagerSimulator.Models;
 
 public class PlayerDetailModel
 {

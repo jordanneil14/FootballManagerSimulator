@@ -1,5 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Factories;
 

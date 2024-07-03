@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
 
@@ -30,7 +31,7 @@ public class LoadGameScreen(
                     if (game == null) return;
                     TryLoadGame(game.FileName);
                     state.ScreenStack.Clear();
-                    state.ScreenStack.Push(new Screen()
+                    state.ScreenStack.Push(new Screen
                     {
                         Type = ScreenType.Main
                     });

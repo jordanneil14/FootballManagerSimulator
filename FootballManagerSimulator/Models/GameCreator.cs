@@ -2,7 +2,7 @@
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Models;
 
 public class GameCreator : IGameCreator
 {

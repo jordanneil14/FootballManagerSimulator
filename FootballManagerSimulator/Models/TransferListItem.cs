@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Structures;
+﻿namespace FootballManagerSimulator.Models;
 
 public class TransferListItem
 {

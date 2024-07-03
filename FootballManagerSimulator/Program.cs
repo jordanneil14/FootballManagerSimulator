@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

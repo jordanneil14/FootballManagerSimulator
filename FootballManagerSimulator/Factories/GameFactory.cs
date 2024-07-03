@@ -1,5 +1,5 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
+using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -14,7 +14,8 @@ public class GameFactory(
     IOptions<Settings> settings,
     ITacticHelper tacticHelper,
     IWeatherHelper weatherHelper,
-    ITransferListHelper transferListHelper) : IGameFactory
+    ITransferListHelper transferListHelper,
+    IEnumerable<IEventFactory> eventFactories) : IGameFactory
 {
     private readonly Settings Settings = settings.Value;
 
@@ -57,6 +58,30 @@ public class GameFactory(
             state.Competitions.Add(competitionFactory);
         }
 
+        foreach(var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
+        {
+            foreach(var s in comp.DrawDates)
+            {
+                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
+                eventFactory.Data.DrawDate = new DateTime(s.DrawDate.Year, s.DrawDate.Month, s.DrawDate.Day);
+                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
+                eventFactory.Data.Round = s.Round;
+                eventFactory.Data.CompetitionId = comp.Id;
+                eventFactory.CreateEvent();
+            }
+        }
+
+        foreach (var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
+        {
+            foreach (var s in comp.DrawDates)
+            {
+                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
+                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
+                eventFactory.Data.Round = s.Round;
+                eventFactory.CreateEvent();
+            }
+        }
+
         transferListHelper.UpdateTransferList();
 
         var freeAgents = state.Players
@@ -83,5 +108,12 @@ public class GameFactory(
             "Players With Expired Contracts",
             $"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +
             $"small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
+
+        var concludedEvents = state.Events.Where(p => p.CompletionDate <= state.Date);
+        foreach(var concludedEvent in concludedEvents)
+        {
+            var eventFactory = eventFactories.First(p => p.Type == concludedEvent.Type);
+            eventFactory.CompleteEvent(concludedEvent);
+        }
     }
 }

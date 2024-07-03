@@ -11,5 +11,7 @@ public enum EventType
     StadiumExpansion,
     TrainingFacilitiesUpgrade,
     RequestHigherTransferBudget,
-    RequestStadiumExpansion
+    RequestStadiumExpansion,
+    CupDrawFixture,
+    FriendlyDrawFixture
 }

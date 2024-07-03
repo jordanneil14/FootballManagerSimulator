@@ -1,7 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Models;
 
 public class TacticSlot : ITacticSlot
 {

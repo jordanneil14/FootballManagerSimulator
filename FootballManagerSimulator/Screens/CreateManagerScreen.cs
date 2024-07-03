@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using System.Globalization;
 
 namespace FootballManagerSimulator.Screens;
@@ -21,7 +22,7 @@ public class CreateManagerScreen(
                 if (string.IsNullOrWhiteSpace(input)) return;
                 var text = new CultureInfo("en-US", false).TextInfo;
                 gameCreator.ManagerName = text.ToTitleCase(input.ToLower());
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.SelectLeague
                 });

@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Structures;
+using FootballManagerSimulator.Models;
+
 using static FootballManagerSimulator.Screens.TransferPlayerScreen;
 
 namespace FootballManagerSimulator.Screens;

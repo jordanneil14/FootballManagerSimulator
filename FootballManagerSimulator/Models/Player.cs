@@ -1,6 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Models;
 
 public class Player : IPerson
 {

@@ -1,6 +1,4 @@
-﻿using FootballManagerSimulator.Structures;
-
-namespace FootballManagerSimulator.Models;
+﻿namespace FootballManagerSimulator.Models;
 
 public class LeagueKeyModel
 {

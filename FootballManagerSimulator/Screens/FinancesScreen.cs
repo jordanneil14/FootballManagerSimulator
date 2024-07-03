@@ -1,13 +1,11 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Screens;
 
 public class FinancesScreen(
     IState state,
-    INotificationFactory notificationFactory,
-    IEnumerable<IEvent> baseEvents) : BaseScreen(state)
+    IEnumerable<IEventFactory> eventFactories) : BaseScreen(state)
 {
     public override ScreenType Screen => ScreenType.Finances;
 
@@ -19,12 +17,15 @@ public class FinancesScreen(
                 state.ScreenStack.Pop();
                 break;
             case "C":
-                var transferBudgetRequestEvent = baseEvents.First(p => p.Event == EventType.RequestHigherTransferBudget);
-                transferBudgetRequestEvent.Start();
+                var ev = eventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
+                ev.CreateEvent();
+                state.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
+
                 break;
             case "D":
-                var stadiumExpansionRequestEvent = baseEvents.First(p => p.Event == EventType.RequestStadiumExpansion);
-                stadiumExpansionRequestEvent.Start();
+                var stadiumExpansionEvent = eventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
+                stadiumExpansionEvent.CreateEvent();
+                state.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
                 break;
             default:
                 break;
@@ -36,7 +37,7 @@ public class FinancesScreen(
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
         Console.WriteLine("C) Request a Higher Transfer Budget");
-        Console.WriteLine("D) Expand Stadium Capacity by 20%");
+        Console.WriteLine("D) Request Stadium Expansion");
     }
 
     public override void RenderSubscreen()

@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -38,7 +39,7 @@ public class TacticsScreen(IState state,
                 tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
                 break;
             case "E":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Formation
                 });

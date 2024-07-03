@@ -4,11 +4,7 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface IEvent
 {
-    EventType Event { get; }
-    DateOnly StartDate { get; set; }
+    EventType Type { get; }
     DateOnly CompletionDate { get; }
-    void Complete();
-    void Start();
-    void Initialise();
-    decimal GetProgressPercentage();
+    DateOnly StartDate { get; }
 }

@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
@@ -61,7 +62,7 @@ public class FixtureScreen(
             }
         }
 
-        state.ScreenStack.Push(new Structures.Screen
+        state.ScreenStack.Push(new Screen
         {
             Type = ScreenType.PostMatchScores
         });

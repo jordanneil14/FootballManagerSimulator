@@ -1,4 +1,4 @@
-﻿using FootballManagerSimulator.Structures;
+﻿using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Interfaces;
 

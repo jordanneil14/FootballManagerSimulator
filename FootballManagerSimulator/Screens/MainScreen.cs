@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -20,7 +21,7 @@ public class MainScreen(
                 state.Notifications.RemoveRange(0, 1);
                 break;
             case "C":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.LeagueTable
                 });
@@ -33,31 +34,31 @@ public class MainScreen(
                 state.ScreenStack.Push(ClubScreen.CreateScreen(state.Clubs.First(p => p.Id == state.MyClubId)));
                 break;
             case "F":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Scout
                 });
                 break;
             case "S":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.SaveGame
                 });
                 break;
             case "G":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });
                 break;
             case "H":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Finances
                 });
                 break;
             case "I":
-                state.ScreenStack.Push(new Structures.Screen
+                state.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.TransferList
                 });
