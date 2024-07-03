@@ -1052,6 +1052,146 @@
       "TransferBudget": 50000000,
       "Stadium": "",
       "leagueid": 7
+    },
+    {
+      "ID": 151,
+      "Name": "AS Monaco",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 152,
+      "Name": "PSG",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 153,
+      "Name": "OGC Nice",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 154,
+      "Name": "Olym. Lyonnais",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 155,
+      "Name": "Olym. Marseille",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 156,
+      "Name": "Giron. Bordeaux",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 157,
+      "Name": "FC Nantes",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 158,
+      "Name": "AS Saint-Étienne",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 159,
+      "Name": "Stade Rennais",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 160,
+      "Name": "EA Guingamp",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 161,
+      "Name": "LOSC Lille",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 162,
+      "Name": "Angers SCO",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 163,
+      "Name": "Toulouse FC",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 164,
+      "Name": "FC Metz",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 165,
+      "Name": "Montpellier HSC",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 166,
+      "Name": "Dijon FCO",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 167,
+      "Name": "SM Caen",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 168,
+      "Name": "FC Lorient",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 169,
+      "Name": "AS Nancy",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
+    },
+    {
+      "ID": 170,
+      "Name": "SC Bastia",
+      "TransferBudget": 50000000,
+      "Stadium": "",
+      "leagueid": 10
     }
   ],
   "Countries": [
@@ -1070,6 +1210,10 @@
     {
       "Id": 4,
       "Name": "Italy"
+    },
+    {
+      "Id": 5,
+      "Name": "France"
     }
   ],
   "Competitions": [
@@ -1228,6 +1372,19 @@
           "FixtureDate": "2016-07-29"
         }
       ]
+    },
+    {
+      "Id": 10,
+      "CountryId": 5,
+      "Rank": 1,
+      "Type": "League",
+      "Name": "Ligue 1",
+      "LeagueTable": {
+        "Places": 20,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 4
+      }
     }
 
   ]
