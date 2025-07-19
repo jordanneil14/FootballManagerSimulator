@@ -12,22 +12,17 @@ public class EnglishLeagueCupFactory(
 {
     private readonly Settings Settings = settings.Value;
 
+    private readonly List<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League One" ];
+
     public CompetitionType Type => CompetitionType.Cup;
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
-        var leagueIdsInvolved = Settings.Competitions
-            .Where(p => p.CountryId == competition.CountryId && p.Rank <= 4 && p.Type == "League")
-            .Select(p => p.Id);
+        var leagues = Settings.Competitions.Where(p => LeaguesInvolved.Contains(p.Name));
+        var leagueIds = leagues.Select(p => p.Id);
 
         var clubs = Settings.Clubs
-            .Where(p => leagueIdsInvolved.Contains(p.LeagueId))
-            .Select(p => new Club
-            {
-                Id = p.Id,
-                Name = p.Name,
-                LeagueId = p.LeagueId
-            });
+            .Where(p => leagueIds.Contains(p.LeagueId));
 
         var cup = new Cup
         {
