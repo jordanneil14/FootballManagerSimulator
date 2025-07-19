@@ -12,7 +12,8 @@ public class EnglishLeagueCupFactory(
 {
     private readonly Settings Settings = settings.Value;
 
-    private readonly List<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League One" ];
+    private readonly List<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
+    private readonly List<string> RoundOneLeaguesInvolved = [ "EFL Championship", "EFL League One", "EFL League One" ];
 
     public CompetitionType Type => CompetitionType.Cup;
 
@@ -49,17 +50,15 @@ public class EnglishLeagueCupFactory(
 
         if (cup.Round == 1)
         {
-            var leagueIdsInvolved = Settings.Competitions
-                .Where(p => p.CountryId == cup.CountryId && new List<int> { 2, 3, 4 }.Contains(p.Rank) && p.Type == "League")
-                .Select(p => p.Id); 
+            var leagues = Settings.Competitions.Where(p => RoundOneLeaguesInvolved.Contains(p.Name));
+            var leagueIds = leagues.Select(p => p.Id);
 
-            var clubs = cup.Clubs
-                .Where(p => leagueIdsInvolved.Contains(p.LeagueId))
-                .Select(p => new Club()
-                {
-                    Id = p.Id,
-                    Name = p.Name
-                }).ToList();
+            var leagueIdsInvolved = Settings.Competitions
+                .Where(p => p.CountryId == cup.CountryId && leagueIds.Contains(p.Rank) && p.Type == "League")
+                .Select(p => p.Id);
+
+            var clubs = cup.Clubs.Where(p => leagueIdsInvolved.Contains(p.LeagueId));
+
             cup.Fixtures = GenerateFixtures(clubs, drawDate.FixtureDate, cup.Round);
             return;
         }
