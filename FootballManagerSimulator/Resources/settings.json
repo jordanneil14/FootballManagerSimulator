@@ -1451,13 +1451,13 @@
         },
         {
           "Round": 2,
-          "IncludedClubs": [ 1, 7, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20 ],
+          "IntroducedClubIds": [ 1, 7, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20 ],
           "DrawDate": "2016-08-10",
           "FixtureDate": "2016-08-23"
         },
         {
           "Round": 3,
-          "IncludedClubs": [ 12, 5, 2, 3, 6, 8, 11, 4 ],
+          "IntroducedClubIds": [ 12, 5, 2, 3, 6, 8, 11, 4 ],
           "DrawDate": "2016-08-24",
           "FixtureDate": "2016-09-20"
         },

@@ -10,7 +10,7 @@ public class League : ICompetition
     public int Rank { get; set; }
     public string Name { get; set; } = string.Empty;
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
-    public List<Club> Clubs { get; set; } = new List<Club>();
+    public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
 
     public CompetitionType Type => CompetitionType.League;
 

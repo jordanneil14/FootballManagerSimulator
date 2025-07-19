@@ -83,8 +83,8 @@ public class LeagueFactory(
 
         var output = new List<Fixture>();
 
-        var numRounds = league.Clubs.Count - 1;
-        var halfSize = league.Clubs.Count / 2;
+        var numRounds = league.Clubs.Count() - 1;
+        var halfSize = league.Clubs.Count() / 2;
 
         var clubIndices = new List<Club>(league.Clubs);
 

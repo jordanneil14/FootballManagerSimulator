@@ -16,8 +16,12 @@ public class EnglishLeagueCupFactory(
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
+        var leagueIdsInvolved = Settings.Competitions
+            .Where(p => p.CountryId == competition.CountryId && p.Rank <= 4 && p.Type == "League")
+            .Select(p => p.Id);
+
         var clubs = Settings.Clubs
-            .Where(p => new List<int> { 1, 2, 3, 4 }.Contains(p.LeagueId))
+            .Where(p => leagueIdsInvolved.Contains(p.LeagueId))
             .Select(p => new Club
             {
                 Id = p.Id,
@@ -29,13 +33,13 @@ public class EnglishLeagueCupFactory(
         {
             Id = competition.Id,
             Name = competition.Name,
-            Clubs = clubs.ToList(),
+            Clubs = clubs,
             DrawDates = competition.DrawDates.Select(p => new DrawDateModel
             {
                 Round = p.Round,
                 DrawDate = p.DrawDate,
                 FixtureDate = p.FixtureDate,
-                IncludedClubs = p.IncludedClubs
+                IntroducedClubIds = p.IncludedClubs
             }).ToList()
         };
 
@@ -45,36 +49,39 @@ public class EnglishLeagueCupFactory(
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var cup = (Cup)competition;
-        cup.Round = cup.Round.GetValueOrDefault() + 1;
 
         var drawDate = cup.DrawDates.First(p => p.Round == cup.Round);
 
         if (cup.Round == 1)
         {
+            var leagueIdsInvolved = Settings.Competitions
+                .Where(p => p.CountryId == cup.CountryId && new List<int> { 2, 3, 4 }.Contains(p.Rank) && p.Type == "League")
+                .Select(p => p.Id); 
+
             var clubs = cup.Clubs
-                .Where(p => new List<int> { 2, 3, 4 }.Contains(p.LeagueId))
+                .Where(p => leagueIdsInvolved.Contains(p.LeagueId))
                 .Select(p => new Club()
                 {
                     Id = p.Id,
                     Name = p.Name
                 }).ToList();
-            cup.Fixtures = GenerateFixtures(clubs.ToList(), drawDate.FixtureDate, cup.Round.Value);
+            cup.Fixtures = GenerateFixtures(clubs, drawDate.FixtureDate, cup.Round);
             return;
         }
 
-        var lastRoundOfFixtures = cup.Fixtures.Where(p => p.Round == cup.Round - 1);
+        IEnumerable<Fixture> lastRoundOfFixtures = cup.Fixtures.Where(p => p.Round == cup.Round - 1);
 
-        var winningClubs = lastRoundOfFixtures.Select(p => p.ClubWon);
-        var includedClubs = drawDate.IncludedClubs == null ? Enumerable.Empty<Club>() : cup.Clubs.Where(p => drawDate.IncludedClubs.Contains(p.Id));
+        var winningClubs = lastRoundOfFixtures.Select(p => p.ClubWon).Cast<Club>();
+        var includedClubs = drawDate.IntroducedClubIds == null ? [] : cup.Clubs.Where(p => drawDate.IntroducedClubIds.Contains(p.Id));
         var nextRoundClubs = winningClubs.Concat(includedClubs);
 
-        cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs.ToList(), drawDate.FixtureDate, cup.Round.Value));
+        cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs, drawDate.FixtureDate, cup.Round));
     }
 
-    private List<Fixture> GenerateFixtures(List<Club> clubs, DateOnly date, int round)
+    private List<Fixture> GenerateFixtures(IEnumerable<Club> clubs, DateOnly date, int round)
     {
         var fixtures = new List<Fixture>();
-        for (var i = 0; i < clubs.Count; i += 2)
+        for (var i = 0; i < clubs.Count(); i += 2)
         {
             fixtures.Add(new Fixture()
             {
