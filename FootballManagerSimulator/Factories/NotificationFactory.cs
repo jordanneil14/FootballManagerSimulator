@@ -17,4 +17,9 @@ public class NotificationFactory(
         };
         state.Notifications.Add(notification);
     }
+
+    public void AddNotificationNow(string recipient, string subject, string message)
+    {
+        AddNotification(state.Date, recipient, subject, message);
+    }
 }

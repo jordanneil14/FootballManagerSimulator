@@ -71,17 +71,6 @@ public class GameFactory(
             }
         }
 
-        foreach (var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
-        {
-            foreach (var s in comp.DrawDates)
-            {
-                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
-                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
-                eventFactory.Data.Round = s.Round;
-                eventFactory.CreateEvent();
-            }
-        }
-
         transferListHelper.UpdateTransferList();
 
         var freeAgents = state.Players
@@ -108,6 +97,17 @@ public class GameFactory(
             "Players With Expired Contracts",
             $"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +
             $"small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
+
+        foreach (var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
+        {
+            foreach (var s in comp.DrawDates)
+            {
+                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
+                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
+                eventFactory.Data.Round = s.Round;
+                eventFactory.CreateEvent();
+            }
+        }
 
         var concludedEvents = state.Events.Where(p => p.CompletionDate <= state.Date);
         foreach(var concludedEvent in concludedEvents)
