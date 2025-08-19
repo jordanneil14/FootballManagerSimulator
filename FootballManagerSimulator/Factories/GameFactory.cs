@@ -67,9 +67,9 @@ public class GameFactory(
             State.Competitions.Add(competitionFactory);
         }
 
-        foreach(var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
+        foreach (var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
         {
-            foreach(var s in comp.DrawDates)
+            foreach (var s in comp.DrawDates)
             {
                 var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
                 eventFactory.Data.DrawDate = new DateTime(s.DrawDate.Year, s.DrawDate.Month, s.DrawDate.Day);
@@ -119,7 +119,7 @@ public class GameFactory(
         }
 
         var concludedEvents = State.Events.Where(p => p.CompletionDate <= State.Date);
-        foreach(var concludedEvent in concludedEvents)
+        foreach (var concludedEvent in concludedEvents)
         {
             var eventFactory = EventFactories.First(p => p.Type == concludedEvent.Type);
             eventFactory.CompleteEvent(concludedEvent);

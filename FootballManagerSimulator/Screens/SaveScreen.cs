@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Screens;

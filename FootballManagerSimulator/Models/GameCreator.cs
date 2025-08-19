@@ -1,5 +1,4 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Models;

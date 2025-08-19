@@ -48,7 +48,7 @@ public class FriendlyFixtureDrawFactory(
         {
             FixtureDate = fixtureDate,
             Round = Data.Round,
-            
+
         });
     }
 }

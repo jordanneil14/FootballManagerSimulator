@@ -12,5 +12,5 @@ internal class Friendly : ICompetition
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
     public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
-    
+
 }

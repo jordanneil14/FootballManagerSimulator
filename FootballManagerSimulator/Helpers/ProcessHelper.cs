@@ -43,7 +43,7 @@ public class ProcessHelper(
             }
 
             var completedEvents = State.Events.Where(p => p.CompletionDate == State.Date).ToList();
-            foreach(var completedEvent in completedEvents)
+            foreach (var completedEvent in completedEvents)
             {
                 var eventFactory = EventFactories.First(p => p.Type == completedEvent.Type);
                 eventFactory.CompleteEvent(completedEvent);

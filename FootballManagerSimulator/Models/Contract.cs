@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Models;
 
 public class Contract : IContract
 {

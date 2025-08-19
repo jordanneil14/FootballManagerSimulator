@@ -1,6 +1,4 @@
-﻿using FootballManagerSimulator.Models;
-
-namespace FootballManagerSimulator.Models;
+﻿namespace FootballManagerSimulator.Models;
 
 public class Settings
 {
