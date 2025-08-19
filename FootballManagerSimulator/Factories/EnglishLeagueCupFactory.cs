@@ -11,6 +11,8 @@ public class EnglishLeagueCupFactory(
     IState state) : ICompetitionFactory
 {
     private readonly Settings Settings = settings.Value;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IState State = state;
 
     private readonly List<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
     private readonly List<string> RoundOneLeaguesInvolved = [ "EFL Championship", "EFL League One", "EFL League One" ];
@@ -91,8 +93,8 @@ public class EnglishLeagueCupFactory(
 
     public void GeneratePreMatchReportForFixture(Fixture fixture)
     {
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Club Analyst",
             "Pre-Match Report",
             "English league Cup match incoming");

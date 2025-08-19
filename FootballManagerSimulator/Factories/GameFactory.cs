@@ -18,16 +18,25 @@ public class GameFactory(
     IEnumerable<IEventFactory> eventFactories) : IGameFactory
 {
     private readonly Settings Settings = settings.Value;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+    private readonly IState State = state;
+    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IGameCreator GameCreator = gameCreator;
+    private readonly ITacticHelper TacticHelper = tacticHelper;
+    private readonly IWeatherHelper WeatherHelper = weatherHelper;
+    private readonly ITransferListHelper TransferListHelper = transferListHelper;
+    private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
 
     public void CreateGame()
     {
-        state.ManagerName = gameCreator.ManagerName;
+        State.ManagerName = GameCreator.ManagerName;
 
-        state.Date = Settings.General.StartDateAsDate;
+        State.Date = Settings.General.StartDateAsDate;
 
-        state.Weather = weatherHelper.GetTodaysWeather();
+        State.Weather = WeatherHelper.GetTodaysWeather();
 
-        state.Clubs = Settings.Clubs.Select(p => new Club
+        State.Clubs = Settings.Clubs.Select(p => new Club
         {
             Id = p.Id,
             Name = p.Name,
@@ -37,32 +46,32 @@ public class GameFactory(
             LeagueId = p.LeagueId
         }).ToList();
 
-        state.MyClubId = gameCreator.ClubId;
+        State.MyClubId = GameCreator.ClubId;
 
         var content = File.ReadAllText($"Resources\\playerData.json");
         var playerData = JsonConvert.DeserializeObject<PlayerData>(content);
         if (playerData == null)
             throw new Exception("Unable to load players from playerData.json");
 
-        playerHelper.AddPlayersToState(playerData);
+        PlayerHelper.AddPlayersToState(playerData);
 
-        foreach (var club in state.Clubs)
+        foreach (var club in State.Clubs)
         {
-            tacticHelper.ResetTacticForClub(club);
+            TacticHelper.ResetTacticForClub(club);
         }
 
         foreach (var competition in Settings.Competitions)
         {
-            var competitionFactory = competitionFactories
+            var competitionFactory = CompetitionFactories
                 .First(p => p.Type.ToString() == competition.Type).CreateCompetition(competition);
-            state.Competitions.Add(competitionFactory);
+            State.Competitions.Add(competitionFactory);
         }
 
-        foreach(var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
+        foreach(var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
         {
             foreach(var s in comp.DrawDates)
             {
-                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
+                var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
                 eventFactory.Data.DrawDate = new DateTime(s.DrawDate.Year, s.DrawDate.Month, s.DrawDate.Day);
                 eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
                 eventFactory.Data.Round = s.Round;
@@ -71,48 +80,48 @@ public class GameFactory(
             }
         }
 
-        transferListHelper.UpdateTransferList();
+        TransferListHelper.UpdateTransferList();
 
-        var freeAgents = state.Players
+        var freeAgents = State.Players
             .Where(p => p.Contract == null)
             .OrderByDescending(p => p.Rating)
             .Select(p => p.Name)
             .Take(4);
 
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Chairman",
-            $"Welcome to {state.Clubs.First(p => p.Id == state.MyClubId).Name}",
+            $"Welcome to {State.Clubs.First(p => p.Id == State.MyClubId).Name}",
             "Everyone at the club wishes you a successful reign as manager.");
 
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Chairman",
             "Transfer Budget",
-            $"Your transfer budget for the upcoming season is {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly}.");
+            $"Your transfer budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}.");
 
-        notificationFactory.AddNotification(
-            state.Date.AddDays(1),
+        NotificationFactory.AddNotification(
+            State.Date.AddDays(1),
             "Scout",
             "Players With Expired Contracts",
             $"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +
             $"small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
 
-        foreach (var comp in state.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
+        foreach (var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
         {
             foreach (var s in comp.DrawDates)
             {
-                var eventFactory = eventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
+                var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
                 eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
                 eventFactory.Data.Round = s.Round;
                 eventFactory.CreateEvent();
             }
         }
 
-        var concludedEvents = state.Events.Where(p => p.CompletionDate <= state.Date);
+        var concludedEvents = State.Events.Where(p => p.CompletionDate <= State.Date);
         foreach(var concludedEvent in concludedEvents)
         {
-            var eventFactory = eventFactories.First(p => p.Type == concludedEvent.Type);
+            var eventFactory = EventFactories.First(p => p.Type == concludedEvent.Type);
             eventFactory.CompleteEvent(concludedEvent);
         }
     }

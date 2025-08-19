@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Screens;
@@ -13,11 +12,13 @@ public class LeagueTableScreen(
 {
     private readonly Settings Settings = settings.Value;
     private readonly List<LeagueKeyModel> LeagueKeyModels = new();
+    private readonly IState State = state;
+    private readonly IClubHelper ClubHelper = clubHelper;
 
     public void GenerateLeagueKeyModels(int currentLeagueId)
     {
         LeagueKeyModels.Clear();
-        var leagues = state.Competitions.Where(p => p.Type.ToString() == "League");
+        var leagues = State.Competitions.Where(p => p.Type.ToString() == "League");
         var key = (int)'C';
 
         foreach (var league in leagues)
@@ -40,20 +41,20 @@ public class LeagueTableScreen(
         {
             while (true)
             {
-                var screen = state.ScreenStack.Peek();
+                var screen = State.ScreenStack.Peek();
                 if (screen.Type != ScreenType.LeagueTable)
                     break;
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
             }
             return;
         }
 
         if (input.Length > 1)
         {
-            var club = clubHelper.GetClubByName(input);
+            var club = ClubHelper.GetClubByName(input);
             if (club != null)
             {
-                state.ScreenStack.Push(ClubScreen.CreateScreen(club));
+                State.ScreenStack.Push(ClubScreen.CreateScreen(club));
             }
             return;
         }
@@ -62,7 +63,7 @@ public class LeagueTableScreen(
         if (selectedLeague == null)
             return;
 
-        state.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new Screen
         {
             Type = ScreenType.LeagueTable,
             Parameters = new LeagueTableObj
@@ -79,14 +80,14 @@ public class LeagueTableScreen(
 
     public override void RenderSubscreen()
     {
-        var screen = state.ScreenStack.Peek();
+        var screen = State.ScreenStack.Peek();
         var leagueId = screen.Parameters == null
-            ? state.Clubs.First(p => p.Id == state.MyClubId).LeagueId
+            ? State.Clubs.First(p => p.Id == State.MyClubId).LeagueId
             : (screen.Parameters as LeagueTableObj)!.LeagueId;
 
         GenerateLeagueKeyModels(leagueId);
 
-        var league = state.Competitions.First(p => p.Id == leagueId) as League;
+        var league = State.Competitions.First(p => p.Id == leagueId) as League;
         var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"{league.Name} League Table\n");

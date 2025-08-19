@@ -8,6 +8,10 @@ public class TransferListScreen(
     IPlayerHelper playerHelper,
     ITransferListHelper transferListHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+    private readonly ITransferListHelper TransferListHelper = transferListHelper;
+
     public override ScreenType Screen => ScreenType.TransferList;
 
     public override void HandleInput(string input)
@@ -15,24 +19,24 @@ public class TransferListScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 var inputIsInt = int.TryParse(input, out int inputAsInt);
                 if (!inputIsInt) return;
-                var transferListItem = transferListHelper.GetTransferListItemByPlayerId(inputAsInt);
+                var transferListItem = TransferListHelper.GetTransferListItemByPlayerId(inputAsInt);
                 if (transferListItem == null)
                 {
-                    state.UserFeedbackUpdates.Add("This player is not on the transfer list");
+                    State.UserFeedbackUpdates.Add("This player is not on the transfer list");
                     return;
                 }
-                var isFundsAvailable = transferListItem.AskingPrice <= state.Clubs.First(p => p.Id == state.MyClubId).TransferBudget;
+                var isFundsAvailable = transferListItem.AskingPrice <= State.Clubs.First(p => p.Id == State.MyClubId).TransferBudget;
                 if (!isFundsAvailable)
                 {
-                    state.UserFeedbackUpdates.Add("Insufficent funds to purchase this player");
+                    State.UserFeedbackUpdates.Add("Insufficent funds to purchase this player");
                     return;
                 }
-                transferListHelper.TransferContractedPlayerByPlayerIdAndClubId(transferListItem.PlayerId, state.Clubs.First(p => p.Id == state.MyClubId).Id);
+                TransferListHelper.TransferContractedPlayerByPlayerIdAndClubId(transferListItem.PlayerId, State.Clubs.First(p => p.Id == State.MyClubId).Id);
                 break;
         }
     }
@@ -48,16 +52,16 @@ public class TransferListScreen(
     {
         Console.WriteLine("Transfer List\n");
 
-        Console.WriteLine($"Funds Available: {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly}\n");
+        Console.WriteLine($"Funds Available: {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}\n");
 
         Console.WriteLine($"{"Id",-10}{"Name",-30}{"Club",-20}{"Position",-10}{"Rating",-10}{"Asking Price",-20}{"Value",-20}");
 
-        foreach (var transferListItem in state.TransferListItems.OrderBy(p => p.PlayerId))
+        foreach (var transferListItem in State.TransferListItems.OrderBy(p => p.PlayerId))
         {
-            var player = playerHelper.GetPlayerById(transferListItem.PlayerId);
-            if (player.Contract.ClubId == state.Clubs.First(p => p.Id == state.MyClubId).Id) continue;
+            var player = PlayerHelper.GetPlayerById(transferListItem.PlayerId);
+            if (player.Contract.ClubId == State.Clubs.First(p => p.Id == State.MyClubId).Id) continue;
 
-            var playerValue = playerHelper.GetTransferValue(player);
+            var playerValue = PlayerHelper.GetTransferValue(player);
 
             var askingPriceFriendly = $"£{transferListItem.AskingPrice:n}";
             var playerValueFriendly = $"£{playerValue:n}";

@@ -10,6 +10,10 @@ public class FriendlyFixtureDrawFactory(
     IEnumerable<ICompetitionFactory> competitionFactories,
     INotificationFactory notificationFactory) : IEventFactory
 {
+    private readonly IState State = state;
+    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+
     public EventType Type => EventType.FriendlyDrawFixture;
 
     public dynamic Data { get; set; } = new JObject();
@@ -18,19 +22,19 @@ public class FriendlyFixtureDrawFactory(
     {
         var cupFixtureDrawEvent = @event as FriendlyFixtureDrawEvent;
 
-        var comp = state.Competitions.First(p => p.Type == CompetitionType.Friendly);
+        var comp = State.Competitions.First(p => p.Type == CompetitionType.Friendly);
 
-        competitionFactories.First(p => p.Type == CompetitionType.Friendly).GenerateNextRoundOfFixtures(comp);
+        CompetitionFactories.First(p => p.Type == CompetitionType.Friendly).GenerateNextRoundOfFixtures(comp);
 
-        var competition = competitionFactories.First(p => p.Type == CompetitionType.Friendly);
+        var competition = CompetitionFactories.First(p => p.Type == CompetitionType.Friendly);
 
-        var fixture = comp.Fixtures.First(p => (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId) && p.Round == cupFixtureDrawEvent.Round);
-        var oppositionClubName = fixture.HomeClub.Id == state.MyClubId ? fixture.AwayClub.Name : fixture.HomeClub.Name;
+        var fixture = comp.Fixtures.First(p => (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId) && p.Round == cupFixtureDrawEvent.Round);
+        var oppositionClubName = fixture.HomeClub.Id == State.MyClubId ? fixture.AwayClub.Name : fixture.HomeClub.Name;
         var date = fixture.Date;
 
         var message = $"A friendly has been arranged against {oppositionClubName} on {date}";
 
-        notificationFactory.AddNotificationNow(
+        NotificationFactory.AddNotificationNow(
             "Chairman",
             "Friendly Arranged",
             message);
@@ -40,7 +44,7 @@ public class FriendlyFixtureDrawFactory(
     {
         DateTime fd = Data.FixtureDate;
         DateOnly fixtureDate = DateOnly.FromDateTime(fd);
-        state.Events.Add(new FriendlyFixtureDrawEvent(state)
+        State.Events.Add(new FriendlyFixtureDrawEvent(State)
         {
             FixtureDate = fixtureDate,
             Round = Data.Round,

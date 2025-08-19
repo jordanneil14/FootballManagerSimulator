@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -10,6 +9,10 @@ public class SelectClubScreen(
     IGameCreator gameCreator,
     IGameFactory gameFactory) : IBaseScreen
 {
+    private readonly IState State = state;
+    private readonly IGameCreator GameCreator = gameCreator;
+    private readonly IGameFactory GameFactory = gameFactory;
+
     public ScreenType Screen => ScreenType.SelectClub;
 
     public void HandleInput(string input)
@@ -17,16 +20,16 @@ public class SelectClubScreen(
         switch (input.ToLower())
         {
             case "b":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 if (string.IsNullOrWhiteSpace(input)) return;
-                var club = gameCreator.Clubs
-                    .FirstOrDefault(c => c.Name.ToLower() == input.ToLower() && c.LeagueId == gameCreator.LeagueId);
+                var club = GameCreator.Clubs
+                    .FirstOrDefault(c => c.Name.ToLower() == input.ToLower() && c.LeagueId == GameCreator.LeagueId);
                 if (club == null) return;
-                gameCreator.ClubId = club.Id;
-                gameFactory.CreateGame();
-                state.ScreenStack.Push(new Screen
+                GameCreator.ClubId = club.Id;
+                GameFactory.CreateGame();
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Main,
                 });
@@ -40,7 +43,7 @@ public class SelectClubScreen(
         Console.WriteLine($"{"Team",-30}{"Transfer Budget",-20}{"Stadium",-20}");
         Console.WriteLine("----------------------------------------------------------------------------------");
 
-        var clubs = gameCreator.Clubs.Where(p => p.LeagueId == gameCreator.LeagueId);
+        var clubs = GameCreator.Clubs.Where(p => p.LeagueId == GameCreator.LeagueId);
         var orderedClubs = clubs.OrderBy(p => p.Name);
         foreach (var club in orderedClubs)
         {

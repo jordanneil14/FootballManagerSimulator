@@ -9,6 +9,10 @@ public class PreMatchScreen(
     IMatchSimulatorHelper matchSimulator,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IMatchSimulatorHelper MatchSimulator = matchSimulator;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+
     public override ScreenType Screen => ScreenType.PreMatch;
 
     public override void HandleInput(string input)
@@ -17,29 +21,29 @@ public class PreMatchScreen(
         {
             case "A":
                 ValidateStartMatch();
-                if (state.UserFeedbackUpdates.Count != 0) return;
-                foreach (var comp in state.Competitions)
+                if (State.UserFeedbackUpdates.Count != 0) return;
+                foreach (var comp in State.Competitions)
                 {
-                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
                     foreach (var fixture in todaysFixtures)
                     {
-                        matchSimulator.ProcessMatch(fixture, comp);
+                        MatchSimulator.ProcessMatch(fixture, comp);
                     }
                 }
 
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Match
                 });
                 break;
             case "B":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });
                 break;
             case "C":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -48,9 +52,9 @@ public class PreMatchScreen(
 
     private void ValidateStartMatch()
     {
-        var positions = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
+        var positions = State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
         if (positions.Where(p => p.PlayerId == null).Any())
-            state.UserFeedbackUpdates.Add("Unable to start game. Your team has not been fully selected");
+            State.UserFeedbackUpdates.Add("Unable to start game. Your team has not been fully selected");
     }
 
     public override void RenderOptions()
@@ -63,22 +67,22 @@ public class PreMatchScreen(
 
     public override void RenderSubscreen()
     {
-        var fixture = state.Competitions
+        var fixture = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
+            .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
 
-        var homeClub = state.Clubs
+        var homeClub = State.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)
             .First();
 
-        var awayClub = state.Clubs
+        var awayClub = State.Clubs
             .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
         Console.WriteLine($"{homeClub.Name,58} v {awayClub.Name,-58}\n");
 
-        var homeClubPlayers = state.Clubs.First(p => p.Id == homeClub.Id).TacticSlots;
-        var awayClubPlayers = state.Clubs.First(p => p.Id == awayClub.Id).TacticSlots;
+        var homeClubPlayers = State.Clubs.First(p => p.Id == homeClub.Id).TacticSlots;
+        var awayClubPlayers = State.Clubs.First(p => p.Id == awayClub.Id).TacticSlots;
 
         for (var i = 0; i < 18; i++)
         {
@@ -91,14 +95,14 @@ public class PreMatchScreen(
             var tacticSlotHome = homeClubPlayers.ElementAt(i);
             if (tacticSlotHome.PlayerId != null)
             {
-                var player = playerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
                 homePlayer = $"{player.Name,55}{player.ShirtNumber,3}";
             }
 
             var tacticSlotAway = awayClubPlayers.ElementAt(i);
             if (tacticSlotAway.PlayerId != null)
             {
-                var player = playerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
                 awayPlayer = $"{player.ShirtNumber,-3}{player.Name,-55}";
             }
 

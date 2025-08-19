@@ -7,6 +7,9 @@ public class FinancesScreen(
     IState state,
     IEnumerable<IEventFactory> eventFactories) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
+
     public override ScreenType Screen => ScreenType.Finances;
 
     public override void HandleInput(string input)
@@ -14,18 +17,18 @@ public class FinancesScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             case "C":
-                var ev = eventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
+                var ev = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
                 ev.CreateEvent();
-                state.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
+                State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
 
                 break;
             case "D":
-                var stadiumExpansionEvent = eventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
+                var stadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
                 stadiumExpansionEvent.CreateEvent();
-                state.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
+                State.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
                 break;
             default:
                 break;
@@ -44,6 +47,6 @@ public class FinancesScreen(
     {
         Console.WriteLine("Finances\n");
 
-        Console.WriteLine($"Transfer budget: {state.Clubs.First(p => p.Id == state.MyClubId).TransferBudgetFriendly}");
+        Console.WriteLine($"Transfer budget: {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}");
     }
 }

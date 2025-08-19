@@ -8,6 +8,9 @@ public class MainScreen(
     IState state,
     IProcessHelper processor) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IProcessHelper Processor = processor;
+
     public override ScreenType Screen => ScreenType.Main;
 
     public override void HandleInput(string input)
@@ -15,50 +18,50 @@ public class MainScreen(
         switch (input.ToUpper())
         {
             case "A":
-                processor.Process();
+                Processor.Process();
                 break;
             case "B":
-                state.Notifications.RemoveRange(0, 1);
+                State.Notifications.RemoveRange(0, 1);
                 break;
             case "C":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.LeagueTable
                 });
                 break;
             case "D":
-                var league = state.Competitions.First(p => p.Id == state.Clubs.First(p => p.Id == state.MyClubId).LeagueId);
-                state.ScreenStack.Push(FixturesScreen.CreateScreen(league));
+                var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId);
+                State.ScreenStack.Push(FixturesScreen.CreateScreen(league));
                 break;
             case "E":
-                state.ScreenStack.Push(ClubScreen.CreateScreen(state.Clubs.First(p => p.Id == state.MyClubId)));
+                State.ScreenStack.Push(ClubScreen.CreateScreen(State.Clubs.First(p => p.Id == State.MyClubId)));
                 break;
             case "F":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Scout
                 });
                 break;
             case "S":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.SaveGame
                 });
                 break;
             case "G":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });
                 break;
             case "H":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Finances
                 });
                 break;
             case "I":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.TransferList
                 });
@@ -74,11 +77,11 @@ public class MainScreen(
     public override void RenderSubscreen()
     {
         Console.WriteLine("Notifications");
-        var unreadMessagesCount = state.Notifications.Where(p => p.Date <= state.Date).Count();
+        var unreadMessagesCount = State.Notifications.Where(p => p.Date <= State.Date).Count();
         Console.WriteLine($"You have {unreadMessagesCount} unread notifications\n");
-        if (state.Notifications.Where(p => p.Date <= state.Date).Any())
+        if (State.Notifications.Where(p => p.Date <= State.Date).Any())
         {
-            Console.WriteLine(state.Notifications.Where(p => p.Date <= state.Date).First());
+            Console.WriteLine(State.Notifications.Where(p => p.Date <= State.Date).First());
         }
     }
 
@@ -86,7 +89,7 @@ public class MainScreen(
     {
         Console.WriteLine("Options:");
         Console.WriteLine("A) Advance");
-        if (state.Notifications.Where(p => p.Date <= state.Date).Any())
+        if (State.Notifications.Where(p => p.Date <= State.Date).Any())
         {
             Console.WriteLine("B) Get next notification");
         }

@@ -1,13 +1,14 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
 public class WelcomeScreen(
     IState state) : IBaseScreen
 {
+    private readonly IState State = state;
+
     public ScreenType Screen => ScreenType.Welcome;
 
     public void HandleInput(string input)
@@ -15,13 +16,13 @@ public class WelcomeScreen(
         switch (input)
         {
             case "A":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.CreateManager
                 });
                 break;
             case "B":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.LoadGame
                 });

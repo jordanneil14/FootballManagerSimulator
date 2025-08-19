@@ -7,8 +7,8 @@ namespace FootballManagerSimulator.Helpers;
 public class WeatherHelper(
     IState state) : IWeatherHelper
 {
-    private readonly IEnumerable<Weather> Weathers = new List<Weather>
-    {
+    private readonly IEnumerable<Weather> Weathers =
+    [
         new Weather
         {
             MonthNumber = 1,
@@ -93,11 +93,12 @@ public class WeatherHelper(
             MinTemperature = -2,
             MaxTemperature = 4
         },
-    };
+    ];
+    private readonly IState State = state;
 
     public string GetTodaysWeather()
     {
-        var month = state.Date.Month;
+        var month = State.Date.Month;
 
         var weather = Weathers.First(p => p.MonthNumber == month);
 

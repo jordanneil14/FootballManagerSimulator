@@ -8,6 +8,9 @@ public class FixturesScreen(
     IState state,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+
     public override ScreenType Screen => ScreenType.Fixtures;
 
     public override void HandleInput(string input)
@@ -15,7 +18,7 @@ public class FixturesScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -49,10 +52,10 @@ public class FixturesScreen(
     {
         Console.WriteLine("Fixtures & Results");
 
-        var parameters = state.ScreenStack.Peek().Parameters as FixturesScreenObj;
+        var parameters = State.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
-        var dates = state.Competitions
-            .Where(p => p.Clubs.Select(p => p.Id).Contains(state.Clubs.First(p => p.Id == state.MyClubId).Id))
+        var dates = State.Competitions
+            .Where(p => p.Clubs.Select(p => p.Id).Contains(State.Clubs.First(p => p.Id == State.MyClubId).Id))
             .SelectMany(p => p.Fixtures)
             .GroupBy(p => p.Date)
             .Select(p => p.Key)
@@ -60,8 +63,8 @@ public class FixturesScreen(
 
         foreach (var date in dates)
         {
-            var fixturesByCompetition = state.Competitions
-                .Where(p => p.Clubs.Select(p => p.Id).Contains(state.Clubs.First(p => p.Id == state.MyClubId).Id));
+            var fixturesByCompetition = State.Competitions
+                .Where(p => p.Clubs.Select(p => p.Id).Contains(State.Clubs.First(p => p.Id == State.MyClubId).Id));
 
             foreach (var f in fixturesByCompetition)
             {
@@ -93,14 +96,14 @@ public class FixturesScreen(
                         var homeGroupedElement = homeGoals.ElementAtOrDefault(i);
                         if (homeGroupedElement != null)
                         {
-                            var homePlayerName = playerHelper.GetPlayerById(homeGroupedElement.Key).Name;
+                            var homePlayerName = PlayerHelper.GetPlayerById(homeGroupedElement.Key).Name;
                             homeCaption = $"{homePlayerName} ({string.Join(",", homeGroupedElement.Select(p => string.Format("{0}'", p.Minute)))})";
                         }
 
                         var awayGroupedElement = awayGoals.ElementAtOrDefault(i);
                         if (awayGroupedElement != null)
                         {
-                            var awayPlayerName = playerHelper.GetPlayerById(awayGroupedElement.Key).Name;
+                            var awayPlayerName = PlayerHelper.GetPlayerById(awayGroupedElement.Key).Name;
                             awayCaption = $"{awayPlayerName} ({string.Join(",", awayGroupedElement.Select(p => string.Format("{0}'", p.Minute)))})";
                         }
 

@@ -6,10 +6,14 @@ using Newtonsoft.Json.Linq;
 namespace FootballManagerSimulator.Factories;
 
 public class CupFixtureDrawFactory(
-    IState state,
+    IState State,
     IEnumerable<ICompetitionFactory> competitionFactories,
     INotificationFactory notificationFactory) : IEventFactory
 {
+    private readonly IState state = State;
+    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+
     public EventType Type => EventType.CupDrawFixture;
 
     public dynamic Data { get; set; } = new JObject();
@@ -21,7 +25,7 @@ public class CupFixtureDrawFactory(
 
         var comp = state.Competitions.First(p => p.Id == cupFixtureDrawEvent.CompetitionId);
 
-        competitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp);
+        CompetitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp);
 
         var clubIds = comp.Clubs.Select(p => p.Id);
         if (clubIds.Any() && clubIds.Contains(state.MyClubId.GetValueOrDefault()))
@@ -32,7 +36,7 @@ public class CupFixtureDrawFactory(
             var fixtureString = fixtures.Select(p => $"{p.HomeClub.Name} v {p.AwayClub.Name}");
             message += "\n" + string.Join("\n", fixtureString);
 
-            notificationFactory.AddNotification(
+            NotificationFactory.AddNotification(
                 state.Date,
                 "Assistant",
                 $"{comp.Name} Round {cupFixtureDrawEvent.Round}",

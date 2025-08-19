@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -9,6 +8,9 @@ public class FixtureScreen(
     IState state,
     IMatchSimulatorHelper matchSimulator) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IMatchSimulatorHelper MatchSimulator = matchSimulator;
+
     public override ScreenType Screen => ScreenType.Fixture;
 
     public override void HandleInput(string input)
@@ -19,7 +21,7 @@ public class FixtureScreen(
                 HandleAdvanceInput();
                 break;
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -28,41 +30,41 @@ public class FixtureScreen(
 
     private void HandleAdvanceInput()
     {
-        var includesMyClub = state.Competitions
+        var includesMyClub = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .Any(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
+            .Any(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
 
 
 
         if (includesMyClub)
         {
-            state.ScreenStack.Push(new Screen
+            State.ScreenStack.Push(new Screen
             {
                 Type = ScreenType.PreMatch
             });
 
-            var todaysFixtures = state.Competitions
+            var todaysFixtures = State.Competitions
                 .SelectMany(p => p.Fixtures)
-                .Where(p => p.Date == state.Date);
+                .Where(p => p.Date == State.Date);
 
             foreach (var fixture in todaysFixtures)
             {
-                matchSimulator.PrepareMatch(fixture);
+                MatchSimulator.PrepareMatch(fixture);
             }
             return;
         }
 
-        foreach (var comp in state.Competitions)
+        foreach (var comp in State.Competitions)
         {
-            var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+            var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
             foreach (var fixture in todaysFixtures)
             {
-                matchSimulator.PrepareMatch(fixture);
-                matchSimulator.ConcludeFixture(fixture, comp);
+                MatchSimulator.PrepareMatch(fixture);
+                MatchSimulator.ConcludeFixture(fixture, comp);
             }
         }
 
-        state.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new Screen
         {
             Type = ScreenType.PostMatchScores
         });
@@ -79,15 +81,15 @@ public class FixtureScreen(
     {
         Console.WriteLine("Today's Fixtures\n");
 
-        foreach (var comp in state.Competitions)
+        foreach (var comp in State.Competitions)
         {
-            var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+            var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
             if (!todaysFixtures.Any()) continue;
             Console.WriteLine(comp.Name);
             foreach (var fixture in todaysFixtures)
             {
-                var homeClub = state.Clubs.Where(p => p.Id == fixture.HomeClub.Id).First();
-                var awayClub = state.Clubs.Where(p => p.Id == fixture.AwayClub.Id).First();
+                var homeClub = State.Clubs.Where(p => p.Id == fixture.HomeClub.Id).First();
+                var awayClub = State.Clubs.Where(p => p.Id == fixture.AwayClub.Id).First();
                 var kickOffTime = fixture.KickOffTime.ToString("HH:mm");
 
                 Console.WriteLine($"{homeClub.Name,48} v {awayClub.Name,-48}{$"{kickOffTime} KO",21}");

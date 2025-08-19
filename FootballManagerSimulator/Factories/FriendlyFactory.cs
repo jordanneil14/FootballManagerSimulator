@@ -11,6 +11,8 @@ public class FriendlyFactory(
     IState state) : ICompetitionFactory
 {
     private readonly Settings Settings = settings.Value;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IState State = state;
 
     public CompetitionType Type => CompetitionType.Friendly;
 
@@ -63,8 +65,8 @@ public class FriendlyFactory(
 
     public void GeneratePreMatchReportForFixture(Fixture fixture)
     {
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Club Analyst",
             "Pre-Match Report",
             "Friendly match incoming");

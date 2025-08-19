@@ -1,11 +1,12 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 
 namespace FootballManagerSimulator.Helpers;
 
 public class PlayerHelper(IState state) : IPlayerHelper
 {
+    private readonly IState state = state;
+
     public Club? GetClubByName(string name)
     {
         return state.Clubs

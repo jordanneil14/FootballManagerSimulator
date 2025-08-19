@@ -9,6 +9,9 @@ public class StadiumExpansionFactory(
     IState state,
     INotificationFactory notificationFactory) : IEventFactory
 {
+    private readonly IState State = state;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+
     public EventType Type => EventType.StadiumExpansion;
 
     public dynamic Data { get; set; } = new JObject();
@@ -16,13 +19,13 @@ public class StadiumExpansionFactory(
 
     public void CompleteEvent(IEvent @event)
     {
-        var stadiumSizeIncrease = (int)(state.Clubs.First(p => p.Id == state.MyClubId).StadiumSize * 0.2);
-        state.Clubs.First(p => p.Id == state.MyClubId).StadiumSize += stadiumSizeIncrease;
+        var stadiumSizeIncrease = (int)(State.Clubs.First(p => p.Id == State.MyClubId).StadiumSize * 0.2);
+        State.Clubs.First(p => p.Id == State.MyClubId).StadiumSize += stadiumSizeIncrease;
 
-        var myClub = state.Clubs.First(p => p.Id == state.MyClubId);
+        var myClub = State.Clubs.First(p => p.Id == State.MyClubId);
 
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Chairman",
             "Stadium Expansion",
             $"{myClub.Name} capactity has been increased by {stadiumSizeIncrease} to {myClub.StadiumSize}");
@@ -30,6 +33,6 @@ public class StadiumExpansionFactory(
 
     public void CreateEvent()
     {
-        state.Events.Add(new StadiumExpansionEvent(state));
+        State.Events.Add(new StadiumExpansionEvent(State));
     }
 }

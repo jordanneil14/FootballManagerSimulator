@@ -9,12 +9,15 @@ public class TacticHelper(
     IState state,
     IPlayerHelper playerHelper) : ITacticHelper
 {
+    private readonly IState State = state;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+
     public void ResetTacticForClub(Club club)
     {
         club.TacticSlots = club.Formation switch
         {
-            "4-3-3" => new List<TacticSlot>()
-                {
+            "4-3-3" =>
+                [
                     new TacticSlot
                     {
                         Id = 1,
@@ -123,9 +126,9 @@ public class TacticHelper(
                         PlayerId = null,
                         TacticSlotType = TacticSlotType.SUB
                     }
-                },
-            "4-5-1" => new List<TacticSlot>()
-                {
+                ],
+            "4-5-1" =>
+                [
                     new TacticSlot
                     {
                         Id = 1,
@@ -234,9 +237,9 @@ public class TacticHelper(
                         PlayerId = null,
                         TacticSlotType = TacticSlotType.SUB
                     }
-                },
-            "4-1-2-1-2" => new List<TacticSlot>()
-                {
+                ],
+            "4-1-2-1-2" =>
+                [
                     new TacticSlot
                     {
                         Id = 1,
@@ -345,9 +348,9 @@ public class TacticHelper(
                         PlayerId = null,
                         TacticSlotType = TacticSlotType.SUB
                     }
-                },
-            _ => new List<TacticSlot>()
-                {
+                ],
+            _ =>
+                [
                     new TacticSlot
                     {
                         Id = 1,
@@ -456,7 +459,7 @@ public class TacticHelper(
                         PlayerId = null,
                         TacticSlotType = TacticSlotType.SUB
                     }
-                },
+                ],
         };
 
         for (var i = 19; i <= 99; i++)
@@ -469,7 +472,7 @@ public class TacticHelper(
             });
         }
 
-        var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
         foreach (var player in players)
         {
             var tacticSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
@@ -480,10 +483,10 @@ public class TacticHelper(
 
     private void FillEmptyFirstElevenTacticSlotsByClubId(int clubId)
     {
-        var players = state.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
 
         // Move players from the reserves into the starting 11
-        var tacticSlots = state.Clubs
+        var tacticSlots = State.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
@@ -499,7 +502,7 @@ public class TacticHelper(
             preferredPlayers.AddRange(secondaryPlayers);
             if (!preferredPlayers.Any()) continue;
 
-            var reserves = state.Clubs
+            var reserves = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
@@ -513,39 +516,39 @@ public class TacticHelper(
 
             if (selectedPlayer == null) continue;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == slot.Id)
                 .PlayerId = selectedPlayer.PlayerId;
 
-            state.Clubs.First(p => p.Id == clubId)
+            State.Clubs.First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == slot.PlayerId)
                 .Skip(1)
                 .First().PlayerId = null;
         }
 
-        var emptySlots = state.Clubs
+        var emptySlots = State.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
         foreach (var emptySlot in emptySlots)
         {
-            var selectedPlayer = state.Clubs
+            var selectedPlayer = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
             if (selectedPlayer == null) continue;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == emptySlot.Id)
                 .PlayerId = selectedPlayer.PlayerId;
 
-            state.Clubs.First(p => p.Id == clubId)
+            State.Clubs.First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == emptySlot.PlayerId)
                 .Skip(1)
@@ -556,7 +559,7 @@ public class TacticHelper(
     private void FillEmptySubTacticSlotsByClubId(int clubId)
     {
         // Move the remaining players from the reserves into the SUB positions
-        var tacticSlots = state.Clubs
+        var tacticSlots = State.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType == TacticSlotType.SUB && p.PlayerId == null)
@@ -564,14 +567,14 @@ public class TacticHelper(
 
         for (var i = 0; i < tacticSlots.Count; i++)
         {
-            var reserves = state.Clubs
+            var reserves = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null)
                 .Select(p => new
                 {
                     TacticSlot = p,
-                    Player = playerHelper.GetPlayerById(p.PlayerId.Value)
+                    Player = PlayerHelper.GetPlayerById(p.PlayerId.Value)
                 });
 
             if (!reserves.Any())
@@ -584,13 +587,13 @@ public class TacticHelper(
             if (playerId == null)
                 playerId = reserves!.First().Player?.Id;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == tacticSlots.ElementAt(i).Id)
                 .PlayerId = playerId;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == playerId)
@@ -601,14 +604,14 @@ public class TacticHelper(
 
     private void FillEmptyReserveSlotsByClubId(int clubId)
     {
-        var reservePlayers = state.Clubs
+        var reservePlayers = State.Clubs
             .First(p => p.Id == clubId)
             .TacticSlots
             .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
 
         for (var i = 0; i < reservePlayers.Count(); i++)
         {
-            var lowerSlotId = state.Clubs
+            var lowerSlotId = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null)
@@ -618,13 +621,13 @@ public class TacticHelper(
             if (lowerSlotId == null)
                 continue;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == lowerSlotId)
                 .PlayerId = reservePlayers.ElementAt(i).PlayerId;
 
-            state.Clubs
+            State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .Where(p => p.PlayerId == reservePlayers.ElementAt(i).PlayerId)

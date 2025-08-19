@@ -9,7 +9,8 @@ namespace FootballManagerSimulator.Screens;
 public class LoadGameScreen(
     IState state) : IBaseScreen
 {
-    private readonly List<LoadGamePreview> Games = new List<LoadGamePreview>();
+    private readonly List<LoadGamePreview> Games = [];
+    private readonly IState State = state;
 
     public ScreenType Screen => ScreenType.LoadGame;
 
@@ -18,8 +19,8 @@ public class LoadGameScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Clear();
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Clear();
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Welcome
                 });
@@ -30,8 +31,8 @@ public class LoadGameScreen(
                     var game = Games.ElementAt(int.Parse(input) - 1);
                     if (game == null) return;
                     TryLoadGame(game.FileName);
-                    state.ScreenStack.Clear();
-                    state.ScreenStack.Push(new Screen
+                    State.ScreenStack.Clear();
+                    State.ScreenStack.Push(new Screen
                     {
                         Type = ScreenType.Main
                     });
@@ -52,21 +53,21 @@ public class LoadGameScreen(
             if (deserialisedState == null)
                 throw new Exception("Unable to load game");
 
-            state.Weather = deserialisedState.Weather;
-            state.ScreenStack = deserialisedState.ScreenStack;
-            state.Notifications = deserialisedState.Notifications;
-            state.ManagerName = deserialisedState.ManagerName;
-            state.Clubs = deserialisedState.Clubs;
-            state.Date = deserialisedState.Date;
-            state.MyClubId = deserialisedState.MyClubId;
-            state.Players = deserialisedState.Players;
-            state.Competitions = deserialisedState.Competitions;
-            state.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
-            state.TransferListItems = deserialisedState.TransferListItems;
+            State.Weather = deserialisedState.Weather;
+            State.ScreenStack = deserialisedState.ScreenStack;
+            State.Notifications = deserialisedState.Notifications;
+            State.ManagerName = deserialisedState.ManagerName;
+            State.Clubs = deserialisedState.Clubs;
+            State.Date = deserialisedState.Date;
+            State.MyClubId = deserialisedState.MyClubId;
+            State.Players = deserialisedState.Players;
+            State.Competitions = deserialisedState.Competitions;
+            State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
+            State.TransferListItems = deserialisedState.TransferListItems;
         }
         catch (Exception ex)
         {
-            state.UserFeedbackUpdates.Add(ex.Message);
+            State.UserFeedbackUpdates.Add(ex.Message);
         }
     }
 
@@ -99,7 +100,7 @@ public class LoadGameScreen(
 
         Console.WriteLine("Load Game\n");
 
-        if (!Games.Any())
+        if (Games.Count == 0)
         {
             Console.WriteLine("No game files found on your desktop");
             Console.WriteLine("\nOptions:");

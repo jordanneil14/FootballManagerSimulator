@@ -9,6 +9,9 @@ public class CreateManagerScreen(
     IState state,
     IGameCreator gameCreator) : IBaseScreen
 {
+    private readonly IState State = state;
+    private readonly IGameCreator GameCreator = gameCreator;
+
     public ScreenType Screen => ScreenType.CreateManager;
 
     public void HandleInput(string input)
@@ -16,13 +19,13 @@ public class CreateManagerScreen(
         switch (input.ToLower())
         {
             case "b":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             default:
                 if (string.IsNullOrWhiteSpace(input)) return;
                 var text = new CultureInfo("en-US", false).TextInfo;
-                gameCreator.ManagerName = text.ToTitleCase(input.ToLower());
-                state.ScreenStack.Push(new Screen
+                GameCreator.ManagerName = text.ToTitleCase(input.ToLower());
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.SelectLeague
                 });

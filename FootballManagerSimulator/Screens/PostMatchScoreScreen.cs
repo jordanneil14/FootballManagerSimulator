@@ -6,6 +6,8 @@ namespace FootballManagerSimulator.Screens;
 
 public class PostMatchScoreScreen(IState state) : BaseScreen(state)
 {
+    private readonly IState State = state;
+
     public override ScreenType Screen => ScreenType.PostMatchScores;
 
     public override void HandleInput(string input)
@@ -13,7 +15,7 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
         switch (input)
         {
             case "A":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Main
                 });
@@ -32,21 +34,21 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
     public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Results\n");
-        foreach (var comp in state.Competitions)
+        foreach (var comp in State.Competitions)
         {
 
             var todaysFixtures = comp.Fixtures
-                .Where(p => p.Date == state.Date);
+                .Where(p => p.Date == State.Date);
 
             if (!todaysFixtures.Any()) continue;
             Console.WriteLine(comp.Name);
             foreach (var fixture in todaysFixtures)
             {
-                var homeClub = state.Clubs
+                var homeClub = State.Clubs
                     .Where(p => p.Id == fixture.HomeClub.Id)
                     .First();
 
-                var awayClub = state.Clubs
+                var awayClub = State.Clubs
                     .Where(p => p.Id == fixture.AwayClub.Id)
                     .First();
 

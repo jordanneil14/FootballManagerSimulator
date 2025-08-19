@@ -9,18 +9,21 @@ public class RequestStadiumExpansionFactory(
     IState state,
     INotificationFactory notificationFactory) : IEventFactory
 {
+    private readonly IState State = state;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+
     public EventType Type => EventType.RequestStadiumExpansion;
 
     public dynamic Data { get; set; } = new JObject();
 
     public void CompleteEvent(IEvent @event)
     {
-        var ev = new StadiumExpansionEvent(state);
+        var ev = new StadiumExpansionEvent(State);
 
-        state.Events.Add(ev);
+        State.Events.Add(ev);
 
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Chairman",
             "Stadium Expansion Request",
             $"Your stadium expansion request has been accepted by the owner. Work will begin immediately and finish on {ev.CompletionDate}");
@@ -28,6 +31,6 @@ public class RequestStadiumExpansionFactory(
 
     public void CreateEvent()
     {
-        state.Events.Add(new RequestStadiumExpansionEvent(state));
+        State.Events.Add(new RequestStadiumExpansionEvent(State));
     }
 }

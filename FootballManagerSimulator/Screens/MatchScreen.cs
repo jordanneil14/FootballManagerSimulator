@@ -9,6 +9,10 @@ public class MatchScreen(IState state,
     IMatchSimulatorHelper matchSimulator,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly IMatchSimulatorHelper MatchSimulator = matchSimulator;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+
     public override ScreenType Screen => ScreenType.Match;
 
     public override void HandleInput(string input)
@@ -16,37 +20,37 @@ public class MatchScreen(IState state,
         switch (input)
         {
             case "A":
-                foreach (var comp in state.Competitions)
+                foreach (var comp in State.Competitions)
                 {
-                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date);
+                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
                     foreach (var fixture in todaysFixtures)
                     {
-                        matchSimulator.ProcessMatch(fixture, comp);
+                        MatchSimulator.ProcessMatch(fixture, comp);
                     }
                 }
 
-                var myFixture = state.Competitions
+                var myFixture = State.Competitions
                     .SelectMany(p => p.Fixtures)
-                    .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
+                    .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
                 if (myFixture.Concluded)
                 {
-                    foreach (var comp in state.Competitions)
+                    foreach (var comp in State.Competitions)
                     {
-                        var todaysFixtures = comp.Fixtures.Where(p => p.Date == state.Date && !p.Concluded);
+                        var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date && !p.Concluded);
                         foreach (var fixture in todaysFixtures)
                         {
-                            matchSimulator.ProcessMatch(fixture, comp);
+                            MatchSimulator.ProcessMatch(fixture, comp);
                         }
                     }
 
-                    state.ScreenStack.Push(new Screen
+                    State.ScreenStack.Push(new Screen
                     {
                         Type = ScreenType.FullTime
                     });
                 }
                 break;
             case "B":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Tactics
                 });
@@ -71,26 +75,26 @@ public class MatchScreen(IState state,
 
     public override void RenderSubscreen()
     {
-        var fixture = state.Competitions
+        var fixture = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .First(p => p.Date == state.Date && (p.HomeClub.Id == state.MyClubId || p.AwayClub.Id == state.MyClubId));
-        var comp = state.Competitions.First(p => p.Fixtures.Contains(fixture));
+            .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
+        var comp = State.Competitions.First(p => p.Fixtures.Contains(fixture));
 
-        var homeClub = state.Clubs
+        var homeClub = State.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)
             .First();
 
-        var awayClub = state.Clubs
+        var awayClub = State.Clubs
             .Where(p => p.Id == fixture.AwayClub.Id)
             .First();
 
         Console.WriteLine($"{homeClub.Name,53}{fixture.GoalsHome,5} v {fixture.GoalsAway,-5}{awayClub.Name,-53}\n{GetDisplayCaption(fixture),67}\n");
 
-        var homeClubPlayers = state.Clubs
+        var homeClubPlayers = State.Clubs
             .Where(p => p.Id == homeClub.Id)
             .First().TacticSlots;
 
-        var awayClubPlayers = state.Clubs
+        var awayClubPlayers = State.Clubs
             .Where(p => p.Id == awayClub.Id)
             .First().TacticSlots;
 
@@ -105,7 +109,7 @@ public class MatchScreen(IState state,
             var tacticSlotHome = homeClubPlayers.ElementAt(i);
             if (tacticSlotHome.PlayerId != null)
             {
-                var player = playerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotHome.PlayerId.Value)!;
 
                 var goalCaption = string.Empty;
                 var goals = fixture.HomeScorers.Where(p => p.PlayerId == player.Id).Select(p => p.Minute);
@@ -121,7 +125,7 @@ public class MatchScreen(IState state,
             var tacticSlotAway = awayClubPlayers.ElementAt(i);
             if (tacticSlotAway.PlayerId != null)
             {
-                var player = playerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
+                var player = PlayerHelper.GetPlayerById(tacticSlotAway.PlayerId.Value)!;
 
                 var goalCaption = string.Empty;
                 var goals = fixture.AwayScorers.Where(p => p.PlayerId == player.Id).Select(p => p.Minute);

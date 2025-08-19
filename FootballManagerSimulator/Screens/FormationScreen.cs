@@ -7,6 +7,9 @@ public class FormationScreen(
     IState state,
     ITacticHelper tacticHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly ITacticHelper TacticHelper = tacticHelper;
+
     public override ScreenType Screen => ScreenType.Formation;
 
     public override void HandleInput(string input)
@@ -14,27 +17,27 @@ public class FormationScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             case "C":
-                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-3-3";
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
-                state.ScreenStack.Pop();
+                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-3-3";
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+                State.ScreenStack.Pop();
                 break;
             case "D":
-                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-4-2";
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
-                state.ScreenStack.Pop();
+                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-4-2";
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+                State.ScreenStack.Pop();
                 break;
             case "E":
-                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-5-1";
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
-                state.ScreenStack.Pop();
+                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-5-1";
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+                State.ScreenStack.Pop();
                 break;
             case "F":
-                state.Clubs.First(p => p.Id == state.MyClubId).Formation = "4-1-2-1-2";
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
-                state.ScreenStack.Pop();
+                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-1-2-1-2";
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+                State.ScreenStack.Pop();
                 break;
             default:
                 break;
@@ -53,6 +56,6 @@ public class FormationScreen(
 
     public override void RenderSubscreen()
     {
-        Console.WriteLine($"Current Formation is: {state.Clubs.First(p => p.Id == state.MyClubId).Formation}");
+        Console.WriteLine($"Current Formation is: {State.Clubs.First(p => p.Id == State.MyClubId).Formation}");
     }
 }

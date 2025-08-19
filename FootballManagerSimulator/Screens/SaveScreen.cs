@@ -8,6 +8,8 @@ namespace FootballManagerSimulator.Screens;
 
 public class SaveScreen(IState state) : BaseScreen(state)
 {
+    private readonly IState State = state;
+
     public override ScreenType Screen => ScreenType.SaveGame;
 
     public override void HandleInput(string input)
@@ -15,14 +17,14 @@ public class SaveScreen(IState state) : BaseScreen(state)
         switch (input)
         {
             case "B":
-                state.ScreenStack.Clear();
+                State.ScreenStack.Clear();
                 break;
             default:
                 SaveGame(input);
                 break;
         }
 
-        state.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new Screen
         {
             Type = ScreenType.Main
         });
@@ -33,13 +35,13 @@ public class SaveScreen(IState state) : BaseScreen(state)
         try
         {
             var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var stateAsJson = JsonConvert.SerializeObject(state, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+            var stateAsJson = JsonConvert.SerializeObject(State, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
             File.WriteAllText(path + $"\\{fileName}.fms", stateAsJson);
-            state.UserFeedbackUpdates.Add("Game saved successfully");
+            State.UserFeedbackUpdates.Add("Game saved successfully");
         }
         catch (Exception)
         {
-            state.UserFeedbackUpdates.Add("Unable to save game");
+            State.UserFeedbackUpdates.Add("Unable to save game");
         }
     }
 

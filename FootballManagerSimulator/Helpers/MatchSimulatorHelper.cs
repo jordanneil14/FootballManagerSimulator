@@ -10,13 +10,13 @@ public class MatchSimulatorHelper(
     IPlayerHelper playerHelper,
     IState state) : IMatchSimulatorHelper
 {
+    private readonly IClubHelper ClubHelper = clubHelper;
+    private readonly ITacticHelper TacticHelper = tacticHelper;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+    private readonly IState State = state;
+
     public void ProcessMatch(Fixture fixture, ICompetition competition)
     {
-        //if (fixture.HomeClub.Id == state.MyClubId || fixture.AwayClub.Id == state.MyClubId)
-        //{
-
-        //}
-
         if (fixture.Minute == 0)
         {
             SimulateFirstHalf(fixture);
@@ -50,16 +50,16 @@ public class MatchSimulatorHelper(
 
     private void SimulateExtraTime(Fixture fixture)
     {
-        var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = clubHelper.GetClubById(fixture.AwayClub.Id);
+        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
+        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
 
-        var homeClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
+        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
+        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
+        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
+        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
-        if (homeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
+        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
             homeClubRating = (int)(homeClubRating * 1.3);
         else
             awayClubRating = (int)(awayClubRating * 1.3);
@@ -103,16 +103,16 @@ public class MatchSimulatorHelper(
 
     private void SimulateFirstHalf(Fixture fixture)
     {
-        var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = clubHelper.GetClubById(fixture.AwayClub.Id);
+        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
+        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
 
-        var homeClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
+        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
+        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
+        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
+        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
-        if (homeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
+        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
             homeClubRating = (int)(homeClubRating * 1.3);
         else
             awayClubRating = (int)(awayClubRating * 1.3);
@@ -159,7 +159,7 @@ public class MatchSimulatorHelper(
         var playerRatingModels = new List<PlayerRatingModel>();
         foreach (var slot in tacticSlots)
         {
-            var player = playerHelper.GetPlayerById(slot.PlayerId.Value);
+            var player = PlayerHelper.GetPlayerById(slot.PlayerId.Value);
             playerRatingModels.Add(new PlayerRatingModel
             {
                 PlayerId = slot.PlayerId.Value,
@@ -178,16 +178,16 @@ public class MatchSimulatorHelper(
 
     private void SimulateSecondHalf(Fixture fixture, ICompetition competition)
     {
-        var homeClub = clubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = clubHelper.GetClubById(fixture.AwayClub.Id);
+        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
+        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
 
-        var homeClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = clubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
+        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
+        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var homeClubRating = clubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = clubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
+        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
+        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
-        if (homeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id)
+        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
             homeClubRating = (int)(homeClubRating * 1.3);
         else
             awayClubRating = (int)(awayClubRating * 1.3);
@@ -252,16 +252,16 @@ public class MatchSimulatorHelper(
 
     public void PrepareMatch(Fixture fixture)
     {
-        if (fixture.HomeClub.Id != state.Clubs.First(p => p.Id == state.MyClubId).Id)
+        if (fixture.HomeClub.Id != State.Clubs.First(p => p.Id == State.MyClubId).Id)
         {
-            tacticHelper.ResetTacticForClub(fixture.HomeClub);
-            tacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
+            TacticHelper.ResetTacticForClub(fixture.HomeClub);
+            TacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
         }
 
-        if (fixture.AwayClub.Id != state.Clubs.First(p => p.Id == state.MyClubId).Id)
+        if (fixture.AwayClub.Id != State.Clubs.First(p => p.Id == State.MyClubId).Id)
         {
-            tacticHelper.ResetTacticForClub(fixture.AwayClub);
-            tacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);
+            TacticHelper.ResetTacticForClub(fixture.AwayClub);
+            TacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);
         }
     }
 }

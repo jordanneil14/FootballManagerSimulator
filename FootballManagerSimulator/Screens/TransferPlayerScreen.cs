@@ -9,25 +9,29 @@ public class TransferPlayerScreen(
     ITransferListHelper transferListHelper,
     IPlayerHelper playerHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly ITransferListHelper TransferListHelper = transferListHelper;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
+
     public override ScreenType Screen => ScreenType.TransferPlayer;
 
     public override void HandleInput(string input)
     {
-        var screenParameters = state.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
+        var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
 
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             case "C":
-                transferListHelper.RemovePlayerFromTransferList(player.Id);
+                TransferListHelper.RemovePlayerFromTransferList(player.Id);
                 break;
             default:
                 var inputIsInt = int.TryParse(input, out int inputAsInt);
                 if (!inputIsInt) return;
-                transferListHelper.AddPlayerToTransferList(player.Id, inputAsInt);
+                TransferListHelper.AddPlayerToTransferList(player.Id, inputAsInt);
                 break;
         }
     }
@@ -37,10 +41,10 @@ public class TransferPlayerScreen(
         Console.WriteLine("Options:");
         Console.WriteLine("B) Back");
 
-        var screenParameters = state.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
+        var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
 
-        if (transferListHelper.IsPlayerTransferListed(player.Id))
+        if (TransferListHelper.IsPlayerTransferListed(player.Id))
         {
             Console.WriteLine("C) Remove From Transfer List");
         }
@@ -52,12 +56,12 @@ public class TransferPlayerScreen(
 
     public override void RenderSubscreen()
     {
-        var screenParameters = state.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
+        var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
 
         Console.WriteLine($"{player.Name}\n");
 
-        var transferListItem = transferListHelper.GetTransferListItemByPlayerId(player.Id);
+        var transferListItem = TransferListHelper.GetTransferListItemByPlayerId(player.Id);
         if (transferListItem == null)
         {
             Console.WriteLine($"Transfer Status: Not Set");
@@ -68,7 +72,7 @@ public class TransferPlayerScreen(
             Console.WriteLine($"Transfer Status: Transfer Listed For {askingPriceFriendly}");
         }
 
-        var transferValue = playerHelper.GetTransferValue(player);
+        var transferValue = PlayerHelper.GetTransferValue(player);
         var transferValueFriendly = $"£{transferValue:n}";
         Console.WriteLine($"Transfer Value: {transferValueFriendly}");
     }

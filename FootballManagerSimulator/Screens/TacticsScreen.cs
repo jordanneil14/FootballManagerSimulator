@@ -7,6 +7,9 @@ namespace FootballManagerSimulator.Screens;
 public class TacticsScreen(IState state,
     ITacticHelper tacticHelper) : BaseScreen(state)
 {
+    private readonly IState State = state;
+    private readonly ITacticHelper TacticHelper = tacticHelper;
+
     public override ScreenType Screen => ScreenType.Tactics;
 
     public override void HandleInput(string input)
@@ -18,28 +21,28 @@ public class TacticsScreen(IState state,
             var fromPlayerIndex = int.Parse(parts[0]) - 1;
             var toPlayerIndex = int.Parse(parts[1]) - 1;
 
-            var fromPlayerId = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId;
-            var toPlayerId = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId;
+            var fromPlayerId = State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId;
+            var toPlayerId = State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId;
 
-            state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId = fromPlayerId;
-            state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId = toPlayerId;
+            State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.ElementAt(toPlayerIndex).PlayerId = fromPlayerId;
+            State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.ElementAt(fromPlayerIndex).PlayerId = toPlayerId;
             return;
         }
 
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
             case "C":
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
-                tacticHelper.FillEmptyTacticSlotsByClubId(state.Clubs.First(p => p.Id == state.MyClubId).Id);
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+                TacticHelper.FillEmptyTacticSlotsByClubId(State.Clubs.First(p => p.Id == State.MyClubId).Id);
                 break;
             case "D":
-                tacticHelper.ResetTacticForClub(state.Clubs.First(p => p.Id == state.MyClubId));
+                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
                 break;
             case "E":
-                state.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Formation
                 });
@@ -66,9 +69,9 @@ public class TacticsScreen(IState state,
         Console.WriteLine("----------------------------------------------------------------------------------");
 
         var hasEmptyReserveSlot = false;
-        for (var i = 0; i < state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.Count; i++)
+        for (var i = 0; i < State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.Count; i++)
         {
-            var tacticSlot = state.Clubs.First(p => p.Id == state.MyClubId).TacticSlots.ElementAt(i);
+            var tacticSlot = State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.ElementAt(i);
             if (tacticSlot.TacticSlotType == TacticSlotType.RES && tacticSlot.PlayerId == null && hasEmptyReserveSlot)
                 continue;
 
@@ -79,7 +82,7 @@ public class TacticsScreen(IState state,
                     hasEmptyReserveSlot = true;
                 continue;
             }
-            var player = state.Players.First(p => p.Id == tacticSlot.PlayerId);
+            var player = State.Players.First(p => p.Id == tacticSlot.PlayerId);
             Console.WriteLine($"{i + 1,-10}{tacticSlot.TacticSlotType,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}");
         }
     }

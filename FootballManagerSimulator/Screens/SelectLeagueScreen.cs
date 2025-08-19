@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Screens;
@@ -12,6 +11,8 @@ public class SelectLeagueScreen(
     IGameCreator gameCreator) : IBaseScreen
 {
     private readonly Settings Settings = settings.Value;
+    private readonly IState State = state;
+    private readonly IGameCreator GameCreator = gameCreator;
 
     public ScreenType Screen => ScreenType.SelectLeague;
 
@@ -20,13 +21,13 @@ public class SelectLeagueScreen(
         if (string.IsNullOrWhiteSpace(input))
             return;
 
-        var league = gameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString()).FirstOrDefault(p => p.Id.ToString() == input);
+        var league = GameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString()).FirstOrDefault(p => p.Id.ToString() == input);
 
         if (league != null)
         {
-            gameCreator.LeagueId = league.Id;
+            GameCreator.LeagueId = league.Id;
 
-            state.ScreenStack.Push(new Screen
+            State.ScreenStack.Push(new Screen
             {
                 Type = ScreenType.SelectClub
             });
@@ -35,7 +36,7 @@ public class SelectLeagueScreen(
         switch (input)
         {
             case "B":
-                state.ScreenStack.Pop();
+                State.ScreenStack.Pop();
                 break;
         }
     }
@@ -46,7 +47,7 @@ public class SelectLeagueScreen(
         Console.WriteLine($"{"Id",-10}{"League",-30}{"Country",-20}{"Rank",-10}{"No of Teams",-15}");
         Console.WriteLine("----------------------------------------------------------------------------------");
 
-        var leagues = gameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString());
+        var leagues = GameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString());
 
         foreach (var league in leagues)
         {

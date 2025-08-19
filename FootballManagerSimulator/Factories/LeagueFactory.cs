@@ -2,7 +2,6 @@
 using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Factories;
@@ -12,6 +11,8 @@ public class LeagueFactory(
     IState state,
     INotificationFactory notificationFactory) : ICompetitionFactory
 {
+    private readonly IState State = state;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly Settings Settings = settings.Value;
 
     public CompetitionType Type => CompetitionType.League;
@@ -50,17 +51,17 @@ public class LeagueFactory(
 
     public void GeneratePreMatchReportForFixture(Fixture fixture)
     {
-        var oppositionClub = fixture.HomeClub.Id == state.Clubs.First(p => p.Id == state.MyClubId).Id
-            ? state.Clubs.First(p => p.Id == fixture.AwayClub.Id)
-            : state.Clubs.First(p => p.Id == fixture.HomeClub.Id);
+        var oppositionClub = fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id
+            ? State.Clubs.First(p => p.Id == fixture.AwayClub.Id)
+            : State.Clubs.First(p => p.Id == fixture.HomeClub.Id);
 
-        var league = state.Competitions.First(p => p.Id == state.Clubs.First(p => p.Id == state.MyClubId).LeagueId) as League;
+        var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId) as League;
         var leagueTable = league.GenerateLeagueTable().ToList();
 
         var leaguePosition = leagueTable.First(p => p.Club.Id == oppositionClub.Id);
         var leaguePositionIndex = leagueTable.IndexOf(leaguePosition) + 1;
 
-        var oppositionPlayers = state.Players
+        var oppositionPlayers = State.Players
             .Where(p => p.Contract != null && p.Contract.ClubId == oppositionClub.Id)
             .OrderByDescending(p => p.Rating)
             .Take(3)
@@ -70,8 +71,8 @@ public class LeagueFactory(
             $"They sit {NumberHelper.AddOrdinal(leaguePositionIndex)} in the league and have numerous players who can cause a threat:\n" +
             $"\t{string.Join("\n\t", oppositionPlayers)}";
 
-        notificationFactory.AddNotification(
-            state.Date,
+        NotificationFactory.AddNotification(
+            State.Date,
             "Club Analyst",
             "Pre-Match Report",
             message);
