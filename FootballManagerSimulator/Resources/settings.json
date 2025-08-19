@@ -1,6 +1,6 @@
 {
   "General": {
-    "StartDate": "2016-07-10"
+    "StartDate": "2016-07-11"
   },
   "Clubs": [
     {
@@ -1491,15 +1491,15 @@
       "DrawDates": [
         {
           "Round": 1,
-          "FixtureDate": "2016-07-15"
+          "FixtureDate": "2016-07-16"
         },
         {
           "Round": 2,
-          "FixtureDate": "2016-07-22"
+          "FixtureDate": "2016-07-23"
         },
         {
           "Round": 3,
-          "FixtureDate": "2016-07-29"
+          "FixtureDate": "2016-07-30"
         }
       ]
     },
