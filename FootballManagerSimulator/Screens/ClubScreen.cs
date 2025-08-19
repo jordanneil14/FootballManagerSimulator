@@ -71,14 +71,14 @@ public class ClubScreen(
 
         var players = State.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
 
-        Console.WriteLine($"{"Id",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Transfer Value",-20}");
-        Console.WriteLine("-----------------------------------------------------------------------------------------------");
+        Console.WriteLine($"{"Id",-10}{"Number",-10}{"Position",-10}{"Name",-40}{"Rating",-10}{"Transfer Value",-20}{"Contract Expiry Date",-15}");
+        Console.WriteLine("------------------------------------------------------------------------------------------------------------------------");
 
         foreach (var player in players.OrderBy(p => p.Name))
         {
             var transferValue = Utils.GetTransferValue(player);
             var transferValueFriendly = $"£{transferValue:n}";
-            Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}{transferValueFriendly,-10}");
+            Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}{transferValueFriendly,-20}{player.Contract.ExpiryDate,-15}");
         }
     }
 
