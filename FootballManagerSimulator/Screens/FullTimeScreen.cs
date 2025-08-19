@@ -13,6 +13,10 @@ public class FullTimeScreen(
 
     public override ScreenType Screen => ScreenType.FullTime;
 
+    public override Dictionary<string, string> Options => new() {
+        { "A", "Continue" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -27,12 +31,6 @@ public class FullTimeScreen(
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Continue");
     }
 
     public override void RenderSubscreen()

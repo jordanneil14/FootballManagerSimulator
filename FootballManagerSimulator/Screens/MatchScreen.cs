@@ -14,6 +14,11 @@ public class MatchScreen(IState state,
 
     public override ScreenType Screen => ScreenType.Match;
 
+    public override Dictionary<string, string> Options => new() {
+        { "A", "Continue Match" },
+        { "B", "Tactics" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -57,13 +62,6 @@ public class MatchScreen(IState state,
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Continue Match");
-        Console.WriteLine("B) Tactics");
     }
 
     private string GetDisplayCaption(Fixture fixture)

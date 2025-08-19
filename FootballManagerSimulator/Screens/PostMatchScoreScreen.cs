@@ -10,6 +10,10 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
 
     public override ScreenType Screen => ScreenType.PostMatchScores;
 
+    public override Dictionary<string, string> Options => new() {
+        { "A", "Continue" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -23,12 +27,6 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Continue");
     }
 
     public override void RenderSubscreen()

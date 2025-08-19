@@ -13,6 +13,8 @@ public class MainScreen(
 
     public override ScreenType Screen => ScreenType.Main;
 
+    public override IDictionary<string, string> Options => GetOptions();
+
     public override void HandleInput(string input)
     {
         switch (input.ToUpper())
@@ -85,22 +87,21 @@ public class MainScreen(
         }
     }
 
-    public override void RenderOptions()
+    public Dictionary<string, string> GetOptions()
     {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Advance");
+        var dict = new Dictionary<string, string>();
+        dict.Add("A", "Advance");
         if (State.Notifications.Where(p => p.Date <= State.Date).Any())
-        {
-            Console.WriteLine("B) Get next notification");
-        }
-        Console.WriteLine("C) League Table");
-        Console.WriteLine("D) Fixtures & Results");
-        Console.WriteLine("E) My Club");
-        Console.WriteLine("F) Scout");
-        Console.WriteLine("G) Tactics");
-        Console.WriteLine("H) Finances");
-        Console.WriteLine("I) Transfer List");
-        Console.WriteLine("S) Save Game");
-        Console.WriteLine("Q) Quit Game");
+            dict.Add("B", "Get Next Notification");
+        dict.Add("C", "League Table");
+        dict.Add("D", "Fixtures & Results");
+        dict.Add("E", "My Club");
+        dict.Add("F", "Scout");
+        dict.Add("G", "Tactics");
+        dict.Add("H", "Finances");
+        dict.Add("I", "Transfer List");
+        dict.Add("S", "Save Game");
+        dict.Add("Q", "Quit Game");
+        return dict;
     }
 }

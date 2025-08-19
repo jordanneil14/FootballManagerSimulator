@@ -13,6 +13,11 @@ public class ScoutScreen(
 
     public override ScreenType Screen => ScreenType.Scout;
 
+    public override Dictionary<string, string> Options => new() {
+        { "B", "Back" },
+        { "<Enter Row>", "Go To Player" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -37,13 +42,6 @@ public class ScoutScreen(
                 }
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Row>) Go To Player");
     }
 
     public override void RenderSubscreen()

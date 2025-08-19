@@ -15,6 +15,12 @@ public class PreMatchScreen(
 
     public override ScreenType Screen => ScreenType.PreMatch;
 
+    public override Dictionary<string, string> Options => new() {
+        { "A", "Start Match" },
+        { "B", "Tactics" },
+        { "C", "Back" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -55,14 +61,6 @@ public class PreMatchScreen(
         var positions = State.Clubs.First(p => p.Id == State.MyClubId).TacticSlots.Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES);
         if (positions.Where(p => p.PlayerId == null).Any())
             State.UserFeedbackUpdates.Add("Unable to start game. Your team has not been fully selected");
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Start Match");
-        Console.WriteLine("B) Tactics");
-        Console.WriteLine("C) Back");
     }
 
     public override void RenderSubscreen()

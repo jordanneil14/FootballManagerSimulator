@@ -11,6 +11,11 @@ public class SaveScreen(IState state) : BaseScreen(state)
 
     public override ScreenType Screen => ScreenType.SaveGame;
 
+    public override Dictionary<string, string> Options => new() {
+        { "B", "Back" },
+        { "<Enter file name>", "Save Game" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -42,13 +47,6 @@ public class SaveScreen(IState state) : BaseScreen(state)
         {
             State.UserFeedbackUpdates.Add("Unable to save game");
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter file name>) Save Game");
     }
 
     public override void RenderSubscreen()

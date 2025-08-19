@@ -12,6 +12,12 @@ public class FinancesScreen(
 
     public override ScreenType Screen => ScreenType.Finances;
 
+    public override Dictionary<string, string> Options => new() { 
+        { "B", "Back" },
+        { "C", "Request a Higher Transfer Budget" },
+        { "D", "Request Stadium Expansion" },
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -33,14 +39,6 @@ public class FinancesScreen(
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("C) Request a Higher Transfer Budget");
-        Console.WriteLine("D) Request Stadium Expansion");
     }
 
     public override void RenderSubscreen()

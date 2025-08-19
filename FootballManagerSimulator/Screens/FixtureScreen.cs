@@ -13,6 +13,11 @@ public class FixtureScreen(
 
     public override ScreenType Screen => ScreenType.Fixture;
 
+    public override Dictionary<string, string> Options => new() {
+        { "A", "Advance" },
+        { "B", "Back" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -70,12 +75,12 @@ public class FixtureScreen(
         });
     }
 
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("A) Advance");
-        Console.WriteLine("B) Back");
-    }
+    //public override void RenderOptions()
+    //{
+    //    Console.WriteLine("Options:");
+    //    Console.WriteLine("A) Advance");
+    //    Console.WriteLine("B) Back");
+    //}
 
     public override void RenderSubscreen()
     {

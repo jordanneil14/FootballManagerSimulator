@@ -15,6 +15,8 @@ public class TransferPlayerScreen(
 
     public override ScreenType Screen => ScreenType.TransferPlayer;
 
+    public override IDictionary<string, string> Options => GetOptions();
+
     public override void HandleInput(string input)
     {
         var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
@@ -36,22 +38,19 @@ public class TransferPlayerScreen(
         }
     }
 
-    public override void RenderOptions()
+    public Dictionary<string, string> GetOptions()
     {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
+        var dict = new Dictionary<string, string>();
+        dict.Add("B", "Back");
 
         var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
-
         if (TransferListHelper.IsPlayerTransferListed(player.Id))
-        {
-            Console.WriteLine("C) Remove From Transfer List");
-        }
+            dict.Add("C", "Remove From Transfer List");
         else
-        {
-            Console.WriteLine("<Enter Amount>) Add To Transfer List");
-        }
+            dict.Add("<Enter Amount>", "Add To Transfer List");
+
+        return dict;
     }
 
     public override void RenderSubscreen()

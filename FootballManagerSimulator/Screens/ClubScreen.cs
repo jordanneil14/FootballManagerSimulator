@@ -13,6 +13,11 @@ public class ClubScreen(
 
     public override ScreenType Screen => ScreenType.Club;
 
+    public override Dictionary<string, string> Options => new() {
+        { "B", "Back" },
+        { "<Enter Player ID>", "Go To Player" },
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -80,12 +85,5 @@ public class ClubScreen(
             var transferValueFriendly = $"£{transferValue:n}";
             Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}{transferValueFriendly,-20}{player.Contract.ExpiryDate,-15}");
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Player ID>) Go To Player");
     }
 }

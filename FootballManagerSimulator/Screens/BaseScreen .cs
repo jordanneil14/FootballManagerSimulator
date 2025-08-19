@@ -6,8 +6,8 @@ namespace FootballManagerSimulator.Screens;
 public abstract class BaseScreen(IState state) : IBaseScreen
 {
     private readonly IState State = state;
-
     public abstract ScreenType Screen { get; }
+    public abstract IDictionary<string, string> Options { get; }
 
     public abstract void HandleInput(string input);
 
@@ -34,7 +34,14 @@ public abstract class BaseScreen(IState state) : IBaseScreen
         }
     }
 
-    public abstract void RenderOptions();
+    public void RenderOptions()
+    {
+        Console.WriteLine("Options");
+        foreach (var option in Options)
+        {
+            Console.WriteLine($"{option.Key}) {option.Value}");
+        }
+    }
 
     public void RenderTop()
     {

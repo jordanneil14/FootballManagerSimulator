@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-
 using static FootballManagerSimulator.Screens.TransferPlayerScreen;
 
 namespace FootballManagerSimulator.Screens;
@@ -18,6 +17,8 @@ public class PlayerScreen(
     private readonly IClubHelper ClubHelper = clubHelper;
 
     public override ScreenType Screen => ScreenType.Player;
+
+    public override IDictionary<string, string> Options => GetOptions();
 
     public static Screen CreateScreen(Player player)
     {
@@ -121,24 +122,21 @@ public class PlayerScreen(
         Console.WriteLine(string.Format("{0,-25}", $"Penalties:{player.Penalties}"));
     }
 
-    public override void RenderOptions()
+    public Dictionary<string, string> GetOptions()
     {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
 
         var playerPlaysForMyClub = PlayerHelper.PlayerPlaysForClub(player.Id, State.Clubs.First(p => p.Id == State.MyClubId).Id);
         var playerIsFreeAgent = player.Contract == null;
 
-        if (playerPlaysForMyClub)
-        {
-            Console.WriteLine("C) Transfer Options");
-        }
+        var dict = new Dictionary<string, string>();
+        dict.Add("B", "Back");
+        if (playerPlaysForMyClub) 
+            dict.Add("C", "Transfer Options");
         else if (playerIsFreeAgent)
-        {
-            Console.WriteLine("D) Sign Free Agent");
-        }
+            dict.Add("D", "Sign Free Agent");
+
+        return dict;
     }
 }

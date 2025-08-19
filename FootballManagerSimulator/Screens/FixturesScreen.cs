@@ -13,6 +13,10 @@ public class FixturesScreen(
 
     public override ScreenType Screen => ScreenType.Fixtures;
 
+    public override Dictionary<string, string> Options => new() {
+        { "B", "Back" }
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -40,12 +44,6 @@ public class FixturesScreen(
     public class FixturesScreenObj
     {
         public ICompetition League { get; set; }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
     }
 
     public override void RenderSubscreen()

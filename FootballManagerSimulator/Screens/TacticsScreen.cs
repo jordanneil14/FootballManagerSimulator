@@ -12,6 +12,15 @@ public class TacticsScreen(IState state,
 
     public override ScreenType Screen => ScreenType.Tactics;
 
+    public override IDictionary<string, string> Options => new Dictionary<string, string>
+        {
+            { "B", "Back" },
+            { "<Enter Number> -> <Enter Number>", "Switch Places" },
+            { "C", "Get Assistant To Pick Team" },
+            { "D", "Reset Tactic" },
+            { "E", "Change Formation" }
+        };
+
     public override void HandleInput(string input)
     {
         var parts = input.Split("->");
@@ -50,16 +59,6 @@ public class TacticsScreen(IState state,
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Number> -> <Enter Number>) Switch Places");
-        Console.WriteLine("C) Get Assistant To Pick Team");
-        Console.WriteLine("D) Reset Tactic");
-        Console.WriteLine("E) Change Formation");
     }
 
     public override void RenderSubscreen()

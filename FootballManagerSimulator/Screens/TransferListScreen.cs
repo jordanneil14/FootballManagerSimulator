@@ -41,12 +41,11 @@ public class TransferListScreen(
         }
     }
 
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter PlayerId>) Buy Player for asking price");
-    }
+    public override IDictionary<string, string> Options => new Dictionary<string, string>
+        {
+            { "B", "Back" },
+            { "<Enter PlayerId>", "Buy Player for asking price" }
+        };
 
     public override void RenderSubscreen()
     {

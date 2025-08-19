@@ -35,6 +35,8 @@ public class LeagueTableScreen(
 
     public override ScreenType Screen => ScreenType.LeagueTable;
 
+    public override IDictionary<string, string> Options => GetOptions();
+
     public override void HandleInput(string input)
     {
         if (input == "B")
@@ -123,16 +125,16 @@ public class LeagueTableScreen(
         return false;
     }
 
-    public override void RenderOptions()
+    public Dictionary<string, string> GetOptions()
     {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-
+        var dict = new Dictionary<string, string>();
+        dict.Add("B", "Back");
         foreach (var leagueKeyModel in LeagueKeyModels)
         {
             if (leagueKeyModel.IsCurrent) continue;
-            Console.WriteLine($"{leagueKeyModel.Key}) View {leagueKeyModel.League.Name}");
+            dict.Add(leagueKeyModel.Key.ToString(), $"View {leagueKeyModel.League.Name}");
         }
-        Console.WriteLine("<Enter Club Name>) Go To Club");
+        dict.Add("<Enter Club Name>", "Go To Club");
+        return dict;
     }
 }

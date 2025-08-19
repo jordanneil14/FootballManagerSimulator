@@ -12,6 +12,14 @@ public class FormationScreen(
 
     public override ScreenType Screen => ScreenType.Formation;
 
+    public override Dictionary<string, string> Options => new() {
+        { "B", "Back" },
+        { "C", "Select 4-3-3" },
+        { "D", "Select 4-4-2" },
+        { "E", "Select 4-5-1" },
+        { "F", "Select 4-1-2-1-2" },
+    };
+
     public override void HandleInput(string input)
     {
         switch (input)
@@ -42,16 +50,6 @@ public class FormationScreen(
             default:
                 break;
         }
-    }
-
-    public override void RenderOptions()
-    {
-        Console.WriteLine("Options:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("C) Select 4-3-3");
-        Console.WriteLine("D) Select 4-4-2");
-        Console.WriteLine("E) Select 4-5-1");
-        Console.WriteLine("F) Select 4-1-2-1-2");
     }
 
     public override void RenderSubscreen()
