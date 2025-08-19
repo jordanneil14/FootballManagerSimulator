@@ -7,6 +7,7 @@ public interface IState
 {
     string ManagerName { get; set; }
     DateOnly Date { get; set; }
+    string DateFriendly => Date.ToString("dddd, dd MMMM yyyy");
     Stack<Screen> ScreenStack { get; set; }
     List<Notification> Notifications { get; set; }
     List<Player> Players { get; set; }

@@ -40,7 +40,7 @@ public abstract class BaseScreen(IState state) : IBaseScreen
     {
         var nextMatchCaption = GetNextMatchCaption();
 
-        Console.WriteLine($"{State.Clubs.First(p => p.Id == State.MyClubId).Name,-100}{State.Date,20}");
+        Console.WriteLine($"{State.Clubs.First(p => p.Id == State.MyClubId).Name,-95}{State.DateFriendly,25}");
         Console.WriteLine($"{State.ManagerName,-100}{State.Weather,20}");
         Console.WriteLine(nextMatchCaption);
         Console.WriteLine("------------------------------------------------------------------------------------------------------------------------");
