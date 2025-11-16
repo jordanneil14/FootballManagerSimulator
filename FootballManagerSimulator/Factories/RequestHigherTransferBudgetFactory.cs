@@ -12,8 +12,9 @@ public class RequestHigherTransferBudgetFactory(
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
-    public EventType Type => EventType.RequestHigherTransferBudget;
+    private const int INCREASED_AMOUNT = 10000000;
 
+    public EventType Type => EventType.RequestHigherTransferBudget;
     public dynamic Data { get; set; } = new JObject();
     public DateOnly CompletionDate { get; set; }
 
@@ -32,13 +33,13 @@ public class RequestHigherTransferBudgetFactory(
             return;
         }
 
-        State.Clubs.First(p => p.Id == State.MyClubId).TransferBudget += 10000000;
+        State.Clubs.First(p => p.Id == State.MyClubId).TransferBudget += INCREASED_AMOUNT;
 
         NotificationFactory.AddNotification(
             State.Date,
             "Chairman",
             "Transfer Budget Request",
-            $"The chairman has responded to your transfer budget request and has granted you an extra £{10000000:n} to spend.");
+            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n} to spend.");
     }
 
     public void CreateEvent()

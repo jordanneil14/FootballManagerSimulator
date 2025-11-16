@@ -26,8 +26,8 @@ public class FinancesScreen(
                 State.ScreenStack.Pop();
                 break;
             case "C":
-                var ev = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
-                ev.CreateEvent();
+                var requestHigherTransferVudgetEvent = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
+                requestHigherTransferVudgetEvent.CreateEvent();
                 State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
 
                 break;

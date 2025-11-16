@@ -22,13 +22,11 @@ public class FriendlyFixtureDrawFactory(
     {
         var cupFixtureDrawEvent = @event as FriendlyFixtureDrawEvent;
 
-        var comp = State.Competitions.First(p => p.Type == CompetitionType.Friendly);
+        var competition = State.Competitions.First(p => p.Type == CompetitionType.Friendly);
 
-        CompetitionFactories.First(p => p.Type == CompetitionType.Friendly).GenerateNextRoundOfFixtures(comp);
+        CompetitionFactories.First(p => p.Type == CompetitionType.Friendly).GenerateNextRoundOfFixtures(competition);
 
-        var competition = CompetitionFactories.First(p => p.Type == CompetitionType.Friendly);
-
-        var fixture = comp.Fixtures.First(p => (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId) && p.Round == cupFixtureDrawEvent.Round);
+        var fixture = competition.Fixtures.First(p => (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId) && p.Round == cupFixtureDrawEvent.Round);
         var oppositionClubName = fixture.HomeClub.Id == State.MyClubId ? fixture.AwayClub.Name : fixture.HomeClub.Name;
         var date = fixture.Date;
 
@@ -47,8 +45,7 @@ public class FriendlyFixtureDrawFactory(
         State.Events.Add(new FriendlyFixtureDrawEvent(State)
         {
             FixtureDate = fixtureDate,
-            Round = Data.Round,
-
+            Round = Data.Round
         });
     }
 }

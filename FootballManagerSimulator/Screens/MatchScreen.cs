@@ -24,12 +24,12 @@ public class MatchScreen(IState state,
         switch (input)
         {
             case "A":
-                foreach (var comp in State.Competitions)
+                foreach (var competition in State.Competitions)
                 {
-                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
+                    var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
                     foreach (var fixture in todaysFixtures)
                     {
-                        MatchSimulator.ProcessMatch(fixture, comp);
+                        MatchSimulator.ProcessMatch(fixture, competition);
                     }
                 }
 
@@ -38,12 +38,12 @@ public class MatchScreen(IState state,
                     .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
                 if (myFixture.Concluded)
                 {
-                    foreach (var comp in State.Competitions)
+                    foreach (var competition in State.Competitions)
                     {
-                        var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date && !p.Concluded);
+                        var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded);
                         foreach (var fixture in todaysFixtures)
                         {
-                            MatchSimulator.ProcessMatch(fixture, comp);
+                            MatchSimulator.ProcessMatch(fixture, competition);
                         }
                     }
 

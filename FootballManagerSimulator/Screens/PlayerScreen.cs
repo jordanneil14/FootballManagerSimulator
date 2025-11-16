@@ -127,16 +127,16 @@ public class PlayerScreen(
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);
 
-        var playerPlaysForMyClub = PlayerHelper.PlayerPlaysForClub(player.Id, State.Clubs.First(p => p.Id == State.MyClubId).Id);
+        var doesPlayerPlaysForMyClub = PlayerHelper.DoesPlayerPlaysForClub(player.Id, State.Clubs.First(p => p.Id == State.MyClubId).Id);
         var playerIsFreeAgent = player.Contract == null;
 
-        var dict = new Dictionary<string, string>();
-        dict.Add("B", "Back");
-        if (playerPlaysForMyClub) 
-            dict.Add("C", "Transfer Options");
+        var dictionary = new Dictionary<string, string>();
+        dictionary.Add("B", "Back");
+        if (doesPlayerPlaysForMyClub) 
+            dictionary.Add("C", "Transfer Options");
         else if (playerIsFreeAgent)
-            dict.Add("D", "Sign Free Agent");
+            dictionary.Add("D", "Sign Free Agent");
 
-        return dict;
+        return dictionary;
     }
 }

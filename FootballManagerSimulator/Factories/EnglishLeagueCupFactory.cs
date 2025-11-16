@@ -14,8 +14,8 @@ public class EnglishLeagueCupFactory(
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly IState State = state;
 
-    private readonly List<string> LeaguesInvolved = ["Premier League", "EFL Championship", "EFL League One", "EFL League Two"];
-    private readonly List<string> RoundOneLeaguesInvolved = ["EFL Championship", "EFL League One", "EFL League One"];
+    private readonly IEnumerable<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
+    private readonly IEnumerable<string> RoundOneLeaguesInvolved = [ "EFL Championship", "EFL League One", "EFL League Two" ];
 
     public CompetitionType Type => CompetitionType.Cup;
 

@@ -14,7 +14,7 @@ public class PlayerHelper(IState state) : IPlayerHelper
             .FirstOrDefault();
     }
 
-    public bool PlayerPlaysForClub(int playerId, int clubId)
+    public bool DoesPlayerPlaysForClub(int playerId, int clubId)
     {
         var player = state.Players.First(p => p.Id == playerId);
         return player.Contract != null && clubId == player.Contract.ClubId;

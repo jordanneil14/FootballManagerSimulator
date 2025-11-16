@@ -56,9 +56,7 @@ public class GameFactory(
         PlayerHelper.AddPlayersToState(playerData);
 
         foreach (var club in State.Clubs)
-        {
             TacticHelper.ResetTacticForClub(club);
-        }
 
         foreach (var competition in Settings.Competitions)
         {
@@ -67,26 +65,20 @@ public class GameFactory(
             State.Competitions.Add(competitionFactory);
         }
 
-        foreach (var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
+        foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
         {
-            foreach (var s in comp.DrawDates)
+            foreach (var drawDate in competition.DrawDates)
             {
                 var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
-                eventFactory.Data.DrawDate = new DateTime(s.DrawDate.Year, s.DrawDate.Month, s.DrawDate.Day);
-                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
-                eventFactory.Data.Round = s.Round;
-                eventFactory.Data.CompetitionId = comp.Id;
+                eventFactory.Data.DrawDate = new DateTime(drawDate.DrawDate.Year, drawDate.DrawDate.Month, drawDate.DrawDate.Day);
+                eventFactory.Data.FixtureDate = new DateTime(drawDate.FixtureDate.Year, drawDate.FixtureDate.Month, drawDate.FixtureDate.Day);
+                eventFactory.Data.Round = drawDate.Round;
+                eventFactory.Data.CompetitionId = competition.Id;
                 eventFactory.CreateEvent();
             }
         }
 
         TransferListHelper.UpdateTransferList();
-
-        var freeAgents = State.Players
-            .Where(p => p.Contract == null)
-            .OrderByDescending(p => p.Rating)
-            .Select(p => p.Name)
-            .Take(4);
 
         NotificationFactory.AddNotification(
             State.Date,
@@ -100,6 +92,12 @@ public class GameFactory(
             "Transfer Budget",
             $"Your transfer budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}.");
 
+        var freeAgents = State.Players
+            .Where(p => p.Contract == null)
+            .OrderByDescending(p => p.Rating)
+            .Select(p => p.Name)
+            .Take(4);
+
         NotificationFactory.AddNotification(
             State.Date.AddDays(1),
             "Scout",
@@ -107,13 +105,13 @@ public class GameFactory(
             $"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +
             $"small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
 
-        foreach (var comp in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
+        foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
         {
-            foreach (var s in comp.DrawDates)
+            foreach (var drawDate in competition.DrawDates)
             {
                 var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
-                eventFactory.Data.FixtureDate = new DateTime(s.FixtureDate.Year, s.FixtureDate.Month, s.FixtureDate.Day);
-                eventFactory.Data.Round = s.Round;
+                eventFactory.Data.FixtureDate = new DateTime(drawDate.FixtureDate.Year, drawDate.FixtureDate.Month, drawDate.FixtureDate.Day);
+                eventFactory.Data.Round = drawDate.Round;
                 eventFactory.CreateEvent();
             }
         }

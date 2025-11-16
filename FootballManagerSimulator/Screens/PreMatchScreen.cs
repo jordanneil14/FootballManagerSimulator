@@ -28,13 +28,11 @@ public class PreMatchScreen(
             case "A":
                 ValidateStartMatch();
                 if (State.UserFeedbackUpdates.Count != 0) return;
-                foreach (var comp in State.Competitions)
+                foreach (var competition in State.Competitions)
                 {
-                    var todaysFixtures = comp.Fixtures.Where(p => p.Date == State.Date);
+                    var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
                     foreach (var fixture in todaysFixtures)
-                    {
-                        MatchSimulator.ProcessMatch(fixture, comp);
-                    }
+                        MatchSimulator.ProcessMatch(fixture, competition);
                 }
 
                 State.ScreenStack.Push(new Screen

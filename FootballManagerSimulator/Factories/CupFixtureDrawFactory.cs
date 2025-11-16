@@ -23,23 +23,23 @@ public class CupFixtureDrawFactory(
     {
         var cupFixtureDrawEvent = @event as CupFixtureDrawEvent;
 
-        var comp = state.Competitions.First(p => p.Id == cupFixtureDrawEvent.CompetitionId);
+        var competition = state.Competitions.First(p => p.Id == cupFixtureDrawEvent.CompetitionId);
 
-        CompetitionFactories.First(p => p.Type == comp.Type).GenerateNextRoundOfFixtures(comp);
+        CompetitionFactories.First(p => p.Type == competition.Type).GenerateNextRoundOfFixtures(competition);
 
-        var clubIds = comp.Clubs.Select(p => p.Id);
+        var clubIds = competition.Clubs.Select(p => p.Id);
         if (clubIds.Any() && clubIds.Contains(state.MyClubId.GetValueOrDefault()))
         {
-            var fixtures = comp.Fixtures.Where(p => p.Round == cupFixtureDrawEvent.Round);
+            var fixtures = competition.Fixtures.Where(p => p.Round == cupFixtureDrawEvent.Round);
 
-            var message = $"Fixtures have been drawn for the next round of the {comp.Name}";
+            var message = $"Fixtures have been drawn for the next round of the {competition.Name}";
             var fixtureString = fixtures.Select(p => $"{p.HomeClub.Name} v {p.AwayClub.Name}");
             message += "\n" + string.Join("\n", fixtureString);
 
             NotificationFactory.AddNotification(
                 state.Date,
                 "Assistant",
-                $"{comp.Name} Round {cupFixtureDrawEvent.Round}",
+                $"{competition.Name} Round {cupFixtureDrawEvent.Round}",
                 message);
         }
     }

@@ -96,7 +96,7 @@ public class LeagueFactory(
         var date = new DateOnly(2016, 08, 05);
 
         var randomHelpers = new List<RandomFixture>();
-        for (int i = 1; i <= numRounds * 2; i++)
+        for (var i = 1; i <= numRounds * 2; i++)
         {
             randomHelpers.Add(new RandomFixture
             {
@@ -123,7 +123,7 @@ public class LeagueFactory(
                 KickOffTime = new TimeOnly(15, 00)
             });
 
-            for (int idx = 1; idx < halfSize; idx++)
+            for (var idx = 1; idx < halfSize; idx++)
             {
                 var firstClubIdx = (round + idx) % clubIdxSize;
                 var secondClubIdx = (round + clubIdxSize - idx) % clubIdxSize;
@@ -175,6 +175,9 @@ public class LeagueFactory(
             date = date.AddDays(7);
         }
 
-        competition.Fixtures = output.OrderBy(p => p.Round).ThenBy(p => p.HomeClub.Name).ToList();
+        competition.Fixtures = output
+            .OrderBy(p => p.Round)
+            .ThenBy(p => p.HomeClub.Name)
+            .ToList();
     }
 }

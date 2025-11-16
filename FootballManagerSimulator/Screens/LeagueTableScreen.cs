@@ -11,7 +11,7 @@ public class LeagueTableScreen(
     IOptions<Settings> settings) : BaseScreen(state)
 {
     private readonly Settings Settings = settings.Value;
-    private readonly List<LeagueKeyModel> LeagueKeyModels = new();
+    private readonly List<LeagueKeyModel> LeagueKeyModels = [];
     private readonly IState State = state;
     private readonly IClubHelper ClubHelper = clubHelper;
 

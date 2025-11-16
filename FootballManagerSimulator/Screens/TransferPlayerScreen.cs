@@ -40,17 +40,17 @@ public class TransferPlayerScreen(
 
     public Dictionary<string, string> GetOptions()
     {
-        var dict = new Dictionary<string, string>();
-        dict.Add("B", "Back");
+        var dictionary = new Dictionary<string, string>();
+        dictionary.Add("B", "Back");
 
         var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
         if (TransferListHelper.IsPlayerTransferListed(player.Id))
-            dict.Add("C", "Remove From Transfer List");
+            dictionary.Add("C", "Remove From Transfer List");
         else
-            dict.Add("<Enter Amount>", "Add To Transfer List");
+            dictionary.Add("<Enter Amount>", "Add To Transfer List");
 
-        return dict;
+        return dictionary;
     }
 
     public override void RenderSubscreen()

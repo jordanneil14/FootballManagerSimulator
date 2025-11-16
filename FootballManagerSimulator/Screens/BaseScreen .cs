@@ -55,10 +55,11 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
     private string GetNextMatchCaption()
     {
-        var nextFixture = State.Competitions.SelectMany(p => p.Fixtures)
+        var nextFixture = State.Competitions
+            .SelectMany(p => p.Fixtures)
             .Where(p => p.Date >= State.Date && (p.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id || p.AwayClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id))
             .OrderBy(p => p.Date)
-        .FirstOrDefault();
+            .FirstOrDefault();
 
         if (nextFixture == null) return "Season Complete";
 
@@ -67,9 +68,8 @@ public abstract class BaseScreen(IState state) : IBaseScreen
         var clubAgainst = nextFixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id ? nextFixture.AwayClub : nextFixture.HomeClub;
 
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
-        {
             return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
-        }
+
 
         if (nextFixture.Date == State.Date) return $"Next Match: {comp.Name} Vs {clubAgainst.Name} today";
 

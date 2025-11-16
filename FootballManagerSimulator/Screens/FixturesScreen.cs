@@ -64,29 +64,29 @@ public class FixturesScreen(
             var fixturesByCompetition = State.Competitions
                 .Where(p => p.Clubs.Select(p => p.Id).Contains(State.Clubs.First(p => p.Id == State.MyClubId).Id));
 
-            foreach (var f in fixturesByCompetition)
+            foreach (var fixtureByCompetition in fixturesByCompetition)
             {
-                var fixturesOnDate = f.Fixtures.Where(p => p.Date == date);
+                var fixturesOnDate = fixtureByCompetition.Fixtures.Where(p => p.Date == date);
                 if (!fixturesOnDate.Any()) continue;
 
-                var q = f.Fixtures.Where(p => p.Date == date);
-                var round = q.First().Round;
-                Console.WriteLine($"\n{f.Name} Round {round} - {date}");
+                var todaysFixtures = fixtureByCompetition.Fixtures.Where(p => p.Date == date);
+                var round = todaysFixtures.First().Round;
+                Console.WriteLine($"\n{fixtureByCompetition.Name} Round {round} - {date}");
 
-                foreach (var fixture in q)
+                foreach (var todaysFixture in todaysFixtures)
                 {
-                    if (!fixture.Concluded)
+                    if (!todaysFixture.Concluded)
                     {
-                        Console.WriteLine($"{fixture.HomeClub.Name,55}    v    {fixture.AwayClub.Name,-55}");
+                        Console.WriteLine($"{todaysFixture.HomeClub.Name,55}    v    {todaysFixture.AwayClub.Name,-55}");
                         continue;
                     }
 
-                    Console.WriteLine($"{fixture.HomeClub.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayClub.Name,-55}");
+                    Console.WriteLine($"{todaysFixture.HomeClub.Name,55}{todaysFixture.GoalsHome!.Value,3} v {todaysFixture.GoalsAway!.Value,-3}{todaysFixture.AwayClub.Name,-55}");
 
-                    var homeGoals = fixture.HomeScorers.GroupBy(p => p.PlayerId);
-                    var awayGoals = fixture.AwayScorers.GroupBy(p => p.PlayerId);
+                    var homeGoals = todaysFixture.HomeScorers.GroupBy(p => p.PlayerId);
+                    var awayGoals = todaysFixture.AwayScorers.GroupBy(p => p.PlayerId);
 
-                    for (int i = 0; i < Math.Max(homeGoals.Count(), awayGoals.Count()); i++)
+                    for (var i = 0; i < Math.Max(homeGoals.Count(), awayGoals.Count()); i++)
                     {
                         var homeCaption = string.Empty;
                         var awayCaption = string.Empty;

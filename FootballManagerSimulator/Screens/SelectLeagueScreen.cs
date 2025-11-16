@@ -22,7 +22,6 @@ public class SelectLeagueScreen(
             return;
 
         var league = GameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString()).FirstOrDefault(p => p.Id.ToString() == input);
-
         if (league != null)
         {
             GameCreator.LeagueId = league.Id;
@@ -33,6 +32,7 @@ public class SelectLeagueScreen(
             });
             return;
         }
+
         switch (input)
         {
             case "B":

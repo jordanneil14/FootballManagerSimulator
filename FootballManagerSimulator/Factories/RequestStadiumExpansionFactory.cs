@@ -18,15 +18,15 @@ public class RequestStadiumExpansionFactory(
 
     public void CompleteEvent(IEvent @event)
     {
-        var ev = new StadiumExpansionEvent(State);
+        var stadiumExpansionEvent = new StadiumExpansionEvent(State);
 
-        State.Events.Add(ev);
+        State.Events.Add(stadiumExpansionEvent);
 
         NotificationFactory.AddNotification(
             State.Date,
             "Chairman",
             "Stadium Expansion Request",
-            $"Your stadium expansion request has been accepted by the owner. Work will begin immediately and finish on {ev.CompletionDate}");
+            $"Your stadium expansion request has been accepted by the owner. Work will begin immediately and finish on {stadiumExpansionEvent.CompletionDate}");
     }
 
     public void CreateEvent()

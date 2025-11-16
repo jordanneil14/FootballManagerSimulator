@@ -32,14 +32,13 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
     public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Results\n");
-        foreach (var comp in State.Competitions)
+        foreach (var competition in State.Competitions)
         {
-
-            var todaysFixtures = comp.Fixtures
+            var todaysFixtures = competition.Fixtures
                 .Where(p => p.Date == State.Date);
 
             if (!todaysFixtures.Any()) continue;
-            Console.WriteLine(comp.Name);
+            Console.WriteLine(competition.Name);
             foreach (var fixture in todaysFixtures)
             {
                 var homeClub = State.Clubs

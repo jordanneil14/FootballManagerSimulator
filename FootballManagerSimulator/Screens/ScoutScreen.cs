@@ -47,15 +47,15 @@ public class ScoutScreen(
     public override void RenderSubscreen()
     {
         PlayerDetails.Clear();
-        var employeedPlayers = State.Players
+        var contractedPlayers = State.Players
             .Where(p => p.Contract != null)
             .OrderBy(p => p.Contract!.ClubName);
 
-        for (var i = 0; i < employeedPlayers.Count(); i++)
+        for (var i = 0; i < contractedPlayers.Count(); i++)
         {
             PlayerDetails.Add(new PlayerDetailModel
             {
-                Player = employeedPlayers.ElementAt(i),
+                Player = contractedPlayers.ElementAt(i),
                 Row = i + 1
             });
         }
@@ -70,7 +70,7 @@ public class ScoutScreen(
             PlayerDetails.Add(new PlayerDetailModel
             {
                 Player = freeAgents.ElementAt(i),
-                Row = i + 1 + employeedPlayers.Count()
+                Row = i + 1 + contractedPlayers.Count()
             });
         }
 
