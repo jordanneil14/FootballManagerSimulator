@@ -75,7 +75,6 @@ public class MatchScreen(IState state,
         var fixture = State.Competitions
             .SelectMany(p => p.Fixtures)
             .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
-        var comp = State.Competitions.First(p => p.Fixtures.Contains(fixture));
 
         var homeClub = State.Clubs
             .Where(p => p.Id == fixture.HomeClub.Id)

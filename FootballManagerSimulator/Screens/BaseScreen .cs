@@ -63,7 +63,7 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
         if (nextFixture == null) return "Season Complete";
 
-        var comp = State.Competitions.First(p => p.Fixtures.Contains(nextFixture));
+        var competition = State.Competitions.First(p => p.Fixtures.Contains(nextFixture));
 
         var clubAgainst = nextFixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id ? nextFixture.AwayClub : nextFixture.HomeClub;
 
@@ -71,12 +71,12 @@ public abstract class BaseScreen(IState state) : IBaseScreen
             return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
 
 
-        if (nextFixture.Date == State.Date) return $"Next Match: {comp.Name} Vs {clubAgainst.Name} today";
+        if (nextFixture.Date == State.Date) return $"Next Match: {competition.Name} Vs {clubAgainst.Name} today";
 
         var diff = nextFixture.Date.DayNumber - State.Date.DayNumber;
         if (diff == 1)
-            return $"Next Match: {comp.Name} Vs {clubAgainst.Name} tomorrow";
+            return $"Next Match: {competition.Name} Vs {clubAgainst.Name} tomorrow";
 
-        return $"Next Match: {comp.Name} vs {clubAgainst.Name} in {nextFixture.Date.DayNumber - State.Date.DayNumber} days";
+        return $"Next Match: {competition.Name} vs {clubAgainst.Name} in {nextFixture.Date.DayNumber - State.Date.DayNumber} days";
     }
 }

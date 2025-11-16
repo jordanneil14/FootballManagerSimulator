@@ -68,8 +68,8 @@ public class ClubScreen(
             .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id).Take(5);
         foreach (var fixture in upcomingFixtures)
         {
-            var comp = State.Competitions.First(p => p.Fixtures.Contains(fixture));
-            Console.WriteLine($"{comp.Name} - {fixture.HomeClub.Name} v {fixture.AwayClub.Name}");
+            var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
+            Console.WriteLine($"{competition.Name} - {fixture.HomeClub.Name} v {fixture.AwayClub.Name}");
         }
 
         Console.WriteLine("\nPlayers:");
