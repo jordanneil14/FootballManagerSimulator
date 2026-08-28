@@ -2,5 +2,6 @@
 
 public interface IGameFactory
 {
-    void CreateGame();
+	void FinaliseGameState();
+	void IntitialiseGameState();
 }

@@ -28,7 +28,7 @@ public class SelectClubScreen(
                     .FirstOrDefault(c => c.Name.ToLower() == input.ToLower() && c.LeagueId == GameCreator.LeagueId);
                 if (club == null) return;
                 GameCreator.ClubId = club.Id;
-                GameFactory.CreateGame();
+                GameFactory.FinaliseGameState();
                 State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Main,
@@ -40,15 +40,22 @@ public class SelectClubScreen(
     public void RenderScreen()
     {
         Console.WriteLine("Select a club to manage:\n");
-        Console.WriteLine($"{"Team",-30}{"Transfer Budget",-20}{"Stadium",-20}");
-        Console.WriteLine("----------------------------------------------------------------------------------");
+        Console.WriteLine($"{"Team",-30}{"Transfer Budget",-20}{"Stadium",-30}{"Key Player",-25}");
+        Console.WriteLine("----------------------------------------------------------------------------------------------------");
 
         var clubs = GameCreator.Clubs.Where(p => p.LeagueId == GameCreator.LeagueId);
-        var orderedClubs = clubs.OrderBy(p => p.Name);
+
+        var clubIds = clubs.Select(p => p.Id);
+		var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId));
+
+		var orderedClubs = clubs.OrderBy(p => p.Name);
         foreach (var club in orderedClubs)
         {
             var transferValueFriendly = $"£{club.TransferBudget:n}";
-            Console.WriteLine($"{club.Name,-30}{transferValueFriendly,-20}{club.Stadium,-20}");
+
+            var bestPlayer = players.Where(p => p.Contract!.ClubId == club.Id).OrderByDescending(p => p.Rating).FirstOrDefault()?.Name;
+
+            Console.WriteLine($"{club.Name,-30}{transferValueFriendly,-20}{club.Stadium,-30}{bestPlayer,-25}");
         }
 
         Console.WriteLine("\nOptions:");
