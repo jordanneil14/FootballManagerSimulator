@@ -4,21 +4,37 @@ using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 using Newtonsoft.Json;
 
-namespace FootballManagerSimulator.Screens;
+namespace FootballManagerSimulator.Screens.MenuScreens;
 
 public class LoadGameScreen(
-    IState state) : IBaseScreen
+    IState state) : MenuBaseScreen
 {
     private readonly List<LoadGamePreview> Games = [];
     private readonly IState State = state;
 
-    public ScreenType Screen => ScreenType.LoadGame;
+    public override ScreenType Screen => ScreenType.LoadGame;
 
-    public void HandleInput(string input)
+    public override Dictionary<string, string> Options => new() { };
+
+	public override string? OptionPrompt => "Enter id to load game save: ";
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "B":
                 State.ScreenStack.Clear();
                 State.ScreenStack.Push(new Screen
                 {
@@ -71,52 +87,50 @@ public class LoadGameScreen(
         }
     }
 
-    public void RenderScreen()
-    {
-        Games.Clear();
-        var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        var directoryInfo = new DirectoryInfo(path);
-        var files = directoryInfo.GetFiles("*.fms");
+	public override void RenderTop()
+	{
+		Console.WriteLine("Load Game");
+	}
 
-        foreach (var file in files)
-        {
-            try
-            {
-                var fileContents = File.ReadAllText(file.FullName);
-                var deserialisedContent = JsonConvert.DeserializeObject<PreviewModel>(fileContents);
-                if (deserialisedContent == null) continue;
-                Games.Add(new LoadGamePreview
-                {
-                    FileName = file.Name,
-                    ClubName = deserialisedContent.Club.Name,
-                    SaveDate = file.LastWriteTime
-                });
-            }
-            catch (Exception)
-            {
-                //Ignore and move to the next file
-            }
-        }
+	public override void RenderSubscreen()
+	{
+		Games.Clear();
+		var path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+		var directoryInfo = new DirectoryInfo(path);
+		var files = directoryInfo.GetFiles("*.fms");
 
-        Console.WriteLine("Load Game\n");
+		foreach (var file in files)
+		{
+			try
+			{
+				var fileContents = File.ReadAllText(file.FullName);
+				var deserialisedContent = JsonConvert.DeserializeObject<PreviewModel>(fileContents);
+				if (deserialisedContent == null) continue;
+				Games.Add(new LoadGamePreview
+				{
+					FileName = file.Name,
+					ClubName = deserialisedContent.Club.Name,
+					SaveDate = file.LastWriteTime
+				});
+			}
+			catch (Exception)
+			{
+				//Ignore and move to the next file
+			}
+		}
 
-        if (Games.Count == 0)
-        {
-            Console.WriteLine("No game files found on your desktop");
-            Console.WriteLine("\nOptions:");
-            Console.WriteLine("B) Back");
-            return;
-        }
+		if (Games.Count == 0)
+		{
+			Console.WriteLine("No game files found on your desktop");
+			return;
+		}
 
-        Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
-        for (var i = 0; i < Games.Count; i++)
-        {
-            Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i + 1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
-        }
-        Console.WriteLine("\nOptions:");
-        Console.WriteLine("B) Back");
-        Console.WriteLine("<Enter Number>) Load Game");
-    }
+		Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
+		for (var i = 0; i < Games.Count; i++)
+		{
+			Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i + 1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
+		}
+	}
 }
 
 
