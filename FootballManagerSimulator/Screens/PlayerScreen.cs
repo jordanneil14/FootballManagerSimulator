@@ -20,7 +20,9 @@ public class PlayerScreen(
 
     public override IDictionary<string, string> Options => GetOptions();
 
-    public static Screen CreateScreen(Player player)
+	public override string? OptionPrompt => null;
+
+	public static Screen CreateScreen(Player player)
     {
         return new Screen
         {
@@ -41,9 +43,18 @@ public class PlayerScreen(
     {
         switch (input)
         {
-            case "B":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
                 State.ScreenStack.Pop();
-                break;
+				OptionIndex = 0;
+				break;
             case "C":
                 HandleTransferOptionsInput();
                 break;

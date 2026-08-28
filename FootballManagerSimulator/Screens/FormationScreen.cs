@@ -13,18 +13,31 @@ public class FormationScreen(
     public override ScreenType Screen => ScreenType.Formation;
 
     public override Dictionary<string, string> Options => new() {
-        { "B", "Back" },
         { "C", "Select 4-3-3" },
         { "D", "Select 4-4-2" },
         { "E", "Select 4-5-1" },
-        { "F", "Select 4-1-2-1-2" },
+        { "F", "Select 4-1-2-1-2" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "B":
                 State.ScreenStack.Pop();
                 break;
             case "C":

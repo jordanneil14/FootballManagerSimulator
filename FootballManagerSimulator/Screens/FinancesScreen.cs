@@ -13,23 +13,35 @@ public class FinancesScreen(
     public override ScreenType Screen => ScreenType.Finances;
 
     public override Dictionary<string, string> Options => new() { 
-        { "B", "Back" },
         { "C", "Request a Higher Transfer Budget" },
-        { "D", "Request Stadium Expansion" },
+        { "D", "Request Stadium Expansion" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "B":
                 State.ScreenStack.Pop();
                 break;
             case "C":
                 var requestHigherTransferVudgetEvent = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
                 requestHigherTransferVudgetEvent.CreateEvent();
                 State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
-
                 break;
             case "D":
                 var stadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);

@@ -19,11 +19,25 @@ public class MatchScreen(IState state,
         { "B", "Tactics" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "A":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "A":
                 foreach (var competition in State.Competitions)
                 {
                     var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);

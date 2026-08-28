@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -17,7 +18,9 @@ public class FixturesScreen(
         { "B", "Back" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
@@ -71,7 +74,7 @@ public class FixturesScreen(
 
                 var todaysFixtures = fixtureByCompetition.Fixtures.Where(p => p.Date == date);
                 var round = todaysFixtures.First().Round;
-                Console.WriteLine($"\n{fixtureByCompetition.Name} Round {round} - {date}");
+                Console.WriteLine($"\n{fixtureByCompetition.Name} Round {round} - {date.ToString("dddd, dd MMMM yyyy")}");
 
                 foreach (var todaysFixture in todaysFixtures)
                 {

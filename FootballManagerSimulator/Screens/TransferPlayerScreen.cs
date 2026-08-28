@@ -15,7 +15,9 @@ public class TransferPlayerScreen(
 
     public override ScreenType Screen => ScreenType.TransferPlayer;
 
-    public override IDictionary<string, string> Options => GetOptions();
+	public override string? OptionPrompt => "Enter an amount to transfer list this player: ";
+
+	public override IDictionary<string, string> Options => GetOptions();
 
     public override void HandleInput(string input)
     {
@@ -24,10 +26,19 @@ public class TransferPlayerScreen(
 
         switch (input)
         {
-            case "B":
-                State.ScreenStack.Pop();
-                break;
-            case "C":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "C":
                 TransferListHelper.RemovePlayerFromTransferList(player.Id);
                 break;
             default:
@@ -41,8 +52,6 @@ public class TransferPlayerScreen(
     public Dictionary<string, string> GetOptions()
     {
         var dictionary = new Dictionary<string, string>();
-        dictionary.Add("B", "Back");
-
         var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
         if (TransferListHelper.IsPlayerTransferListed(player.Id))

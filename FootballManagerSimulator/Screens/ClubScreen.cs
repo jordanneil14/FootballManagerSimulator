@@ -13,19 +13,26 @@ public class ClubScreen(
 
     public override ScreenType Screen => ScreenType.Club;
 
-    public override Dictionary<string, string> Options => new() {
-        { "B", "Back" },
-        { "<Enter Player ID>", "Go To Player" },
-    };
+    public override Dictionary<string, string> Options => new() {};
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
-                State.ScreenStack.Pop();
-                break;
-            default:
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+            case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				break;
+			default:
                 var isInt = int.TryParse(input, out int value);
                 if (!isInt) return;
                 var player = Utils.GetPlayerById(value);

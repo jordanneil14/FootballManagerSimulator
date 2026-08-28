@@ -14,19 +14,29 @@ public class FixtureScreen(
     public override ScreenType Screen => ScreenType.Fixture;
 
     public override Dictionary<string, string> Options => new() {
-        { "A", "Advance" },
-        { "B", "Back" }
+        { "A", "Advance" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "A":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "A":
                 HandleAdvanceInput();
-                break;
-            case "B":
-                State.ScreenStack.Pop();
                 break;
             default:
                 break;

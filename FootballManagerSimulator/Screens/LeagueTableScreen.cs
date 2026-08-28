@@ -35,45 +35,63 @@ public class LeagueTableScreen(
 
     public override ScreenType Screen => ScreenType.LeagueTable;
 
-    public override IDictionary<string, string> Options => GetOptions();
+	public override string? OptionPrompt => null;
+
+	public override IDictionary<string, string> Options => GetOptions();
 
     public override void HandleInput(string input)
     {
-        if (input == "B")
+        switch (input.ToUpper())
         {
-            while (true)
-            {
-                var screen = State.ScreenStack.Peek();
-                if (screen.Type != ScreenType.LeagueTable)
-                    break;
-                State.ScreenStack.Pop();
-            }
-            return;
+            case "UPARROW":
+                if (base.OptionIndex > 0)
+                    base.OptionIndex -= 1;
+                break;
+            case "DOWNARROW":
+                if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+                    base.OptionIndex += 1;
+                break;
+            case "ESCAPE":
+				while (true)
+				{
+					var screen = State.ScreenStack.Peek();
+					if (screen.Type != ScreenType.LeagueTable)
+						break;
+					State.ScreenStack.Pop();
+					OptionIndex = 0;
+				}
+                break;
+			case "ENTER":
+                HandleEnterPress();
+                break;
+            default:
+				var club = ClubHelper.GetClubByName(input);
+				if (club != null)
+				{
+					State.ScreenStack.Push(ClubScreen.CreateScreen(club));
+				}
+				break;
         }
-
-        if (input.Length > 1)
-        {
-            var club = ClubHelper.GetClubByName(input);
-            if (club != null)
-            {
-                State.ScreenStack.Push(ClubScreen.CreateScreen(club));
-            }
-            return;
-        }
-
-        var selectedLeague = LeagueKeyModels.FirstOrDefault(p => p.Key.ToString() == input);
-        if (selectedLeague == null)
-            return;
-
-        State.ScreenStack.Push(new Screen
-        {
-            Type = ScreenType.LeagueTable,
-            Parameters = new LeagueTableObj
-            {
-                LeagueId = selectedLeague.League.Id
-            }
-        });
     }
+
+    private void HandleEnterPress()
+    {
+        var input = Options.ElementAt(base.OptionIndex).Key;
+
+		var selectedLeague = LeagueKeyModels.FirstOrDefault(p => p.Key.ToString() == input);
+		if (selectedLeague == null)
+			return;
+
+		State.ScreenStack.Push(new Screen
+		{
+			Type = ScreenType.LeagueTable,
+			Parameters = new LeagueTableObj
+			{
+				LeagueId = selectedLeague.League.Id
+			}
+		});
+
+	}
 
     public class LeagueTableObj
     {
@@ -128,13 +146,11 @@ public class LeagueTableScreen(
     public Dictionary<string, string> GetOptions()
     {
         var dict = new Dictionary<string, string>();
-        dict.Add("B", "Back");
         foreach (var leagueKeyModel in LeagueKeyModels)
         {
             if (leagueKeyModel.IsCurrent) continue;
             dict.Add(leagueKeyModel.Key.ToString(), $"View {leagueKeyModel.League.Name}");
         }
-        dict.Add("<Enter Club Name>", "Go To Club");
         return dict;
     }
 }

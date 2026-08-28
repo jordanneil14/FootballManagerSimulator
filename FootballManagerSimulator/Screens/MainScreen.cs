@@ -15,66 +15,90 @@ public class MainScreen(
 
     public override IDictionary<string, string> Options => GetOptions();
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
-        switch (input.ToUpper())
+        switch (input)
         {
-            case "A":
-                Processor.Process();
-                break;
-            case "B":
-                State.Notifications.RemoveRange(0, 1);
-                break;
-            case "C":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.LeagueTable
-                });
-                break;
-            case "D":
-                var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId);
-                State.ScreenStack.Push(FixturesScreen.CreateScreen(league));
-                break;
-            case "E":
-                State.ScreenStack.Push(ClubScreen.CreateScreen(State.Clubs.First(p => p.Id == State.MyClubId)));
-                break;
-            case "F":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Scout
-                });
-                break;
-            case "S":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.SaveGame
-                });
-                break;
-            case "G":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Tactics
-                });
-                break;
-            case "H":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Finances
-                });
-                break;
-            case "I":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.TransferList
-                });
-                break;
-            case "Q":
-                Environment.Exit(0);
-                break;
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+            case "ENTER":
+				HandleEnterPress();
+				break;
             default:
                 break;
         }
     }
+
+    private void HandleEnterPress()
+    {
+		var option = Options.ElementAt(base.OptionIndex).Key;
+		switch (option)
+		{
+			case "A":
+				Processor.Process();
+				break;
+
+			case "B":
+				State.Notifications.RemoveRange(0, 1);
+				break;
+			case "C":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.LeagueTable
+				});
+				break;
+			case "D":
+				var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId);
+				State.ScreenStack.Push(FixturesScreen.CreateScreen(league));
+				break;
+			case "E":
+				State.ScreenStack.Push(ClubScreen.CreateScreen(State.Clubs.First(p => p.Id == State.MyClubId)));
+				break;
+			case "F":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.Scout
+				});
+				break;
+			case "S":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.SaveGame
+				});
+				break;
+			case "G":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.Tactics
+				});
+				break;
+			case "H":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.Finances
+				});
+				break;
+			case "I":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.TransferList
+				});
+				break;
+			case "Q":
+				Environment.Exit(0);
+				break;
+		}
+	}
+
+		
 
     public override void RenderSubscreen()
     {

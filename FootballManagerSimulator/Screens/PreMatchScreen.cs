@@ -17,15 +17,28 @@ public class PreMatchScreen(
 
     public override Dictionary<string, string> Options => new() {
         { "A", "Start Match" },
-        { "B", "Tactics" },
-        { "C", "Back" }
+        { "B", "Tactics" }
     };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => null;
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "A":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "A":
                 ValidateStartMatch();
                 if (State.UserFeedbackUpdates.Count != 0) return;
                 foreach (var competition in State.Competitions)
@@ -45,9 +58,6 @@ public class PreMatchScreen(
                 {
                     Type = ScreenType.Tactics
                 });
-                break;
-            case "C":
-                State.ScreenStack.Pop();
                 break;
             default:
                 break;

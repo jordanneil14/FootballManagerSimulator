@@ -11,7 +11,61 @@ public class Game(
     private readonly IEnumerable<IBaseScreen> Screens = screens;
     private readonly IState State = state;
 
-    public void Run()
+    private static string ReadLineOrKey()
+    {
+		string retString = "";
+
+		int curIndex = 0;
+		do
+		{
+			ConsoleKeyInfo readKeyResult = Console.ReadKey(true);
+
+			if (readKeyResult.Key == ConsoleKey.UpArrow)
+			{
+				Console.WriteLine();
+				return "UPARROW";
+			}
+
+			if (readKeyResult.Key == ConsoleKey.DownArrow)
+			{
+				Console.WriteLine();
+				return "DOWNARROW";
+			}
+			
+			if (readKeyResult.Key == ConsoleKey.Enter)
+			{
+				Console.WriteLine();
+				return string.IsNullOrWhiteSpace(retString) ? "ENTER" : retString.ToUpper();
+			}
+
+			if (readKeyResult.Key == ConsoleKey.Escape)
+			{
+				Console.WriteLine();
+				return "ESCAPE";
+			}
+
+			if (readKeyResult.Key == ConsoleKey.Backspace)
+			{
+				if (curIndex > 0)
+				{
+					retString = retString.Remove(retString.Length - 1);
+					Console.Write(readKeyResult.KeyChar);
+					Console.Write(' ');
+					Console.Write(readKeyResult.KeyChar);
+					curIndex--;
+				}
+			}
+			else
+			{
+				retString += readKeyResult.KeyChar;
+				Console.Write(readKeyResult.KeyChar);
+				curIndex++;
+			}
+		}
+		while (true);
+	}
+
+	public void Run()
     {
         try
         {
@@ -29,8 +83,9 @@ public class Game(
                 Console.Clear();
                 screen.RenderScreen();
                 State.UserFeedbackUpdates.Clear();
-                var input = Console.ReadLine();
-                screen.HandleInput(input.ToUpper());
+				var input = ReadLineOrKey();
+
+				screen.HandleInput(input);
             }
         }
         catch (Exception ex)

@@ -11,16 +11,27 @@ public class SaveScreen(IState state) : BaseScreen(state)
 
     public override ScreenType Screen => ScreenType.SaveGame;
 
-    public override Dictionary<string, string> Options => new() {
-        { "B", "Back" },
-        { "<Enter file name>", "Save Game" }
-    };
+    public override Dictionary<string, string> Options => new() {};
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => "Enter file name: ";
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "B":
                 State.ScreenStack.Clear();
                 break;
             default:

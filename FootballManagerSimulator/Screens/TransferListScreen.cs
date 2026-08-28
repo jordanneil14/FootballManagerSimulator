@@ -14,14 +14,25 @@ public class TransferListScreen(
 
     public override ScreenType Screen => ScreenType.TransferList;
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => "Enter player id to buy player for asking price: ";
+
+	public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
-                State.ScreenStack.Pop();
-                break;
-            default:
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			default:
                 var inputIsInt = int.TryParse(input, out int inputAsInt);
                 if (!inputIsInt) return;
                 var transferListItem = TransferListHelper.GetTransferListItemByPlayerId(inputAsInt);
@@ -41,11 +52,7 @@ public class TransferListScreen(
         }
     }
 
-    public override IDictionary<string, string> Options => new Dictionary<string, string>
-        {
-            { "B", "Back" },
-            { "<Enter PlayerId>", "Buy Player for asking price" }
-        };
+    public override IDictionary<string, string> Options => new Dictionary<string, string>() {};
 
     public override void RenderSubscreen()
     {

@@ -9,9 +9,11 @@ public abstract class BaseScreen(IState state) : IBaseScreen
     public abstract ScreenType Screen { get; }
     public abstract IDictionary<string, string> Options { get; }
 
-    public abstract void HandleInput(string input);
+    public int OptionIndex { get; set; }
+	public abstract string? OptionPrompt { get; }
+	public abstract void HandleInput(string input);
 
-    public abstract void RenderSubscreen();
+	public abstract void RenderSubscreen();
 
     public void RenderScreen()
     {
@@ -36,12 +38,21 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
     public void RenderOptions()
     {
-        Console.WriteLine("Options");
-        foreach (var option in Options)
+		for (var i = 0; i < Options.Count(); i++)
         {
-            Console.WriteLine($"{option.Key}) {option.Value}");
-        }
-    }
+            if (OptionIndex == i)
+			{
+				Console.WriteLine($"> {Options.ElementAt(i).Value.ToUpper()}");
+			}
+			else 
+            {
+				Console.WriteLine($"{Options.ElementAt(i).Value}");
+			}
+		}
+
+		if (!string.IsNullOrWhiteSpace(OptionPrompt))
+			Console.Write(OptionPrompt);
+	}
 
     public void RenderTop()
     {
@@ -69,7 +80,6 @@ public abstract class BaseScreen(IState state) : IBaseScreen
 
         if (nextFixture.Date == State.Date && nextFixture.Concluded)
             return $"Last Match: Today {nextFixture.HomeClub.Name} {nextFixture.GoalsHome} v {nextFixture.GoalsAway} {nextFixture.AwayClub.Name}";
-
 
         if (nextFixture.Date == State.Date) return $"Next Match: {competition.Name} Vs {clubAgainst.Name} today";
 

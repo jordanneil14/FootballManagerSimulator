@@ -14,14 +14,15 @@ public class TacticsScreen(IState state,
 
     public override IDictionary<string, string> Options => new Dictionary<string, string>
         {
-            { "B", "Back" },
             { "<Enter Number> -> <Enter Number>", "Switch Places" },
             { "C", "Get Assistant To Pick Team" },
             { "D", "Reset Tactic" },
             { "E", "Change Formation" }
         };
 
-    public override void HandleInput(string input)
+	public override string? OptionPrompt => "Enter number -> Enter number to switch places: ";
+
+	public override void HandleInput(string input)
     {
         var parts = input.Split("->");
 
@@ -40,10 +41,19 @@ public class TacticsScreen(IState state,
 
         switch (input)
         {
-            case "B":
-                State.ScreenStack.Pop();
-                break;
-            case "C":
+			case "UPARROW":
+				if (base.OptionIndex > 0)
+					base.OptionIndex -= 1;
+				break;
+			case "DOWNARROW":
+				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
+					base.OptionIndex += 1;
+				break;
+			case "ESCAPE":
+				State.ScreenStack.Pop();
+				OptionIndex = 0;
+				break;
+			case "C":
                 TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
                 TacticHelper.FillEmptyTacticSlotsByClubId(State.Clubs.First(p => p.Id == State.MyClubId).Id);
                 break;
