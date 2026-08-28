@@ -33,9 +33,14 @@ public class Game(
                 screen.HandleInput(input.ToUpper());
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            //Environment.Exit(0);
-        }
-    }
+            Console.WriteLine("-----------------------");
+            Console.WriteLine("Fatal error has occurred:");
+            Console.WriteLine(ex.ToString());
+            Console.WriteLine("Application will now close");
+            Console.WriteLine("-----------------------");
+            Console.ReadKey();
+		}
+	}
 }
