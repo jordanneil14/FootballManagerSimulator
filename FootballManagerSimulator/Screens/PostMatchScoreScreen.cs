@@ -10,7 +10,7 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
 
     public override ScreenType Screen => ScreenType.PostMatchScores;
 
-    public override Dictionary<string, string> Options => new() {};
+    public override Dictionary<string, string> Options => new() { { "A", "Continue" } };
 
 
 	public override string? OptionPrompt => null;
@@ -31,18 +31,18 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "A":
+            case "ENTER":
                 State.ScreenStack.Push(new Screen
                 {
                     Type = ScreenType.Main
                 });
-                break;
+				break;
             default:
                 break;
         }
     }
 
-    public override void RenderSubscreen()
+	public override void RenderSubscreen()
     {
         Console.WriteLine("Today's Results\n");
         foreach (var competition in State.Competitions)

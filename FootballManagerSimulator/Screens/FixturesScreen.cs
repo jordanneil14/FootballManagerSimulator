@@ -14,20 +14,16 @@ public class FixturesScreen(
 
     public override ScreenType Screen => ScreenType.Fixtures;
 
-    public override Dictionary<string, string> Options => new() {
-        { "B", "Back" }
-    };
+    public override Dictionary<string, string> Options => new() {};
 
 	public override string? OptionPrompt => null;
 
-	public override void HandleInput(string input)
+    public override void HandleInput(string input)
     {
         switch (input)
         {
-            case "B":
+            case "ESCAPE":
                 State.ScreenStack.Pop();
-                break;
-            default:
                 break;
         }
     }

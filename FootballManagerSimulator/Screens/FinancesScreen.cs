@@ -35,25 +35,37 @@ public class FinancesScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "B":
-                State.ScreenStack.Pop();
-                break;
-            case "C":
-                var requestHigherTransferVudgetEvent = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
-                requestHigherTransferVudgetEvent.CreateEvent();
-                State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
-                break;
-            case "D":
-                var stadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
-                stadiumExpansionEvent.CreateEvent();
-                State.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
-                break;
+			case "ENTER":
+				HandleEnterPress();
+				break;
             default:
                 break;
         }
     }
 
-    public override void RenderSubscreen()
+    private void HandleEnterPress()
+    {
+        var option = Options.ElementAt(base.OptionIndex).Key;
+        switch (option)
+        {
+			case "B":
+				State.ScreenStack.Pop();
+				break;
+			case "C":
+				var requestHigherTransferVudgetEvent = EventFactories.First(p => p.Type == EventType.RequestHigherTransferBudget);
+				requestHigherTransferVudgetEvent.CreateEvent();
+				State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
+				break;
+			case "D":
+				var stadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
+				stadiumExpansionEvent.CreateEvent();
+				State.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
+				break;
+		}
+    }
+
+
+	public override void RenderSubscreen()
     {
         Console.WriteLine("Finances\n");
 

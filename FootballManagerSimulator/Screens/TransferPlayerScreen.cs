@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using System.Numerics;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -15,7 +16,7 @@ public class TransferPlayerScreen(
 
     public override ScreenType Screen => ScreenType.TransferPlayer;
 
-	public override string? OptionPrompt => "Enter an amount to transfer list this player: ";
+	public override string? OptionPrompt => GetOptionPrompt();
 
 	public override IDictionary<string, string> Options => GetOptions();
 
@@ -38,29 +39,51 @@ public class TransferPlayerScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "C":
-                TransferListHelper.RemovePlayerFromTransferList(player.Id);
+            case "ENTER":
+                HandleEnterPress(player.Id);
                 break;
             default:
-                var inputIsInt = int.TryParse(input, out int inputAsInt);
-                if (!inputIsInt) return;
-                TransferListHelper.AddPlayerToTransferList(player.Id, inputAsInt);
-                break;
+				var inputIsInt = int.TryParse(input, out int inputAsInt);
+				if (!inputIsInt) return;
+				TransferListHelper.AddPlayerToTransferList(player.Id, inputAsInt);
+				break;
         }
     }
 
-    public Dictionary<string, string> GetOptions()
+    private void HandleEnterPress(int playerId)
+    {
+        var option = Options.ElementAt(base.OptionIndex).Key;
+        switch (option)
+        {
+			case "C":
+				TransferListHelper.RemovePlayerFromTransferList(playerId);
+				break;
+			default:
+				break;
+		}
+    }
+
+
+	public Dictionary<string, string> GetOptions()
     {
         var dictionary = new Dictionary<string, string>();
         var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
         var player = screenParameters.Player;
         if (TransferListHelper.IsPlayerTransferListed(player.Id))
             dictionary.Add("C", "Remove From Transfer List");
-        else
-            dictionary.Add("<Enter Amount>", "Add To Transfer List");
 
         return dictionary;
     }
+
+    public string? GetOptionPrompt()
+    {
+		var screenParameters = State.ScreenStack.Peek().Parameters as TransferPlayerScreenObj;
+		var player = screenParameters.Player;
+        if (TransferListHelper.IsPlayerTransferListed(player.Id))
+            return null;
+
+		return "Enter an amount to transfer list this player: ";
+	}
 
     public override void RenderSubscreen()
     {

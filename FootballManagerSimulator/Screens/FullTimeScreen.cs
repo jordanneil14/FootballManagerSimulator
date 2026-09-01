@@ -35,7 +35,7 @@ public class FullTimeScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "A":
+			case "ENTER":
                 State.ScreenStack.Clear();
                 State.ScreenStack.Push(new Screen
                 {

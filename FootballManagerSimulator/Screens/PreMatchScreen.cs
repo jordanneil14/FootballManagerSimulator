@@ -38,30 +38,41 @@ public class PreMatchScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "A":
-                ValidateStartMatch();
-                if (State.UserFeedbackUpdates.Count != 0) return;
-                foreach (var competition in State.Competitions)
-                {
-                    var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
-                    foreach (var fixture in todaysFixtures)
-                        MatchSimulator.ProcessMatch(fixture, competition);
-                }
-
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Match
-                });
-                break;
-            case "B":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Tactics
-                });
+            case "ENTER":
+                HandleEnterPress();
                 break;
             default:
                 break;
         }
+    }
+
+    private void HandleEnterPress()
+    {
+		var option = Options.ElementAt(base.OptionIndex).Key;
+		switch (option)
+        {
+			case "A":
+				ValidateStartMatch();
+				if (State.UserFeedbackUpdates.Count != 0) return;
+				foreach (var competition in State.Competitions)
+				{
+					var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
+					foreach (var fixture in todaysFixtures)
+						MatchSimulator.ProcessMatch(fixture, competition);
+				}
+
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.Match
+				});
+				break;
+			case "B":
+				State.ScreenStack.Push(new Screen
+				{
+					Type = ScreenType.Tactics
+				});
+				break;
+		}
     }
 
     private void ValidateStartMatch()

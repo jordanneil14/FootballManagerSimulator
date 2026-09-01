@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using System.Diagnostics;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -53,7 +54,20 @@ public class TacticsScreen(IState state,
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "C":
+            case "ENTER":
+                HandleEnterPress();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void HandleEnterPress()
+    {
+        var option = Options.ElementAt(base.OptionIndex).Key;
+        switch (option)
+        {
+            case "C":
                 TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
                 TacticHelper.FillEmptyTacticSlotsByClubId(State.Clubs.First(p => p.Id == State.MyClubId).Id);
                 break;
@@ -71,7 +85,8 @@ public class TacticsScreen(IState state,
         }
     }
 
-    public override void RenderSubscreen()
+
+	public override void RenderSubscreen()
     {
         Console.WriteLine("Tactics\n");
         Console.WriteLine($"{"Number",-10}{"Slot",-10}{"Position",-10}{"Name",-40}{"Rating",-10}");

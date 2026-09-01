@@ -35,7 +35,7 @@ public class FixtureScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "A":
+			case "ENTER":
                 HandleAdvanceInput();
                 break;
             default:

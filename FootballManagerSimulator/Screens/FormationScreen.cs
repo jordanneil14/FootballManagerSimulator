@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
+using System.Diagnostics;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -37,35 +38,49 @@ public class FormationScreen(
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "B":
-                State.ScreenStack.Pop();
-                break;
-            case "C":
-                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-3-3";
-                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
-                State.ScreenStack.Pop();
-                break;
-            case "D":
-                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-4-2";
-                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
-                State.ScreenStack.Pop();
-                break;
-            case "E":
-                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-5-1";
-                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
-                State.ScreenStack.Pop();
-                break;
-            case "F":
-                State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-1-2-1-2";
-                TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
-                State.ScreenStack.Pop();
-                break;
+			case "ENTER":
+				HandleEnterPress();
+				break;
             default:
                 break;
         }
     }
 
-    public override void RenderSubscreen()
+    private void HandleEnterPress()
+    {
+        var option = Options.ElementAt(base.OptionIndex).Key;
+        switch (option)
+        {
+			case "B":
+				State.ScreenStack.Pop();
+				break;
+			case "C":
+				State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-3-3";
+				TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+				State.ScreenStack.Pop();
+				break;
+			case "D":
+				State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-4-2";
+				TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+				State.ScreenStack.Pop();
+				break;
+			case "E":
+				State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-5-1";
+				TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+				State.ScreenStack.Pop();
+				break;
+			case "F":
+				State.Clubs.First(p => p.Id == State.MyClubId).Formation = "4-1-2-1-2";
+				TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
+				State.ScreenStack.Pop();
+				break;
+			default:
+                break;
+        }
+    }
+
+
+	public override void RenderSubscreen()
     {
         Console.WriteLine($"Current Formation is: {State.Clubs.First(p => p.Id == State.MyClubId).Formation}");
     }

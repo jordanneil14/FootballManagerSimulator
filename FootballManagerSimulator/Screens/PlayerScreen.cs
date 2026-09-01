@@ -55,18 +55,30 @@ public class PlayerScreen(
                 State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-            case "C":
-                HandleTransferOptionsInput();
-                break;
-            case "D":
-                HandleSignFreeAgentInput();
+            case "ENTER":
+                HandleEnterPress();
                 break;
             default:
                 break;
         }
     }
 
-    private void HandleSignFreeAgentInput()
+    public void HandleEnterPress()
+	{
+		var option = Options.ElementAt(base.OptionIndex).Key;
+		switch (option)
+		{
+			case "C":
+				HandleTransferOptionsInput();
+				break;
+			case "D":
+				HandleSignFreeAgentInput();
+				break;
+		}
+    }
+
+
+	private void HandleSignFreeAgentInput()
     {
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = PlayerHelper.GetPlayerById(screenParameters.Player.Id);

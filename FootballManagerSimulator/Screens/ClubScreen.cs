@@ -15,7 +15,7 @@ public class ClubScreen(
 
     public override Dictionary<string, string> Options => new() {};
 
-	public override string? OptionPrompt => null;
+	public override string? OptionPrompt => "Enter a player id: ";
 
 	public override void HandleInput(string input)
     {

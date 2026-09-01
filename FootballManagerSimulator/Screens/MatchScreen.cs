@@ -37,48 +37,54 @@ public class MatchScreen(IState state,
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
-			case "A":
-                foreach (var competition in State.Competitions)
-                {
-                    var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
-                    foreach (var fixture in todaysFixtures)
-                    {
-                        MatchSimulator.ProcessMatch(fixture, competition);
-                    }
-                }
-
-                var myFixture = State.Competitions
-                    .SelectMany(p => p.Fixtures)
-                    .First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
-                if (myFixture.Concluded)
-                {
-                    foreach (var competition in State.Competitions)
-                    {
-                        var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded);
-                        foreach (var fixture in todaysFixtures)
-                        {
-                            MatchSimulator.ProcessMatch(fixture, competition);
-                        }
-                    }
-
-                    State.ScreenStack.Push(new Screen
-                    {
-                        Type = ScreenType.FullTime
-                    });
-                }
-                break;
-            case "B":
-                State.ScreenStack.Push(new Screen
-                {
-                    Type = ScreenType.Tactics
-                });
+            case "ENTER":
+                HandleEnterPress();
                 break;
             default:
                 break;
         }
     }
 
-    private string GetDisplayCaption(Fixture fixture)
+    private void HandleEnterPress()
+    {
+        var option = Options.ElementAt(base.OptionIndex).Key;
+        switch (option)
+        {
+			case "A":
+				foreach (var competition in State.Competitions)
+				{
+					var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date);
+					foreach (var fixture in todaysFixtures)
+					{
+						MatchSimulator.ProcessMatch(fixture, competition);
+					}
+				}
+
+				var myFixture = State.Competitions
+					.SelectMany(p => p.Fixtures)
+					.First(p => p.Date == State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId));
+				if (myFixture.Concluded)
+				{
+					foreach (var competition in State.Competitions)
+					{
+						var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded);
+						foreach (var fixture in todaysFixtures)
+						{
+							MatchSimulator.ProcessMatch(fixture, competition);
+						}
+					}
+
+					State.ScreenStack.Push(new Screen
+					{
+						Type = ScreenType.FullTime
+					});
+				}
+				break;
+		}
+    }
+
+
+	private string GetDisplayCaption(Fixture fixture)
     {
         if (fixture.Minute == 45) return "** HALF TIME **";
         return "** EXTRA TIME REQUIRED **";
