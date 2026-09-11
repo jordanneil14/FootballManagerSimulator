@@ -26,6 +26,18 @@ public class Game(
 				return "UPARROW";
 			}
 
+			if (readKeyResult.Key == ConsoleKey.RightArrow)
+			{
+				Console.WriteLine();
+				return "RIGHTARROW";
+			}
+
+			if (readKeyResult.Key == ConsoleKey.LeftArrow)
+			{
+				Console.WriteLine();
+				return "LEFTARROW";
+			}
+
 			if (readKeyResult.Key == ConsoleKey.DownArrow)
 			{
 				Console.WriteLine();

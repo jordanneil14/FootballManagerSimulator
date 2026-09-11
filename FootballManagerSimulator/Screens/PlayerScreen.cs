@@ -154,7 +154,6 @@ public class PlayerScreen(
         var playerIsFreeAgent = player.Contract == null;
 
         var dictionary = new Dictionary<string, string>();
-        dictionary.Add("B", "Back");
         if (doesPlayerPlaysForMyClub) 
             dictionary.Add("C", "Transfer Options");
         else if (playerIsFreeAgent)

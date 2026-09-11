@@ -8,7 +8,12 @@ namespace FootballManagerSimulator.Screens;
 public class ScoutScreen(
     IState state) : BaseScreen(state)
 {
-    private readonly List<PlayerDetailModel> PlayerDetails = [];
+    private List<PlayerDetailModel> PlayerDetails = [];
+    private int PageNumber { get; set; } = 1;
+    private int PageSize => 10;
+    private int PageCount => (PlayerDetails.Count() / PageSize) + (PlayerDetails.Count() % PageSize > 0 ? 1 : 0);
+	private bool IsLastPage => PageNumber == PageCount;
+
     private readonly IState State = state;
 
     public override ScreenType Screen => ScreenType.Scout;
@@ -29,7 +34,15 @@ public class ScoutScreen(
 				if (Options.Count > 1 && base.OptionIndex < Options.Count - 1)
 					base.OptionIndex += 1;
 				break;
+            case "RIGHTARROW":
+                if (PageNumber < PageCount) PageNumber++;
+                break;
+            case "LEFTARROW":
+                if (PageNumber > 1) PageNumber--;
+                break;
 			case "ESCAPE":
+				PlayerDetails.Clear();
+				PageNumber = 1;
 				State.ScreenStack.Pop();
 				OptionIndex = 0;
 				break;
@@ -54,45 +67,54 @@ public class ScoutScreen(
 
     public override void RenderSubscreen()
     {
-        PlayerDetails.Clear();
-        var contractedPlayers = State.Players
-            .Where(p => p.Contract != null)
-            .OrderBy(p => p.Contract!.ClubName);
-
-        for (var i = 0; i < contractedPlayers.Count(); i++)
+        if (!PlayerDetails.Any())
         {
-            PlayerDetails.Add(new PlayerDetailModel
-            {
-                Player = contractedPlayers.ElementAt(i),
-                Row = i + 1
-            });
-        }
+			var playersTemp = new List<PlayerDetailModel>();
 
-        var freeAgents = State.Players
-            .Where(p => p.Contract == null)
-            .OrderByDescending(p => p.Rating)
-            .Take(100);
+			var contractedPlayers = State.Players
+				.Where(p => p.Contract != null)
+				.OrderBy(p => p.Contract!.ClubName);
 
-        for (var i = 0; i < freeAgents.Count(); i++)
-        {
-            PlayerDetails.Add(new PlayerDetailModel
-            {
-                Player = freeAgents.ElementAt(i),
-                Row = i + 1 + contractedPlayers.Count()
-            });
-        }
+			for (var i = 0; i < contractedPlayers.Count(); i++)
+			{
+				playersTemp.Add(new PlayerDetailModel
+				{
+					Player = contractedPlayers.ElementAt(i),
+					Row = i + 1
+				});
+			}
 
-        Console.WriteLine("All Players\n");
-        Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}{"Position",-10}");
+			var freeAgents = State.Players
+				.Where(p => p.Contract == null)
+				.OrderByDescending(p => p.Rating)
+				.Take(100);
 
-        var orderedPlayerDetails = PlayerDetails
-            .OrderBy(p => p.Player.Contract?.ClubName == null)
-            .ThenBy(p => p.Player.Contract?.ClubName);
+			for (var i = 0; i < freeAgents.Count(); i++)
+			{
+				playersTemp.Add(new PlayerDetailModel
+				{
+					Player = freeAgents.ElementAt(i),
+					Row = i + 1 + contractedPlayers.Count()
+				});
+			}
 
-        foreach (var playerDetail in orderedPlayerDetails)
+			PlayerDetails = playersTemp
+				.OrderBy(p => p.Player.Contract?.ClubName == null)
+				.ThenBy(p => p.Player.Contract?.ClubName)
+				.ToList();
+		}
+        
+        var pagePlayers = PlayerDetails.GetRange((PageNumber - 1) * PageSize, IsLastPage ? PlayerDetails.Count() % PageSize : PageSize);
+
+		Console.WriteLine("All Players\n");
+		Console.WriteLine($"{"Row",-5}{"Player",-35}{"Rating",-10}{"Team",-25}{"Position",-10}");
+
+		foreach (var playerDetail in pagePlayers)
         {
             var club = playerDetail.Player.Contract == null ? "Free Agent" : playerDetail.Player.Contract!.ClubName;
             Console.WriteLine($"{playerDetail.Row,-5}{playerDetail.Player.Name,-35}{playerDetail.Player.Rating,-10}{club,-25}{playerDetail.Player.PreferredPosition}");
         }
+
+        Console.WriteLine($"\nPage {PageNumber}/{PageCount}");
     }
 }
