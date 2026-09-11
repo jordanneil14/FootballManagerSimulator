@@ -6,10 +6,10 @@ namespace FootballManagerSimulator.Screens;
 
 public class ClubScreen(
     IState state,
-    IPlayerHelper utils) : BaseScreen(state)
+    IPlayerHelper playerHelper) : BaseScreen(state)
 {
     private readonly IState State = state;
-    private readonly IPlayerHelper Utils = utils;
+    private readonly IPlayerHelper PlayerHelper = playerHelper;
 
     public override ScreenType Screen => ScreenType.Club;
 
@@ -35,7 +35,7 @@ public class ClubScreen(
 			default:
                 var isInt = int.TryParse(input, out int value);
                 if (!isInt) return;
-                var player = Utils.GetPlayerById(value);
+                var player = PlayerHelper.GetPlayerById(value);
                 if (player != null)
                 {
                     State.ScreenStack.Push(PlayerScreen.CreateScreen(player));
@@ -67,16 +67,18 @@ public class ClubScreen(
 
         Console.WriteLine($"{clubScreenObj!.Club.Name}");
 
-        Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}\n");
+        Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}");
 
         Console.WriteLine("Upcoming Fixtures:");
         var upcomingFixtures = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id).Take(5);
+            .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id)
+            .OrderBy(p => p.Date)
+            .Take(5);
         foreach (var fixture in upcomingFixtures)
         {
             var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
-            Console.WriteLine($"{competition.Name} - {fixture.HomeClub.Name} v {fixture.AwayClub.Name}");
+            Console.WriteLine($"{competition.Name, -15} {fixture.HomeClub.Name, -15} v {fixture.AwayClub.Name,15}");
         }
 
         Console.WriteLine("\nPlayers:");
@@ -88,7 +90,7 @@ public class ClubScreen(
 
         foreach (var player in players.OrderBy(p => p.Name))
         {
-            var transferValue = Utils.GetTransferValue(player);
+            var transferValue = PlayerHelper.GetTransferValue(player);
             var transferValueFriendly = $"£{transferValue:n}";
             Console.WriteLine($"{player.Id,-10}{player.ShirtNumber,-10}{player.PreferredPosition,-10}{player.Name,-40}{player.Rating,-10}{transferValueFriendly,-20}{player.Contract.ExpiryDate,-15}");
         }
