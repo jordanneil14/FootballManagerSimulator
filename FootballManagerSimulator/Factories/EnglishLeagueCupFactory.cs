@@ -25,7 +25,8 @@ public class EnglishLeagueCupFactory(
         var leagueIds = leagues.Select(p => p.Id);
 
         var clubs = Settings.Clubs
-            .Where(p => leagueIds.Contains(p.LeagueId));
+            .Where(p => leagueIds.Contains(p.LeagueId))
+            .ToList();
 
         var cup = new Cup
         {

@@ -44,6 +44,6 @@ public class RequestHigherTransferBudgetFactory(
 
     public void CreateEvent()
     {
-        State.Events.Add(new RequestHigherTransferBudgetEvent(State) { });
+        State.Events.Add(new RequestHigherTransferBudgetEvent(State.Date));
     }
 }

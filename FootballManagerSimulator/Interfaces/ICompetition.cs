@@ -9,6 +9,6 @@ public interface ICompetition
     int Id { get; }
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
-    IEnumerable<Club> Clubs { get; set; }
+    List<Club> Clubs { get; set; }
     List<DrawDateModel> DrawDates { get; set; }
 }

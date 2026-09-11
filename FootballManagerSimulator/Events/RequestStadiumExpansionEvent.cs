@@ -1,11 +1,10 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Events;
 
-public class RequestStadiumExpansionEvent(IState state) : EventBase(state)
+public class RequestStadiumExpansionEvent(DateOnly requestedDate) : EventBase
 {
     public override EventType Type => EventType.RequestStadiumExpansion;
-    private readonly DateOnly completionDate = state.Date.AddDays(2);
-    public override DateOnly CompletionDate => completionDate;
+    public override DateOnly CompletionDate => requestedDate.AddDays(2);
+	public override DateOnly StartDate => requestedDate;
 }

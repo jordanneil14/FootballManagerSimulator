@@ -18,7 +18,7 @@ public class RequestStadiumExpansionFactory(
 
     public void CompleteEvent(IEvent @event)
     {
-        var stadiumExpansionEvent = new StadiumExpansionEvent(State);
+        var stadiumExpansionEvent = new StadiumExpansionEvent(State.Date);
 
         State.Events.Add(stadiumExpansionEvent);
 
@@ -31,6 +31,6 @@ public class RequestStadiumExpansionFactory(
 
     public void CreateEvent()
     {
-        State.Events.Add(new RequestStadiumExpansionEvent(State));
+        State.Events.Add(new RequestStadiumExpansionEvent(State.Date));
     }
 }

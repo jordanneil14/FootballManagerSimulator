@@ -33,6 +33,6 @@ public class StadiumExpansionFactory(
 
     public void CreateEvent()
     {
-        State.Events.Add(new StadiumExpansionEvent(State));
+        State.Events.Add(new StadiumExpansionEvent(State.Date));
     }
 }

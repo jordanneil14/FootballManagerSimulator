@@ -8,7 +8,7 @@ public class State : IState
     public DateOnly Date { get; set; }
     public string Weather { get; set; } = "";
     public List<Notification> Notifications { get; set; } = new List<Notification>();
-    public IEnumerable<Club> Clubs { get; set; } = new List<Club>();
+    public List<Club> Clubs { get; set; } = new List<Club>();
     public int? MyClubId { get; set; }
     public List<Player> Players { get; set; } = new List<Player>();
     public List<string> UserFeedbackUpdates { get; set; } = new List<string>();

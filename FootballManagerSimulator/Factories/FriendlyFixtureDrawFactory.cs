@@ -42,10 +42,6 @@ public class FriendlyFixtureDrawFactory(
     {
         DateTime fd = Data.FixtureDate;
         DateOnly fixtureDate = DateOnly.FromDateTime(fd);
-        State.Events.Add(new FriendlyFixtureDrawEvent(State)
-        {
-            FixtureDate = fixtureDate,
-            Round = Data.Round
-        });
+        State.Events.Add(new FriendlyFixtureDrawEvent(State.Date, fixtureDate, State.Date, (int)Data.Round));
     }
 }

@@ -11,7 +11,7 @@ public interface IState
     Stack<Screen> ScreenStack { get; set; }
     List<Notification> Notifications { get; set; }
     List<Player> Players { get; set; }
-    IEnumerable<Club> Clubs { get; set; }
+    List<Club> Clubs { get; set; }
     List<ICompetition> Competitions { get; set; }
     List<string> UserFeedbackUpdates { get; set; }
     string Weather { get; set; }

@@ -1,15 +1,13 @@
 ﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Events;
 
-public class FriendlyFixtureDrawEvent(IState state) : EventBase(state)
+public class FriendlyFixtureDrawEvent(DateOnly drawDate, DateOnly fixtureDate, DateOnly startDate, int round) : EventBase
 {
     public override EventType Type => EventType.FriendlyDrawFixture;
+	public override DateOnly CompletionDate => drawDate;
+    public override DateOnly StartDate => startDate;
 
-    public override DateOnly CompletionDate => this.DrawDate;
-
-    public DateOnly DrawDate { get; set; }
-    public DateOnly FixtureDate { get; set; }
-    public int Round { get; set; }
+    public DateOnly FixtureDate { get; set; } = fixtureDate;
+    public int Round { get; set; } = round;
 }

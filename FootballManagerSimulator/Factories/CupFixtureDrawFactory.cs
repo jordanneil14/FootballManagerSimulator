@@ -50,12 +50,7 @@ public class CupFixtureDrawFactory(
         DateTime fd = Data.FixtureDate;
         DateOnly drawDate = DateOnly.FromDateTime(dd);
         DateOnly fixtureDate = DateOnly.FromDateTime(fd);
-        state.Events.Add(new CupFixtureDrawEvent(state)
-        {
-            DrawDate = drawDate,
-            FixtureDate = fixtureDate,
-            Round = Data.Round,
-            CompetitionId = Data.CompetitionId
-        });
+        var cupFixtureDrawEvent = new CupFixtureDrawEvent(drawDate, fixtureDate, (int)Data.CompetitionId, state.Date, (int)Data.Round);
+        state.Events.Add(cupFixtureDrawEvent);
     }
 }

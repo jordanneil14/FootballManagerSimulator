@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
@@ -7,10 +8,12 @@ using Newtonsoft.Json;
 namespace FootballManagerSimulator.Screens.MenuScreens;
 
 public class LoadGameScreen(
-    IState state) : MenuBaseScreen
+    IState state,
+	IGameFactory gameFactory) : MenuBaseScreen
 {
     private readonly List<LoadGamePreview> Games = [];
     private readonly IState State = state;
+	private readonly IGameFactory GameFactory = gameFactory;
 
     public override ScreenType Screen => ScreenType.LoadGame;
 
@@ -63,9 +66,8 @@ public class LoadGameScreen(
 
         try
         {
-            var fileContent = File.ReadAllText(path + $"\\{fileName}");
-            var s = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent, s);
+			var fileContent = File.ReadAllText(path + $"\\{fileName}");
+            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
             if (deserialisedState == null)
                 throw new Exception("Unable to load game");
 
@@ -80,6 +82,7 @@ public class LoadGameScreen(
             State.Competitions = deserialisedState.Competitions;
             State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
             State.TransferListItems = deserialisedState.TransferListItems;
+            State.Events = deserialisedState.Events;
         }
         catch (Exception ex)
         {
