@@ -3,7 +3,7 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Models;
 
-internal class Friendly : ICompetition
+public class Friendly : ICompetition
 {
     public CompetitionType Type => CompetitionType.Friendly;
     public int? Round { get; set; }
@@ -12,5 +12,5 @@ internal class Friendly : ICompetition
     public List<Fixture> Fixtures { get; set; } = new List<Fixture>();
     public List<Club> Clubs { get; set; } = new List<Club>();
     public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
-
+    public bool IsLeague => false;
 }

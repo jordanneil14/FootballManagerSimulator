@@ -15,7 +15,9 @@ public class League : ICompetition
 
     public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
 
-    public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
+	public bool IsLeague => true;
+
+	public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {
         var table = new List<LeaguePositionModel>();
         foreach (var club in Clubs)

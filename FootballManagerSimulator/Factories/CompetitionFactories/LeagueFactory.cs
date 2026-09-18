@@ -4,7 +4,7 @@ using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Factories;
+namespace FootballManagerSimulator.Factories.CompetitionFactories;
 
 public class LeagueFactory(
     IOptions<Settings> settings,
@@ -78,6 +78,36 @@ public class LeagueFactory(
             message);
     }
 
+    private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
+    {
+        var startDate = new DateOnly(State.Date.Year, 8, 1);
+        var endDate = new DateOnly(State.Date.Year + 1, 4, 22);
+
+        //var excludedDates = new List<DateOnly>() { new( state.Date.Year, 12, 25) };
+
+        var availableSaturdays = new List<DateOnly>();
+        var availableTuesdays = new List<DateOnly>();
+		for (var date = startDate; date <= endDate; date = date.AddDays(1))
+		{
+			if (date.DayOfWeek == DayOfWeek.Saturday)
+				availableSaturdays.Add(date);
+
+			if (date.DayOfWeek == DayOfWeek.Tuesday)
+				availableTuesdays.Add(date);
+		}
+
+        var remainingFixtureCount = fixtureCount - availableSaturdays.Count();
+
+		var random = new Random();
+
+		var randomDates = availableTuesdays
+			.OrderBy(_ => random.Next())
+			.Take(remainingFixtureCount)
+			.ToList();
+
+        return availableSaturdays.Concat(randomDates).OrderBy(p => p);
+	}
+
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var league = (League)competition;
@@ -93,7 +123,9 @@ public class LeagueFactory(
 
         var clubIdxSize = clubIndices.Count;
 
-        var date = new DateOnly(2016, 08, 05);
+        //var date = new DateOnly(State.Date.Year, 8, 1);
+
+        var fixtureDates = GetFixtureDates(numRounds * 2);
 
         var randomHelpers = new List<RandomFixture>();
         for (var i = 1; i <= numRounds * 2; i++)
@@ -101,9 +133,8 @@ public class LeagueFactory(
             randomHelpers.Add(new RandomFixture
             {
                 WeekNumber = i,
-                Date = date
+                Date = fixtureDates.ElementAt(i-1)
             });
-            date = date.AddDays(7);
         }
         randomHelpers = randomHelpers.OrderBy(p => RandomNumberHelper.Next()).ToList();
 
@@ -137,8 +168,6 @@ public class LeagueFactory(
                     KickOffTime = new TimeOnly(15, 00)
                 });
             }
-
-            date = date.AddDays(7);
         }
 
         for (var round = 0; round < numRounds; round++)
@@ -171,8 +200,6 @@ public class LeagueFactory(
                     KickOffTime = new TimeOnly(15, 00)
                 });
             }
-
-            date = date.AddDays(7);
         }
 
         competition.Fixtures = output

@@ -6,6 +6,7 @@ public class CompetitionModel
     public int CountryId { get; set; }
     public string Name { get; set; } = "";
     public int Rank { get; set; }
+    public bool IsLeague { get; set; }
     public LeagueTableModel LeagueTable { get; set; } = new LeagueTableModel();
     public class LeagueTableModel
     {

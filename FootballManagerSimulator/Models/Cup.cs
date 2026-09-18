@@ -13,4 +13,5 @@ public class Cup : ICompetition
     public List<Club> Clubs { get; set; } = new List<Club>();
     public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
     public int CountryId { get; set; }
+	public bool IsLeague => false;
 }

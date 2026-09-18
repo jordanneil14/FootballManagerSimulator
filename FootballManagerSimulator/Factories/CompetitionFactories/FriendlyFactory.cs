@@ -3,7 +3,7 @@ using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Factories;
+namespace FootballManagerSimulator.Factories.CompetitionFactories;
 
 public class FriendlyFactory(
     IOptions<Settings> settings,

@@ -26,7 +26,7 @@ public class SelectLeagueScreen(
 		if (string.IsNullOrWhiteSpace(input))
 			return;
 
-		var league = GameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString()).FirstOrDefault(p => p.Id.ToString() == input);
+		var league = GameCreator.Competitions.Where(p => p.IsLeague).FirstOrDefault(p => p.Id.ToString() == input);
 		if (league != null)
 		{
 			GameCreator.LeagueId = league.Id;
@@ -53,7 +53,7 @@ public class SelectLeagueScreen(
 		Console.WriteLine($"{"Id",-10}{"League",-30}{"Country",-20}{"Rank",-10}{"No of Teams",-15}");
 		Console.WriteLine("----------------------------------------------------------------------------------");
 
-		var leagues = GameCreator.Competitions.Where(p => p.Type == CompetitionType.League.ToString());
+		var leagues = GameCreator.Competitions.Where(p => p.IsLeague);
 
 		foreach (var league in leagues)
 		{

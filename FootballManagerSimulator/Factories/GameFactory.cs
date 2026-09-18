@@ -33,8 +33,6 @@ public class GameFactory(
 		State.ManagerName = GameCreator.ManagerName;
 		State.MyClubId = GameCreator.ClubId;
 
-		State.Date = Settings.General.StartDateAsDate;
-
 		State.Weather = WeatherHelper.GetTodaysWeather();
 
 		NotificationFactory.AddNotification(
@@ -85,7 +83,9 @@ public class GameFactory(
 
     public void IntitialiseGameState()
     {
-        State.Clubs = Settings.Clubs.Select(p => new Club
+		State.Date = Settings.General.StartDateAsDate;
+
+		State.Clubs = Settings.Clubs.Select(p => new Club
         {
             Id = p.Id,
             Name = p.Name,
