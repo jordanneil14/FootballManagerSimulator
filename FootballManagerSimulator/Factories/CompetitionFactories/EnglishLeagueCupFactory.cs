@@ -56,11 +56,7 @@ public class EnglishLeagueCupFactory(
             var leagues = Settings.Competitions.Where(p => RoundOneLeaguesInvolved.Contains(p.Name));
             var leagueIds = leagues.Select(p => p.Id);
 
-            var leagueIdsInvolved = Settings.Competitions
-                .Where(p => p.CountryId == cup.CountryId && leagueIds.Contains(p.Rank) && p.Type == "League")
-                .Select(p => p.Id);
-
-            var clubs = cup.Clubs.Where(p => leagueIdsInvolved.Contains(p.LeagueId));
+            var clubs = cup.Clubs.Where(p => leagueIds.Contains(p.LeagueId));
 
             cup.Fixtures = GenerateFixtures(clubs, drawDate.FixtureDate, cup.Round);
             return;
