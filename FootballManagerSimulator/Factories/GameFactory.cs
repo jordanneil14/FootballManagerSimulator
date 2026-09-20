@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using FootballManagerSimulator.Services;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -15,7 +16,8 @@ public class GameFactory(
     ITacticHelper tacticHelper,
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
-    IEnumerable<IEventFactory> eventFactories) : IGameFactory
+    IEnumerable<IEventFactory> eventFactories,
+    FriendlyService friendlyService) : IGameFactory
 {
     private readonly Settings Settings = settings.Value;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
@@ -27,6 +29,7 @@ public class GameFactory(
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
+    private readonly FriendlyService FriendlyService = friendlyService;
 
     public void FinaliseGameState()
     {
@@ -63,13 +66,8 @@ public class GameFactory(
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{
 			foreach (var drawDate in competition.DrawDates)
-			{
-				var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.FriendlyDrawFixture);
-				eventFactory.Data.FixtureDate = new DateTime(drawDate.FixtureDate.Year, drawDate.FixtureDate.Month, drawDate.FixtureDate.Day);
-				eventFactory.Data.Round = drawDate.Round;
-				eventFactory.CreateEvent();
-			}
-		}
+                FriendlyService.GenerateNextRoundOfFixtures(competition);
+        }
 
 		var concludedEvents = State.Events.Where(p => p.CompletionDate <= State.Date);
 		foreach (var concludedEvent in concludedEvents)

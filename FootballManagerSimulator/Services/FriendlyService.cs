@@ -3,8 +3,11 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Services;
 
-public class FriendlyService : ICompetitionService
+public class FriendlyService(INotificationFactory notificationFactory, IState state) : ICompetitionService
 {
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IState State = state;
+
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var friendly = (Friendly)competition;
@@ -28,6 +31,18 @@ public class FriendlyService : ICompetitionService
         }
 
         competition.Fixtures.AddRange(fixtures);
+
+        var myClubFixture = fixtures.First(p => p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId);
+        if (myClubFixture != null)
+        {
+            var oppositionClubName = myClubFixture.HomeClub.Id == State.MyClubId ? myClubFixture.AwayClub.Name : myClubFixture.HomeClub.Name;
+            var message = $"A friendly has been arranged against {oppositionClubName} on {myClubFixture.Date}";
+
+            NotificationFactory.AddNotificationNow(
+                "Chairman",
+                "Friendly Arranged",
+                message);
+        }
     }
 
     public void GeneratePreMatchReportForFixture(Fixture fixture)
