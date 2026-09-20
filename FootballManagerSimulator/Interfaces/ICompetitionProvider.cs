@@ -3,11 +3,10 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Interfaces;
 
-public interface ICompetitionFactory
+public interface ICompetitionProvider
 {
     ICompetition CreateCompetition(CompetitionModel competition);
-    void GeneratePreMatchReportForFixture(Fixture fixture);
-    void GenerateNextRoundOfFixtures(ICompetition competition);
+    ICompetitionService CompetitionService { get; }
     CompetitionType Type { get; }
 }
 

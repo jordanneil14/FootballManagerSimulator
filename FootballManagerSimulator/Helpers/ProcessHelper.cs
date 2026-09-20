@@ -9,13 +9,13 @@ public class ProcessHelper(
     IState state,
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
-    IEnumerable<ICompetitionFactory> competitionFactories,
+    IEnumerable<ICompetitionProvider> competitionFactories,
     IEnumerable<IEventFactory> eventFactories) : IProcessHelper
 {
     private readonly IState State = state;
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
-    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly IEnumerable<ICompetitionProvider> CompetitionFactories = competitionFactories;
     private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
 
     public void Process()
@@ -39,7 +39,7 @@ public class ProcessHelper(
                     .FirstOrDefault();
 
                 if (fixture != null && fixture.Date.DayNumber == State.Date.DayNumber + 1)
-                    CompetitionFactories.First(p => p.Type == comp.Type).GeneratePreMatchReportForFixture(fixture);
+                    CompetitionFactories.First(p => p.Type == comp.Type).CompetitionService.GeneratePreMatchReportForFixture(fixture);
             }
 
             var completedEvents = State.Events.Where(p => p.CompletionDate == State.Date).ToList();

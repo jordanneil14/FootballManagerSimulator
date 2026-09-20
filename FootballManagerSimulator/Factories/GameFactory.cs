@@ -8,7 +8,7 @@ namespace FootballManagerSimulator.Factories;
 public class GameFactory(
     IPlayerHelper playerHelper,
     IState state,
-    IEnumerable<ICompetitionFactory> competitionFactories,
+    IEnumerable<ICompetitionProvider> competitionFactories,
     INotificationFactory notificationFactory,
     IGameCreator gameCreator,
     IOptions<Settings> settings,
@@ -20,7 +20,7 @@ public class GameFactory(
     private readonly Settings Settings = settings.Value;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
     private readonly IState State = state;
-    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly IEnumerable<ICompetitionProvider> CompetitionProviders = competitionFactories;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly IGameCreator GameCreator = gameCreator;
     private readonly ITacticHelper TacticHelper = tacticHelper;
@@ -105,24 +105,14 @@ public class GameFactory(
         foreach (var club in State.Clubs)
             TacticHelper.ResetTacticForClub(club);
 
-        foreach (var competition in Settings.Competitions)
+        foreach (var competition in Settings.Competitions.OrderBy(p => p.Type == "Cup"))
         {
-            var competitionFactory = CompetitionFactories
-                .First(p => p.Type.ToString() == competition.Type).CreateCompetition(competition);
-            State.Competitions.Add(competitionFactory);
-        }
+            var competitionProvider = CompetitionProviders
+                .First(p => p.Type.ToString() == competition.Type);
 
-        foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Cup))
-        {
-            foreach (var drawDate in competition.DrawDates)
-            {
-                var eventFactory = EventFactories.First(p => p.Type == Enums.EventType.CupDrawFixture);
-                eventFactory.Data.DrawDate = new DateTime(drawDate.DrawDate.Year, drawDate.DrawDate.Month, drawDate.DrawDate.Day);
-                eventFactory.Data.FixtureDate = new DateTime(drawDate.FixtureDate.Year, drawDate.FixtureDate.Month, drawDate.FixtureDate.Day);
-                eventFactory.Data.Round = drawDate.Round;
-                eventFactory.Data.CompetitionId = competition.Id;
-                eventFactory.CreateEvent();
-            }
+            var competition1 = competitionProvider.CreateCompetition(competition);
+
+            State.Competitions.Add(competition1);
         }
     }
 }

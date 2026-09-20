@@ -1,17 +1,18 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Services;
 using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Factories;
 
 public class CupFixtureDrawFactory(
     IState State,
-    IEnumerable<ICompetitionFactory> competitionFactories,
+    EnglishLeagueCupService englishLeagueCupService,
     INotificationFactory notificationFactory) : IEventFactory
 {
     private readonly IState state = State;
-    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly EnglishLeagueCupService EnglishLeagueCupService = englishLeagueCupService;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
     public EventType Type => EventType.CupDrawFixture;
@@ -25,7 +26,7 @@ public class CupFixtureDrawFactory(
 
         var competition = state.Competitions.First(p => p.Id == cupFixtureDrawEvent.CompetitionId);
 
-        CompetitionFactories.First(p => p.Type == competition.Type).GenerateNextRoundOfFixtures(competition);
+        EnglishLeagueCupService.GenerateNextRoundOfFixtures(competition);
 
         var clubIds = competition.Clubs.Select(p => p.Id);
         if (clubIds.Any() && clubIds.Contains(state.MyClubId.GetValueOrDefault()))

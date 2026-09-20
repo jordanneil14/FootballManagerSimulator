@@ -1,53 +1,13 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Helpers;
+﻿using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Factories.CompetitionFactories;
+namespace FootballManagerSimulator.Services;
 
-public class LeagueFactory(
-    IOptions<Settings> settings,
-    IState state,
-    INotificationFactory notificationFactory) : ICompetitionFactory
+public class LeagueService(IState state, INotificationFactory notificationFactory) : ICompetitionService
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
-    private readonly Settings Settings = settings.Value;
-
-    public CompetitionType Type => CompetitionType.League;
-
-    public class RandomFixture
-    {
-        public int WeekNumber { get; set; }
-        public DateOnly Date { get; set; }
-    }
-
-    public ICompetition CreateCompetition(CompetitionModel competition)
-    {
-        var clubs = Settings.Clubs
-            .Where(p => p.LeagueId == competition.Id)
-            .Select(p => new Club
-            {
-                Id = p.Id,
-                Name = p.Name
-            });
-
-        if (clubs == null || !clubs.Any())
-            throw new Exception($"Unable to get clubs by leagueResourceId {competition.Id}");
-
-        var league = new League()
-        {
-            Id = competition.Id,
-            Name = competition.Name,
-            Rank = competition.Rank,
-            Clubs = clubs.ToList()
-        };
-
-        GenerateNextRoundOfFixtures(league);
-
-        return league;
-    }
 
     public void GeneratePreMatchReportForFixture(Fixture fixture)
     {
@@ -78,6 +38,13 @@ public class LeagueFactory(
             message);
     }
 
+
+    public class RandomFixture
+    {
+        public int WeekNumber { get; set; }
+        public DateOnly Date { get; set; }
+    }
+
     private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
     {
         var startDate = new DateOnly(State.Date.Year, 8, 1);
@@ -87,26 +54,26 @@ public class LeagueFactory(
 
         var availableSaturdays = new List<DateOnly>();
         var availableTuesdays = new List<DateOnly>();
-		for (var date = startDate; date <= endDate; date = date.AddDays(1))
-		{
-			if (date.DayOfWeek == DayOfWeek.Saturday)
-				availableSaturdays.Add(date);
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            if (date.DayOfWeek == DayOfWeek.Saturday)
+                availableSaturdays.Add(date);
 
-			if (date.DayOfWeek == DayOfWeek.Tuesday)
-				availableTuesdays.Add(date);
-		}
+            if (date.DayOfWeek == DayOfWeek.Tuesday)
+                availableTuesdays.Add(date);
+        }
 
         var remainingFixtureCount = fixtureCount - availableSaturdays.Count();
 
-		var random = new Random();
+        var random = new Random();
 
-		var randomDates = availableTuesdays
-			.OrderBy(_ => random.Next())
-			.Take(remainingFixtureCount)
-			.ToList();
+        var randomDates = availableTuesdays
+            .OrderBy(_ => random.Next())
+            .Take(remainingFixtureCount)
+            .ToList();
 
         return availableSaturdays.Concat(randomDates).OrderBy(p => p);
-	}
+    }
 
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
@@ -133,7 +100,7 @@ public class LeagueFactory(
             randomHelpers.Add(new RandomFixture
             {
                 WeekNumber = i,
-                Date = fixtureDates.ElementAt(i-1)
+                Date = fixtureDates.ElementAt(i - 1)
             });
         }
         randomHelpers = randomHelpers.OrderBy(p => RandomNumberHelper.Next()).ToList();

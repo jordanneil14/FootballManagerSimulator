@@ -1,17 +1,18 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Services;
 using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Factories;
 
 public class FriendlyFixtureDrawFactory(
     IState state,
-    IEnumerable<ICompetitionFactory> competitionFactories,
+    FriendlyService friendlyService,
     INotificationFactory notificationFactory) : IEventFactory
 {
     private readonly IState State = state;
-    private readonly IEnumerable<ICompetitionFactory> CompetitionFactories = competitionFactories;
+    private readonly FriendlyService FriendlyService = friendlyService;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
     public EventType Type => EventType.FriendlyDrawFixture;
@@ -24,7 +25,7 @@ public class FriendlyFixtureDrawFactory(
 
         var competition = State.Competitions.First(p => p.Type == CompetitionType.Friendly);
 
-        CompetitionFactories.First(p => p.Type == CompetitionType.Friendly).GenerateNextRoundOfFixtures(competition);
+        FriendlyService.GenerateNextRoundOfFixtures(competition);
 
         var fixture = competition.Fixtures.First(p => (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId) && p.Round == cupFixtureDrawEvent.Round);
         var oppositionClubName = fixture.HomeClub.Id == State.MyClubId ? fixture.AwayClub.Name : fixture.HomeClub.Name;

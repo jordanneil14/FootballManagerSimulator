@@ -1,5 +1,9 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.CompetitionProviders;
+using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Factories;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using FootballManagerSimulator.Services;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +19,7 @@ public class Program
 
         serviceProvider
             .RegisterAssemblyPublicNonGenericClasses()
-            .Where(p => p.Name.EndsWith("Screen") || p.Name.EndsWith("Helper") || p.Name.EndsWith("Factory") || p.Name.EndsWith("Event"))
+            .Where(p => p.Name.EndsWith("Screen") || p.Name.EndsWith("Helper") || p.Name.EndsWith("Factory") || p.Name.EndsWith("Event") || p.Name.EndsWith("Provider") || p.Name.EndsWith("Service"))
             .AsPublicImplementedInterfaces();
 
         serviceProvider.AddSingleton<IGame, Game>();
@@ -28,6 +32,13 @@ public class Program
             .AddJsonFile("settings.json")
             .Build();
         serviceProvider.AddOptions<Settings>().Bind(settingsConfig);
+
+        serviceProvider.AddScoped<EnglishLeagueCupService>();
+        serviceProvider.AddScoped<FriendlyService>();
+        serviceProvider.AddScoped<PremierLeagueService>();
+        serviceProvider.AddScoped<LeagueService>();
+
+        serviceProvider.AddScoped<CupFixtureDrawFactory>();
 
         return serviceProvider.BuildServiceProvider();
     }
