@@ -43,7 +43,7 @@ public class SelectClubScreen(
 				if (club == null) return;
 				GameCreator.ClubId = club.Id;
 				GameFactory.FinaliseGameState();
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Main,
 				});

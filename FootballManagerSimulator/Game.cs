@@ -81,7 +81,7 @@ public class Game(
     {
         try
         {
-            State.ScreenStack.Push(new Screen
+            State.ScreenStack.Push(new ScreenModel
             {
                 Type = ScreenType.Welcome
             });

@@ -39,7 +39,7 @@ public class SaveScreen(IState state) : BaseScreen(state)
                 break;
         }
 
-        State.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new ScreenModel
         {
             Type = ScreenType.Main
         });

@@ -7,10 +7,10 @@ namespace FootballManagerSimulator.Screens.MenuScreens;
 
 public class SelectLeagueScreen(
     IState state,
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     IGameCreator gameCreator) : MenuBaseScreen
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IState State = state;
     private readonly IGameCreator GameCreator = gameCreator;
 
@@ -31,7 +31,7 @@ public class SelectLeagueScreen(
 		{
 			GameCreator.LeagueId = league.Id;
 
-			State.ScreenStack.Push(new Screen
+			State.ScreenStack.Push(new ScreenModel
 			{
 				Type = ScreenType.SelectClub
 			});

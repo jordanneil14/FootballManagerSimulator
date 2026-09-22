@@ -8,12 +8,12 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.CompetitionProviders;
 
 public class EnglishLeagueCupProvider(
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     IState state,
     CupFixtureDrawFactory cupFixtureDrawFactory,
     EnglishLeagueCupService englishLeagueCupService) : ICompetitionProvider
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly EnglishLeagueCupService EnglishLeagueCupService = englishLeagueCupService;
     public ICompetitionService CompetitionService => EnglishLeagueCupService;
     private readonly IState State = state;
@@ -48,7 +48,7 @@ public class EnglishLeagueCupProvider(
             .Where(p => leagueIds.Contains(p.LeagueId))
             .ToList();
 
-        var cup = new Cup
+        var cup = new CupModel
         {
             Id = competition.Id,
             Name = competition.Name,

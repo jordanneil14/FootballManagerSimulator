@@ -3,5 +3,5 @@
 namespace FootballManagerSimulator.Structures;
 public class PreviewModel
 {
-    public Club Club { get; set; } = new Club();
+    public ClubModel Club { get; set; } = new ClubModel();
 }

@@ -108,9 +108,9 @@ public class TransferPlayerScreen(
         Console.WriteLine($"Transfer Value: {transferValueFriendly}");
     }
 
-    public static Screen CreateScreen(Player player)
+    public static ScreenModel CreateScreen(PlayerModel player)
     {
-        return new Screen
+        return new ScreenModel
         {
             Type = ScreenType.TransferPlayer,
             Parameters = new TransferPlayerScreenObj
@@ -122,6 +122,6 @@ public class TransferPlayerScreen(
 
     public class TransferPlayerScreenObj
     {
-        public Player Player { get; set; } = new Player();
+        public PlayerModel Player { get; set; } = new PlayerModel();
     }
 }

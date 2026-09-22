@@ -44,9 +44,9 @@ public class ClubScreen(
         }
     }
 
-    public static Screen CreateScreen(Club club)
+    public static ScreenModel CreateScreen(ClubModel club)
     {
-        return new Screen
+        return new ScreenModel
         {
             Type = ScreenType.Club,
             Parameters = new ClubScreenObj
@@ -58,7 +58,7 @@ public class ClubScreen(
 
     public class ClubScreenObj
     {
-        public Club Club { get; set; } = new Club();
+        public ClubModel Club { get; set; } = new ClubModel();
     }
 
     public override void RenderSubscreen()

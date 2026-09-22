@@ -6,7 +6,7 @@ public interface ITransferListHelper
 {
     void UpdateTransferList();
     void TransferContractedPlayerByPlayerIdAndClubId(int playerId, int clubId);
-    TransferListItem? GetTransferListItemByPlayerId(int playerId);
+    TransferListItemModel? GetTransferListItemByPlayerId(int playerId);
     bool IsPlayerTransferListed(int playerId);
     void AddPlayerToTransferList(int playerId, int askingPrice);
     void RemovePlayerFromTransferList(int playerId);

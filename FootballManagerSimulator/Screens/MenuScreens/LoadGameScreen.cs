@@ -11,7 +11,7 @@ public class LoadGameScreen(
     IState state,
 	IGameFactory gameFactory) : MenuBaseScreen
 {
-    private readonly List<LoadGamePreview> Games = [];
+    private readonly List<LoadGamePreviewModel> Games = [];
     private readonly IState State = state;
 	private readonly IGameFactory GameFactory = gameFactory;
 
@@ -39,7 +39,7 @@ public class LoadGameScreen(
 				break;
 			case "B":
                 State.ScreenStack.Clear();
-                State.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new ScreenModel
                 {
                     Type = ScreenType.Welcome
                 });
@@ -51,7 +51,7 @@ public class LoadGameScreen(
                     if (game == null) return;
                     TryLoadGame(game.FileName);
                     State.ScreenStack.Clear();
-                    State.ScreenStack.Push(new Screen
+                    State.ScreenStack.Push(new ScreenModel
                     {
                         Type = ScreenType.Main
                     });
@@ -67,7 +67,7 @@ public class LoadGameScreen(
         try
         {
 			var fileContent = File.ReadAllText(path + $"\\{fileName}");
-            var deserialisedState = JsonConvert.DeserializeObject<State>(fileContent, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+            var deserialisedState = JsonConvert.DeserializeObject<StateModel>(fileContent, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
             if (deserialisedState == null)
                 throw new Exception("Unable to load game");
 
@@ -109,7 +109,7 @@ public class LoadGameScreen(
 				var fileContents = File.ReadAllText(file.FullName);
 				var deserialisedContent = JsonConvert.DeserializeObject<PreviewModel>(fileContents);
 				if (deserialisedContent == null) continue;
-				Games.Add(new LoadGamePreview
+				Games.Add(new LoadGamePreviewModel
 				{
 					FileName = file.Name,
 					ClubName = deserialisedContent.Club.Name,

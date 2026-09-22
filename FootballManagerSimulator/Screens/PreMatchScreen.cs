@@ -61,13 +61,13 @@ public class PreMatchScreen(
 						MatchSimulator.ProcessMatch(fixture, competition);
 				}
 
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Match
 				});
 				break;
 			case "B":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Tactics
 				});

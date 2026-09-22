@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Models;
 
-public class Screen
+public class ScreenModel
 {
     public ScreenType Type { get; set; }
     public object? Parameters { get; set; }

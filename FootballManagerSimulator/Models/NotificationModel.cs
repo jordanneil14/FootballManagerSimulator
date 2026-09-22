@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class Notification
+public class NotificationModel
 {
     public DateOnly Date { get; set; }
 	string DateFriendly => Date.ToString("dddd, dd MMMM yyyy");

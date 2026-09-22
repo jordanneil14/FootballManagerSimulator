@@ -23,15 +23,15 @@ public class Program
             .AsPublicImplementedInterfaces();
 
         serviceProvider.AddSingleton<IGame, Game>();
-        serviceProvider.AddSingleton<IState, State>();
-        serviceProvider.AddSingleton<IGameCreator, GameCreator>();
+        serviceProvider.AddSingleton<IState, StateModel>();
+        serviceProvider.AddSingleton<IGameCreator, GameCreatorModel>();
 
         var directory = Directory.GetCurrentDirectory() + "\\Resources";
         var settingsConfig = new ConfigurationBuilder()
             .SetBasePath(directory)
             .AddJsonFile("settings.json")
             .Build();
-        serviceProvider.AddOptions<Settings>().Bind(settingsConfig);
+        serviceProvider.AddOptions<SettingsModel>().Bind(settingsConfig);
 
         serviceProvider.AddScoped<EnglishLeagueCupService>();
         serviceProvider.AddScoped<FriendlyService>();

@@ -3,7 +3,7 @@ using FootballManagerSimulator.Interfaces;
 
 namespace FootballManagerSimulator.Models;
 
-public class TacticSlot : ITacticSlot
+public class TacticSlotModel : ITacticSlot
 {
     public int Id { get; set; }
     public TacticSlotType TacticSlotType { get; set; }

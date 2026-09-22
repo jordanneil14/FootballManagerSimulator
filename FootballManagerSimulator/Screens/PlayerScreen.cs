@@ -22,9 +22,9 @@ public class PlayerScreen(
 
 	public override string? OptionPrompt => null;
 
-	public static Screen CreateScreen(Player player)
+	public static ScreenModel CreateScreen(PlayerModel player)
     {
-        return new Screen
+        return new ScreenModel
         {
             Type = ScreenType.Player,
             Parameters = new PlayerScreenObj
@@ -36,7 +36,7 @@ public class PlayerScreen(
 
     public class PlayerScreenObj
     {
-        public Player Player { get; set; } = new Player();
+        public PlayerModel Player { get; set; } = new PlayerModel();
     }
 
     public override void HandleInput(string input)
@@ -93,7 +93,7 @@ public class PlayerScreen(
         var screenParameters = State.ScreenStack.Peek().Parameters as PlayerScreenObj;
         var player = screenParameters.Player;
 
-        State.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new ScreenModel
         {
             Type = ScreenType.TransferPlayer,
             Parameters = new TransferPlayerScreenObj

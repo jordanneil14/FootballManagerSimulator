@@ -8,9 +8,9 @@ namespace FootballManagerSimulator.Screens;
 public class LeagueTableScreen(
     IState state,
     IClubHelper clubHelper,
-    IOptions<Settings> settings) : BaseScreen(state)
+    IOptions<SettingsModel> settings) : BaseScreen(state)
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly List<LeagueKeyModel> LeagueKeyModels = [];
     private readonly IState State = state;
     private readonly IClubHelper ClubHelper = clubHelper;
@@ -26,7 +26,7 @@ public class LeagueTableScreen(
             LeagueKeyModels.Add(new LeagueKeyModel
             {
                 Key = Convert.ToChar(key),
-                League = (League)league,
+                League = (LeagueModel)league,
                 IsCurrent = league.Id == currentLeagueId
             });
             key++;
@@ -82,7 +82,7 @@ public class LeagueTableScreen(
 		if (selectedLeague == null)
 			return;
 
-		State.ScreenStack.Push(new Screen
+		State.ScreenStack.Push(new ScreenModel
 		{
 			Type = ScreenType.LeagueTable,
 			Parameters = new LeagueTableObj
@@ -107,7 +107,7 @@ public class LeagueTableScreen(
 
         GenerateLeagueKeyModels(leagueId);
 
-        var league = State.Competitions.First(p => p.Id == leagueId) as League;
+        var league = State.Competitions.First(p => p.Id == leagueId) as LeagueModel;
         var leagueTable = league.GenerateLeagueTable();
 
         Console.WriteLine($"{league.Name} League Table\n");

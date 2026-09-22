@@ -3,12 +3,12 @@ using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Models;
 
-public class GameCreator : IGameCreator
+public class GameCreatorModel : IGameCreator
 {
-    private readonly Settings Settings;
+    private readonly SettingsModel Settings;
 
-    public GameCreator(
-        IOptions<Settings> settings)
+    public GameCreatorModel(
+        IOptions<SettingsModel> settings)
     {
         Settings = settings.Value;
     }
@@ -16,6 +16,6 @@ public class GameCreator : IGameCreator
     public string ManagerName { get; set; } = "";
     public int LeagueId { get; set; }
     public int ClubId { get; set; }
-    public IEnumerable<Club> Clubs => Settings.Clubs;
+    public IEnumerable<ClubModel> Clubs => Settings.Clubs;
     public IEnumerable<CompetitionModel> Competitions => Settings.Competitions;
 }

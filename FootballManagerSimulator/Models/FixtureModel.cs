@@ -2,18 +2,18 @@
 
 namespace FootballManagerSimulator.Models;
 
-public class Fixture : IFixture
+public class FixtureModel : IFixture
 {
     public int Id { get; set; }
-    public Club HomeClub { get; set; } = new Club();
-    public Club AwayClub { get; set; } = new Club();
+    public ClubModel HomeClub { get; set; } = new ClubModel();
+    public ClubModel AwayClub { get; set; } = new ClubModel();
     public int Round { get; set; }
     public int? GoalsHome { get; set; }
     public int? GoalsAway { get; set; }
     public bool Concluded { get; set; }
     public DateOnly Date { get; set; }
     public int Minute { get; set; }
-    public Club? ClubWon { get; set; } = null;
+    public ClubModel? ClubWon { get; set; } = null;
 
     public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
     public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();

@@ -50,7 +50,7 @@ public class MainScreen(
 				State.Notifications.RemoveRange(0, 1);
 				break;
 			case "C":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.LeagueTable
 				});
@@ -63,31 +63,31 @@ public class MainScreen(
 				State.ScreenStack.Push(ClubScreen.CreateScreen(State.Clubs.First(p => p.Id == State.MyClubId)));
 				break;
 			case "F":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Scout
 				});
 				break;
 			case "S":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.SaveGame
 				});
 				break;
 			case "G":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Tactics
 				});
 				break;
 			case "H":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.Finances
 				});
 				break;
 			case "I":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.TransferList
 				});

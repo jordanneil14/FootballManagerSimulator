@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class Settings
+public class SettingsModel
 {
     public GeneralModel General { get; set; } = new GeneralModel();
     public class GeneralModel
@@ -8,7 +8,7 @@ public class Settings
         public string StartDate { get; set; } = "";
         public DateOnly StartDateAsDate => DateOnly.Parse(StartDate);
     }
-    public List<Club> Clubs { get; set; } = new List<Club>();
+    public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
     public IEnumerable<CompetitionModel> Competitions { get; set; } = new List<CompetitionModel>();
     public IEnumerable<IdNameModel> Countries { get; set; } = new List<IdNameModel>();
 

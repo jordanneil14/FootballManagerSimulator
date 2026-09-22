@@ -51,7 +51,7 @@ public class FixtureScreen(
 
         if (includesMyClub)
         {
-            State.ScreenStack.Push(new Screen
+            State.ScreenStack.Push(new ScreenModel
             {
                 Type = ScreenType.PreMatch
             });
@@ -77,7 +77,7 @@ public class FixtureScreen(
             }
         }
 
-        State.ScreenStack.Push(new Screen
+        State.ScreenStack.Push(new ScreenModel
         {
             Type = ScreenType.PostMatchScores
         });

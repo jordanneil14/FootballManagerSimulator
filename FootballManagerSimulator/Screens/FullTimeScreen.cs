@@ -37,7 +37,7 @@ public class FullTimeScreen(
 				break;
 			case "ENTER":
                 State.ScreenStack.Clear();
-                State.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new ScreenModel
                 {
                     Type = ScreenType.PostMatchScores
                 });

@@ -50,13 +50,13 @@ public class WelcomeScreen(
 		{
 			case "A":
 				GameFactory.IntitialiseGameState();
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.CreateManager
 				});
 				break;
 			case "B":
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.LoadGame
 				});

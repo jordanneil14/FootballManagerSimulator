@@ -3,21 +3,21 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
 
-public class State : IState
+public class StateModel : IState
 {
     public DateOnly Date { get; set; }
     public string Weather { get; set; } = "";
-    public List<Notification> Notifications { get; set; } = new List<Notification>();
-    public List<Club> Clubs { get; set; } = new List<Club>();
+    public List<NotificationModel> Notifications { get; set; } = new List<NotificationModel>();
+    public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
     public int? MyClubId { get; set; }
-    public List<Player> Players { get; set; } = new List<Player>();
+    public List<PlayerModel> Players { get; set; } = new List<PlayerModel>();
     public List<string> UserFeedbackUpdates { get; set; } = new List<string>();
     public string ManagerName { get; set; } = "";
 
     public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
-    public Stack<Screen> ScreenStack { get; set; } = new Stack<Screen>();
+    public Stack<ScreenModel> ScreenStack { get; set; } = new Stack<ScreenModel>();
     public PreviewModel Preview { get; set; } = new PreviewModel();
-    public List<TransferListItem> TransferListItems { get; set; } = new List<TransferListItem>();
+    public List<TransferListItemModel> TransferListItems { get; set; } = new List<TransferListItemModel>();
     public List<IEvent> Events { get; set; } = new List<IEvent>();
 }
 

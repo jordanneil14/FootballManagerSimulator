@@ -40,7 +40,7 @@ public class CreateManagerScreen(
 				if (string.IsNullOrWhiteSpace(input)) return;
 				var text = new CultureInfo("en-US", false).TextInfo;
 				GameCreator.ManagerName = text.ToTitleCase(input.ToLower());
-				State.ScreenStack.Push(new Screen
+				State.ScreenStack.Push(new ScreenModel
 				{
 					Type = ScreenType.SelectLeague
 				});

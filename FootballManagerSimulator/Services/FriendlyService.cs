@@ -10,17 +10,17 @@ public class FriendlyService(INotificationFactory notificationFactory, IState st
 
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
-        var friendly = (Friendly)competition;
+        var friendly = (FriendlyModel)competition;
         friendly.Round = friendly.Round.GetValueOrDefault() + 1;
 
         var drawDate = friendly.DrawSettings.First(p => p.Round == friendly.Round);
 
-        var fixtures = new List<Fixture>();
+        var fixtures = new List<FixtureModel>();
         var randomlySortedClubs = competition.Clubs.OrderBy(p => Guid.NewGuid()).ToList();
 
         for (var i = 0; i < randomlySortedClubs.Count; i += 2)
         {
-            fixtures.Add(new Fixture()
+            fixtures.Add(new FixtureModel()
             {
                 HomeClub = randomlySortedClubs.ElementAt(i),
                 AwayClub = randomlySortedClubs.ElementAt(i + 1),
@@ -45,7 +45,7 @@ public class FriendlyService(INotificationFactory notificationFactory, IState st
         }
     }
 
-    public void GeneratePreMatchReportForFixture(Fixture fixture)
+    public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
         //NotificationFactory.AddNotification(
         //    State.Date,

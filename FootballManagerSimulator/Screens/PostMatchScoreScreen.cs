@@ -32,7 +32,7 @@ public class PostMatchScoreScreen(IState state) : BaseScreen(state)
 				OptionIndex = 0;
 				break;
             case "ENTER":
-                State.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new ScreenModel
                 {
                     Type = ScreenType.Main
                 });

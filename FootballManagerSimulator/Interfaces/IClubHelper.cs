@@ -4,8 +4,8 @@ namespace FootballManagerSimulator.Interfaces;
 
 public interface IClubHelper
 {
-    Club? GetClubByName(string name);
-    Club GetClubById(int id);
+    ClubModel? GetClubByName(string name);
+    ClubModel GetClubById(int id);
     int GetStartingElevenSumRatingForClub(int clubId);
-    IEnumerable<TacticSlot> GetStartingElevenByClub(int clubId);
+    IEnumerable<TacticSlotModel> GetStartingElevenByClub(int clubId);
 }

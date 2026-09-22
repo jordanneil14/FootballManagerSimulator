@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class TransferListItem
+public class TransferListItemModel
 {
     public int PlayerId { get; set; }
     public int AskingPrice { get; set; }

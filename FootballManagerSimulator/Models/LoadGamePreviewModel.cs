@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Structures;
 
-public class LoadGamePreview
+public class LoadGamePreviewModel
 {
     public DateTime SaveDate { get; set; }
     public string FileName { get; set; } = "";

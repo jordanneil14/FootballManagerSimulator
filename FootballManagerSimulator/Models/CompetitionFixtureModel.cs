@@ -3,8 +3,8 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
 
-public class CompetitionFixture
+public class CompetitionFixtureModel
 {
     public ICompetition Competition { get; set; }
-    public IEnumerable<Fixture> Fixtures { get; set; } = new List<Fixture>();
+    public IEnumerable<FixtureModel> Fixtures { get; set; } = new List<FixtureModel>();
 }

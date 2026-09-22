@@ -28,9 +28,9 @@ public class FixturesScreen(
         }
     }
 
-    public static Screen CreateScreen(ICompetition competition)
+    public static ScreenModel CreateScreen(ICompetition competition)
     {
-        return new Screen
+        return new ScreenModel
         {
             Type = ScreenType.Fixtures,
             Parameters = new FixturesScreenObj

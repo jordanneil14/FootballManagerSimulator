@@ -12,14 +12,14 @@ public class GameFactory(
     IEnumerable<ICompetitionProvider> competitionFactories,
     INotificationFactory notificationFactory,
     IGameCreator gameCreator,
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     ITacticHelper tacticHelper,
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
     IEnumerable<IEventFactory> eventFactories,
     FriendlyService friendlyService) : IGameFactory
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
     private readonly IState State = state;
     private readonly IEnumerable<ICompetitionProvider> CompetitionProviders = competitionFactories;
@@ -83,7 +83,7 @@ public class GameFactory(
     {
 		State.Date = Settings.General.StartDateAsDate;
 
-		State.Clubs = Settings.Clubs.Select(p => new Club
+		State.Clubs = Settings.Clubs.Select(p => new ClubModel
         {
             Id = p.Id,
             Name = p.Name,

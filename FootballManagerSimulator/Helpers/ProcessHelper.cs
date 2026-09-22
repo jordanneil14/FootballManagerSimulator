@@ -51,7 +51,7 @@ public class ProcessHelper(
         }
         catch (ProcessException ex)
         {
-            State.ScreenStack.Push(new Screen
+            State.ScreenStack.Push(new ScreenModel
             {
                 Type = ex.ScreenType
             });

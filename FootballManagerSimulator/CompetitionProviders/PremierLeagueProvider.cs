@@ -7,10 +7,10 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.CompetitionProviders;
 
 public class PremierLeagueProvider(
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     PremierLeagueService premierLeagueService) : ICompetitionProvider
 {
-	private readonly Settings Settings = settings.Value;
+	private readonly SettingsModel Settings = settings.Value;
     private readonly PremierLeagueService PremierLeagueService = premierLeagueService;
     public ICompetitionService CompetitionService => PremierLeagueService;
 
@@ -20,7 +20,7 @@ public class PremierLeagueProvider(
 	{
 		var clubs = Settings.Clubs
 			.Where(p => p.LeagueId == competition.Id)
-			.Select(p => new Club
+			.Select(p => new ClubModel
 			{
 				Id = p.Id,
 				Name = p.Name
@@ -29,7 +29,7 @@ public class PremierLeagueProvider(
 		if (clubs == null || !clubs.Any())
 			throw new Exception($"Unable to get clubs by leagueResourceId {competition.Id}");
 
-		var league = new League()
+		var league = new LeagueModel()
 		{
 			Id = competition.Id,
 			Name = competition.Name,

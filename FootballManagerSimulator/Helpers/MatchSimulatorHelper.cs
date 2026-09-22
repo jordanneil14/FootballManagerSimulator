@@ -15,7 +15,7 @@ public class MatchSimulatorHelper(
     private readonly IPlayerHelper PlayerHelper = playerHelper;
     private readonly IState State = state;
 
-    public void ProcessMatch(Fixture fixture, ICompetition competition)
+    public void ProcessMatch(FixtureModel fixture, ICompetition competition)
     {
         if (fixture.Minute == 0)
         {
@@ -42,13 +42,13 @@ public class MatchSimulatorHelper(
         }
     }
 
-    private void SimulatePenalties(Fixture fixture)
+    private void SimulatePenalties(FixtureModel fixture)
     {
         fixture.GoalsAway += 1;
         EndFixture(fixture);
     }
 
-    private void SimulateExtraTime(Fixture fixture)
+    private void SimulateExtraTime(FixtureModel fixture)
     {
         var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
         var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
@@ -101,7 +101,7 @@ public class MatchSimulatorHelper(
             EndFixture(fixture);
     }
 
-    private void SimulateFirstHalf(Fixture fixture)
+    private void SimulateFirstHalf(FixtureModel fixture)
     {
         var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
         var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
@@ -154,7 +154,7 @@ public class MatchSimulatorHelper(
         fixture.Minute = 45;
     }
 
-    private int GetGoalScorer(IEnumerable<TacticSlot> tacticSlots)
+    private int GetGoalScorer(IEnumerable<TacticSlotModel> tacticSlots)
     {
         var playerRatingModels = new List<PlayerRatingModel>();
         foreach (var slot in tacticSlots)
@@ -176,7 +176,7 @@ public class MatchSimulatorHelper(
             .PlayerId;
     }
 
-    private void SimulateSecondHalf(Fixture fixture, ICompetition competition)
+    private void SimulateSecondHalf(FixtureModel fixture, ICompetition competition)
     {
         var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
         var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
@@ -231,7 +231,7 @@ public class MatchSimulatorHelper(
             EndFixture(fixture);
     }
 
-    public void ConcludeFixture(Fixture fixture, ICompetition competition)
+    public void ConcludeFixture(FixtureModel fixture, ICompetition competition)
     {
         while (!fixture.Concluded)
         {
@@ -239,7 +239,7 @@ public class MatchSimulatorHelper(
         }
     }
 
-    private static void EndFixture(Fixture fixture)
+    private static void EndFixture(FixtureModel fixture)
     {
         fixture.Concluded = true;
 
@@ -250,7 +250,7 @@ public class MatchSimulatorHelper(
 
     }
 
-    public void PrepareMatch(Fixture fixture)
+    public void PrepareMatch(FixtureModel fixture)
     {
         if (fixture.HomeClub.Id != State.Clubs.First(p => p.Id == State.MyClubId).Id)
         {

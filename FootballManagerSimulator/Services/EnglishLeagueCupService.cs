@@ -5,15 +5,15 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.Services;
 
 public class EnglishLeagueCupService(
-    IOptions<Settings> settings) : ICompetitionService
+    IOptions<SettingsModel> settings) : ICompetitionService
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
 
     private readonly IEnumerable<string> RoundOneLeaguesInvolved = ["EFL Championship", "EFL League One", "EFL League Two"];
 
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
-        var cup = (Cup)competition;
+        var cup = (CupModel)competition;
 
         var drawDate = cup.DrawSettings.First(p => p.Round == cup.Round);
 
@@ -28,21 +28,21 @@ public class EnglishLeagueCupService(
             return;
         }
 
-        IEnumerable<Fixture> lastRoundOfFixtures = cup.Fixtures.Where(p => p.Round == cup.Round - 1);
+        IEnumerable<FixtureModel> lastRoundOfFixtures = cup.Fixtures.Where(p => p.Round == cup.Round - 1);
 
-        var winningClubs = lastRoundOfFixtures.Select(p => p.ClubWon).Cast<Club>();
+        var winningClubs = lastRoundOfFixtures.Select(p => p.ClubWon).Cast<ClubModel>();
         var includedClubs = drawDate.IntroducedClubIds == null ? [] : cup.Clubs.Where(p => drawDate.IntroducedClubIds.Contains(p.Id));
         var nextRoundClubs = winningClubs.Concat(includedClubs);
 
         cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs, drawDate.FixtureDate, cup.Round));
     }
 
-    private List<Fixture> GenerateFixtures(IEnumerable<Club> clubs, DateOnly date, int round)
+    private List<FixtureModel> GenerateFixtures(IEnumerable<ClubModel> clubs, DateOnly date, int round)
     {
-        var fixtures = new List<Fixture>();
+        var fixtures = new List<FixtureModel>();
         for (var i = 0; i < clubs.Count(); i += 2)
         {
-            fixtures.Add(new Fixture()
+            fixtures.Add(new FixtureModel()
             {
                 HomeClub = clubs.ElementAt(i),
                 AwayClub = clubs.ElementAt(i + 1),
@@ -54,7 +54,7 @@ public class EnglishLeagueCupService(
         return fixtures;
     }
 
-    public void GeneratePreMatchReportForFixture(Fixture fixture)
+    public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
         //NotificationFactory.AddNotification(
         //    State.Date,

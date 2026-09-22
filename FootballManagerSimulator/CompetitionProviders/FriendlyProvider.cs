@@ -7,10 +7,10 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.CompetitionProviders;
 
 public class FriendlyProvider(
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     FriendlyService friendlyService) : ICompetitionProvider
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly FriendlyService FriendlyService = friendlyService;
     public ICompetitionService CompetitionService => FriendlyService;
 
@@ -18,11 +18,11 @@ public class FriendlyProvider(
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
-        var friendy = new Friendly
+        var friendy = new FriendlyModel
         {
             Id = competition.Id,
             Name = competition.Name,
-            Clubs = Settings.Clubs.Select(p => new Club
+            Clubs = Settings.Clubs.Select(p => new ClubModel
             {
                 Id = p.Id,
                 Name = p.Name,

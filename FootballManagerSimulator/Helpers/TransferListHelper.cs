@@ -16,7 +16,7 @@ public class TransferListHelper(
 
     public void AddPlayerToTransferList(int playerId, int askingPrice)
     {
-        State.TransferListItems.Add(new TransferListItem
+        State.TransferListItems.Add(new TransferListItemModel
         {
             PlayerId = playerId,
             AskingPrice = askingPrice,
@@ -33,7 +33,7 @@ public class TransferListHelper(
 
     public void SignFreeAgentByPlayerId(int playerId)
     {
-        State.Players.First(p => p.Id == playerId).Contract = new Player.ContractModel
+        State.Players.First(p => p.Id == playerId).Contract = new PlayerModel.ContractModel
         {
             ClubId = State.Clubs.First(p => p.Id == State.MyClubId).Id,
             ClubName = State.Clubs.First(p => p.Id == State.MyClubId).Name,
@@ -67,7 +67,7 @@ public class TransferListHelper(
             .PlayerId = transferListItem.PlayerId;
     }
 
-    public TransferListItem? GetTransferListItemByPlayerId(int playerId)
+    public TransferListItemModel? GetTransferListItemByPlayerId(int playerId)
     {
         return State.TransferListItems.FirstOrDefault(p => p.PlayerId == playerId);
     }
@@ -96,7 +96,7 @@ public class TransferListHelper(
             {
                 var transferValue = PlayerHelper.GetTransferValue(p);
                 var askingPrice = RandomNumberHelper.Next(transferValue, (int)(transferValue * 1.5));
-                return new TransferListItem
+                return new TransferListItemModel
                 {
                     PlayerId = p.Id,
                     AskingPrice = askingPrice,

@@ -9,13 +9,13 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
-    public void GeneratePreMatchReportForFixture(Fixture fixture)
+    public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
         var oppositionClub = fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id
             ? State.Clubs.First(p => p.Id == fixture.AwayClub.Id)
             : State.Clubs.First(p => p.Id == fixture.HomeClub.Id);
 
-        var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId) as League;
+        var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId) as LeagueModel;
         var leagueTable = league.GenerateLeagueTable().ToList();
 
         var leaguePosition = leagueTable.First(p => p.Club.Id == oppositionClub.Id);
@@ -77,14 +77,14 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
 
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
-        var league = (League)competition;
+        var league = (LeagueModel)competition;
 
-        var output = new List<Fixture>();
+        var output = new List<FixtureModel>();
 
         var numRounds = league.Clubs.Count() - 1;
         var halfSize = league.Clubs.Count() / 2;
 
-        var clubIndices = new List<Club>(league.Clubs);
+        var clubIndices = new List<ClubModel>(league.Clubs);
 
         clubIndices.RemoveAt(0);
 
@@ -112,7 +112,7 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
             var randomHelper = randomHelpers.First();
             randomHelpers.Remove(randomHelper);
 
-            output.Add(new Fixture
+            output.Add(new FixtureModel
             {
                 HomeClub = league.Clubs.ElementAt(0),
                 AwayClub = clubIndices[clubIdx],
@@ -126,7 +126,7 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
                 var firstClubIdx = (round + idx) % clubIdxSize;
                 var secondClubIdx = (round + clubIdxSize - idx) % clubIdxSize;
 
-                output.Add(new Fixture
+                output.Add(new FixtureModel
                 {
                     HomeClub = clubIndices[firstClubIdx],
                     AwayClub = clubIndices[secondClubIdx],
@@ -144,7 +144,7 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
 
             var clubIdx = round % clubIdxSize;
 
-            output.Add(new Fixture
+            output.Add(new FixtureModel
             {
                 HomeClub = clubIndices[clubIdx],
                 AwayClub = league.Clubs.ElementAt(0),
@@ -158,7 +158,7 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
                 var firstClubIdx = (round + idx) % clubIdxSize;
                 var secondClubIdx = (round + clubIdxSize - idx) % clubIdxSize;
 
-                output.Add(new Fixture
+                output.Add(new FixtureModel
                 {
                     HomeClub = clubIndices[secondClubIdx],
                     AwayClub = clubIndices[firstClubIdx],

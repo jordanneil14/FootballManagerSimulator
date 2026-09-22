@@ -52,7 +52,7 @@ public class ScoutScreen(
                 if (PlayerDetails.Count >= result && result > 0)
                 {
                     var playerDetail = PlayerDetails.First(p => p.Row == result);
-                    State.ScreenStack.Push(new Screen
+                    State.ScreenStack.Push(new ScreenModel
                     {
                         Type = ScreenType.Player,
                         Parameters = new PlayerScreenObj()

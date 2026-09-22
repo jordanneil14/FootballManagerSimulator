@@ -2,8 +2,8 @@
 
 namespace FootballManagerSimulator.Models;
 
-public class Contract : IContract
+public class ContractModel : IContract
 {
-    public Club Club { get; set; } = new Club();
+    public ClubModel Club { get; set; } = new ClubModel();
     public DateOnly ExpiryDate { get; set; }
 }

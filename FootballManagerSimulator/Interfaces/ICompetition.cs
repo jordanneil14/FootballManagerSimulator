@@ -9,7 +9,7 @@ public interface ICompetition
     bool IsLeague { get; }
     int Id { get; }
     string Name { get; }
-    List<Fixture> Fixtures { get; set; }
-    List<Club> Clubs { get; set; }
+    List<FixtureModel> Fixtures { get; set; }
+    List<ClubModel> Clubs { get; set; }
     List<DrawSettingsModel> DrawSettings { get; set; }
 }

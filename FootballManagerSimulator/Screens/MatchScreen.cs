@@ -74,7 +74,7 @@ public class MatchScreen(IState state,
 						}
 					}
 
-					State.ScreenStack.Push(new Screen
+					State.ScreenStack.Push(new ScreenModel
 					{
 						Type = ScreenType.FullTime
 					});
@@ -84,7 +84,7 @@ public class MatchScreen(IState state,
     }
 
 
-	private string GetDisplayCaption(Fixture fixture)
+	private string GetDisplayCaption(FixtureModel fixture)
     {
         if (fixture.Minute == 45) return "** HALF TIME **";
         return "** EXTRA TIME REQUIRED **";

@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class Weather
+public class WeatherModel
 {
     public int MonthNumber { get; set; }
     public IEnumerable<string> WeatherTypes { get; set; } = new List<string>();

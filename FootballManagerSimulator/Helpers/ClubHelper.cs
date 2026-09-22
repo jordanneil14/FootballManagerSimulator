@@ -8,21 +8,21 @@ public class ClubHelper(
 {
     private readonly IState State = state;
 
-    public Club? GetClubByName(string name)
+    public ClubModel? GetClubByName(string name)
     {
         return State.Clubs
             .Where(p => p.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase))
             .FirstOrDefault();
     }
 
-    public Club GetClubById(int id)
+    public ClubModel GetClubById(int id)
     {
         return State.Clubs
             .Where(p => p.Id == id)
             .First();
     }
 
-    public IEnumerable<TacticSlot> GetStartingElevenByClub(int clubId)
+    public IEnumerable<TacticSlotModel> GetStartingElevenByClub(int clubId)
     {
         return State.Clubs.First(p => p.Id == clubId).TacticSlots.Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
     }

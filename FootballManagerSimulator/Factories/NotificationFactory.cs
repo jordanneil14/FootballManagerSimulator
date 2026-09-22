@@ -9,7 +9,7 @@ public class NotificationFactory(IState state) : INotificationFactory
 
     public void AddNotification(DateOnly date, string recipient, string subject, string message)
     {
-        var notification = new Notification
+        var notification = new NotificationModel
         {
             Date = date,
             Recipient = recipient,

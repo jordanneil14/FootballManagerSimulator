@@ -7,7 +7,7 @@ public class PlayerHelper(IState state) : IPlayerHelper
 {
     private readonly IState state = state;
 
-    public Club? GetClubByName(string name)
+    public ClubModel? GetClubByName(string name)
     {
         return state.Clubs
             .Where(p => p.Name.ToLower() == name.ToLower())
@@ -20,14 +20,14 @@ public class PlayerHelper(IState state) : IPlayerHelper
         return player.Contract != null && clubId == player.Contract.ClubId;
     }
 
-    public Player? GetPlayerById(int id)
+    public PlayerModel? GetPlayerById(int id)
     {
         return state.Players
             .Where(p => p.Id == id)
             .FirstOrDefault();
     }
 
-    public Player? GetPlayerByName(string name)
+    public PlayerModel? GetPlayerByName(string name)
     {
         return state.Players
             .Where(p => p.Name == name)
@@ -55,7 +55,7 @@ public class PlayerHelper(IState state) : IPlayerHelper
         state.Players.AddRange(playerData.Players);
     }
 
-    public int GetTransferValue(Player player)
+    public int GetTransferValue(PlayerModel player)
     {
         if (player.Contract == null) return 0;
 

@@ -3,6 +3,6 @@
 public class LeagueKeyModel
 {
     public char Key { get; set; }
-    public League League { get; set; } = new League();
+    public LeagueModel League { get; set; } = new LeagueModel();
     public bool IsCurrent { get; set; }
 }

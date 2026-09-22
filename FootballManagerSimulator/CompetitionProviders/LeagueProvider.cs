@@ -7,10 +7,10 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.CompetitionProviders;
 
 public class LeagueProvider(
-    IOptions<Settings> settings,
+    IOptions<SettingsModel> settings,
     LeagueService leagueService) : ICompetitionProvider
 {
-    private readonly Settings Settings = settings.Value;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly LeagueService LeagueService = leagueService;
 
     public ICompetitionService CompetitionService => LeagueService;
@@ -20,7 +20,7 @@ public class LeagueProvider(
     {
         var clubs = Settings.Clubs
             .Where(p => p.LeagueId == competition.Id)
-            .Select(p => new Club
+            .Select(p => new ClubModel
             {
                 Id = p.Id,
                 Name = p.Name
@@ -29,7 +29,7 @@ public class LeagueProvider(
         if (clubs == null || !clubs.Any())
             throw new Exception($"Unable to get clubs by leagueResourceId {competition.Id}");
 
-        var league = new League()
+        var league = new LeagueModel()
         {
             Id = competition.Id,
             Name = competition.Name,

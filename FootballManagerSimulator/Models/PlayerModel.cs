@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Models;
 
-public class Player : IPerson
+public class PlayerModel : IPerson
 {
     public double ScoringProbability => GetGoalScoringRate();
 

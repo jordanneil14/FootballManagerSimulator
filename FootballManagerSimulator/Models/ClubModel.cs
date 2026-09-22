@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class Club
+public class ClubModel
 {
     public int Id { get; set; }
     public string Name { get; set; } = "";
@@ -10,7 +10,7 @@ public class Club
     public int StadiumSize { get; set; } = 30000;
     public string TransferBudgetFriendly { get => $"£{TransferBudget:n}"; }
     public int WageBudget { get; set; }
-    public List<TacticSlot> TacticSlots { get; set; } = new List<TacticSlot>();
+    public List<TacticSlotModel> TacticSlots { get; set; } = new List<TacticSlotModel>();
     public string Formation { get; set; } = "4-4-2";
 }
 

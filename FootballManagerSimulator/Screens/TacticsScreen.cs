@@ -75,7 +75,7 @@ public class TacticsScreen(IState state,
                 TacticHelper.ResetTacticForClub(State.Clubs.First(p => p.Id == State.MyClubId));
                 break;
             case "E":
-                State.ScreenStack.Push(new Screen
+                State.ScreenStack.Push(new ScreenModel
                 {
                     Type = ScreenType.Formation
                 });
