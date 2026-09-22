@@ -19,9 +19,25 @@ public class EnglishLeagueCupProvider(
     private readonly IState State = state;
     private readonly CupFixtureDrawFactory CupFixtureDrawFactory = cupFixtureDrawFactory;
 
+    private const int NUMBER_OF_ROUNDS = 7;
     private readonly IEnumerable<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
 
     public CompetitionType Type => CompetitionType.Cup;
+
+    private DateOnly GetFixtureDateForRound(int round)
+    {
+		var date = new DateOnly(State.Date.Year, 8, 1);
+		var daysUntilTuesday = ((int)DayOfWeek.Tuesday - (int)date.DayOfWeek + 7) % 7;
+		var roundOneFixtureDate = date.AddDays(daysUntilTuesday);
+
+        if (round == 1)
+            return roundOneFixtureDate;
+
+        if (round < 7)
+            return roundOneFixtureDate.AddDays((round - 1) * 14);
+
+        return roundOneFixtureDate.AddDays(((round - 1) * 14) + 5);
+	}
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
@@ -37,24 +53,37 @@ public class EnglishLeagueCupProvider(
             Id = competition.Id,
             Name = competition.Name,
             Clubs = clubs,
-            DrawDates = competition.DrawDates.Select(p => new DrawDateModel
-            {
-                Round = p.Round,
-                DrawDate = p.DrawDate,
-                FixtureDate = p.FixtureDate,
-                IntroducedClubIds = p.IncludedClubs
-            }).ToList()
+            DrawSettings = []
         };
 
-        foreach (var drawDate in cup.DrawDates)
+        for(var i = 1; i <= NUMBER_OF_ROUNDS; i++)
         {
-            var cupDrawFixtureEvent = CupFixtureDrawFactory;
-            cupDrawFixtureEvent.Data.DrawDate = new DateTime(drawDate.DrawDate.Year, drawDate.DrawDate.Month, drawDate.DrawDate.Day);
-            cupDrawFixtureEvent.Data.FixtureDate = new DateTime(drawDate.FixtureDate.Year, drawDate.FixtureDate.Month, drawDate.FixtureDate.Day);
-            cupDrawFixtureEvent.Data.Round = drawDate.Round;
-            cupDrawFixtureEvent.Data.CompetitionId = competition.Id;
-            cupDrawFixtureEvent.CreateEvent();
-        }
+            var roundSettings = competition.DrawSettings.FirstOrDefault(p => p.Round == i);
+            var drawSettings = new DrawSettingsModel
+            {
+                Round = i,
+                IntroducedClubIds = roundSettings == null ? [] : roundSettings.IntroducedClubIds,
+                FixtureDate = GetFixtureDateForRound(i)
+            };
+
+            if (i == 1)
+            {
+				drawSettings.DrawDate = new DateOnly(State.Date.Year, 7, 13);
+			}
+			else
+            {
+                drawSettings.DrawDate = cup.DrawSettings.Last().FixtureDate.AddDays(1);
+            }
+
+			cup.DrawSettings.Add(drawSettings);
+
+			var cupDrawFixtureEvent = CupFixtureDrawFactory;
+            cupDrawFixtureEvent.Data.DrawDate = new DateTime(drawSettings.DrawDate.Year, drawSettings.DrawDate.Month, drawSettings.DrawDate.Day);
+			cupDrawFixtureEvent.Data.FixtureDate = new DateTime(drawSettings.FixtureDate.Year, drawSettings.FixtureDate.Month, drawSettings.FixtureDate.Day);
+			cupDrawFixtureEvent.Data.Round = drawSettings.Round;
+			cupDrawFixtureEvent.Data.CompetitionId = competition.Id;
+			cupDrawFixtureEvent.CreateEvent();
+		}
 
         return cup;
     }

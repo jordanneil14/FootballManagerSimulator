@@ -65,7 +65,7 @@ public class GameFactory(
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{
-			foreach (var drawDate in competition.DrawDates)
+			foreach (var drawDate in competition.DrawSettings)
                 FriendlyService.GenerateNextRoundOfFixtures(competition);
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace FootballManagerSimulator.Models;
 
-public class DrawDateModel
+public class DrawSettingsModel
 {
     public int Round { get; set; }
     public DateOnly DrawDate { get; set; }

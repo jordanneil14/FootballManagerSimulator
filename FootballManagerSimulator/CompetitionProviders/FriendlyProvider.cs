@@ -28,7 +28,7 @@ public class FriendlyProvider(
                 Name = p.Name,
                 LeagueId = p.LeagueId
             }).ToList(),
-            DrawDates = competition.DrawDates.Select(p => new DrawDateModel
+            DrawSettings = competition.DrawSettings.Select(p => new DrawSettingsModel
             {
                 Round = p.Round,
                 FixtureDate = p.FixtureDate

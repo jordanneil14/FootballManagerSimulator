@@ -13,7 +13,7 @@ public class FriendlyService(INotificationFactory notificationFactory, IState st
         var friendly = (Friendly)competition;
         friendly.Round = friendly.Round.GetValueOrDefault() + 1;
 
-        var drawDate = friendly.DrawDates.First(p => p.Round == friendly.Round);
+        var drawDate = friendly.DrawSettings.First(p => p.Round == friendly.Round);
 
         var fixtures = new List<Fixture>();
         var randomlySortedClubs = competition.Clubs.OrderBy(p => Guid.NewGuid()).ToList();

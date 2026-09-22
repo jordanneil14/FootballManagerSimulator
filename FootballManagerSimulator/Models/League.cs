@@ -13,7 +13,7 @@ public class League : ICompetition
 
     public CompetitionType Type => CompetitionType.League;
 
-    public List<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
+    public List<DrawSettingsModel> DrawSettings { get; set; } = new List<DrawSettingsModel>();
 
 	public bool IsLeague => true;
 

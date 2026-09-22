@@ -11,5 +11,5 @@ public interface ICompetition
     string Name { get; }
     List<Fixture> Fixtures { get; set; }
     List<Club> Clubs { get; set; }
-    List<DrawDateModel> DrawDates { get; set; }
+    List<DrawSettingsModel> DrawSettings { get; set; }
 }

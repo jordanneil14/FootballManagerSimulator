@@ -15,7 +15,7 @@ public class EnglishLeagueCupService(
     {
         var cup = (Cup)competition;
 
-        var drawDate = cup.DrawDates.First(p => p.Round == cup.Round);
+        var drawDate = cup.DrawSettings.First(p => p.Round == cup.Round);
 
         if (cup.Round == 1)
         {

@@ -16,13 +16,13 @@ public class CompetitionModel
         public int Places { get; set; }
     }
 
-    public IEnumerable<DrawDateModel> DrawDates { get; set; } = new List<DrawDateModel>();
+    public IEnumerable<DrawSettingsModel> DrawSettings { get; set; } = [];
 
-    public class DrawDateModel
+    public class DrawSettingsModel
     {
         public int Round { get; set; }
         public DateOnly DrawDate { get; set; }
         public DateOnly FixtureDate { get; set; }
-        public List<int> IncludedClubs { get; set; } = new List<int>();
+        public List<int> IntroducedClubIds { get; set; } = new List<int>();
     }
 }
