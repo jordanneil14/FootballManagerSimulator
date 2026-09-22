@@ -3,7 +3,9 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Services;
 
-public class FriendlyService(INotificationFactory notificationFactory, IState state) : ICompetitionService
+public class FriendlyService(
+    INotificationFactory notificationFactory, 
+    IState state) : ICompetitionService
 {
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly IState State = state;
@@ -47,10 +49,10 @@ public class FriendlyService(INotificationFactory notificationFactory, IState st
 
     public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
-        //NotificationFactory.AddNotification(
-        //    State.Date,
-        //    "Club Analyst",
-        //    "Pre-Match Report",
-        //    "Friendly match incoming");
+        NotificationFactory.AddNotification(
+            State.Date,
+            "Club Analyst",
+            "Pre-Match Report",
+            "Friendly match incoming");
     }
 }

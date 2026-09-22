@@ -5,9 +5,13 @@ using Microsoft.Extensions.Options;
 namespace FootballManagerSimulator.Services;
 
 public class EnglishLeagueCupService(
-    IOptions<SettingsModel> settings) : ICompetitionService
+    IOptions<SettingsModel> settings,
+    INotificationFactory notificationFactory,
+    IState state) : ICompetitionService
 {
     private readonly SettingsModel Settings = settings.Value;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IState State = state;
 
     private readonly IEnumerable<string> RoundOneLeaguesInvolved = ["EFL Championship", "EFL League One", "EFL League Two"];
 
@@ -56,10 +60,10 @@ public class EnglishLeagueCupService(
 
     public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
-        //NotificationFactory.AddNotification(
-        //    State.Date,
-        //    "Club Analyst",
-        //    "Pre-Match Report",
-        //    "English league Cup match incoming");
+        NotificationFactory.AddNotification(
+            State.Date,
+            "Club Analyst",
+            "Pre-Match Report",
+            "English league Cup match incoming");
     }
 }
