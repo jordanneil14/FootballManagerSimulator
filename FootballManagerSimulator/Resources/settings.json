@@ -1352,7 +1352,7 @@
       "CountryId": 1,
       "Rank": 1,
       "IsLeague": true,
-      "Type": "PremierLeague",
+      "Type": "EnglishPremierLeague",
       "Name": "Premier League",
       "LeagueTable": {
         "Places": 20,
@@ -1366,7 +1366,7 @@
       "CountryId": 1,
       "Rank": 2,
       "IsLeague": true,
-      "Type": "League",
+      "Type": "EnglishFootballLeague",
       "Name": "EFL Championship",
       "LeagueTable": {
         "Places": 24,
@@ -1380,7 +1380,7 @@
       "CountryId": 1,
       "Rank": 3,
       "IsLeague": true,
-      "Type": "League",
+      "Type": "EnglishFootballLeague",
       "Name": "EFL League One",
       "LeagueTable": {
         "Places": 24,
@@ -1394,7 +1394,7 @@
       "CountryId": 1,
       "Rank": 4,
       "IsLeague": true,
-      "Type": "League",
+      "Type": "EnglishFootballLeague",
       "Name": "EFL League Two",
       "LeagueTable": {
         "Places": 24,

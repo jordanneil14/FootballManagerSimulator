@@ -6,15 +6,15 @@ using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.CompetitionProviders;
 
-public class PremierLeagueProvider(
-    IOptions<SettingsModel> settings,
-    PremierLeagueService premierLeagueService) : ICompetitionProvider
+public class EnglishFootballLeagueProvider(
+	IOptions<SettingsModel> settings,
+	EnglishFootballLeagueService englishFootballLeagueService) : ICompetitionProvider
 {
 	private readonly SettingsModel Settings = settings.Value;
-    private readonly PremierLeagueService PremierLeagueService = premierLeagueService;
-    public ICompetitionService CompetitionService => PremierLeagueService;
+	private readonly EnglishFootballLeagueService EnglishFootballLeagueService = englishFootballLeagueService;
 
-    public CompetitionType Type => CompetitionType.PremierLeague;
+	public ICompetitionService CompetitionService => EnglishFootballLeagueService;
+	public CompetitionType Type => CompetitionType.EnglishFootballLeague;
 
 	public ICompetition CreateCompetition(CompetitionModel competition)
 	{

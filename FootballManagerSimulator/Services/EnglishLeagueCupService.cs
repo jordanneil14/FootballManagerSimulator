@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
@@ -13,8 +14,6 @@ public class EnglishLeagueCupService(
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly IState State = state;
 
-    private readonly IEnumerable<string> RoundOneLeaguesInvolved = ["EFL Championship", "EFL League One", "EFL League Two"];
-
     public void GenerateNextRoundOfFixtures(ICompetition competition)
     {
         var cup = (CupModel)competition;
@@ -23,7 +22,7 @@ public class EnglishLeagueCupService(
 
         if (cup.Round == 1)
         {
-            var leagues = Settings.Competitions.Where(p => RoundOneLeaguesInvolved.Contains(p.Name));
+            var leagues = Settings.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague.ToString());
             var leagueIds = leagues.Select(p => p.Id);
 
             var clubs = cup.Clubs.Where(p => leagueIds.Contains(p.LeagueId));

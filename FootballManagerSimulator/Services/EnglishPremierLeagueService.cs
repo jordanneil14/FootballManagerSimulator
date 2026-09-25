@@ -1,10 +1,11 @@
-﻿using FootballManagerSimulator.Helpers;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Services;
 
-public class PremierLeagueService(
+public class EnglishPremierLeagueService(
     IState state,
     INotificationFactory notificationFactory) : ICompetitionService
 {
@@ -40,18 +41,21 @@ public class PremierLeagueService(
             message);
     }
 
-    public class RandomFixture
+    public class RandomFixtureModel
     {
         public int WeekNumber { get; set; }
         public DateOnly Date { get; set; }
     }
 
-    private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
+	private IEnumerable<DateOnly> EnglishLeagueCupFixtureDates => State.Competitions
+		.First(p => p.Name == "English League Cup")
+		.DrawSettings
+		.Select(p => p.FixtureDate);
+
+	private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
     {
         var startDate = new DateOnly(State.Date.Year, 8, 14);
         var endDate = new DateOnly(State.Date.Year + 1, 4, 22);
-
-        //var excludedDates = new List<DateOnly>() { new( state.Date.Year, 12, 25) };
 
         var availableSaturdays = new List<DateOnly>();
         var availableTuesdays = new List<DateOnly>();
@@ -64,7 +68,10 @@ public class PremierLeagueService(
                 availableTuesdays.Add(date);
         }
 
-        var remainingFixtureCount = fixtureCount - availableSaturdays.Count();
+		availableSaturdays = [.. availableSaturdays.Except(EnglishLeagueCupFixtureDates)];
+		availableTuesdays = [.. availableTuesdays.Except(EnglishLeagueCupFixtureDates)];
+
+		var remainingFixtureCount = fixtureCount - availableSaturdays.Count();
 
         var random = new Random();
 
@@ -91,14 +98,12 @@ public class PremierLeagueService(
 
         var clubIdxSize = clubIndices.Count;
 
-        //var date = new DateOnly(State.Date.Year, 8, 1);
-
         var fixtureDates = GetFixtureDates(numRounds * 2);
 
-        var randomHelpers = new List<RandomFixture>();
+        var randomHelpers = new List<RandomFixtureModel>();
         for (var i = 1; i <= numRounds * 2; i++)
         {
-            randomHelpers.Add(new RandomFixture
+            randomHelpers.Add(new RandomFixtureModel
             {
                 WeekNumber = i,
                 Date = fixtureDates.ElementAt(i - 1)

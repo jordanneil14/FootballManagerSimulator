@@ -103,7 +103,7 @@ public class GameFactory(
         foreach (var club in State.Clubs)
             TacticHelper.ResetTacticForClub(club);
 
-        foreach (var competition in Settings.Competitions.OrderBy(p => p.Type == "Cup"))
+        foreach (var competition in Settings.Competitions.OrderByDescending(p => p.Type == "Cup"))
         {
             var competitionProvider = CompetitionProviders
                 .First(p => p.Type.ToString() == competition.Type);

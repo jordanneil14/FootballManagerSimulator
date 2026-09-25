@@ -36,7 +36,7 @@ public class EnglishLeagueCupProvider(
         if (round < 7)
             return roundOneFixtureDate.AddDays((round - 1) * 14);
 
-        return roundOneFixtureDate.AddDays(((round - 1) * 14) + 5);
+        return roundOneFixtureDate.AddDays(((round - 1) * 14) + 4);
 	}
 
     public ICompetition CreateCompetition(CompetitionModel competition)

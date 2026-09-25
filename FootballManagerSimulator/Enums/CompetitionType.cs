@@ -5,5 +5,6 @@ public enum CompetitionType
     League = 0,
     Cup = 1,
     Friendly = 2,
-    PremierLeague = 3
+    EnglishPremierLeague = 3,
+    EnglishFootballLeague = 4
 }

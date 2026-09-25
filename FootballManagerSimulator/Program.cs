@@ -35,8 +35,9 @@ public class Program
 
         serviceProvider.AddScoped<EnglishLeagueCupService>();
         serviceProvider.AddScoped<FriendlyService>();
-        serviceProvider.AddScoped<PremierLeagueService>();
+        serviceProvider.AddScoped<EnglishPremierLeagueService>();
         serviceProvider.AddScoped<LeagueService>();
+        serviceProvider.AddScoped<EnglishFootballLeagueService>();
 
         serviceProvider.AddScoped<CupFixtureDrawFactory>();
 
