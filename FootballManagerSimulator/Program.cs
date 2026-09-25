@@ -1,9 +1,7 @@
-﻿using FootballManagerSimulator.CompetitionProviders;
-using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Competitions.Services;
 using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
 using FootballManagerSimulator.Structures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

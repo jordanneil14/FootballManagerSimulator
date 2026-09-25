@@ -1,10 +1,10 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.CompetitionProviders;
+namespace FootballManagerSimulator.Competitions.Providers;
 
 public class FriendlyProvider(
     IOptions<SettingsModel> settings,

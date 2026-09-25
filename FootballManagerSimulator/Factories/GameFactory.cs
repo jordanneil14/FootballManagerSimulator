@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 

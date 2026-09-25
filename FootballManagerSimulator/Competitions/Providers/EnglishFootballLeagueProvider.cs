@@ -1,20 +1,20 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.CompetitionProviders;
+namespace FootballManagerSimulator.Competitions.Providers;
 
-public class EnglishPremierLeagueProvider(
-    IOptions<SettingsModel> settings,
-    EnglishPremierLeagueService premierLeagueService) : ICompetitionProvider
+public class EnglishFootballLeagueProvider(
+	IOptions<SettingsModel> settings,
+	EnglishFootballLeagueService englishFootballLeagueService) : ICompetitionProvider
 {
 	private readonly SettingsModel Settings = settings.Value;
-    private readonly EnglishPremierLeagueService EnglishPremierLeagueService = premierLeagueService;
-    public ICompetitionService CompetitionService => EnglishPremierLeagueService;
+	private readonly EnglishFootballLeagueService EnglishFootballLeagueService = englishFootballLeagueService;
 
-    public CompetitionType Type => CompetitionType.EnglishPremierLeague;
+	public ICompetitionService CompetitionService => EnglishFootballLeagueService;
+	public CompetitionType Type => CompetitionType.EnglishFootballLeague;
 
 	public ICompetition CreateCompetition(CompetitionModel competition)
 	{

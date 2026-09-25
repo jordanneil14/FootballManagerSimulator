@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Services;
 using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Factories;

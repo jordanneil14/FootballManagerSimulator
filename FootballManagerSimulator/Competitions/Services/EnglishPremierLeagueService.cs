@@ -3,7 +3,7 @@ using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
-namespace FootballManagerSimulator.Services;
+namespace FootballManagerSimulator.Competitions.Services;
 
 public class EnglishPremierLeagueService(
     IState state,

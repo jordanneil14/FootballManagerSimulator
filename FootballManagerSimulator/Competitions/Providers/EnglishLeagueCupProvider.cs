@@ -1,11 +1,11 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.CompetitionProviders;
+namespace FootballManagerSimulator.Competitions.Providers;
 
 public class EnglishLeagueCupProvider(
     IOptions<SettingsModel> settings,

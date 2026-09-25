@@ -3,7 +3,7 @@ using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Services;
+namespace FootballManagerSimulator.Competitions.Services;
 
 public class EnglishLeagueCupService(
     IOptions<SettingsModel> settings,
