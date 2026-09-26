@@ -57,8 +57,8 @@ public class FinancesScreen(
 				State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
 				break;
 			case "D":
-				var stadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
-				stadiumExpansionEvent.CreateEvent();
+				var requestStadiumExpansionEvent = EventFactories.First(p => p.Type == EventType.RequestStadiumExpansion);
+				requestStadiumExpansionEvent.CreateEvent();
 				State.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
 				break;
 		}

@@ -7,4 +7,6 @@ public interface IEvent
     EventType Type { get; }
     DateOnly CompletionDate { get; }
     DateOnly StartDate { get; }
+
+    void TriggerEvent();
 }
