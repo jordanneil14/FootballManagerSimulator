@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Exceptions;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
@@ -10,13 +11,13 @@ public class ProcessHelper(
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
     IEnumerable<ICompetitionProvider> competitionFactories,
-    IEnumerable<IEventFactory> eventFactories) : IProcessHelper
+    IEventManager gameEventManager) : IProcessHelper
 {
     private readonly IState State = state;
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly IEnumerable<ICompetitionProvider> CompetitionFactories = competitionFactories;
-    private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
+    private readonly IEventManager EventManager = gameEventManager;
 
     public void Process()
     {
@@ -42,12 +43,7 @@ public class ProcessHelper(
                     CompetitionFactories.First(p => p.Type == comp.Type).CompetitionService.GeneratePreMatchReportForFixture(fixture);
             }
 
-            var completedEvents = State.Events.Where(p => p.CompletionDate == State.Date).ToList();
-            foreach (var completedEvent in completedEvents)
-            {
-                var eventFactory = EventFactories.First(p => p.Type == completedEvent.Type);
-                eventFactory.CompleteEvent(completedEvent);
-            }
+            EventManager.ExecuteEvents();
         }
         catch (ProcessException ex)
         {

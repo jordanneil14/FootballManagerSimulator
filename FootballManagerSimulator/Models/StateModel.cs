@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Events;
+using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Structures;
@@ -18,6 +19,6 @@ public class StateModel : IState
     public Stack<ScreenModel> ScreenStack { get; set; } = new Stack<ScreenModel>();
     public PreviewModel Preview { get; set; } = new PreviewModel();
     public List<TransferListItemModel> TransferListItems { get; set; } = new List<TransferListItemModel>();
-    public List<IEvent> Events { get; set; } = new List<IEvent>();
+    public List<IEvent> GameEvents { get; set; } = [];
 }
 

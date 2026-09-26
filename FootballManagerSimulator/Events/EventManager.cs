@@ -1,14 +1,22 @@
 ﻿using FootballManagerSimulator.Interfaces;
 
-namespace FootballManagerSimulator.GameEvent;
+namespace FootballManagerSimulator.Events;
 
-public class GameEventManager(IState state)
+public class EventManager(IState state) : IEventManager
 {
 	private readonly IState State = state;
 
-	public void AddEvent(IGameEvent gameEvent)
+	public void ValidateAndAddEvent(IEvent gameEvent)
 	{
-		State.GameEvents.Add(gameEvent);
+		var (success, errorMessage) = gameEvent.ValidateAdd();
+		if (success)
+		{
+            State.GameEvents.Add(gameEvent);
+        }
+		else
+		{
+			State.UserFeedbackUpdates.Add(errorMessage);
+        }
 	}
 
 	public void ExecuteEvents()

@@ -8,12 +8,10 @@ using Newtonsoft.Json;
 namespace FootballManagerSimulator.Screens.MenuScreens;
 
 public class LoadGameScreen(
-    IState state,
-	IGameFactory gameFactory) : MenuBaseScreen
+    IState state) : MenuBaseScreen
 {
     private readonly List<LoadGamePreviewModel> Games = [];
     private readonly IState State = state;
-	private readonly IGameFactory GameFactory = gameFactory;
 
     public override ScreenType Screen => ScreenType.LoadGame;
 
@@ -82,7 +80,7 @@ public class LoadGameScreen(
             State.Competitions = deserialisedState.Competitions;
             State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
             State.TransferListItems = deserialisedState.TransferListItems;
-            State.Events = deserialisedState.Events;
+            State.GameEvents = deserialisedState.GameEvents;
         }
         catch (Exception ex)
         {

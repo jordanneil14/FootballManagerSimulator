@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using Microsoft.Extensions.Options;
@@ -16,8 +17,8 @@ public class GameFactory(
     ITacticHelper tacticHelper,
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
-    IEnumerable<IEventFactory> eventFactories,
-    FriendlyService friendlyService) : IGameFactory
+    FriendlyService friendlyService,
+    IEventManager gameEventManager) : IGameFactory
 {
     private readonly SettingsModel Settings = settings.Value;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
@@ -28,8 +29,8 @@ public class GameFactory(
     private readonly ITacticHelper TacticHelper = tacticHelper;
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
-    private readonly IEnumerable<IEventFactory> EventFactories = eventFactories;
     private readonly FriendlyService FriendlyService = friendlyService;
+    private readonly IEventManager GameEventManager = gameEventManager;
 
     public void FinaliseGameState()
     {
@@ -69,12 +70,7 @@ public class GameFactory(
                 FriendlyService.GenerateNextRoundOfFixtures(competition);
         }
 
-		var concludedEvents = State.Events.Where(p => p.CompletionDate <= State.Date);
-		foreach (var concludedEvent in concludedEvents)
-		{
-			var eventFactory = EventFactories.First(p => p.Type == concludedEvent.Type);
-			eventFactory.CompleteEvent(concludedEvent);
-		}
+        GameEventManager.ExecuteEvents();
 
 		TransferListHelper.UpdateTransferList();
 	}

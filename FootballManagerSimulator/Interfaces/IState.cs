@@ -1,4 +1,4 @@
-﻿using FootballManagerSimulator.GameEvent;
+﻿using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
 
@@ -19,6 +19,5 @@ public interface IState
     public PreviewModel Preview { get; set; }
     public List<TransferListItemModel> TransferListItems { get; set; }
     int? MyClubId { get; set; }
-    List<IEvent> Events { get; set; }
-    List<IGameEvent> GameEvents { get; set; }
+    List<IEvent> GameEvents { get; set; }
 }

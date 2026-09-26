@@ -1,12 +1,9 @@
-﻿using FootballManagerSimulator.Enums;
-
-namespace FootballManagerSimulator.Interfaces;
+﻿namespace FootballManagerSimulator.Interfaces;
 
 public interface IEvent
 {
-    EventType Type { get; }
-    DateOnly CompletionDate { get; }
-    DateOnly StartDate { get; }
-
-    void TriggerEvent();
+    DateOnly TriggerDate { get; }
+    bool IsCompleted { get; set; }
+    void Execute();
+    (bool success, string errorMessage) ValidateAdd();
 }

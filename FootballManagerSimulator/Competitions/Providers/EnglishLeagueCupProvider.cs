@@ -1,8 +1,9 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
 using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Factories;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Competitions.Providers;
@@ -10,14 +11,16 @@ namespace FootballManagerSimulator.Competitions.Providers;
 public class EnglishLeagueCupProvider(
     IOptions<SettingsModel> settings,
     IState state,
-    CupFixtureDrawFactory cupFixtureDrawFactory,
-    EnglishLeagueCupService englishLeagueCupService) : ICompetitionProvider
+    EnglishLeagueCupService englishLeagueCupService,
+    IServiceProvider serviceProvider,
+    IEventManager eventManager) : ICompetitionProvider
 {
     private readonly SettingsModel Settings = settings.Value;
     private readonly EnglishLeagueCupService EnglishLeagueCupService = englishLeagueCupService;
     public ICompetitionService CompetitionService => EnglishLeagueCupService;
     private readonly IState State = state;
-    private readonly CupFixtureDrawFactory CupFixtureDrawFactory = cupFixtureDrawFactory;
+    private readonly IServiceProvider ServiceProvider = serviceProvider;
+    private readonly IEventManager EventManager = eventManager;
 
     private const int NUMBER_OF_ROUNDS = 7;
     private readonly IEnumerable<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
@@ -77,13 +80,9 @@ public class EnglishLeagueCupProvider(
 
 			cup.DrawSettings.Add(drawSettings);
 
-			var cupDrawFixtureEvent = CupFixtureDrawFactory;
-            cupDrawFixtureEvent.Data.DrawDate = new DateTime(drawSettings.DrawDate.Year, drawSettings.DrawDate.Month, drawSettings.DrawDate.Day);
-			cupDrawFixtureEvent.Data.FixtureDate = new DateTime(drawSettings.FixtureDate.Year, drawSettings.FixtureDate.Month, drawSettings.FixtureDate.Day);
-			cupDrawFixtureEvent.Data.Round = drawSettings.Round;
-			cupDrawFixtureEvent.Data.CompetitionId = competition.Id;
-			cupDrawFixtureEvent.CreateEvent();
-		}
+            var @event = ActivatorUtilities.CreateInstance<EnglishLeagueCupFixtureDrawGameEvent>(ServiceProvider, drawSettings.DrawDate);
+            EventManager.ValidateAndAddEvent(@event);
+        }
 
         return cup;
     }

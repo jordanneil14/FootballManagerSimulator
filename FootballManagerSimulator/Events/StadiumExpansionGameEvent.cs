@@ -1,22 +1,16 @@
 ﻿using FootballManagerSimulator.Interfaces;
 
-namespace FootballManagerSimulator.GameEvent;
+namespace FootballManagerSimulator.Events;
 
-public class StadiumExpansionGameEvent : GameEvent
+public class StadiumExpansionGameEvent(
+    IState state,
+    INotificationFactory notificationFactory,
+    DateOnly triggerDate) : Event(triggerDate)
 {
-	private readonly IState State;
-	private readonly INotificationFactory NotificationFactory;
+	private readonly IState State = state;
+	private readonly INotificationFactory NotificationFactory = notificationFactory;
 
-	public StadiumExpansionGameEvent(
-		IState state,
-		INotificationFactory notificationFactory,
-		DateOnly triggerDate) : base(triggerDate)
-	{
-		State = state;
-		NotificationFactory = notificationFactory;
-	}
-
-	public override void Execute()
+    public override void Execute()
 	{
 		var stadiumSizeIncrease = (int)(State.Clubs.First(p => p.Id == State.MyClubId).StadiumSize * 0.2);
 		State.Clubs.First(p => p.Id == State.MyClubId).StadiumSize += stadiumSizeIncrease;
@@ -29,4 +23,9 @@ public class StadiumExpansionGameEvent : GameEvent
 			"Stadium Expansion",
 			$"{myClub.Name} capactity has been increased by {stadiumSizeIncrease} to {myClub.StadiumSize}");
 	}
+
+    public override (bool success, string errorMessage) ValidateAdd()
+    {
+		return (true, "");
+    }
 }

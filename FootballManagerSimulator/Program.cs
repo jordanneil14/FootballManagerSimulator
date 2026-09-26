@@ -1,5 +1,5 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
-using FootballManagerSimulator.Factories;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
@@ -37,7 +37,7 @@ public class Program
         serviceProvider.AddScoped<LeagueService>();
         serviceProvider.AddScoped<EnglishFootballLeagueService>();
 
-        serviceProvider.AddScoped<CupFixtureDrawFactory>();
+        serviceProvider.AddSingleton<IEventManager, EventManager>();
 
         return serviceProvider.BuildServiceProvider();
     }
