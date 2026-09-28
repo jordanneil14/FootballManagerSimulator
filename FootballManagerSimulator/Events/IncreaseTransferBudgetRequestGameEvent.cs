@@ -5,7 +5,8 @@ namespace FootballManagerSimulator.Events
     public class IncreaseTransferBudgetRequestGameEvent(
         IState state,
         INotificationFactory notificationFactory,
-        DateOnly triggerDate) : Event(triggerDate)
+        DateOnly triggerDate,
+        bool isCompleted) : Event(triggerDate, isCompleted)
     {
         private readonly IState State = state;
         private readonly INotificationFactory NotificationFactory = notificationFactory;

@@ -1,19 +1,25 @@
 ﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Factories;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using FootballManagerSimulator.Structures;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Screens.MenuScreens;
 
 public class LoadGameScreen(
-    IState state) : MenuBaseScreen
+    IState state,
+	IServiceProvider serviceProvider,
+	IEventManager eventManager) : MenuBaseScreen
 {
     private readonly List<LoadGamePreviewModel> Games = [];
     private readonly IState State = state;
+	private readonly IServiceProvider ServiceProvider = serviceProvider;
+	private readonly IEventManager EventManager = eventManager;
 
-    public override ScreenType Screen => ScreenType.LoadGame;
+	public override ScreenType Screen => ScreenType.LoadGame;
 
     public override Dictionary<string, string> Options => new() { };
 
@@ -74,14 +80,24 @@ public class LoadGameScreen(
             State.Notifications = deserialisedState.Notifications;
             State.ManagerName = deserialisedState.ManagerName;
             State.Clubs = deserialisedState.Clubs;
-            State.Date = deserialisedState.Date;
+			State.Date = deserialisedState.Date;
             State.MyClubId = deserialisedState.MyClubId;
             State.Players = deserialisedState.Players;
             State.Competitions = deserialisedState.Competitions;
             State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
             State.TransferListItems = deserialisedState.TransferListItems;
-            State.GameEvents = deserialisedState.GameEvents;
-        }
+
+			foreach (var @event in deserialisedState.GameEvents)
+			{
+				var gameEvent = (IEvent)ActivatorUtilities.CreateInstance(
+					ServiceProvider,
+					@event.GetType(),
+					@event.TriggerDate,
+					@event.IsCompleted
+				);
+				EventManager.ValidateAndAddEvent(gameEvent);
+			}
+		}
         catch (Exception ex)
         {
             State.UserFeedbackUpdates.Add(ex.Message);

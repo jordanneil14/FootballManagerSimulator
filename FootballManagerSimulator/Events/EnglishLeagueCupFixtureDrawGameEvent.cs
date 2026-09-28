@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
 using FootballManagerSimulator.Interfaces;
+using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Events
 {
@@ -7,8 +8,9 @@ namespace FootballManagerSimulator.Events
     IState state,
     INotificationFactory notificationFactory,
     DateOnly triggerDate,
+    bool isCompleted,
     EnglishLeagueCupService englishLeagueCupService
-        ) : Event(triggerDate)
+        ) : Event(triggerDate, isCompleted)
     {
         private readonly IState State = state;
         private readonly EnglishLeagueCupService EnglishLeagueCupService = englishLeagueCupService;
@@ -19,10 +21,13 @@ namespace FootballManagerSimulator.Events
             var competition = State.Competitions.First(p => p.Name == "English League Cup");
             var round = competition.Fixtures.Any() ? competition.Fixtures.Max(p => p.Round) + 1 : 1;
 
-            EnglishLeagueCupService.GenerateNextRoundOfFixtures(competition);
+			var cup = (CupModel)competition;
+            cup.Round += 1;
+
+			EnglishLeagueCupService.GenerateNextRoundOfFixtures(competition);
 
             var clubIds = competition.Clubs.Select(p => p.Id);
-            if (clubIds.Any() && clubIds.Contains(State.MyClubId.GetValueOrDefault()))
+            if (clubIds.Any())
             {
                 var fixtures = competition.Fixtures.Where(p => p.Round == round);
 

@@ -1,7 +1,6 @@
 ﻿using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FootballManagerSimulator.Screens;
 
@@ -48,8 +47,6 @@ public class FixturesScreen(
     public override void RenderSubscreen()
     {
         Console.WriteLine("Fixtures & Results");
-
-        var parameters = State.ScreenStack.Peek().Parameters as FixturesScreenObj;
 
         var dates = State.Competitions
             .Where(p => p.Clubs.Select(p => p.Id).Contains(State.Clubs.First(p => p.Id == State.MyClubId).Id))

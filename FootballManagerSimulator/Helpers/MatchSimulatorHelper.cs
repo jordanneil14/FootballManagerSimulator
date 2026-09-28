@@ -224,10 +224,9 @@ public class MatchSimulatorHelper(
 
         fixture.Minute = 90;
 
-        if (competition.Type != CompetitionType.Cup)
-            EndFixture(fixture);
+        //if (competition.Type == CompetitionType.Cup && fixture.GoalsHome == fix)
 
-        if (fixture.GoalsHome == fixture.GoalsAway)
+        if (competition.Type != CompetitionType.Cup || fixture.GoalsHome != fixture.GoalsAway)
             EndFixture(fixture);
     }
 

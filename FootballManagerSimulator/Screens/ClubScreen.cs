@@ -65,23 +65,37 @@ public class ClubScreen(
     {
         var clubScreenObj = State.ScreenStack.Peek().Parameters as ClubScreenObj;
 
-        Console.WriteLine($"{clubScreenObj!.Club.Name}");
+        if (clubScreenObj.Club.Id != State.MyClubId)
+            Console.WriteLine($"{clubScreenObj!.Club.Name}\n");
 
-        Console.WriteLine($"\nStadium:\n{clubScreenObj.Club.Stadium}");
+        Console.WriteLine($"Stadium:\n{clubScreenObj.Club.Stadium}\n");
 
-        Console.WriteLine("Upcoming Fixtures:");
+        Console.WriteLine("Recent Fixtures & Results:");
+
+        var recentResults = State.Competitions
+            .SelectMany(p => p.Fixtures)
+            .Where(p => (p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id) && p.ClubWon != null)
+            .OrderBy(p => p.Date)
+            .TakeLast(2);
+
+        foreach (var fixture in recentResults)
+        {
+            var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
+            Console.WriteLine($"{fixture.HomeClub.Name,55}{fixture.GoalsHome!.Value,3} v {fixture.GoalsAway!.Value,-3}{fixture.AwayClub.Name,-55}");
+        }
+
         var upcomingFixtures = State.Competitions
             .SelectMany(p => p.Fixtures)
-            .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id)
+            .Where(p => p.HomeClub.Id == clubScreenObj.Club.Id || p.AwayClub.Id == clubScreenObj.Club.Id && p.Date > State.Date)
             .OrderBy(p => p.Date)
-            .Take(5);
+            .Take(3);
         foreach (var fixture in upcomingFixtures)
         {
             var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
-            Console.WriteLine($"{competition.Name, -15} {fixture.HomeClub.Name, -15} v {fixture.AwayClub.Name,15}");
-        }
+			Console.WriteLine($"{fixture.HomeClub.Name,55}{"",3} v {"",-3}{fixture.AwayClub.Name,-55}");
+		}
 
-        Console.WriteLine("\nPlayers:");
+		Console.WriteLine("\nPlayers:");
 
         var players = State.Players.Where(p => p.Contract?.ClubId == clubScreenObj.Club.Id);
 

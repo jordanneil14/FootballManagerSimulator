@@ -6,10 +6,12 @@ namespace FootballManagerSimulator.Screens;
 
 public class FullTimeScreen(
     IState state,
-    IPlayerHelper playerHelper) : BaseScreen(state)
+    IPlayerHelper playerHelper,
+    IMatchSimulatorHelper matchSimulatorHelper) : BaseScreen(state)
 {
     private readonly IState State = state;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
+    private readonly IMatchSimulatorHelper MatchSimulatorHelper = matchSimulatorHelper;
 
     public override ScreenType Screen => ScreenType.FullTime;
 
@@ -36,7 +38,16 @@ public class FullTimeScreen(
 				OptionIndex = 0;
 				break;
 			case "ENTER":
-                State.ScreenStack.Clear();
+				foreach (var competition in State.Competitions)
+				{
+					var todaysFixtures = competition.Fixtures.Where(p => p.Date == State.Date && p.ClubWon == null);
+					foreach (var fixture in todaysFixtures)
+					{
+						MatchSimulatorHelper.ProcessMatch(fixture, competition);
+					}
+				}
+
+				State.ScreenStack.Clear();
                 State.ScreenStack.Push(new ScreenModel
                 {
                     Type = ScreenType.PostMatchScores

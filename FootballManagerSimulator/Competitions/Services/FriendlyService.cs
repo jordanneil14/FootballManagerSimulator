@@ -49,10 +49,12 @@ public class FriendlyService(
 
     public void GeneratePreMatchReportForFixture(FixtureModel fixture)
     {
+        var oppositionClub = fixture.HomeClub.Id == State.MyClubId ? fixture.AwayClub : fixture.HomeClub;
+
         NotificationFactory.AddNotification(
             State.Date,
-            "Club Analyst",
+            "Assistant Manager",
             "Pre-Match Report",
-            "Friendly match incoming");
+            $"You have a friendly versus {oppositionClub.Name} tomorrow");
     }
 }

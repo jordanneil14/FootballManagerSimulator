@@ -8,7 +8,8 @@ namespace FootballManagerSimulator.Events
         INotificationFactory notificationFactory,
         IEventManager gameEventManager,
         DateOnly triggerDate,
-        IServiceProvider serviceProvider) : Event(triggerDate)
+        bool isCompleted,
+        IServiceProvider serviceProvider) : Event(triggerDate, isCompleted)
     {
         private readonly IState State = state;
         private readonly INotificationFactory NotificationFactory = notificationFactory;

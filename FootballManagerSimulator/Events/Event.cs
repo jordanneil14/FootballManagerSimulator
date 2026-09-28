@@ -2,10 +2,10 @@
 
 namespace FootballManagerSimulator.Events;
 
-public abstract class Event(DateOnly triggerDate) : IEvent
+public abstract class Event(DateOnly triggerDate, bool isCompleted) : IEvent
 {
 	public DateOnly TriggerDate { get; } = triggerDate;
-	public bool IsCompleted { get; set; }
+	public bool IsCompleted { get; set; } = isCompleted;
 
 	public abstract void Execute();
 
