@@ -19,6 +19,6 @@ public class StateModel : IState
     public Stack<ScreenModel> ScreenStack { get; set; } = new Stack<ScreenModel>();
     public PreviewModel Preview { get; set; } = new PreviewModel();
     public List<TransferListItemModel> TransferListItems { get; set; } = new List<TransferListItemModel>();
-    public List<IEvent> GameEvents { get; set; } = [];
+    public List<IEvent> Events { get; set; } = [];
 }
 

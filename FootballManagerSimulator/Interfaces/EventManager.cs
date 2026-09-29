@@ -2,6 +2,6 @@
 
 public interface IEventManager
 {
-    void ValidateAndAddEvent(IEvent gameEvent);
+    void ValidateAndAddEvent(IEvent @event);
     void ExecuteEvents();
 }

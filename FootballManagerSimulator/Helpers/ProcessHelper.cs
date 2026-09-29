@@ -11,13 +11,13 @@ public class ProcessHelper(
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
     IEnumerable<ICompetitionProvider> competitionFactories,
-    IEventManager gameEventManager) : IProcessHelper
+    IEventManager eventManager) : IProcessHelper
 {
     private readonly IState State = state;
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly IEnumerable<ICompetitionProvider> CompetitionFactories = competitionFactories;
-    private readonly IEventManager EventManager = gameEventManager;
+    private readonly IEventManager EventManager = eventManager;
 
     public void Process()
     {

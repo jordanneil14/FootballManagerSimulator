@@ -6,12 +6,12 @@ public class EventManager(IState state) : IEventManager
 {
 	private readonly IState State = state;
 
-	public void ValidateAndAddEvent(IEvent gameEvent)
+	public void ValidateAndAddEvent(IEvent @event)
 	{
-		var (success, errorMessage) = gameEvent.ValidateAdd();
+		var (success, errorMessage) = @event.ValidateAdd();
 		if (success)
 		{
-            State.GameEvents.Add(gameEvent);
+            State.Events.Add(@event);
         }
 		else
 		{
@@ -21,14 +21,14 @@ public class EventManager(IState state) : IEventManager
 
 	public void ExecuteEvents()
 	{
-		var triggeredEvents = State.GameEvents
+		var triggeredEvents = State.Events
 			.Where(e => e.TriggerDate <= State.Date && !e.IsCompleted)
 			.ToList();
 
-		foreach (var gameEvent in triggeredEvents)
+		foreach (var @event in triggeredEvents)
 		{
-			gameEvent.Execute();
-			gameEvent.IsCompleted = true;
+			@event.Execute();
+			@event.IsCompleted = true;
 		}
 	}
 }

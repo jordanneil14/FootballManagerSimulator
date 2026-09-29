@@ -4,7 +4,7 @@ using FootballManagerSimulator.Models;
 
 namespace FootballManagerSimulator.Events;
 
-public class EnglishLeagueCupFixtureDrawGameEvent(
+public class EnglishLeagueCupFixtureDrawEvent(
     IState state,
     INotificationFactory notificationFactory,
     DateOnly triggerDate,

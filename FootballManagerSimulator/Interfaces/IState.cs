@@ -19,5 +19,5 @@ public interface IState
     public PreviewModel Preview { get; set; }
     public List<TransferListItemModel> TransferListItems { get; set; }
     int? MyClubId { get; set; }
-    List<IEvent> GameEvents { get; set; }
+    List<IEvent> Events { get; set; }
 }

@@ -8,11 +8,11 @@ namespace FootballManagerSimulator.Screens;
 public class FinancesScreen(
     IState state,
     IServiceProvider serviceProvider,
-	IEventManager gameEventManager) : BaseScreen(state)
+	IEventManager eventManager) : BaseScreen(state)
 {
     private readonly IState State = state;
 	private readonly IServiceProvider ServiceProvider = serviceProvider;
-	private readonly IEventManager GameEventManager = gameEventManager;
+	private readonly IEventManager EventManager = eventManager;
 
     public override ScreenType Screen => ScreenType.Finances;
 
@@ -56,13 +56,13 @@ public class FinancesScreen(
 				State.ScreenStack.Pop();
 				break;
 			case "C":
-				var increaseTransferBudgetRequest = ActivatorUtilities.CreateInstance<IncreaseTransferBudgetRequestGameEvent>(ServiceProvider, State.Date.AddDays(2));
-				GameEventManager.ValidateAndAddEvent(increaseTransferBudgetRequest);
+				var increaseTransferBudgetRequest = ActivatorUtilities.CreateInstance<IncreaseTransferBudgetRequestEvent>(ServiceProvider, State.Date.AddDays(2));
+				EventManager.ValidateAndAddEvent(increaseTransferBudgetRequest);
 				State.UserFeedbackUpdates.Add("Transfer budget request has been submitted");
 				break;
 			case "D":
-				var stadiumExpansionRequest = ActivatorUtilities.CreateInstance<StadiumExpansionRequestGameEvent>(ServiceProvider, State.Date.AddDays(2));
-				GameEventManager.ValidateAndAddEvent(stadiumExpansionRequest);
+				var stadiumExpansionRequest = ActivatorUtilities.CreateInstance<StadiumExpansionRequestEvent>(ServiceProvider, State.Date.AddDays(2));
+				EventManager.ValidateAndAddEvent(stadiumExpansionRequest);
                 State.UserFeedbackUpdates.Add("Stadium expansion request has been submitted");
                 break;
 		}

@@ -3,17 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FootballManagerSimulator.Events;
 
-public class StadiumExpansionRequestGameEvent(
+public class StadiumExpansionRequestEvent(
     IState state,
     INotificationFactory notificationFactory,
-    IEventManager gameEventManager,
+    IEventManager eventManager,
     DateOnly triggerDate,
     bool isCompleted,
     IServiceProvider serviceProvider) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
-    private readonly IEventManager GameEventManager = gameEventManager;
+    private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
 
     public override void Execute()
@@ -25,8 +25,8 @@ public class StadiumExpansionRequestGameEvent(
         {
             var completionDate = State.Date.AddMonths(3);
 
-            var gameEvent = ActivatorUtilities.CreateInstance<StadiumExpansionGameEvent>(ServiceProvider, completionDate);
-            GameEventManager.ValidateAndAddEvent(gameEvent);
+            var @event = ActivatorUtilities.CreateInstance<StadiumExpansionEvent>(ServiceProvider, completionDate);
+            EventManager.ValidateAndAddEvent(@event);
 
             NotificationFactory.AddNotification(
                 State.Date,
@@ -49,7 +49,7 @@ public class StadiumExpansionRequestGameEvent(
     public override (bool success, string errorMessage) ValidateAdd()
     {
         return (
-            State.GameEvents.OfType<StadiumExpansionRequestGameEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3)),
+            State.Events.OfType<StadiumExpansionRequestEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3)),
             "You must wait at least 3 months before re-requesting a stadium expansion");
     }
 }

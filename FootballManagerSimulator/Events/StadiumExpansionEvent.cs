@@ -2,7 +2,7 @@
 
 namespace FootballManagerSimulator.Events;
 
-public class StadiumExpansionGameEvent(
+public class StadiumExpansionEvent(
     IState state,
     INotificationFactory notificationFactory,
     DateOnly triggerDate,

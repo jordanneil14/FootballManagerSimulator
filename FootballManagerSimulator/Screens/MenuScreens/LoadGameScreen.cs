@@ -87,7 +87,7 @@ public class LoadGameScreen(
             State.UserFeedbackUpdates = deserialisedState.UserFeedbackUpdates;
             State.TransferListItems = deserialisedState.TransferListItems;
 
-			foreach (var @event in deserialisedState.GameEvents)
+			foreach (var @event in deserialisedState.Events)
 			{
 				var gameEvent = (IEvent)ActivatorUtilities.CreateInstance(
 					ServiceProvider,

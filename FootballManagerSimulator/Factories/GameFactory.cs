@@ -18,7 +18,7 @@ public class GameFactory(
     IWeatherHelper weatherHelper,
     ITransferListHelper transferListHelper,
     FriendlyService friendlyService,
-    IEventManager gameEventManager) : IGameFactory
+    IEventManager eventManager) : IGameFactory
 {
     private readonly SettingsModel Settings = settings.Value;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
@@ -30,7 +30,7 @@ public class GameFactory(
     private readonly IWeatherHelper WeatherHelper = weatherHelper;
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly FriendlyService FriendlyService = friendlyService;
-    private readonly IEventManager GameEventManager = gameEventManager;
+    private readonly IEventManager EventManager = eventManager;
 
     public void FinaliseGameState()
     {
@@ -70,7 +70,7 @@ public class GameFactory(
                 FriendlyService.GenerateNextRoundOfFixtures(competition);
         }
 
-        GameEventManager.ExecuteEvents();
+        EventManager.ExecuteEvents();
 
 		TransferListHelper.UpdateTransferList();
 	}

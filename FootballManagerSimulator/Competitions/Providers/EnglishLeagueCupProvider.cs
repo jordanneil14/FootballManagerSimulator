@@ -80,7 +80,7 @@ public class EnglishLeagueCupProvider(
 
 			cup.DrawSettings.Add(drawSettings);
 
-            var @event = ActivatorUtilities.CreateInstance<EnglishLeagueCupFixtureDrawGameEvent>(ServiceProvider, drawSettings.DrawDate, false);
+            var @event = ActivatorUtilities.CreateInstance<EnglishLeagueCupFixtureDrawEvent>(ServiceProvider, drawSettings.DrawDate, false);
             EventManager.ValidateAndAddEvent(@event);
         }
 
