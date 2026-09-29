@@ -49,7 +49,7 @@ public class LoadGameScreen(
                 });
                 break;
             default:
-                if (input.All(char.IsNumber) && Games.Count >= int.Parse(input))
+                if (input.All(char.IsNumber) && Games.Count >= int.Parse(input) && int.Parse(input) > 0)
                 {
                     var game = Games.ElementAt(int.Parse(input) - 1);
                     if (game == null) return;
@@ -106,7 +106,7 @@ public class LoadGameScreen(
 
 	public override void RenderTop()
 	{
-		Console.WriteLine("Load Game");
+		Console.WriteLine("Load Game\n");
 	}
 
 	public override void RenderSubscreen()
@@ -121,12 +121,21 @@ public class LoadGameScreen(
 			try
 			{
 				var fileContents = File.ReadAllText(file.FullName);
-				var deserialisedContent = JsonConvert.DeserializeObject<PreviewModel>(fileContents);
-				if (deserialisedContent == null) continue;
+				var deserialisedState = JsonConvert.DeserializeObject<StateModel>(fileContents, new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto });
+				if (deserialisedState == null)
+					continue;
+
+				var clubs = deserialisedState.Clubs;
+				var myClubId = deserialisedState.MyClubId;
+				var managerName = deserialisedState.ManagerName;
+
+				var myClub = clubs.FirstOrDefault(p => p.Id == myClubId);
+
 				Games.Add(new LoadGamePreviewModel
 				{
 					FileName = file.Name,
-					ClubName = deserialisedContent.Club.Name,
+					ClubName = myClub?.Name ?? "",
+					ManagerName = deserialisedState.ManagerName,
 					SaveDate = file.LastWriteTime
 				});
 			}
@@ -142,10 +151,11 @@ public class LoadGameScreen(
 			return;
 		}
 
-		Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", "Number", "File Name", "Club Managed", "Last Modified"));
+		Console.WriteLine(string.Format("{0,-10}{1,-25}{2,-25}{3,-25}{4,-20}", "Id", "File Name", "Club Managed", "Manager Name",  "Last Modified"));
 		for (var i = 0; i < Games.Count; i++)
 		{
-			Console.WriteLine(string.Format("{0,-10}{1,-30}{2,-30}{3,-20}", i + 1, Games.ElementAt(i).FileName, Games.ElementAt(i).ClubName, Games.ElementAt(i).SaveDate));
+			var element = Games.ElementAt(i);
+			Console.WriteLine($"{i + 1,-10}{element.FileName,-25}{element.ClubName,-25}{element.ManagerName,-25}{element.SaveDate,-20}");
 		}
 	}
 }
