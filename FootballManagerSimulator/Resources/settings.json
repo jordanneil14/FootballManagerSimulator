@@ -1508,7 +1508,19 @@
         "PlayoffPlaces": 0,
         "RelegationPlaces": 2
       }
+    },
+    {
+      "Id": 12,
+      "CountryId": 1,
+      "IsLeague": false,
+      "Type": "EnglishCommunityShield",
+      "Name": "English Community Shield",
+      "DrawSettings": [
+        {
+          "Round": 1,
+          "IntroducedClubIds": [ 1, 2 ]
+        }
+      ]
     }
-
   ]
 }

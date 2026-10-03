@@ -36,6 +36,7 @@ public class Program
         serviceProvider.AddScoped<EnglishPremierLeagueService>();
         serviceProvider.AddScoped<LeagueService>();
         serviceProvider.AddScoped<EnglishFootballLeagueService>();
+        serviceProvider.AddScoped<EnglishCommunityShieldService>();
 
         serviceProvider.AddSingleton<IEventManager, EventManager>();
 
