@@ -35,7 +35,9 @@ Output APK:
 FootballManagerSimulator.Maui\bin\Debug\net10.0-android\com.jordanneil.footballmanagersimulator-Signed.apk
 ```
 
-Copy it to an Android phone and install it (enable "install from unknown sources").
+Debug builds embed the .NET assemblies in the APK (`EmbedAssembliesIntoApk` in the csproj), so it is
+self-contained: copy it to an Android phone and install it (enable "install from unknown sources").
+Without that setting, a debug APK has no app code and crashes on launch when installed by hand.
 
 ## Deploy to a connected device / emulator
 

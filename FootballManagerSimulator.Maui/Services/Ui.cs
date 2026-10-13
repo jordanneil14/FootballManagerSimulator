@@ -5,6 +5,22 @@ public static class Ui
 {
     public static string Money(int amount) => $"£{amount:n0}";
 
+    private static readonly string[] PositionOrder =
+    {
+        "GK",
+        "LB", "LWB", "LCB", "CB", "RCB", "RWB", "RB", "DEF",
+        "CDM", "LM", "CM", "CAM", "RM", "MID",
+        "LW", "LF", "LS", "CF", "ST", "RF", "RW", "ATT"
+    };
+
+    /// <summary>Sort key for squad lists: goalkeepers, defenders, midfielders, then attackers (uses the first listed position, e.g. "LW/ST" sorts as LW).</summary>
+    public static int PositionSortOrder(string? position)
+    {
+        var first = (position ?? "").Split('/')[0].Trim().ToUpper();
+        var index = Array.IndexOf(PositionOrder, first);
+        return index < 0 ? PositionOrder.Length : index;
+    }
+
     public static string PositionCssClass(string? position) => (position ?? "").ToUpper() switch
     {
         "GK" => "gk",

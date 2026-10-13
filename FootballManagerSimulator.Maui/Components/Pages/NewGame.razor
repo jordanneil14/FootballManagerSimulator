@@ -10,6 +10,7 @@
         <div class="step-dot @(_step >= 0 ? "active" : "")"></div>
         <div class="step-dot @(_step >= 1 ? "active" : "")"></div>
         <div class="step-dot @(_step >= 2 ? "active" : "")"></div>
+        <div class="step-dot @(_step >= 3 ? "active" : "")"></div>
     </div>
 
     @if (_step == 0)
@@ -18,7 +19,7 @@
         <EditForm Model="this" OnValidSubmit="SubmitName">
             <div class="field">
                 <label>Manager name</label>
-                <InputText class="input" @bind-Value="_managerName" placeholder="e.g. Alex Ferguson" autofocus />
+                <input class="input" value="@_managerName" @oninput="e => _managerName = e.Value?.ToString() ?? string.Empty" placeholder="e.g. Alex Ferguson" autofocus />
             </div>
             <button class="btn btn-primary btn-lg btn-block" type="submit" disabled="@string.IsNullOrWhiteSpace(_managerName)">Continue</button>
         </EditForm>
@@ -29,7 +30,7 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>League</th><th>Country</th><th class="num">Rank</th><th class="num">Teams</th><th></th></tr>
+                    <tr><th>League</th><th>Country</th></tr>
                 </thead>
                 <tbody>
                     @foreach (var league in Settings.Competitions.Where(p => p.IsLeague).OrderBy(p => p.Rank))
@@ -37,34 +38,25 @@
                         <tr class="clickable" @onclick="() => PickLeague(league.Id)">
                             <td><strong>@league.Name</strong></td>
                             <td>@CountryName(league.CountryId)</td>
-                            <td class="num">@league.Rank</td>
-                            <td class="num">@league.LeagueTable.Places</td>
-                            <td class="num">→</td>
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-        <div class="divider"></div>
-        <button class="btn btn-ghost" @onclick="() => _step = 0">← Back</button>
     }
-    else
+    else if (_step == 2)
     {
         <div class="brand"><h1>Select a Club</h1><p>Pick the club to begin your career with.</p></div>
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>Club</th><th class="num">Transfer Budget</th><th>Stadium</th><th>Key Player</th><th></th></tr>
+                    <tr><th>Club</th></tr>
                 </thead>
                 <tbody>
                     @foreach (var club in Engine.GameCreator.Clubs.Where(p => p.LeagueId == _leagueId).OrderBy(p => p.Name))
                     {
                         <tr class="clickable" @onclick="() => PickClub(club.Id)">
                             <td><strong>@club.Name</strong></td>
-                            <td class="num">@Ui.Money(club.TransferBudget)</td>
-                            <td>@club.Stadium</td>
-                            <td>@KeyPlayer(club.Id)</td>
-                            <td class="num">→</td>
                         </tr>
                     }
                 </tbody>
@@ -73,12 +65,30 @@
         <div class="divider"></div>
         <button class="btn btn-ghost" @onclick="() => _step = 1">← Back</button>
     }
+    else if (_summaryClub != null)
+    {
+        <div class="brand"><h1>Summary</h1><p>Check your details before you begin.</p></div>
+        <dl class="kv">
+            <dt>Manager</dt><dd>@Engine.GameCreator.ManagerName</dd>
+            <dt>League</dt><dd>@LeagueName(_leagueId)</dd>
+            <dt>Club</dt><dd>@_summaryClub.Name</dd>
+            <dt>Stadium</dt><dd>@_summaryClub.Stadium</dd>
+            <dt>Transfer budget</dt><dd>@Ui.Money(_summaryClub.TransferBudget)</dd>
+            <dt>Key player</dt><dd>@KeyPlayer(_summaryClub.Id)</dd>
+        </dl>
+        <div class="divider"></div>
+        <div class="menu-actions">
+            <button class="btn btn-primary btn-lg btn-block" @onclick="StartCareer">Start Career</button>
+            <button class="btn btn-ghost btn-block" @onclick="() => _step = 2">← Back</button>
+        </div>
+    }
 </div>
 
 @code {
     private int _step;
     private string _managerName = "";
     private int _leagueId;
+    private ClubModel? _summaryClub;
 
     private SettingsModel Settings => SettingsOptions.Value;
 
@@ -105,9 +115,19 @@
 
     private void PickClub(int clubId)
     {
-        Engine.SelectClub(clubId);
+        _summaryClub = Engine.GameCreator.Clubs.First(p => p.Id == clubId);
+        _step = 3;
+    }
+
+    private void StartCareer()
+    {
+        if (_summaryClub == null) return;
+        Engine.SelectClub(_summaryClub.Id);
         Nav.NavigateTo("/game");
     }
+
+    private string LeagueName(int leagueId) =>
+        Settings.Competitions.FirstOrDefault(p => p.Id == leagueId)?.Name ?? "";
 
     private string CountryName(int countryId) =>
         Settings.Countries.FirstOrDefault(p => p.Id == countryId)?.Name ?? "";

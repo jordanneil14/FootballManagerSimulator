@@ -11,19 +11,43 @@
         <p>Simulator</p>
     </div>
 
-    <div class="menu-actions">
-        <button class="btn btn-primary btn-lg btn-block" @onclick="StartNew">Start New Game</button>
-        <button class="btn btn-lg btn-block" @onclick="@(() => Nav.NavigateTo("/load"))">Load Game</button>
-        @if (Engine.GameInProgress)
-        {
-            <button class="btn btn-ghost btn-block" @onclick="@(() => Nav.NavigateTo("/game"))">Resume Current Game</button>
-        }
-    </div>
+    @if (_busy)
+    {
+        <div class="throbber-wrap"><div class="throbber"></div></div>
+    }
+    else
+    {
+        <div class="menu-actions">
+            <button class="btn btn-primary btn-lg btn-block" @onclick="StartNew">Start New Game</button>
+            <button class="btn btn-lg btn-block" @onclick="@(() => Go("/load"))">Load Game</button>
+            @if (Engine.GameInProgress)
+            {
+                <button class="btn btn-ghost btn-block" @onclick="@(() => Go("/game"))">Resume Current Game</button>
+            }
+        </div>
+    }
 </div>
 
 @code {
-    private void StartNew()
+    private bool _busy;
+
+    // Show the throbber and let the browser paint it before any blocking work or navigation.
+    private async Task ShowThrobber()
     {
+        _busy = true;
+        StateHasChanged();
+        await Task.Delay(50);
+    }
+
+    private async Task Go(string url)
+    {
+        await ShowThrobber();
+        Nav.NavigateTo(url);
+    }
+
+    private async Task StartNew()
+    {
+        await ShowThrobber();
         Engine.StartNewGame();
         Nav.NavigateTo("/new");
     }

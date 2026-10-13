@@ -16,11 +16,13 @@
     <div><h1>@(league?.Name ?? "League Table")</h1><div class="subtitle">Standings</div></div>
 </div>
 
-<div class="page-actions" style="margin-bottom:1.2rem">
-    @foreach (var l in Engine.Leagues.OrderBy(p => p.Rank))
-    {
-        <a class="btn @(l.Id == leagueId ? "btn-primary" : "btn-ghost")" href="@($"/league-table/{l.Id}")">@l.Name</a>
-    }
+<div class="league-select">
+    <select class="input" value="@leagueId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="League">
+        @foreach (var l in Engine.Leagues.OrderBy(p => p.Rank))
+        {
+            <option value="@l.Id" selected="@(l.Id == leagueId)">@l.Name</option>
+        }
+    </select>
 </div>
 
 @if (league == null)

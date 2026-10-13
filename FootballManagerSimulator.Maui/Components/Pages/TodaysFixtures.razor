@@ -21,15 +21,15 @@
 
     <div class="panel">
         <h2>@competition.Name</h2>
-        <table class="data">
+        <table class="data fixture-table">
             <tbody>
                 @foreach (var f in fixtures)
                 {
                     var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
                     <tr class="@(mine ? "highlight" : "")">
-                        <td style="text-align:right;width:42%"><strong>@f.HomeClub.Name</strong></td>
-                        <td class="center muted" style="width:70px">@f.KickOffTime.ToString("HH:mm")</td>
-                        <td style="width:42%"><strong>@f.AwayClub.Name</strong></td>
+                        <td style="text-align:right"><strong>@f.HomeClub.Name</strong></td>
+                        <td class="center muted">@f.KickOffTime.ToString("HH:mm")</td>
+                        <td><strong>@f.AwayClub.Name</strong></td>
                     </tr>
                 }
             </tbody>

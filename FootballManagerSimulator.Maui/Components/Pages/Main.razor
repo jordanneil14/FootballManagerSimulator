@@ -15,6 +15,30 @@
     </div>
 </div>
 
+<div class="panel">
+    <h2>📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread</span></h2>
+    @{
+        var latest = Engine.State.Notifications.Where(p => p.Date <= Engine.State.Date).FirstOrDefault();
+    }
+    @if (latest == null)
+    {
+        <p class="muted">No new notifications.</p>
+    }
+    else
+    {
+        <div class="notif">
+            <div class="notif-head">
+                <span class="notif-from">@latest.Recipient</span>
+                <span class="notif-date">@latest.Date.ToString("ddd, dd MMM yyyy")</span>
+            </div>
+            <div class="notif-subject">@latest.Subject</div>
+            <div class="notif-msg">@latest.Message</div>
+        </div>
+        <div class="divider"></div>
+        <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
+    }
+</div>
+
 @if (Engine.State.UserFeedbackUpdates.Any())
 {
     <div class="feedback">
@@ -26,78 +50,50 @@
 }
 
 <div class="stat-row">
-    <div class="stat">
-        <div class="label">League Position</div>
-        <div class="value accent">@PositionText</div>
+    <div class="stat-pair">
+        <div class="stat">
+            <div class="label">Position</div>
+            <div class="value accent">@PositionText</div>
+        </div>
+        <div class="stat">
+            <div class="label">Squad</div>
+            <div class="value">@Engine.State.Players.Count(p => p.Contract != null && p.Contract.ClubId == Engine.MyClub.Id)</div>
+        </div>
     </div>
     <div class="stat">
         <div class="label">Transfer Budget</div>
         <div class="value">@Engine.MyClub.TransferBudgetFriendly</div>
     </div>
-    <div class="stat">
-        <div class="label">Unread Mail</div>
-        <div class="value">@Engine.UnreadNotificationCount</div>
-    </div>
-    <div class="stat">
-        <div class="label">Squad Size</div>
-        <div class="value">@Engine.State.Players.Count(p => p.Contract != null && p.Contract.ClubId == Engine.MyClub.Id)</div>
-    </div>
 </div>
 
-<div class="grid grid-2">
-    <div class="panel">
-        <h2>📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread</span></h2>
-        @{
-            var latest = Engine.State.Notifications.Where(p => p.Date <= Engine.State.Date).FirstOrDefault();
-        }
-        @if (latest == null)
-        {
-            <p class="muted">No new notifications.</p>
-        }
-        else
-        {
-            <div class="notif">
-                <div class="notif-head">
-                    <span class="notif-from">@latest.Recipient</span>
-                    <span class="notif-date">@latest.Date.ToString("ddd, dd MMM yyyy")</span>
-                </div>
-                <div class="notif-subject">@latest.Subject</div>
-                <div class="notif-msg">@latest.Message</div>
-            </div>
-            <div class="divider"></div>
-            <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
-        }
-    </div>
-
-    <div class="panel">
-        <h2>🗓️ Upcoming Fixtures</h2>
-        @{
-            var upcoming = UpcomingFixtures().ToList();
-        }
-        @if (!upcoming.Any())
-        {
-            <p class="muted">Season complete.</p>
-        }
-        else
-        {
-            <table class="data">
-                <tbody>
-                    @foreach (var (fixture, competition) in upcoming)
-                    {
-                        var home = fixture.HomeClub.Id == Engine.MyClub.Id;
-                        <tr>
-                            <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
-                            <td>
-                                <span class="@(home ? "" : "muted")">vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</span>
-                                <span class="tag" style="margin-left:.4rem">@(home ? "H" : "A")</span>
-                            </td>
-                            <td class="muted">@competition.Name</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-    </div>
+<div class="panel">
+    <h2>🗓️ Upcoming Fixtures</h2>
+    @{
+        var upcoming = UpcomingFixtures().ToList();
+    }
+    @if (!upcoming.Any())
+    {
+        <p class="muted">Season complete.</p>
+    }
+    else
+    {
+        <table class="data">
+            <tbody>
+                @foreach (var (fixture, competition) in upcoming)
+                {
+                    var home = fixture.HomeClub.Id == Engine.MyClub.Id;
+                    <tr>
+                        <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
+                        <td>
+                            <span class="@(home ? "" : "muted")">vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</span>
+                            <span class="tag" style="margin-left:.4rem">@(home ? "H" : "A")</span>
+                        </td>
+                        <td class="muted">@competition.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </div>
 
 @code {

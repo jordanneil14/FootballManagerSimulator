@@ -25,59 +25,43 @@ else
         </div>
     </div>
 
-    <div class="grid grid-2">
-        <div class="panel">
-            <h2>Recent Results</h2>
-            @{
-                var recent = Engine.State.Competitions.SelectMany(c => c.Fixtures)
-                    .Where(f => (f.HomeClub.Id == club.Id || f.AwayClub.Id == club.Id) && f.Concluded)
-                    .OrderBy(f => f.Date).TakeLast(5).Reverse().ToList();
-            }
-            @if (!recent.Any()) { <p class="muted">No matches played yet.</p> }
-            else
-            {
-                <table class="data">
-                    <tbody>
-                        @foreach (var f in recent)
-                        {
-                            <tr>
-                                <td style="text-align:right">@f.HomeClub.Name</td>
-                                <td class="center num"><strong>@f.GoalsHome - @f.GoalsAway</strong></td>
-                                <td>@f.AwayClub.Name</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-        </div>
-
-        <div class="panel">
-            <h2>Upcoming Fixtures</h2>
-            @{
-                var upcoming = Engine.State.Competitions.SelectMany(c => c.Fixtures)
-                    .Where(f => (f.HomeClub.Id == club.Id || f.AwayClub.Id == club.Id) && !f.Concluded && f.Date >= Engine.State.Date)
-                    .OrderBy(f => f.Date).Take(5).ToList();
-            }
-            @if (!upcoming.Any()) { <p class="muted">No upcoming fixtures.</p> }
-            else
-            {
-                <table class="data">
-                    <tbody>
-                        @foreach (var f in upcoming)
-                        {
-                            <tr>
-                                <td class="muted" style="width:92px">@f.Date.ToString("ddd dd MMM")</td>
-                                <td style="text-align:right">@f.HomeClub.Name</td>
-                                <td class="center muted">v</td>
-                                <td>@f.AwayClub.Name</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-        </div>
+    <div class="panel">
+        <h2>Recent Fixtures &amp; Results</h2>
+        @{
+            var clubFixtures = Engine.State.Competitions.SelectMany(c => c.Fixtures)
+                .Where(f => f.HomeClub.Id == club.Id || f.AwayClub.Id == club.Id)
+                .ToList();
+            var recent = clubFixtures.Where(f => f.Concluded).OrderBy(f => f.Date).TakeLast(2);
+            var upcoming = clubFixtures.Where(f => !f.Concluded && f.Date >= Engine.State.Date).OrderBy(f => f.Date).Take(3);
+            var recentFixtures = recent.Concat(upcoming).ToList();
+        }
+        @if (!recentFixtures.Any()) { <p class="muted">No fixtures to show.</p> }
+        else
+        {
+            <table class="data fixture-table">
+                <tbody>
+                    @foreach (var f in recentFixtures)
+                    {
+                        <tr>
+                            <td style="text-align:right"><strong>@f.HomeClub.Name</strong></td>
+                            <td class="center">
+                                @if (f.Concluded)
+                                {
+                                    <strong class="num">@f.GoalsHome&nbsp;-&nbsp;@f.GoalsAway</strong>
+                                }
+                                else
+                                {
+                                    <span class="muted">@f.KickOffTime.ToString("HH:mm")</span>
+                                }
+                                <div class="muted" style="font-size:.72rem">@f.Date.ToString("ddd dd MMM")</div>
+                            </td>
+                            <td><strong>@f.AwayClub.Name</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
-
     <div class="panel">
         <h2>Squad <span class="panel-title-sub">@squad.Count players</span></h2>
         <div class="table-wrap">
@@ -86,7 +70,7 @@ else
                     <tr><th class="num">#</th><th>Pos</th><th>Name</th><th class="num">Rating</th><th class="num">Value</th><th>Contract</th></tr>
                 </thead>
                 <tbody>
-                    @foreach (var player in squad.OrderByDescending(p => p.Rating))
+                    @foreach (var player in squad.OrderBy(p => Ui.PositionSortOrder(p.PreferredPosition)).ThenByDescending(p => p.Rating))
                     {
                         <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
                             <td class="num">@player.ShirtNumber</td>

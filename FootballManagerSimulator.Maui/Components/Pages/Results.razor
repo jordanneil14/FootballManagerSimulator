@@ -24,17 +24,17 @@
 
     <div class="panel">
         <h2>@competition.Name <span class="panel-title-sub">Round @fixtures.First().Round</span></h2>
-        <table class="data">
+        <table class="data fixture-table">
             <tbody>
                 @foreach (var f in fixtures)
                 {
                     var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
                     <tr class="@(mine ? "highlight" : "")">
-                        <td style="text-align:right;width:42%"><strong>@f.HomeClub.Name</strong></td>
-                        <td class="center num" style="width:80px">
+                        <td style="text-align:right"><strong>@f.HomeClub.Name</strong></td>
+                        <td class="center num">
                             @if (f.Concluded) { <strong>@f.GoalsHome - @f.GoalsAway</strong> } else { <span class="muted">v</span> }
                         </td>
-                        <td style="width:42%"><strong>@f.AwayClub.Name</strong></td>
+                        <td><strong>@f.AwayClub.Name</strong></td>
                     </tr>
                     @if (f.Concluded && (f.HomeScorers.Any() || f.AwayScorers.Any()))
                     {

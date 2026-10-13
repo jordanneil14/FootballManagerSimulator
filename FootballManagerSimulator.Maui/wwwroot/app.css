@@ -37,6 +37,20 @@ h1, h2, h3, h4 { margin: 0 0 .4em; font-weight: 700; letter-spacing: -0.01em; }
 a { color: inherit; text-decoration: none; }
 p { color: var(--text-dim); line-height: 1.55; }
 
+/* Blazor shows this banner (display:block) only when an unhandled error occurs. */
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1000;
+    padding: .7rem 1.2rem;
+    background: var(--danger);
+    color: #fff;
+    font-size: .88rem;
+}
+#blazor-error-ui .reload { text-decoration: underline; margin-left: .5rem; }
+#blazor-error-ui .dismiss { float: right; cursor: pointer; }
+
 /* ---------- Buttons ---------- */
 .btn {
     display: inline-flex;
@@ -104,6 +118,16 @@ p { color: var(--text-dim); line-height: 1.55; }
 .brand p { margin: 0; color: var(--text-faint); font-size: .9rem; }
 .menu-actions { display: flex; flex-direction: column; gap: .75rem; }
 
+.throbber-wrap { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1.5rem 0; color: var(--text-dim); }
+.throbber {
+    width: 44px; height: 44px;
+    border: 4px solid var(--panel-3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: throbber-spin .8s linear infinite;
+}
+@keyframes throbber-spin { to { transform: rotate(360deg); } }
+
 .field { margin-bottom: 1.2rem; }
 .field label { display: block; margin-bottom: .4rem; font-size: .82rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .input {
@@ -116,6 +140,9 @@ p { color: var(--text-dim); line-height: 1.55; }
     font: inherit;
 }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+.league-select { margin-bottom: 1.2rem; max-width: 320px; }
+.league-select .input { cursor: pointer; }
 
 .steps { display: flex; gap: .5rem; justify-content: center; margin-bottom: 1.6rem; }
 .step-dot { width: 26px; height: 6px; border-radius: 3px; background: var(--panel-3); }
@@ -205,6 +232,9 @@ p { color: var(--text-dim); line-height: 1.55; }
 @media (max-width: 1000px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
 .stat-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.4rem; }
+/* Stats that must stay side by side even on a narrow phone screen. */
+.stat-pair { display: flex; gap: 1rem; flex: 1 1 100%; }
+.stat-pair .stat { min-width: 0; }
 .stat {
     flex: 1; min-width: 150px;
     background: var(--panel); border: 1px solid var(--border);
@@ -229,6 +259,10 @@ table.data tbody tr { transition: background .1s ease; }
 table.data tbody tr.clickable { cursor: pointer; }
 table.data tbody tr.clickable:hover { background: var(--panel-2); }
 table.data tr.highlight td { background: var(--accent-soft); }
+/* Home | score | away rows: equal-width team columns that wrap inside the panel instead of overflowing. */
+table.data.fixture-table { table-layout: fixed; }
+table.data.fixture-table td { padding: .55rem .3rem; font-size: .82rem; overflow-wrap: anywhere; }
+table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
 .center { text-align: center; }
 
