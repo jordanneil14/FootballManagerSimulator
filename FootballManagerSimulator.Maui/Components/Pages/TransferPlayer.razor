@@ -1,0 +1,73 @@
+@page "/transfers/player/{Id:int}"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Transfer Options</PageTitle>
+
+@{
+    var player = Engine.GetPlayer(Id);
+}
+
+@if (player == null)
+{
+    <p class="muted">Player not found.</p>
+}
+else
+{
+    var listed = Engine.IsPlayerTransferListed(player.Id);
+    var item = Engine.GetTransferListItem(player.Id);
+
+    <a class="back-link" href="@($"/player/{player.Id}")">← Back to profile</a>
+    <div class="page-head"><div><h1>@player.Name</h1><div class="subtitle">Transfer options</div></div></div>
+
+    <div class="stat-row">
+        <div class="stat"><div class="label">Transfer Value</div><div class="value accent">@Ui.Money(Engine.GetTransferValue(player))</div></div>
+        <div class="stat">
+            <div class="label">Transfer Status</div>
+            <div class="value" style="font-size:1.1rem">
+                @if (listed && item != null) { <span>Listed · @item.AskingPriceFriendly</span> } else { <span class="muted">Not listed</span> }
+            </div>
+        </div>
+    </div>
+
+    <div class="panel" style="max-width:560px">
+        @if (listed)
+        {
+            <h2>Remove from Transfer List</h2>
+            <p>This player is currently listed for sale at @item?.AskingPriceFriendly.</p>
+            <button class="btn btn-danger" @onclick="Remove">Remove From Transfer List</button>
+        }
+        else
+        {
+            <h2>List for Transfer</h2>
+            <p>Set an asking price to make this player available to other clubs.</p>
+            <div class="inline-form">
+                <div class="field">
+                    <label>Asking price (£)</label>
+                    <input type="number" class="input" style="width:200px" @bind="_askingPrice" min="0" />
+                </div>
+                <button class="btn btn-primary" @onclick="List" disabled="@(_askingPrice <= 0)">Add to Transfer List</button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private int _askingPrice;
+
+    protected override void OnInitialized()
+    {
+        var player = Engine.GetPlayer(Id);
+        if (player != null) _askingPrice = Engine.GetTransferValue(player);
+    }
+
+    private void List()
+    {
+        if (_askingPrice <= 0) return;
+        Engine.ListPlayerForTransfer(Id, _askingPrice);
+    }
+
+    private void Remove() => Engine.RemovePlayerFromTransferList(Id);
+}

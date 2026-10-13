@@ -1,0 +1,129 @@
+@page "/player/{Id:int}"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Player</PageTitle>
+
+@{
+    var player = Engine.GetPlayer(Id);
+}
+
+@if (player == null)
+{
+    <p class="muted">Player not found.</p>
+}
+else
+{
+    var club = player.Contract == null ? "Free Agent" : Engine.GetClub(player.Contract.ClubId)?.Name ?? "Free Agent";
+    var playsForMe = Engine.PlayerPlaysForMyClub(player.Id);
+
+    <a class="back-link" href="javascript:history.back()">← Back</a>
+
+    <div class="page-head">
+        <div>
+            <h1>@player.Name</h1>
+            <div class="subtitle">
+                <span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span>
+                @club · @player.Nationality
+            </div>
+        </div>
+        <div class="page-actions">
+            @if (_message != null) { <span class="tag green">@_message</span> }
+            @if (playsForMe)
+            {
+                <a class="btn btn-primary" href="@($"/transfers/player/{player.Id}")">Transfer Options</a>
+            }
+            else if (player.Contract == null)
+            {
+                <button class="btn btn-primary" @onclick="SignFreeAgent">Sign Free Agent</button>
+            }
+        </div>
+    </div>
+
+    <div class="stat-row">
+        <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
+        <div class="stat"><div class="label">Age</div><div class="value">@player.Age</div></div>
+        <div class="stat"><div class="label">Transfer Value</div><div class="value">@Ui.Money(Engine.GetTransferValue(player))</div></div>
+        <div class="stat"><div class="label">Preferred Foot</div><div class="value" style="font-size:1.1rem">@player.PreferredFoot</div></div>
+    </div>
+
+    <div class="grid grid-2">
+        <div class="panel">
+            <h2>General</h2>
+            <dl class="kv">
+                <dt>Birth Date</dt><dd>@player.BirthDate</dd>
+                <dt>Height</dt><dd>@player.Height</dd>
+                <dt>Weight</dt><dd>@player.Weight</dd>
+                <dt>Nationality</dt><dd>@player.Nationality</dd>
+                <dt>Work Rate</dt><dd>@player.WorkRate</dd>
+                @if (player.Contract != null)
+                {
+                    <dt>Contract Until</dt><dd>@player.Contract.ExpiryDate.ToString("dd MMM yyyy")</dd>
+                }
+            </dl>
+        </div>
+
+        <div class="panel">
+            <h2>@(player.PreferredPosition == "GK" ? "Goalkeeping" : "Attributes")</h2>
+            <div class="attr-grid">
+                @if (player.PreferredPosition == "GK")
+                {
+                    @Attr("Positioning", player.GKPositioning)
+                    @Attr("Diving", player.GKDiving)
+                    @Attr("Kicking", player.GKKicking)
+                    @Attr("Handling", player.GKHandling)
+                    @Attr("Reflexes", player.GKReflexes)
+                }
+                else
+                {
+                    @Attr("Ball Control", player.BallControl)
+                    @Attr("Dribbling", player.Dribbling)
+                    @Attr("Finishing", player.Finishing)
+                    @Attr("Shot Power", player.ShotPower)
+                    @Attr("Long Shots", player.LongShots)
+                    @Attr("Short Pass", player.ShortPass)
+                    @Attr("Long Pass", player.LongPass)
+                    @Attr("Crossing", player.Crossing)
+                    @Attr("Acceleration", player.Acceleration)
+                    @Attr("Speed", player.Speed)
+                    @Attr("Agility", player.Agility)
+                    @Attr("Stamina", player.Stamina)
+                    @Attr("Strength", player.Strength)
+                    @Attr("Heading", player.Heading)
+                    @Attr("Marking", player.Marking)
+                    @Attr("Tackling", player.SlidingTackle)
+                    @Attr("Aggression", player.Aggression)
+                    @Attr("Vision", player.Vision)
+                    @Attr("Composure", player.Composure)
+                    @Attr("Penalties", player.Penalties)
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private string? _message;
+
+    private void SignFreeAgent()
+    {
+        _message = Engine.SignFreeAgent(Id);
+    }
+
+    private RenderFragment Attr(string name, int value) => builder =>
+    {
+        var cls = value >= 80 ? "aval hi" : value >= 70 ? "aval mid" : "aval";
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "attr");
+        builder.OpenElement(2, "span");
+        builder.AddContent(3, name);
+        builder.CloseElement();
+        builder.OpenElement(4, "span");
+        builder.AddAttribute(5, "class", cls);
+        builder.AddContent(6, value);
+        builder.CloseElement();
+        builder.CloseElement();
+    };
+}

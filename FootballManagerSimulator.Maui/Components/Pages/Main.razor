@@ -1,0 +1,140 @@
+@page "/game"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Hub</PageTitle>
+
+<div class="page-head">
+    <div>
+        <h1>Manager Hub</h1>
+        <div class="subtitle">@Engine.State.DateFriendly</div>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-primary btn-lg" @onclick="Advance">⏩ Advance</button>
+    </div>
+</div>
+
+@if (Engine.State.UserFeedbackUpdates.Any())
+{
+    <div class="feedback">
+        @foreach (var update in Engine.State.UserFeedbackUpdates)
+        {
+            <div class="feedback-item">@update</div>
+        }
+    </div>
+}
+
+<div class="stat-row">
+    <div class="stat">
+        <div class="label">League Position</div>
+        <div class="value accent">@PositionText</div>
+    </div>
+    <div class="stat">
+        <div class="label">Transfer Budget</div>
+        <div class="value">@Engine.MyClub.TransferBudgetFriendly</div>
+    </div>
+    <div class="stat">
+        <div class="label">Unread Mail</div>
+        <div class="value">@Engine.UnreadNotificationCount</div>
+    </div>
+    <div class="stat">
+        <div class="label">Squad Size</div>
+        <div class="value">@Engine.State.Players.Count(p => p.Contract != null && p.Contract.ClubId == Engine.MyClub.Id)</div>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="panel">
+        <h2>📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread</span></h2>
+        @{
+            var latest = Engine.State.Notifications.Where(p => p.Date <= Engine.State.Date).FirstOrDefault();
+        }
+        @if (latest == null)
+        {
+            <p class="muted">No new notifications.</p>
+        }
+        else
+        {
+            <div class="notif">
+                <div class="notif-head">
+                    <span class="notif-from">@latest.Recipient</span>
+                    <span class="notif-date">@latest.Date.ToString("ddd, dd MMM yyyy")</span>
+                </div>
+                <div class="notif-subject">@latest.Subject</div>
+                <div class="notif-msg">@latest.Message</div>
+            </div>
+            <div class="divider"></div>
+            <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
+        }
+    </div>
+
+    <div class="panel">
+        <h2>🗓️ Upcoming Fixtures</h2>
+        @{
+            var upcoming = UpcomingFixtures().ToList();
+        }
+        @if (!upcoming.Any())
+        {
+            <p class="muted">Season complete.</p>
+        }
+        else
+        {
+            <table class="data">
+                <tbody>
+                    @foreach (var (fixture, competition) in upcoming)
+                    {
+                        var home = fixture.HomeClub.Id == Engine.MyClub.Id;
+                        <tr>
+                            <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
+                            <td>
+                                <span class="@(home ? "" : "muted")">vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</span>
+                                <span class="tag" style="margin-left:.4rem">@(home ? "H" : "A")</span>
+                            </td>
+                            <td class="muted">@competition.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    private void Advance()
+    {
+        Engine.State.UserFeedbackUpdates.Clear();
+        var result = Engine.Advance();
+        if (result == GameEngine.AdvanceResult.MustPlayFixtures)
+            Nav.NavigateTo("/today");
+    }
+
+    private void NextNotification() => Engine.MarkLatestNotificationRead();
+
+    private string PositionText
+    {
+        get
+        {
+            if (Engine.MyCompetition is not LeagueModel league) return "—";
+            var table = league.GenerateLeagueTable().ToList();
+            var index = table.FindIndex(p => p.Club.Id == Engine.MyClub.Id);
+            if (index < 0) return "—";
+            return Ordinal(index + 1);
+        }
+    }
+
+    private IEnumerable<(FixtureModel fixture, ICompetition competition)> UpcomingFixtures() =>
+        Engine.State.Competitions
+            .SelectMany(c => c.Fixtures
+                .Where(p => !p.Concluded && p.Date >= Engine.State.Date
+                    && (p.HomeClub.Id == Engine.MyClub.Id || p.AwayClub.Id == Engine.MyClub.Id))
+                .Select(f => (fixture: f, competition: c)))
+            .OrderBy(x => x.fixture.Date)
+            .Take(6);
+
+    private static string Ordinal(int n)
+    {
+        var suffix = (n % 100) is >= 11 and <= 13 ? "th" : (n % 10) switch { 1 => "st", 2 => "nd", 3 => "rd", _ => "th" };
+        return $"{n}{suffix}";
+    }
+}

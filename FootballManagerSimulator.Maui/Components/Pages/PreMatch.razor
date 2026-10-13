@@ -1,0 +1,54 @@
+@page "/prematch"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Pre-Match</PageTitle>
+
+@{
+    var fixture = Engine.MyFixtureToday();
+}
+
+@if (fixture == null)
+{
+    <p class="muted">No match today.</p>
+}
+else
+{
+    <div class="page-head">
+        <div><h1>Team Selection</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+        <div class="page-actions">
+            <a class="btn" href="/tactics">♟️ Tactics</a>
+            <button class="btn btn-primary btn-lg" @onclick="Start">▶ Start Match</button>
+        </div>
+    </div>
+
+    @if (_error != null)
+    {
+        <div class="feedback"><div class="feedback-item warn">@_error</div></div>
+    }
+
+    <div class="scoreboard">
+        <div class="teams">
+            <div class="team-name">@fixture.HomeClub.Name</div>
+            <div class="score muted">vs</div>
+            <div class="team-name">@fixture.AwayClub.Name</div>
+        </div>
+        <div class="minute">Kick-off @fixture.KickOffTime.ToString("HH:mm")</div>
+    </div>
+
+    <div class="panel">
+        <MatchLineups Fixture="fixture" ShowScorers="false" />
+    </div>
+}
+
+@code {
+    private string? _error;
+
+    private void Start()
+    {
+        _error = Engine.StartMatch();
+        if (_error == null)
+            Nav.NavigateTo("/match");
+    }
+}

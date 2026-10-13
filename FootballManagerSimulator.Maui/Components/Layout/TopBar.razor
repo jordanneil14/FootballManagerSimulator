@@ -1,0 +1,45 @@
+@inject GameEngine Engine
+@implements IDisposable
+
+<header class="topbar">
+    <div class="topbar-club">
+        <span class="crest">@Initials(Engine.MyClub.Name)</span>
+        <div>
+            <div class="topbar-club-name">@Engine.MyClub.Name</div>
+            <div class="topbar-manager">@Engine.State.ManagerName</div>
+        </div>
+    </div>
+
+    <div class="topbar-next">@Engine.NextMatchCaption()</div>
+
+    <div class="topbar-meta">
+        <div class="topbar-date">@Engine.State.DateFriendly</div>
+        <div class="topbar-weather">@WeatherIcon(Engine.State.Weather) @Engine.State.Weather</div>
+    </div>
+</header>
+
+@code {
+    protected override void OnInitialized() => Engine.Changed += OnChanged;
+    public void Dispose() => Engine.Changed -= OnChanged;
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    private static string Initials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 1
+            ? parts[0][..Math.Min(2, parts[0].Length)].ToUpper()
+            : $"{parts[0][0]}{parts[^1][0]}".ToUpper();
+    }
+
+    private static string WeatherIcon(string? weather) => (weather ?? "").ToLower() switch
+    {
+        var w when w.Contains("sun") || w.Contains("clear") => "☀️",
+        var w when w.Contains("rain") => "🌧️",
+        var w when w.Contains("snow") => "❄️",
+        var w when w.Contains("cloud") || w.Contains("overcast") => "☁️",
+        var w when w.Contains("wind") => "🌬️",
+        var w when w.Contains("storm") || w.Contains("thunder") => "⛈️",
+        _ => "🌤️"
+    };
+}

@@ -1,0 +1,15 @@
+<NavLink class="nav-item" href="@Href" Match="NavLinkMatch.All">
+    <span class="nav-icon">@Icon</span>
+    <span class="nav-label">@Label</span>
+    @if (!string.IsNullOrEmpty(Badge))
+    {
+        <span class="nav-badge">@Badge</span>
+    }
+</NavLink>
+
+@code {
+    [Parameter, EditorRequired] public string Href { get; set; } = "";
+    [Parameter, EditorRequired] public string Icon { get; set; } = "";
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter] public string? Badge { get; set; }
+}

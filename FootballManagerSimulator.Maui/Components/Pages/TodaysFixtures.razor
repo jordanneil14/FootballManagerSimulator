@@ -1,0 +1,46 @@
+@page "/today"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Today's Fixtures</PageTitle>
+
+<div class="page-head">
+    <div><h1>Match Day</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+    <div class="page-actions">
+        <button class="btn btn-primary btn-lg" @onclick="Advance">Advance ⏩</button>
+    </div>
+</div>
+
+<p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+
+@foreach (var competition in Engine.State.Competitions)
+{
+    var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
+    if (!fixtures.Any()) continue;
+
+    <div class="panel">
+        <h2>@competition.Name</h2>
+        <table class="data">
+            <tbody>
+                @foreach (var f in fixtures)
+                {
+                    var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+                    <tr class="@(mine ? "highlight" : "")">
+                        <td style="text-align:right;width:42%"><strong>@f.HomeClub.Name</strong></td>
+                        <td class="center muted" style="width:70px">@f.KickOffTime.ToString("HH:mm")</td>
+                        <td style="width:42%"><strong>@f.AwayClub.Name</strong></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private void Advance()
+    {
+        var result = Engine.AdvanceTodaysFixtures();
+        Nav.NavigateTo(result == GameEngine.TodaysFixturesResult.PreMatch ? "/prematch" : "/results");
+    }
+}

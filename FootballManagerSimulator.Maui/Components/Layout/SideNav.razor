@@ -1,0 +1,26 @@
+@inject GameEngine Engine
+@implements IDisposable
+
+<nav class="sidenav">
+    <NavItem Href="/game" Icon="🏠" Label="Hub" Badge="@(Engine.UnreadNotificationCount > 0 ? Engine.UnreadNotificationCount.ToString() : null)" />
+    <NavItem Href="/league-table" Icon="📊" Label="League Table" />
+    <NavItem Href="/fixtures" Icon="📅" Label="Fixtures" />
+    <NavItem Href="@($"/club/{Engine.MyClub.Id}")" Icon="👕" Label="My Club" />
+    <NavItem Href="/tactics" Icon="♟️" Label="Tactics" />
+    <NavItem Href="/scout" Icon="🔍" Label="Scout" />
+    <NavItem Href="/transfers" Icon="💷" Label="Transfer List" />
+    <NavItem Href="/finances" Icon="🏦" Label="Finances" />
+
+    <div class="sidenav-spacer"></div>
+
+    <NavItem Href="/save" Icon="💾" Label="Save Game" />
+    <a class="nav-item nav-item-quit" href="/">
+        <span class="nav-icon">⏏️</span><span class="nav-label">Main Menu</span>
+    </a>
+</nav>
+
+@code {
+    protected override void OnInitialized() => Engine.Changed += OnChanged;
+    public void Dispose() => Engine.Changed -= OnChanged;
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+}

@@ -1,0 +1,89 @@
+@page "/scout"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Scout</PageTitle>
+
+<div class="page-head">
+    <div><h1>Scout</h1><div class="subtitle">Search every player in the game</div></div>
+    <div class="page-actions">
+        <input class="input" style="width:240px" placeholder="Search name or club…" value="@_search" @oninput="OnSearch" />
+    </div>
+</div>
+
+@{
+    var all = BuildPlayerList();
+    var pageCount = Math.Max(1, (int)Math.Ceiling(all.Count / (double)PageSize));
+    _page = Math.Clamp(_page, 1, pageCount);
+    var pagePlayers = all.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
+}
+
+<div class="panel">
+    <div class="table-wrap">
+        <table class="data">
+            <thead>
+                <tr><th>Pos</th><th>Name</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var player in pagePlayers)
+                {
+                    <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
+                        <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
+                        <td><strong>@player.Name</strong></td>
+                        <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
+                        <td>@(player.Contract?.ClubName ?? "Free Agent")</td>
+                        <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
+                    </tr>
+                }
+                @if (!pagePlayers.Any())
+                {
+                    <tr><td colspan="5" class="center muted">No players match your search.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pager">
+        <button class="btn" @onclick="() => _page--" disabled="@(_page <= 1)">← Prev</button>
+        <span>Page @_page / @pageCount</span>
+        <button class="btn" @onclick="() => _page++" disabled="@(_page >= pageCount)">Next →</button>
+    </div>
+</div>
+
+@code {
+    private int _page = 1;
+    private string _search = "";
+    private const int PageSize = 20;
+
+    private void OnSearch(ChangeEventArgs e)
+    {
+        _search = e.Value?.ToString() ?? "";
+        _page = 1;
+    }
+
+    private List<PlayerModel> BuildPlayerList()
+    {
+        IEnumerable<PlayerModel> contracted = Engine.State.Players
+            .Where(p => p.Contract != null)
+            .OrderBy(p => p.Contract!.ClubName)
+            .ThenByDescending(p => p.Rating);
+
+        IEnumerable<PlayerModel> freeAgents = Engine.State.Players
+            .Where(p => p.Contract == null)
+            .OrderByDescending(p => p.Rating)
+            .Take(100);
+
+        var combined = contracted.Concat(freeAgents);
+
+        if (!string.IsNullOrWhiteSpace(_search))
+        {
+            var term = _search.Trim().ToLower();
+            combined = combined.Where(p =>
+                p.Name.ToLower().Contains(term) ||
+                (p.Contract?.ClubName ?? "free agent").ToLower().Contains(term));
+        }
+
+        return combined.ToList();
+    }
+}

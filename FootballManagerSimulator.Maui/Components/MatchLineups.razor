@@ -1,0 +1,54 @@
+@inject GameEngine Engine
+
+<div class="lineups">
+    <div class="lineup home">
+        <h3>@Fixture.HomeClub.Name</h3>
+        @RenderSide(Engine.GetClub(Fixture.HomeClub.Id)?.TacticSlots, Fixture.HomeScorers, false)
+    </div>
+    <div class="lineup away">
+        <h3>@Fixture.AwayClub.Name</h3>
+        @RenderSide(Engine.GetClub(Fixture.AwayClub.Id)?.TacticSlots, Fixture.AwayScorers, true)
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public FixtureModel Fixture { get; set; } = default!;
+    [Parameter] public bool ShowScorers { get; set; }
+
+    private RenderFragment RenderSide(List<TacticSlotModel>? slots, List<GoalModel> scorers, bool away) => builder =>
+    {
+        if (slots == null) return;
+        var seq = 0;
+        for (var i = 0; i < 11; i++)
+        {
+            var slot = slots[i];
+            var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", player == null ? "lineup-row empty" : "lineup-row");
+
+            builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "shirt");
+            builder.AddContent(seq++, player?.ShirtNumber?.ToString() ?? "");
+            builder.CloseElement();
+
+            builder.OpenElement(seq++, "span");
+            builder.AddContent(seq++, player?.Name ?? "Empty slot");
+            builder.CloseElement();
+
+            if (ShowScorers && player != null)
+            {
+                var goals = scorers.Where(s => s.PlayerId == player.Id).Select(s => $"{s.Minute}'").ToList();
+                if (goals.Any())
+                {
+                    builder.OpenElement(seq++, "span");
+                    builder.AddAttribute(seq++, "class", "scorer");
+                    builder.AddContent(seq++, "⚽ " + string.Join(", ", goals));
+                    builder.CloseElement();
+                }
+            }
+
+            builder.CloseElement();
+        }
+    };
+}

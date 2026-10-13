@@ -1,0 +1,19 @@
+<Project>
+
+  <!--
+    Point the .NET Android build at the Android SDK and JDK that were installed for this
+    machine, so `dotnet build` / Visual Studio find them automatically without needing
+    -p:AndroidSdkDirectory / -p:JavaSdkDirectory on the command line.
+
+    These only apply when not already set (e.g. by Visual Studio or an env var), and use
+    the LOCALAPPDATA variable rather than a hard-coded user path.
+  -->
+  <PropertyGroup Condition="'$(AndroidSdkDirectory)' == '' and Exists('$(LOCALAPPDATA)\Android\Sdk')">
+    <AndroidSdkDirectory>$(LOCALAPPDATA)\Android\Sdk</AndroidSdkDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(JavaSdkDirectory)' == '' and Exists('$(LOCALAPPDATA)\Android\jdk')">
+    <JavaSdkDirectory>$(LOCALAPPDATA)\Android\jdk</JavaSdkDirectory>
+  </PropertyGroup>
+
+</Project>

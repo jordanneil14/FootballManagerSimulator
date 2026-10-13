@@ -1,0 +1,24 @@
+@inherits LayoutComponentBase
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+@if (!Engine.GameInProgress)
+{
+    <div class="empty-state">
+        <h1>No game in progress</h1>
+        <p>Start or load a game to continue.</p>
+        <a class="btn" href="/">Go to main menu</a>
+    </div>
+}
+else
+{
+    <div class="game-shell">
+        <TopBar />
+        <div class="game-body">
+            <SideNav />
+            <section class="game-content">
+                @Body
+            </section>
+        </div>
+    </div>
+}

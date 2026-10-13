@@ -1,0 +1,58 @@
+@page "/load"
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Load Game</PageTitle>
+
+<div class="menu-card wide">
+    <div class="brand"><h1>Load Game</h1><p>Saved games are read from your desktop.</p></div>
+
+    @if (_error != null)
+    {
+        <div class="feedback"><div class="feedback-item warn">@_error</div></div>
+    }
+
+    @if (!_saves.Any())
+    {
+        <p class="muted" style="text-align:center">No saved games (<code>*.fms</code>) were found on your desktop.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>File</th><th>Club</th><th>Manager</th><th>Last Saved</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var save in _saves)
+                    {
+                        <tr class="clickable" @onclick="() => LoadSave(save.FileName)">
+                            <td><strong>@save.FileName</strong></td>
+                            <td>@save.ClubName</td>
+                            <td>@save.ManagerName</td>
+                            <td class="muted">@save.SaveDate.ToString("dd MMM yyyy HH:mm")</td>
+                            <td class="num">→</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <div class="divider"></div>
+    <button class="btn btn-ghost" @onclick="@(() => Nav.NavigateTo("/"))">← Back to menu</button>
+</div>
+
+@code {
+    private List<LoadGamePreviewModel> _saves = new();
+    private string? _error;
+
+    protected override void OnInitialized() => _saves = Engine.ListSaves().ToList();
+
+    private void LoadSave(string fileName)
+    {
+        _error = Engine.LoadGame(fileName);
+        if (_error == null)
+            Nav.NavigateTo("/game");
+    }
+}

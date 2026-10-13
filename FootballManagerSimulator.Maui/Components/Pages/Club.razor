@@ -1,0 +1,108 @@
+@page "/club/{Id:int}"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Club</PageTitle>
+
+@{
+    var club = Engine.GetClub(Id);
+}
+
+@if (club == null)
+{
+    <p class="muted">Club not found.</p>
+}
+else
+{
+    var isMine = club.Id == Engine.MyClub.Id;
+    var squad = Engine.State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
+
+    <div class="page-head">
+        <div>
+            <h1>@club.Name @if (isMine) { <span class="tag green">Your Club</span> }</h1>
+            <div class="subtitle">🏟️ @club.Stadium</div>
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <div class="panel">
+            <h2>Recent Results</h2>
+            @{
+                var recent = Engine.State.Competitions.SelectMany(c => c.Fixtures)
+                    .Where(f => (f.HomeClub.Id == club.Id || f.AwayClub.Id == club.Id) && f.Concluded)
+                    .OrderBy(f => f.Date).TakeLast(5).Reverse().ToList();
+            }
+            @if (!recent.Any()) { <p class="muted">No matches played yet.</p> }
+            else
+            {
+                <table class="data">
+                    <tbody>
+                        @foreach (var f in recent)
+                        {
+                            <tr>
+                                <td style="text-align:right">@f.HomeClub.Name</td>
+                                <td class="center num"><strong>@f.GoalsHome - @f.GoalsAway</strong></td>
+                                <td>@f.AwayClub.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <div class="panel">
+            <h2>Upcoming Fixtures</h2>
+            @{
+                var upcoming = Engine.State.Competitions.SelectMany(c => c.Fixtures)
+                    .Where(f => (f.HomeClub.Id == club.Id || f.AwayClub.Id == club.Id) && !f.Concluded && f.Date >= Engine.State.Date)
+                    .OrderBy(f => f.Date).Take(5).ToList();
+            }
+            @if (!upcoming.Any()) { <p class="muted">No upcoming fixtures.</p> }
+            else
+            {
+                <table class="data">
+                    <tbody>
+                        @foreach (var f in upcoming)
+                        {
+                            <tr>
+                                <td class="muted" style="width:92px">@f.Date.ToString("ddd dd MMM")</td>
+                                <td style="text-align:right">@f.HomeClub.Name</td>
+                                <td class="center muted">v</td>
+                                <td>@f.AwayClub.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Squad <span class="panel-title-sub">@squad.Count players</span></h2>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th class="num">#</th><th>Pos</th><th>Name</th><th class="num">Rating</th><th class="num">Value</th><th>Contract</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var player in squad.OrderByDescending(p => p.Rating))
+                    {
+                        <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
+                            <td class="num">@player.ShirtNumber</td>
+                            <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
+                            <td><strong>@player.Name</strong></td>
+                            <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
+                            <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
+                            <td class="muted">@player.Contract!.ExpiryDate.ToString("MMM yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+}

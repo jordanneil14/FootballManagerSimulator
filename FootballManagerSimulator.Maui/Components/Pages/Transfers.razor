@@ -1,0 +1,70 @@
+@page "/transfers"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Transfer List</PageTitle>
+
+<div class="page-head">
+    <div><h1>Transfer List</h1><div class="subtitle">Players available to buy</div></div>
+    <div class="stat" style="flex:none;min-width:200px"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+</div>
+
+@if (_message != null)
+{
+    <div class="feedback"><div class="feedback-item @(_isError ? "warn" : "")">@_message</div></div>
+}
+
+@{
+    var items = Engine.State.TransferListItems
+        .Where(t => Engine.GetPlayer(t.PlayerId)?.Contract?.ClubId != Engine.MyClub.Id)
+        .OrderByDescending(t => Engine.GetPlayer(t.PlayerId)?.Rating ?? 0)
+        .ToList();
+}
+
+<div class="panel">
+    @if (!items.Any())
+    {
+        <p class="muted">No players are currently transfer listed. Check back after advancing a few days.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Pos</th><th>Name</th><th>Club</th><th class="num">Rating</th><th class="num">Value</th><th class="num">Asking Price</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        var player = Engine.GetPlayer(item.PlayerId);
+                        if (player == null) continue;
+                        var affordable = item.AskingPrice <= Engine.MyClub.TransferBudget;
+                        <tr>
+                            <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
+                            <td class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'><strong>@player.Name</strong></td>
+                            <td>@player.Contract?.ClubName</td>
+                            <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
+                            <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
+                            <td class="num">@item.AskingPriceFriendly</td>
+                            <td class="num">
+                                <button class="btn btn-primary" disabled="@(!affordable)" @onclick="() => Buy(item.PlayerId)">Buy</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private string? _message;
+    private bool _isError;
+
+    private void Buy(int playerId)
+    {
+        _message = Engine.BuyTransferListedPlayer(playerId);
+        _isError = _message is not null && _message.Contains("Insufficient");
+    }
+}

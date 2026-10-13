@@ -1,0 +1,64 @@
+@page "/results"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Results</PageTitle>
+
+<div class="page-head">
+    <div><h1>Today's Results</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+    <div class="page-actions">
+        <button class="btn btn-primary btn-lg" @onclick="@(() => Nav.NavigateTo("/game"))">Continue ⏩</button>
+    </div>
+</div>
+
+@{
+    var myCompetitions = Engine.State.Competitions
+        .Where(c => c.Clubs.Any(cl => cl.Id == Engine.MyClub.Id));
+}
+
+@foreach (var competition in myCompetitions)
+{
+    var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
+    if (!fixtures.Any()) continue;
+
+    <div class="panel">
+        <h2>@competition.Name <span class="panel-title-sub">Round @fixtures.First().Round</span></h2>
+        <table class="data">
+            <tbody>
+                @foreach (var f in fixtures)
+                {
+                    var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+                    <tr class="@(mine ? "highlight" : "")">
+                        <td style="text-align:right;width:42%"><strong>@f.HomeClub.Name</strong></td>
+                        <td class="center num" style="width:80px">
+                            @if (f.Concluded) { <strong>@f.GoalsHome - @f.GoalsAway</strong> } else { <span class="muted">v</span> }
+                        </td>
+                        <td style="width:42%"><strong>@f.AwayClub.Name</strong></td>
+                    </tr>
+                    @if (f.Concluded && (f.HomeScorers.Any() || f.AwayScorers.Any()))
+                    {
+                        <tr>
+                            <td style="text-align:right;vertical-align:top">@Scorers(f.HomeScorers)</td>
+                            <td class="center muted">⚽</td>
+                            <td style="vertical-align:top">@Scorers(f.AwayScorers)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private MarkupString Scorers(List<GoalModel> scorers)
+    {
+        if (!scorers.Any()) return new MarkupString("");
+        var grouped = scorers.GroupBy(s => s.PlayerId).Select(g =>
+        {
+            var name = Engine.GetPlayer(g.Key)?.Name ?? "Unknown";
+            return $"{name} ({string.Join(", ", g.Select(x => $"{x.Minute}'"))})";
+        });
+        return new MarkupString($"<span class='muted' style='font-size:.82rem'>{string.Join("<br/>", grouped)}</span>");
+    }
+}

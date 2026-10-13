@@ -1,0 +1,52 @@
+@page "/fulltime"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Full Time</PageTitle>
+
+@{
+    var fixture = Engine.MyFixtureToday();
+}
+
+@if (fixture == null)
+{
+    <p class="muted">No match data.</p>
+}
+else
+{
+    var won = fixture.ClubWon?.Id == Engine.MyClub.Id;
+    var draw = fixture.GoalsHome == fixture.GoalsAway;
+    var myResult = draw ? "Draw" : won ? "Win" : "Loss";
+
+    <div class="page-head">
+        <div><h1>Full Time</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+        <div class="page-actions">
+            <button class="btn btn-primary btn-lg" @onclick="Continue">Continue ⏩</button>
+        </div>
+    </div>
+
+    <div class="scoreboard">
+        <div class="teams">
+            <div class="team-name">@fixture.HomeClub.Name</div>
+            <div class="score">@fixture.GoalsHome&nbsp;-&nbsp;@fixture.GoalsAway</div>
+            <div class="team-name">@fixture.AwayClub.Name</div>
+        </div>
+        <div class="minute">
+            <span class="tag @(myResult == "Win" ? "green" : myResult == "Draw" ? "gold" : "red")">@myResult</span>
+            · Full Time
+        </div>
+    </div>
+
+    <div class="panel">
+        <MatchLineups Fixture="fixture" ShowScorers="true" />
+    </div>
+}
+
+@code {
+    private void Continue()
+    {
+        Engine.CompleteRemainingFixtures();
+        Nav.NavigateTo("/results");
+    }
+}

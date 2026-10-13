@@ -1,0 +1,119 @@
+@page "/new"
+@inject GameEngine Engine
+@inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
+
+<PageTitle>New Game</PageTitle>
+
+<div class="menu-card @(_step == 2 ? "wide" : "")">
+    <div class="steps">
+        <div class="step-dot @(_step >= 0 ? "active" : "")"></div>
+        <div class="step-dot @(_step >= 1 ? "active" : "")"></div>
+        <div class="step-dot @(_step >= 2 ? "active" : "")"></div>
+    </div>
+
+    @if (_step == 0)
+    {
+        <div class="brand"><h1>Create Manager</h1><p>What should we call you, boss?</p></div>
+        <EditForm Model="this" OnValidSubmit="SubmitName">
+            <div class="field">
+                <label>Manager name</label>
+                <InputText class="input" @bind-Value="_managerName" placeholder="e.g. Alex Ferguson" autofocus />
+            </div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit" disabled="@string.IsNullOrWhiteSpace(_managerName)">Continue</button>
+        </EditForm>
+    }
+    else if (_step == 1)
+    {
+        <div class="brand"><h1>Select a League</h1><p>Choose the division you want to manage in.</p></div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>League</th><th>Country</th><th class="num">Rank</th><th class="num">Teams</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var league in Settings.Competitions.Where(p => p.IsLeague).OrderBy(p => p.Rank))
+                    {
+                        <tr class="clickable" @onclick="() => PickLeague(league.Id)">
+                            <td><strong>@league.Name</strong></td>
+                            <td>@CountryName(league.CountryId)</td>
+                            <td class="num">@league.Rank</td>
+                            <td class="num">@league.LeagueTable.Places</td>
+                            <td class="num">→</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" @onclick="() => _step = 0">← Back</button>
+    }
+    else
+    {
+        <div class="brand"><h1>Select a Club</h1><p>Pick the club to begin your career with.</p></div>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Club</th><th class="num">Transfer Budget</th><th>Stadium</th><th>Key Player</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var club in Engine.GameCreator.Clubs.Where(p => p.LeagueId == _leagueId).OrderBy(p => p.Name))
+                    {
+                        <tr class="clickable" @onclick="() => PickClub(club.Id)">
+                            <td><strong>@club.Name</strong></td>
+                            <td class="num">@Ui.Money(club.TransferBudget)</td>
+                            <td>@club.Stadium</td>
+                            <td>@KeyPlayer(club.Id)</td>
+                            <td class="num">→</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="divider"></div>
+        <button class="btn btn-ghost" @onclick="() => _step = 1">← Back</button>
+    }
+</div>
+
+@code {
+    private int _step;
+    private string _managerName = "";
+    private int _leagueId;
+
+    private SettingsModel Settings => SettingsOptions.Value;
+
+    protected override void OnInitialized()
+    {
+        // Ensure the game data has been initialised (covers a direct navigation to /new).
+        if (!Engine.State.Players.Any())
+            Engine.StartNewGame();
+    }
+
+    private void SubmitName()
+    {
+        if (string.IsNullOrWhiteSpace(_managerName)) return;
+        Engine.SetManagerName(_managerName);
+        _step = 1;
+    }
+
+    private void PickLeague(int leagueId)
+    {
+        _leagueId = leagueId;
+        Engine.SelectLeague(leagueId);
+        _step = 2;
+    }
+
+    private void PickClub(int clubId)
+    {
+        Engine.SelectClub(clubId);
+        Nav.NavigateTo("/game");
+    }
+
+    private string CountryName(int countryId) =>
+        Settings.Countries.FirstOrDefault(p => p.Id == countryId)?.Name ?? "";
+
+    private string KeyPlayer(int clubId) => Engine.State.Players
+        .Where(p => p.Contract != null && p.Contract.ClubId == clubId)
+        .OrderByDescending(p => p.Rating)
+        .FirstOrDefault()?.Name ?? "—";
+}

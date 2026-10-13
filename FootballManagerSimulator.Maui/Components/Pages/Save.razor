@@ -1,0 +1,39 @@
+@page "/save"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Save Game</PageTitle>
+
+<div class="page-head"><div><h1>Save Game</h1><div class="subtitle">Your game will be saved to your desktop as a <code>.fms</code> file.</div></div></div>
+
+<div class="panel" style="max-width:520px">
+    @if (_message != null)
+    {
+        <div class="feedback"><div class="feedback-item">@_message</div></div>
+    }
+    <EditForm Model="this" OnValidSubmit="DoSave">
+        <div class="field">
+            <label>File name</label>
+            <InputText class="input" @bind-Value="_fileName" placeholder="e.g. my-career" />
+        </div>
+        <div class="inline-form">
+            <button class="btn btn-primary" type="submit" disabled="@string.IsNullOrWhiteSpace(_fileName)">💾 Save</button>
+            <button class="btn btn-ghost" type="button" @onclick="@(() => Nav.NavigateTo("/game"))">Back to Hub</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private string _fileName = "";
+    private string? _message;
+
+    protected override void OnInitialized() =>
+        _fileName = $"{Engine.MyClub.Name}".Replace(" ", "-").ToLower();
+
+    private void DoSave()
+    {
+        if (string.IsNullOrWhiteSpace(_fileName)) return;
+        _message = Engine.SaveGame(_fileName.Trim());
+    }
+}

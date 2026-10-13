@@ -1,0 +1,131 @@
+@page "/tactics"
+@layout GameLayout
+@inject GameEngine Engine
+@inject NavigationManager Nav
+
+<PageTitle>Tactics</PageTitle>
+
+<div class="page-head">
+    <div><h1>Tactics</h1><div class="subtitle">Formation @Engine.MyClub.Formation · click two players to swap them</div></div>
+    <div class="page-actions">
+        <button class="btn btn-primary" @onclick="Engine.AutoPickTeam">🪄 Auto Pick</button>
+        <button class="btn" @onclick="Engine.ResetTactic">↺ Reset</button>
+    </div>
+</div>
+
+@{
+    var slots = Engine.MyClub.TacticSlots;
+    var starters = slots.Take(11).ToList();
+    var subs = slots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
+    var reserves = slots.Where(s => s.TacticSlotType == TacticSlotType.RES && s.PlayerId != null).ToList();
+}
+
+<div class="panel">
+    <h2>Formation</h2>
+    <div class="page-actions">
+        @foreach (var f in new[] { "4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2" })
+        {
+            <button class="btn @(Engine.MyClub.Formation == f ? "btn-primary" : "")" @onclick="() => ChangeFormation(f)">@f</button>
+        }
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="panel">
+        <h2>Pitch</h2>
+        <div class="pitch">
+            @for (var i = 0; i < starters.Count; i++)
+            {
+                var slot = starters[i];
+                var (x, y) = PitchPosition(starters, i);
+                var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                var idx = slots.IndexOf(slot);
+                <div class="pitch-player" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)">
+                    <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
+                    <div class="pname">@(player?.Name ?? "—")</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Starting XI</h2>
+        <table class="data">
+            <tbody>
+                @foreach (var slot in starters)
+                {
+                    @SlotRow(slot)
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="grid grid-2">
+    <div class="panel">
+        <h2>Substitutes</h2>
+        <table class="data"><tbody>
+            @foreach (var slot in subs) { @SlotRow(slot) }
+        </tbody></table>
+    </div>
+    <div class="panel">
+        <h2>Reserves <span class="panel-title-sub">@reserves.Count players</span></h2>
+        <table class="data"><tbody>
+            @foreach (var slot in reserves) { @SlotRow(slot) }
+        </tbody></table>
+    </div>
+</div>
+
+@code {
+    private int? _selected;
+
+    private RenderFragment SlotRow(TacticSlotModel slot)
+    {
+        var slots = Engine.MyClub.TacticSlots;
+        var idx = slots.IndexOf(slot);
+        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+        return @<tr class="clickable @(_selected == idx ? "highlight" : "")" @onclick="() => OnSlotClick(idx)">
+            <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
+            <td>@(player?.Name ?? "— empty —")</td>
+            <td class="num" style="width:50px">@(player != null ? player.PreferredPosition : "")</td>
+            <td class="num" style="width:50px">@(player != null ? player.Rating.ToString() : "")</td>
+        </tr>;
+    }
+
+    private void OnSlotClick(int index)
+    {
+        if (_selected == null) { _selected = index; return; }
+        if (_selected == index) { _selected = null; return; }
+        Engine.SwapTacticSlots(_selected.Value, index);
+        _selected = null;
+    }
+
+    private void ChangeFormation(string formation)
+    {
+        _selected = null;
+        Engine.ChangeFormation(formation);
+    }
+
+    // Maps a starter to a position on the pitch (percentages), grouping starters into
+    // horizontal lines by role and spreading each line evenly across the width.
+    private static (double x, double y) PitchPosition(List<TacticSlotModel> starters, int index)
+    {
+        var line = LineOf(starters[index].TacticSlotType);
+        var sameLine = starters.Select((s, i) => (s, i)).Where(t => LineOf(t.s.TacticSlotType) == line).ToList();
+        var posInLine = sameLine.FindIndex(t => t.i == index);
+        var count = sameLine.Count;
+        var x = count == 1 ? 50.0 : 15.0 + posInLine * (70.0 / (count - 1));
+        var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
+        return (x, y);
+    }
+
+    private static int LineOf(TacticSlotType type) => type switch
+    {
+        TacticSlotType.GK => 0,
+        TacticSlotType.RB or TacticSlotType.LB or TacticSlotType.CB => 1,
+        TacticSlotType.CDM => 2,
+        TacticSlotType.RM or TacticSlotType.LM or TacticSlotType.CM => 3,
+        TacticSlotType.CAM => 4,
+        _ => 5
+    };
+}
