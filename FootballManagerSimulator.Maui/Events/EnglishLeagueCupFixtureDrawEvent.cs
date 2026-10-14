@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
@@ -17,7 +18,7 @@ public class EnglishLeagueCupFixtureDrawEvent(
 
     public override void Execute()
     {
-        var competition = State.Competitions.First(p => p.Name == "English League Cup");
+        var competition = State.Competitions.First(p => p.Type == CompetitionType.Cup);
         var round = competition.Fixtures.Any() ? competition.Fixtures.Max(p => p.Round) + 1 : 1;
 
 		var cup = (CupModel)competition;

@@ -23,7 +23,6 @@ public class EnglishLeagueCupProvider(
     private readonly IEventManager EventManager = eventManager;
 
     private const int NUMBER_OF_ROUNDS = 7;
-    private readonly IEnumerable<string> LeaguesInvolved = [ "Premier League", "EFL Championship", "EFL League One", "EFL League Two" ];
 
     public CompetitionType Type => CompetitionType.Cup;
 
@@ -44,8 +43,9 @@ public class EnglishLeagueCupProvider(
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
-        var leagues = Settings.Competitions.Where(p => LeaguesInvolved.Contains(p.Name));
-        var leagueIds = leagues.Select(p => p.Id);
+        var leagueIds = Settings.Competitions
+            .Where(p => p.IsLeague && p.CountryId == 1)
+            .Select(p => p.Id);
 
         var clubs = Settings.Clubs
             .Where(p => leagueIds.Contains(p.LeagueId))

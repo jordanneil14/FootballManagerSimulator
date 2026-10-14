@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Competitions.Services;
+using FootballManagerSimulator.Enums;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 using System;
@@ -22,7 +23,7 @@ public class EnglishCommunityShieldFixtureDrawEvent(
 
     public override void Execute()
     {
-        var competition = State.Competitions.First(p => p.Name == "English Community Shield");
+        var competition = State.Competitions.First(p => p.Type == CompetitionType.EnglishCommunityShield);
 
         EnglishCommunityShieldService.GenerateNextRoundOfFixtures(competition);
 

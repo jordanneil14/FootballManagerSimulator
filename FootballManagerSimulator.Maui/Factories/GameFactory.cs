@@ -2,8 +2,8 @@
 using FootballManagerSimulator.Events;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
+using FootballManagerSimulator.PlayerGenerator;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace FootballManagerSimulator.Factories;
 
@@ -92,16 +92,37 @@ public class GameFactory(
             LeagueId = p.LeagueId
         }).ToList();
 
-        string content;
-        using (var stream = AppStorage.OpenBundledResource("playerData.json"))
-        using (var reader = new StreamReader(stream))
-            content = reader.ReadToEnd();
+        var generator = new PlayerGenerator.PlayerGenerator();
+        var startDate = Settings.General.StartDate;
+        var allPlayers = new List<PlayerModel>();
+        var random = new Random();
 
-        var playerData = JsonConvert.DeserializeObject<PlayerData>(content);
-        if (playerData == null)
-            throw new Exception("Unable to load players from playerData.json");
+        var leagueRankLookup = Settings.Competitions
+            .Where(c => c.IsLeague)
+            .ToDictionary(c => c.Id, c => c.Rank);
 
-        PlayerHelper.AddPlayersToState(playerData);
+        foreach (var club in State.Clubs)
+        {
+            var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
+            var squadSize = random.Next(25, 31);
+            var generated = generator.GenerateSquad(club.Name, squadSize, startDate, leagueRank);
+            foreach (var gp in generated)
+            {
+                allPlayers.Add(MapToPlayerModel(gp, club));
+            }
+        }
+
+        var freeAgentCount = random.Next(80, 121);
+        var freeAgents = generator.GeneratePlayers(freeAgentCount);
+        foreach (var gp in freeAgents)
+        {
+            allPlayers.Add(MapToPlayerModel(gp, null));
+        }
+
+        for (int i = 0; i < allPlayers.Count; i++)
+            allPlayers[i].Id = i + 1;
+
+        State.Players.AddRange(allPlayers);
 
         foreach (var club in State.Clubs)
             TacticHelper.ResetTacticForClub(club);
@@ -115,5 +136,74 @@ public class GameFactory(
 
             State.Competitions.Add(competition1);
         }
+    }
+
+    private static PlayerModel MapToPlayerModel(GeneratedPlayer gp, ClubModel? club)
+    {
+        var player = new PlayerModel
+        {
+            Name = gp.Name,
+            Nationality = gp.Nationality,
+            NationalKit = gp.NationalKit,
+            Position = gp.ClubPosition,
+            ShirtNumber = gp.ShirtNumber,
+            ClubJoining = gp.ClubJoining,
+            Rating = gp.Rating,
+            Height = gp.Height,
+            Weight = gp.Weight,
+            PreferredFoot = gp.PreferredFoot,
+            BirthDate = gp.BirthDate,
+            Age = gp.Age,
+            PreferredPosition = gp.PreferredPosition,
+            WorkRate = gp.WorkRate,
+            Weakfoot = gp.Weakfoot,
+            SkillMoves = gp.SkillMoves,
+            BallControl = gp.BallControl,
+            Dribbling = gp.Dribbling,
+            Marking = gp.Marking,
+            SlidingTackle = gp.SlidingTackle,
+            StandingTackle = gp.StandingTackle,
+            Aggression = gp.Aggression,
+            Reactions = gp.Reactions,
+            AttackingPosition = gp.AttackingPosition,
+            Interceptions = gp.Interceptions,
+            Vision = gp.Vision,
+            Composure = gp.Composure,
+            Crossing = gp.Crossing,
+            ShortPass = gp.ShortPass,
+            LongPass = gp.LongPass,
+            Acceleration = gp.Acceleration,
+            Speed = gp.Speed,
+            Stamina = gp.Stamina,
+            Strength = gp.Strength,
+            Balance = gp.Balance,
+            Agility = gp.Agility,
+            Jumping = gp.Jumping,
+            Heading = gp.Heading,
+            ShotPower = gp.ShotPower,
+            Finishing = gp.Finishing,
+            LongShots = gp.LongShots,
+            Curve = gp.Curve,
+            FreekickAccuracy = gp.FreekickAccuracy,
+            Penalties = gp.Penalties,
+            Volleys = gp.Volleys,
+            GKPositioning = gp.GKPositioning,
+            GKDiving = gp.GKDiving,
+            GKKicking = gp.GKKicking,
+            GKHandling = gp.GKHandling,
+            GKReflexes = gp.GKReflexes
+        };
+
+        if (club != null && gp.Contract != null)
+        {
+            player.Contract = new PlayerModel.ContractModel
+            {
+                ClubId = club.Id,
+                ClubName = club.Name,
+                ExpiryDate = DateOnly.Parse(gp.Contract.ExpiryDate)
+            };
+        }
+
+        return player;
     }
 }

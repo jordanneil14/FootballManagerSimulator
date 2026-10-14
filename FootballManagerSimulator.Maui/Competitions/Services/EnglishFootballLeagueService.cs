@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Helpers;
+﻿using FootballManagerSimulator.Enums;
+using FootballManagerSimulator.Helpers;
 using FootballManagerSimulator.Interfaces;
 using FootballManagerSimulator.Models;
 
@@ -46,7 +47,7 @@ public class EnglishFootballLeagueService(IState state, INotificationFactory not
 	}
 
 	private IEnumerable<DateOnly> EnglishLeagueCupFixtureDates => State.Competitions
-		.First(p => p.Name == "English League Cup")
+		.First(p => p.Type == CompetitionType.Cup)
 		.DrawSettings
 		.Select(p => p.FixtureDate);
 

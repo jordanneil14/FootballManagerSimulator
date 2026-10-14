@@ -32,6 +32,6 @@ public class EnglishCommunityShieldService(
             State.Date,
             "Club Analyst",
             "Pre-Match Report",
-            "English Community Shield match incoming");
+            "English United Shield match incoming");
     }
 }

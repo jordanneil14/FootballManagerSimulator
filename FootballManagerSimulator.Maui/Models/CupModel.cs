@@ -5,7 +5,7 @@ namespace FootballManagerSimulator.Models;
 
 public class CupModel : ICompetition
 {
-    public CompetitionType Type => CompetitionType.Cup;
+    public CompetitionType Type { get; set; } = CompetitionType.Cup;
     public int Round { get; set; } = 1;
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

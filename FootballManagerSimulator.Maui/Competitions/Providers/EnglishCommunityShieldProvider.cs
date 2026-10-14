@@ -42,6 +42,7 @@ public class EnglishCommunityShieldProvider(
         {
             Id = competition.Id,
             Name = competition.Name,
+            Type = CompetitionType.EnglishCommunityShield,
             Clubs = clubs,
             DrawSettings = [ drawSettings ]
         };

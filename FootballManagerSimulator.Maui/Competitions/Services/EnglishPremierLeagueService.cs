@@ -48,7 +48,7 @@ public class EnglishPremierLeagueService(
     }
 
 	private IEnumerable<DateOnly> EnglishLeagueCupFixtureDates => State.Competitions
-		.First(p => p.Name == "English League Cup")
+		.First(p => p.Type == CompetitionType.Cup)
 		.DrawSettings
 		.Select(p => p.FixtureDate);
 

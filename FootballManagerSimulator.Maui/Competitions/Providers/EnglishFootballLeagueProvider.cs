@@ -33,6 +33,7 @@ public class EnglishFootballLeagueProvider(
 		{
 			Id = competition.Id,
 			Name = competition.Name,
+			Type = CompetitionType.EnglishFootballLeague,
 			Rank = competition.Rank,
 			Clubs = clubs.ToList()
 		};

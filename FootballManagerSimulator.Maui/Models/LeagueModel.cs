@@ -11,7 +11,7 @@ public class LeagueModel : ICompetition
     public List<FixtureModel> Fixtures { get; set; } = new List<FixtureModel>();
     public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
 
-    public CompetitionType Type => CompetitionType.League;
+    public CompetitionType Type { get; set; } = CompetitionType.League;
 
     public List<DrawSettingsModel> DrawSettings { get; set; } = new List<DrawSettingsModel>();
 
