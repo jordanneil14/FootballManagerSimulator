@@ -7,7 +7,10 @@
 
 <div class="page-head">
     <div><h1>Transfer List</h1><div class="subtitle">Players available to buy</div></div>
-    <div class="stat" style="flex:none;min-width:200px"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+</div>
+
+<div class="stat-row">
+    <div class="stat"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
 </div>
 
 @if (_message != null)
@@ -22,7 +25,7 @@
         .ToList();
 }
 
-<div class="panel">
+<div class="panel panel-fill">
     @if (!items.Any())
     {
         <p class="muted">No players are currently transfer listed. Check back after advancing a few days.</p>

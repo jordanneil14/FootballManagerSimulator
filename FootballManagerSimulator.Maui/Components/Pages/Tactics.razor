@@ -30,50 +30,44 @@
     </div>
 </div>
 
-<div class="grid grid-2">
-    <div class="panel">
-        <h2>Pitch</h2>
-        <div class="pitch">
-            @for (var i = 0; i < starters.Count; i++)
+<div class="panel">
+    <h2>Starting XI</h2>
+    <div class="pitch">
+        @for (var i = 0; i < starters.Count; i++)
+        {
+            var slot = starters[i];
+            var (x, y) = PitchPosition(starters, i);
+            var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+            var idx = slots.IndexOf(slot);
+            <div class="pitch-player" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)">
+                <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
+                <div class="pname">@(player?.Name ?? "—")</div>
+            </div>
+        }
+    </div>
+
+    <table class="data" style="margin-top:1.4rem">
+        <tbody>
+            @foreach (var slot in starters)
             {
-                var slot = starters[i];
-                var (x, y) = PitchPosition(starters, i);
-                var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                var idx = slots.IndexOf(slot);
-                <div class="pitch-player" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)">
-                    <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
-                    <div class="pname">@(player?.Name ?? "—")</div>
-                </div>
+                @SlotRow(slot)
             }
-        </div>
-    </div>
+        </tbody>
+    </table>
 
-    <div class="panel">
-        <h2>Starting XI</h2>
-        <table class="data">
-            <tbody>
-                @foreach (var slot in starters)
-                {
-                    @SlotRow(slot)
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="grid grid-2">
-    <div class="panel">
-        <h2>Substitutes</h2>
-        <table class="data"><tbody>
+    <h2 style="margin-top:1.4rem">Substitutes</h2>
+    <table class="data">
+        <tbody>
             @foreach (var slot in subs) { @SlotRow(slot) }
-        </tbody></table>
-    </div>
-    <div class="panel">
-        <h2>Reserves <span class="panel-title-sub">@reserves.Count players</span></h2>
-        <table class="data"><tbody>
+        </tbody>
+    </table>
+
+    <h2 style="margin-top:1.4rem">Reserves <span class="panel-title-sub">@reserves.Count players</span></h2>
+    <table class="data">
+        <tbody>
             @foreach (var slot in reserves) { @SlotRow(slot) }
-        </tbody></table>
-    </div>
+        </tbody>
+    </table>
 </div>
 
 @code {

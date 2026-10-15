@@ -18,8 +18,6 @@ else
     var club = player.Contract == null ? "Free Agent" : Engine.GetClub(player.Contract.ClubId)?.Name ?? "Free Agent";
     var playsForMe = Engine.PlayerPlaysForMyClub(player.Id);
 
-    <a class="back-link" href="javascript:history.back()">← Back</a>
-
     <div class="page-head">
         <div>
             <h1>@player.Name</h1>

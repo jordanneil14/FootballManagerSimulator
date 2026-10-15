@@ -12,5 +12,6 @@ public class ClubModel
 	public int WageBudget { get; set; }
     public List<TacticSlotModel> TacticSlots { get; set; } = new List<TacticSlotModel>();
     public string Formation { get; set; } = "4-4-2";
+    public string Colour { get; set; } = "";
 }
 
