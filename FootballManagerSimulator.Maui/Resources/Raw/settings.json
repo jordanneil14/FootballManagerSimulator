@@ -5,17 +5,17 @@
   "Clubs": [
     {
       "ID": 1,
-      "Name": "London Blues",
+      "Name": "Chelsea",
       "TransferBudget": 62000000,
-      "Stadium": "The Bridge Stadium",
+      "Stadium": "Stamford Bridge Arena",
       "LeagueId": 1,
       "Colour": "Blue"
     },
     {
       "ID": 2,
-      "Name": "London Whites",
+      "Name": "Tottenham",
       "TransferBudget": 47000000,
-      "Stadium": "North Spur Stadium",
+      "Stadium": "Tottenham Hotspur Grounds",
       "LeagueId": 1,
       "Colour": "White"
     },
@@ -23,15 +23,15 @@
       "ID": 3,
       "Name": "Manchester Blue",
       "TransferBudget": 85000000,
-      "Stadium": "Manchester Blue Stadium",
+      "Stadium": "City of Manchester Fields",
       "LeagueId": 1,
       "Colour": "Sky Blue"
     },
     {
       "ID": 4,
-      "Name": "Mersey Reds FC",
+      "Name": "Liverpool",
       "TransferBudget": 71000000,
-      "Stadium": "Reds Arena",
+      "Stadium": "Anfield Road",
       "LeagueId": 1,
       "Colour": "Red"
     },
@@ -39,7 +39,7 @@
       "ID": 5,
       "Name": "North London Reds",
       "TransferBudget": 90000000,
-      "Stadium": "Lowbury Stadium",
+      "Stadium": "Highbury Lane",
       "LeagueId": 1,
       "Colour": "Red/White"
     },
@@ -47,7 +47,7 @@
       "ID": 6,
       "Name": "Manchester Reds",
       "TransferBudget": 58000000,
-      "Stadium": "Devil Manchester Stadium",
+      "Stadium": "Old Trafford Park",
       "LeagueId": 1,
       "Colour": "Red"
     },
@@ -55,7 +55,7 @@
       "ID": 7,
       "Name": "Merseyside Blues",
       "TransferBudget": 43000000,
-      "Stadium": "Sticky Toffee Stadium",
+      "Stadium": "Goodison Fields",
       "LeagueId": 1,
       "Colour": "Blue"
     },
@@ -63,7 +63,7 @@
       "ID": 8,
       "Name": "Southampton",
       "TransferBudget": 14000000,
-      "Stadium": "Portside Stadium",
+      "Stadium": "St Marys Ground",
       "LeagueId": 2,
       "Colour": "Red/White"
     },
@@ -71,15 +71,15 @@
       "ID": 9,
       "Name": "Bournemouth",
       "TransferBudget": 38000000,
-      "Stadium": "Vitality Stadium",
+      "Stadium": "Seashore Park",
       "LeagueId": 1,
       "Colour": "Red/Black"
     },
     {
       "ID": 10,
-      "Name": "West Midland Albions",
+      "Name": "The Albions",
       "TransferBudget": 11000000,
-      "Stadium": "Albion Ground",
+      "Stadium": "The Hawthorns Grounds",
       "LeagueId": 2,
       "Colour": "Navy/White"
     },
@@ -87,7 +87,7 @@
       "ID": 11,
       "Name": "London Claret & Blues",
       "TransferBudget": 17000000,
-      "Stadium": "London Stadium",
+      "Stadium": "Olympic East Stadium",
       "LeagueId": 2,
       "Colour": "Claret/Blue"
     },
@@ -95,7 +95,7 @@
       "ID": 12,
       "Name": "Leicester",
       "TransferBudget": 8000000,
-      "Stadium": "Leicester Stadium",
+      "Stadium": "East Midlands Fields",
       "LeagueId": 3,
       "Colour": "Blue"
     },
@@ -103,7 +103,7 @@
       "ID": 13,
       "Name": "Stoke",
       "TransferBudget": 12000000,
-      "Stadium": "Staffordshire Stadium",
+      "Stadium": "The Britannia Fields",
       "LeagueId": 2,
       "Colour": "Red/White"
     },
@@ -111,7 +111,7 @@
       "ID": 14,
       "Name": "London Crystals",
       "TransferBudget": 41000000,
-      "Stadium": "Vale Park",
+      "Stadium": "Selhurst Fields",
       "LeagueId": 1,
       "Colour": "Red/Blue"
     },
@@ -119,7 +119,7 @@
       "ID": 15,
       "Name": "Swansea",
       "TransferBudget": 13000000,
-      "Stadium": "Swans Stadium",
+      "Stadium": "Liberty Fields",
       "LeagueId": 2,
       "Colour": "White"
     },
@@ -127,7 +127,7 @@
       "ID": 16,
       "Name": "Burnley",
       "TransferBudget": 9000000,
-      "Stadium": "Clarets Ground",
+      "Stadium": "Turf Moor Grounds",
       "LeagueId": 2,
       "Colour": "Claret/Blue"
     },
@@ -135,7 +135,7 @@
       "ID": 17,
       "Name": "Watford",
       "TransferBudget": 10000000,
-      "Stadium": "BeeHive Stadium",
+      "Stadium": "Vicarage Fields",
       "LeagueId": 2,
       "Colour": "Yellow/Black"
     },
@@ -143,7 +143,7 @@
       "ID": 18,
       "Name": "Hull",
       "TransferBudget": 35000000,
-      "Stadium": "Yorkshire Stadium",
+      "Stadium": "Humberside Fields",
       "LeagueId": 1,
       "Colour": "Amber/Black"
     },
@@ -151,7 +151,7 @@
       "ID": 19,
       "Name": "Middlesbrough",
       "TransferBudget": 15000000,
-      "Stadium": "Up-North Stadium",
+      "Stadium": "Riverside Fields",
       "LeagueId": 2,
       "Colour": "Red"
     },
@@ -159,7 +159,7 @@
       "ID": 20,
       "Name": "Sunderland",
       "TransferBudget": 36000000,
-      "Stadium": "Red & White Strips Ground",
+      "Stadium": "Stadium of Light Fields",
       "LeagueId": 1,
       "Colour": "Red/White"
     },
@@ -167,7 +167,7 @@
       "ID": 21,
       "Name": "Newcastle",
       "TransferBudget": 66000000,
-      "Stadium": "Saint Black Ground",
+      "Stadium": "St James Fields",
       "LeagueId": 1,
       "Colour": "Black/White"
     },
@@ -175,7 +175,7 @@
       "ID": 22,
       "Name": "Brigton",
       "TransferBudget": 53000000,
-      "Stadium": "Doves Arena",
+      "Stadium": "South Downs Fields",
       "LeagueId": 1,
       "Colour": "Blue/White"
     },
@@ -183,7 +183,7 @@
       "ID": 23,
       "Name": "Reading",
       "TransferBudget": 7000000,
-      "Stadium": "Near Festival Stadium",
+      "Stadium": "Berkshire Fields",
       "LeagueId": 3,
       "Colour": "Blue/White"
     },
@@ -191,7 +191,7 @@
       "ID": 24,
       "Name": "Sheffield Blues",
       "TransferBudget": 6000000,
-      "Stadium": "Hilly Stadium",
+      "Stadium": "Hillsborough Grounds",
       "LeagueId": 3,
       "Colour": "Blue/White"
     },
@@ -199,7 +199,7 @@
       "ID": 25,
       "Name": "Huddersfield",
       "TransferBudget": 5500000,
-      "Stadium": "Hudders Stadium",
+      "Stadium": "Huddersfield Town Grounds",
       "LeagueId": 3,
       "Colour": "Blue/White"
     },
@@ -207,7 +207,7 @@
       "ID": 26,
       "Name": "Fulham",
       "TransferBudget": 48000000,
-      "Stadium": "Craven Cottage",
+      "Stadium": "Craven Fields",
       "LeagueId": 1,
       "Colour": "White/Black"
     },
@@ -215,7 +215,7 @@
       "ID": 27,
       "Name": "Leeds",
       "TransferBudget": 44000000,
-      "Stadium": "Yorkshire Road",
+      "Stadium": "Elland Road Grounds",
       "LeagueId": 1,
       "Colour": "White"
     },
@@ -223,7 +223,7 @@
       "ID": 28,
       "Name": "Norwich",
       "TransferBudget": 16000000,
-      "Stadium": "Canary Road",
+      "Stadium": "Carrow Road Grounds",
       "LeagueId": 2,
       "Colour": "Yellow/Green"
     },
@@ -231,7 +231,7 @@
       "ID": 29,
       "Name": "Derby",
       "TransferBudget": 8500000,
-      "Stadium": "Prideless Box Stadium",
+      "Stadium": "Pride Park Grounds",
       "LeagueId": 2,
       "Colour": "White/Black"
     },
@@ -239,7 +239,7 @@
       "ID": 30,
       "Name": "London Bees",
       "TransferBudget": 45000000,
-      "Stadium": "Ford Bees Stadium",
+      "Stadium": "Brentford Community Fields",
       "LeagueId": 1,
       "Colour": "Red/White"
     },
@@ -247,7 +247,7 @@
       "ID": 31,
       "Name": "Preston",
       "TransferBudget": 7500000,
-      "Stadium": "Four Corners Stadium",
+      "Stadium": "Deepdale Grounds",
       "LeagueId": 2,
       "Colour": "White/Navy"
     },
@@ -255,7 +255,7 @@
       "ID": 32,
       "Name": "Cardiff",
       "TransferBudget": 9500000,
-      "Stadium": "City Stadium",
+      "Stadium": "Cardiff City Fields",
       "LeagueId": 2,
       "Colour": "Blue"
     },
@@ -263,7 +263,7 @@
       "ID": 33,
       "Name": "West Midland Clarets",
       "TransferBudget": 74000000,
-      "Stadium": "VillaField Stadium",
+      "Stadium": "Villa Park Grounds",
       "LeagueId": 1,
       "Colour": "Claret/Blue"
     },
@@ -271,7 +271,7 @@
       "ID": 34,
       "Name": "Barnsley",
       "TransferBudget": 4500000,
-      "Stadium": "Red Yorkshire Stadium",
+      "Stadium": "Oakwell Fields",
       "LeagueId": 3,
       "Colour": "Red"
     },
@@ -279,7 +279,7 @@
       "ID": 35,
       "Name": "Wolverhampton",
       "TransferBudget": 18000000,
-      "Stadium": "The Wolf Stadium",
+      "Stadium": "Molineux Grounds",
       "LeagueId": 2,
       "Colour": "Gold/Black"
     },
@@ -287,7 +287,7 @@
       "ID": 36,
       "Name": "Ipswich",
       "TransferBudget": 32000000,
-      "Stadium": "Portside Road",
+      "Stadium": "Portman Road Grounds",
       "LeagueId": 1,
       "Colour": "Blue"
     },
@@ -295,15 +295,15 @@
       "ID": 37,
       "Name": "Bristol Reds",
       "TransferBudget": 13500000,
-      "Stadium": "Bristol Arena",
+      "Stadium": "Ashton Gate Fields",
       "LeagueId": 2,
       "Colour": "Red"
     },
     {
       "ID": 38,
-      "Name": "London Rangers",
+      "Name": "Queens Park",
       "TransferBudget": 10500000,
-      "Stadium": "The London Stadium",
+      "Stadium": "Loftus Road Grounds",
       "LeagueId": 2,
       "Colour": "Blue/White"
     },
@@ -311,7 +311,7 @@
       "ID": 39,
       "Name": "Birmingham",
       "TransferBudget": 9000000,
-      "Stadium": "West Midlands Stadium",
+      "Stadium": "St Andrews Fields",
       "LeagueId": 2,
       "Colour": "Blue"
     },
@@ -319,7 +319,7 @@
       "ID": 40,
       "Name": "Burton",
       "TransferBudget": 3500000,
-      "Stadium": "Burton Stadium",
+      "Stadium": "Brewers Fields",
       "LeagueId": 3,
       "Colour": "Yellow/Black"
     },
@@ -327,7 +327,7 @@
       "ID": 41,
       "Name": "Nottingham Reds",
       "TransferBudget": 55000000,
-      "Stadium": "The Red Arena",
+      "Stadium": "City Ground Fields",
       "LeagueId": 1,
       "Colour": "Red"
     },
@@ -335,7 +335,7 @@
       "ID": 42,
       "Name": "Blackburn",
       "TransferBudget": 12500000,
-      "Stadium": "Rovers Park",
+      "Stadium": "Ewood Park Grounds",
       "LeagueId": 2,
       "Colour": "Blue/White"
     },
@@ -343,7 +343,7 @@
       "ID": 43,
       "Name": "Wigan",
       "TransferBudget": 4000000,
-      "Stadium": "Threes-a-crowd Stadium",
+      "Stadium": "Springfield Park Fields",
       "LeagueId": 3,
       "Colour": "Blue/White"
     },
@@ -351,7 +351,7 @@
       "ID": 44,
       "Name": "Rotherham",
       "TransferBudget": 34000000,
-      "Stadium": "Light Blue City Arena",
+      "Stadium": "New York Fields",
       "LeagueId": 1,
       "Colour": "Red/White"
     },
@@ -359,7 +359,7 @@
       "ID": 45,
       "Name": "Sheffield Blades",
       "TransferBudget": 11500000,
-      "Stadium": "Yorkshire Blade Park",
+      "Stadium": "Bramall Lane Grounds",
       "LeagueId": 2,
       "Colour": "Red/White"
     },
@@ -367,7 +367,7 @@
       "ID": 46,
       "Name": "Bolton",
       "TransferBudget": 14500000,
-      "Stadium": "Toughsheet Community Stadium",
+      "Stadium": "Riverside Community Stadium",
       "LeagueId": 2,
       "Colour": "White/Navy"
     },
@@ -375,7 +375,7 @@
       "ID": 47,
       "Name": "Wrexham",
       "TransferBudget": 8500000,
-      "Stadium": "Hollywood Park",
+      "Stadium": "Racecourse Grounds",
       "LeagueId": 2,
       "Colour": "Red"
     },
@@ -383,7 +383,7 @@
       "ID": 48,
       "Name": "Fleetwood",
       "TransferBudget": 900000,
-      "Stadium": "Fleet Stadium",
+      "Stadium": "Highbury Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -391,7 +391,7 @@
       "ID": 49,
       "Name": "Bradford",
       "TransferBudget": 4200000,
-      "Stadium": "Valley Parade",
+      "Stadium": "Valley Parade Grounds",
       "LeagueId": 3,
       "Colour": "Claret/Amber"
     },
@@ -399,7 +399,7 @@
       "ID": 50,
       "Name": "London Lions",
       "TransferBudget": 9500000,
-      "Stadium": "Lions Den",
+      "Stadium": "The Den Grounds",
       "LeagueId": 2,
       "Colour": "Blue"
     },
@@ -407,7 +407,7 @@
       "ID": 51,
       "Name": "Southend",
       "TransferBudget": 7000000,
-      "Stadium": "The Red Lake Valley",
+      "Stadium": "Roots Hall Fields",
       "LeagueId": 2,
       "Colour": "Blue"
     },
@@ -415,7 +415,7 @@
       "ID": 52,
       "Name": "Oxford",
       "TransferBudget": 5000000,
-      "Stadium": "University Stadium",
+      "Stadium": "Kassam Fields",
       "LeagueId": 3,
       "Colour": "Yellow"
     },
@@ -423,7 +423,7 @@
       "ID": 53,
       "Name": "Rochdale",
       "TransferBudget": 700000,
-      "Stadium": "Rock Park",
+      "Stadium": "Spotland Grounds",
       "LeagueId": 4,
       "Colour": "Blue"
     },
@@ -431,7 +431,7 @@
       "ID": 54,
       "Name": "Bristol Blues",
       "TransferBudget": 800000,
-      "Stadium": "Bristol Harbour Stadium",
+      "Stadium": "Ashton Gate South Fields",
       "LeagueId": 4,
       "Colour": "Blue/White"
     },
@@ -439,7 +439,7 @@
       "ID": 55,
       "Name": "Peterborough",
       "TransferBudget": 3800000,
-      "Stadium": "London Street Park",
+      "Stadium": "Peterborough Fields",
       "LeagueId": 3,
       "Colour": "Blue"
     },
@@ -447,7 +447,7 @@
       "ID": 56,
       "Name": "The Dons",
       "TransferBudget": 3200000,
-      "Stadium": "Dons Park",
+      "Stadium": "Plough Lane Fields",
       "LeagueId": 3,
       "Colour": "White"
     },
@@ -455,7 +455,7 @@
       "ID": 57,
       "Name": "Charlton",
       "TransferBudget": 3600000,
-      "Stadium": "Tennis Court",
+      "Stadium": "The Valley Grounds",
       "LeagueId": 3,
       "Colour": "Red"
     },
@@ -463,7 +463,7 @@
       "ID": 58,
       "Name": "Walsaw",
       "TransferBudget": 750000,
-      "Stadium": "Walsall Midlands Stadium",
+      "Stadium": "Bescot Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -471,7 +471,7 @@
       "ID": 59,
       "Name": "Wimbeldon",
       "TransferBudget": 4800000,
-      "Stadium": "Shockport Park",
+      "Stadium": "Plough Lane Grounds",
       "LeagueId": 3,
       "Colour": "Blue/Yellow"
     },
@@ -479,7 +479,7 @@
       "ID": 60,
       "Name": "Northampton",
       "TransferBudget": 680000,
-      "Stadium": "FarNorth Stadium",
+      "Stadium": "Sixfields Fields",
       "LeagueId": 4,
       "Colour": "Claret"
     },
@@ -487,7 +487,7 @@
       "ID": 61,
       "Name": "Oldham",
       "TransferBudget": 650000,
-      "Stadium": "New Ham Park",
+      "Stadium": "Boundary Park Fields",
       "LeagueId": 4,
       "Colour": "Blue"
     },
@@ -495,7 +495,7 @@
       "ID": 62,
       "Name": "Shrewsbury",
       "TransferBudget": 720000,
-      "Stadium": "Old Meadows",
+      "Stadium": "Montgomery Fields",
       "LeagueId": 4,
       "Colour": "Blue/Amber"
     },
@@ -503,7 +503,7 @@
       "ID": 63,
       "Name": "Bury",
       "TransferBudget": 4600000,
-      "Stadium": "Seaside Road",
+      "Stadium": "Gigg Lane Fields",
       "LeagueId": 3,
       "Colour": "White/Blue"
     },
@@ -511,7 +511,7 @@
       "ID": 64,
       "Name": "Gillingham",
       "TransferBudget": 780000,
-      "Stadium": "The Gill Stadium",
+      "Stadium": "Priestfield Fields",
       "LeagueId": 4,
       "Colour": "Blue"
     },
@@ -519,7 +519,7 @@
       "ID": 65,
       "Name": "West Midland Whites",
       "TransferBudget": 660000,
-      "Stadium": "Seaside Park",
+      "Stadium": "The Hawthorn South Fields",
       "LeagueId": 4,
       "Colour": "White/Black"
     },
@@ -527,7 +527,7 @@
       "ID": 66,
       "Name": "Swindon",
       "TransferBudget": 820000,
-      "Stadium": "Swims Ground",
+      "Stadium": "County Ground Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -535,7 +535,7 @@
       "ID": 67,
       "Name": "Coventry",
       "TransferBudget": 8500000,
-      "Stadium": "Lincoln Bank",
+      "Stadium": "Coventry City Fields",
       "LeagueId": 2,
       "Colour": "Sky Blue"
     },
@@ -543,7 +543,7 @@
       "ID": 68,
       "Name": "Chesterfield",
       "TransferBudget": 710000,
-      "Stadium": "Blue and White Stadium",
+      "Stadium": "Spireite Fields",
       "LeagueId": 4,
       "Colour": "Blue"
     },
@@ -551,7 +551,7 @@
       "ID": 69,
       "Name": "Portsmouth",
       "TransferBudget": 13000000,
-      "Stadium": "Frat Arena",
+      "Stadium": "Fratton Fields",
       "LeagueId": 2,
       "Colour": "Blue"
     },
@@ -559,7 +559,7 @@
       "ID": 70,
       "Name": "Plymouth",
       "TransferBudget": 5200000,
-      "Stadium": "Argyle Park",
+      "Stadium": "Home Park Grounds",
       "LeagueId": 3,
       "Colour": "Green"
     },
@@ -567,7 +567,7 @@
       "ID": 71,
       "Name": "Doncaster",
       "TransferBudget": 3400000,
-      "Stadium": "The Rover Stadium",
+      "Stadium": "Doncaster Fields",
       "LeagueId": 3,
       "Colour": "Red/White"
     },
@@ -575,7 +575,7 @@
       "ID": 72,
       "Name": "Luton",
       "TransferBudget": 4400000,
-      "Stadium": "Airport Road",
+      "Stadium": "Kenilworth Road Grounds",
       "LeagueId": 3,
       "Colour": "Orange/White"
     },
@@ -583,7 +583,7 @@
       "ID": 73,
       "Name": "Exeter",
       "TransferBudget": 690000,
-      "Stadium": "Exeter Park",
+      "Stadium": "St James Park Fields",
       "LeagueId": 4,
       "Colour": "Red/White"
     },
@@ -591,7 +591,7 @@
       "ID": 74,
       "Name": "Carlisle",
       "TransferBudget": 400000,
-      "Stadium": "Brunton Park",
+      "Stadium": "Brunton Fields",
       "LeagueId": 4,
       "Colour": "Blue"
     },
@@ -599,15 +599,15 @@
       "ID": 75,
       "Name": "Blackpool",
       "TransferBudget": 4700000,
-      "Stadium": "Lane Moor",
-      "LeagueId": 4,
+      "Stadium": "Bloomfield Road Grounds",
+      "LeagueId": 3,
       "Colour": "Tangerine"
     },
     {
       "ID": 76,
       "Name": "Colchester",
       "TransferBudget": 740000,
-      "Stadium": "Comm Stadium Park",
+      "Stadium": "Colchester Fields",
       "LeagueId": 4,
       "Colour": "Blue/White"
     },
@@ -615,7 +615,7 @@
       "ID": 77,
       "Name": "Wycombe",
       "TransferBudget": 3900000,
-      "Stadium": "Adams Family Park",
+      "Stadium": "Adams Park Grounds",
       "LeagueId": 3,
       "Colour": "Navy/Light Blue"
     },
@@ -623,7 +623,7 @@
       "ID": 78,
       "Name": "Stevenage",
       "TransferBudget": 4100000,
-      "Stadium": "Hallway Park",
+      "Stadium": "Stevenage Fields",
       "LeagueId": 3,
       "Colour": "Red/White"
     },
@@ -631,7 +631,7 @@
       "ID": 79,
       "Name": "Cambridge",
       "TransferBudget": 5600000,
-      "Stadium": "Abbey Woods Stadium",
+      "Stadium": "Abbey Fields",
       "LeagueId": 3,
       "Colour": "Amber/Black"
     },
@@ -639,7 +639,7 @@
       "ID": 80,
       "Name": "Mansfield",
       "TransferBudget": 3700000,
-      "Stadium": "Acre Mill",
+      "Stadium": "Mansfield Fields",
       "LeagueId": 3,
       "Colour": "Amber/Blue"
     },
@@ -647,7 +647,7 @@
       "ID": 81,
       "Name": "Accrington",
       "TransferBudget": 760000,
-      "Stadium": "Who's Ground",
+      "Stadium": "Crown Ground Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -655,7 +655,7 @@
       "ID": 82,
       "Name": "Grimsby",
       "TransferBudget": 730000,
-      "Stadium": "Blunder Park",
+      "Stadium": "Blundell Park Grounds",
       "LeagueId": 4,
       "Colour": "Black/White"
     },
@@ -663,7 +663,7 @@
       "ID": 83,
       "Name": "Barnet",
       "TransferBudget": 870000,
-      "Stadium": "The BeeHive",
+      "Stadium": "The Hive Grounds",
       "LeagueId": 4,
       "Colour": "Amber/Black"
     },
@@ -671,7 +671,7 @@
       "ID": 84,
       "Name": "Notts",
       "TransferBudget": 5300000,
-      "Stadium": "Meadows Park",
+      "Stadium": "Meadow Lane Grounds",
       "LeagueId": 3,
       "Colour": "Black/White"
     },
@@ -679,7 +679,7 @@
       "ID": 85,
       "Name": "Crewe",
       "TransferBudget": 830000,
-      "Stadium": "The Crossings",
+      "Stadium": "Alexandra Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -687,7 +687,7 @@
       "ID": 86,
       "Name": "Morecombe",
       "TransferBudget": 400000,
-      "Stadium": "Prawn Stadium",
+      "Stadium": "Globe Arena Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -695,7 +695,7 @@
       "ID": 87,
       "Name": "Crawley",
       "TransferBudget": 700000,
-      "Stadium": "Broadway Field",
+      "Stadium": "Broadfield Fields",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -703,7 +703,7 @@
       "ID": 88,
       "Name": "Yeovil",
       "TransferBudget": 760000,
-      "Stadium": "Rotherham Stadium",
+      "Stadium": "Huish Park Grounds",
       "LeagueId": 4,
       "Colour": "Green/White"
     },
@@ -711,7 +711,7 @@
       "ID": 89,
       "Name": "Cheltenham",
       "TransferBudget": 850000,
-      "Stadium": "Whaddon Field",
+      "Stadium": "Whaddon Road Grounds",
       "LeagueId": 4,
       "Colour": "Red"
     },
@@ -719,7 +719,7 @@
       "ID": 90,
       "Name": "Newport",
       "TransferBudget": 680000,
-      "Stadium": "Dave Parade",
+      "Stadium": "Rodney Parade Fields",
       "LeagueId": 4,
       "Colour": "Amber/Black"
     },
@@ -727,7 +727,7 @@
       "ID": 91,
       "Name": "Hartlepool",
       "TransferBudget": 760000,
-      "Stadium": "The York Stadium",
+      "Stadium": "Victoria Park Fields",
       "LeagueId": 4,
       "Colour": "Blue/White"
     },
@@ -735,15 +735,15 @@
       "ID": 92,
       "Name": "London Orients",
       "TransferBudget": 4300000,
-      "Stadium": "The Leytons Road",
+      "Stadium": "Leyton Orient Fields",
       "LeagueId": 3,
       "Colour": "Red"
     },
     {
       "ID": 93,
-      "Name": "Madrid Whites",
+      "Name": "Madrid",
       "TransferBudget": 120000000,
-      "Stadium": "Madrid Stadium",
+      "Stadium": "Estadio Bernabeu Grande",
       "LeagueId": 5,
       "Colour": "White"
     },
@@ -751,15 +751,15 @@
       "ID": 94,
       "Name": "Barcelona",
       "TransferBudget": 95000000,
-      "Stadium": "The Camp Mou",
+      "Stadium": "Camp Nou Grande",
       "LeagueId": 5,
       "Colour": "Blue/Red"
     },
     {
       "ID": 95,
-      "Name": "Madrid Athletic",
+      "Name": "Athletico",
       "TransferBudget": 78000000,
-      "Stadium": "Athletic Park",
+      "Stadium": "Metropolitano Fields",
       "LeagueId": 5,
       "Colour": "Red/White"
     },
@@ -767,7 +767,7 @@
       "ID": 96,
       "Name": "Seville",
       "TransferBudget": 52000000,
-      "Stadium": "Seville Stadium",
+      "Stadium": "Ramon Sanchez Fields",
       "LeagueId": 5,
       "Colour": "White"
     },
@@ -775,31 +775,31 @@
       "ID": 97,
       "Name": "Villa Real FC",
       "TransferBudget": 44000000,
-      "Stadium": "Estadio Real",
+      "Stadium": "Estadio de Ceramica",
       "LeagueId": 5,
       "Colour": "Yellow"
     },
     {
       "ID": 98,
-      "Name": "Sociadad FC",
+      "Name": "Sociadad",
       "TransferBudget": 38000000,
-      "Stadium": "Reale Arena",
+      "Stadium": "San Sebastian Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
     {
       "ID": 99,
-      "Name": "Basque Athletic FC",
+      "Name": "Bilbao",
       "TransferBudget": 35000000,
-      "Stadium": "Bilbao Stadium",
+      "Stadium": "San Mames Fields",
       "LeagueId": 5,
       "Colour": "Red/White"
     },
     {
       "ID": 100,
-      "Name": "Espanyol FC",
+      "Name": "Espanyol",
       "TransferBudget": 22000000,
-      "Stadium": "Espanyol Stadium",
+      "Stadium": "Cornella Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
@@ -807,23 +807,23 @@
       "ID": 101,
       "Name": "Galician Deportivo",
       "TransferBudget": 18000000,
-      "Stadium": "Estadio Deportivo",
+      "Stadium": "Riazor Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
     {
       "ID": 102,
-      "Name": "Eibar FC",
+      "Name": "Eibar",
       "TransferBudget": 14000000,
-      "Stadium": "Either Park",
+      "Stadium": "Ipurua Fields",
       "LeagueId": 5,
       "Colour": "Blue/Red"
     },
     {
       "ID": 103,
-      "Name": "FC Blue Malaga",
+      "Name": "Malaga",
       "TransferBudget": 16000000,
-      "Stadium": "Malaga Stadion",
+      "Stadium": "La Rosaleda Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
@@ -831,39 +831,39 @@
       "ID": 104,
       "Name": "Mestalla FC",
       "TransferBudget": 42000000,
-      "Stadium": "Mestalla Stadium",
+      "Stadium": "Mestalla Fields",
       "LeagueId": 5,
       "Colour": "White/Orange"
     },
     {
       "ID": 105,
-      "Name": "Celtas Vigos",
+      "Name": "Vigo",
       "TransferBudget": 27000000,
-      "Stadium": "Celters Park",
+      "Stadium": "Balaidos Fields",
       "LeagueId": 5,
       "Colour": "Sky Blue"
     },
     {
       "ID": 106,
-      "Name": "Palmas Trees FC",
+      "Name": "Palma",
       "TransferBudget": 19000000,
-      "Stadium": "Estadio Gran Canaria",
+      "Stadium": "Gran Canaria Fields",
       "LeagueId": 5,
       "Colour": "Yellow"
     },
     {
       "ID": 107,
-      "Name": "Bet-is FC",
+      "Name": "Betis",
       "TransferBudget": 33000000,
-      "Stadium": "Estadio Benito Villamarin",
+      "Stadium": "Villamarin Fields",
       "LeagueId": 5,
       "Colour": "Green/White"
     },
     {
       "ID": 108,
-      "Name": "Alaves CF",
+      "Name": "Alaves",
       "TransferBudget": 15000000,
-      "Stadium": "Estadio de Alavas",
+      "Stadium": "Mendizorroza Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
@@ -871,15 +871,15 @@
       "ID": 109,
       "Name": "Leganas",
       "TransferBudget": 12000000,
-      "Stadium": "Lag Anas Park",
+      "Stadium": "Butarque Fields",
       "LeagueId": 5,
       "Colour": "Blue/White"
     },
     {
       "ID": 110,
-      "Name": "Gijon Sport",
+      "Name": "Gijon",
       "TransferBudget": 11000000,
-      "Stadium": "Estadio El Sport",
+      "Stadium": "El Molinon Fields",
       "LeagueId": 5,
       "Colour": "Red/White"
     },
@@ -887,31 +887,31 @@
       "ID": 111,
       "Name": "Osasuna FC",
       "TransferBudget": 20000000,
-      "Stadium": "Stadium el Osasuna",
+      "Stadium": "El Sadar Fields",
       "LeagueId": 5,
       "Colour": "Red/Navy"
     },
     {
       "ID": 112,
-      "Name": "Grenade FC",
+      "Name": "Grenada",
       "TransferBudget": 13000000,
-      "Stadium": "Los Grenade Stadium",
+      "Stadium": "Nuevo Los Carmenes Fields",
       "LeagueId": 5,
       "Colour": "Red/White"
     },
     {
       "ID": 113,
-      "Name": "Munich FC",
+      "Name": "Munich",
       "TransferBudget": 115000000,
-      "Stadium": "Bayer Arena",
+      "Stadium": "Munich Arena Fields",
       "LeagueId": 6,
       "Colour": "Red"
     },
     {
       "ID": 114,
-      "Name": "Dartmund FC",
+      "Name": "Dortmund",
       "TransferBudget": 82000000,
-      "Stadium": "Yellow Park",
+      "Stadium": "Westfalenstadion Fields",
       "LeagueId": 6,
       "Colour": "Yellow/Black"
     },
@@ -919,593 +919,593 @@
       "ID": 115,
       "Name": "04 Beyer",
       "TransferBudget": 68000000,
-      "Stadium": "Beyer Arena",
+      "Stadium": "Leverkusen Arena Fields",
       "LeagueId": 6,
       "Colour": "Red/Black"
     },
     {
       "ID": 116,
-      "Name": "M Gladback",
+      "Name": "Gladback",
       "TransferBudget": 44000000,
-      "Stadium": "Borussia-Park",
+      "Stadium": "Borussia Park Fields",
       "LeagueId": 6,
       "Colour": "White/Green/Black"
     },
     {
       "ID": 117,
-      "Name": "04 Schalka FC",
+      "Name": "Schalka",
       "TransferBudget": 38000000,
-      "Stadium": "Velt Arena",
+      "Stadium": "Gelsenkirchen Fields",
       "LeagueId": 6,
       "Colour": "Blue/White"
     },
     {
       "ID": 118,
-      "Name": "Maine 05",
+      "Name": "Maine",
       "TransferBudget": 29000000,
-      "Stadium": "The Maine Park",
+      "Stadium": "Mainz Fields",
       "LeagueId": 6,
       "Colour": "Red/White"
     },
     {
       "ID": 119,
-      "Name": "Berlin Hertha",
+      "Name": "Hertha",
       "TransferBudget": 26000000,
-      "Stadium": "Berlins Wall",
+      "Stadium": "Olympiastadion Fields",
       "LeagueId": 6,
       "Colour": "Blue/White"
     },
     {
       "ID": 120,
-      "Name": "Wolvesburg",
+      "Name": "Wolfsburg",
       "TransferBudget": 41000000,
-      "Stadium": "Wolves Arena",
+      "Stadium": "Wolfsburg Arena Fields",
       "LeagueId": 6,
       "Colour": "Green/White"
     },
     {
       "ID": 121,
-      "Name": "Cologne FC",
+      "Name": "Koln",
       "TransferBudget": 31000000,
-      "Stadium": "Spray Stadion",
+      "Stadium": "Koln Arena Fields",
       "LeagueId": 6,
       "Colour": "White/Red"
     },
     {
       "ID": 122,
-      "Name": "Hamburger",
+      "Name": "Hamburg",
       "TransferBudget": 27000000,
-      "Stadium": "Blues Park",
+      "Stadium": "Volksparkstadion Fields",
       "LeagueId": 6,
       "Colour": "Blue/White"
     },
     {
       "ID": 123,
-      "Name": "Ingolstad-t FC",
+      "Name": "Ingolstadt",
       "TransferBudget": 14000000,
-      "Stadium": "Sport Park",
+      "Stadium": "Ingolstadt Fields",
       "LeagueId": 6,
       "Colour": "Red/Black"
     },
     {
       "ID": 124,
-      "Name": "Augsberg",
+      "Name": "Augsburg",
       "TransferBudget": 22000000,
-      "Stadium": "The Arena",
+      "Stadium": "Augsburg Fields",
       "LeagueId": 6,
       "Colour": "Red/Green"
     },
     {
       "ID": 125,
-      "Name": "Bremen W",
-      "TransferBudget": 35000000,
-      "Stadium": "The Green Wall",
+      "Name": "Bremen",
+      "TransferBudget": 30000000,
+      "Stadium": "Weser Fields",
       "LeagueId": 6,
       "Colour": "Green/White"
     },
     {
       "ID": 126,
-      "Name": "Darmstad SV",
-      "TransferBudget": 12000000,
-      "Stadium": "Darmstad Ground",
+      "Name": "Darmstad",
+      "TransferBudget": 22000000,
+      "Stadium": "Darmstadt Fields",
       "LeagueId": 6,
       "Colour": "Blue/White"
     },
     {
       "ID": 127,
-      "Name": "Hoff Heim",
-      "TransferBudget": 47000000,
-      "Stadium": "Heim Arena",
+      "Name": "Hoffheim",
+      "TransferBudget": 37000000,
+      "Stadium": "Hoffenheim Fields",
       "LeagueId": 6,
       "Colour": "Blue"
     },
     {
       "ID": 128,
-      "Name": "Frankfort",
-      "TransferBudget": 53000000,
-      "Stadium": "The Bank Park",
+      "Name": "Frankfurt",
+      "TransferBudget": 33000000,
+      "Stadium": "Frankfurt Arena Fields",
       "LeagueId": 6,
       "Colour": "Black/Red"
     },
     {
       "ID": 129,
-      "Name": "Stuttergart",
-      "TransferBudget": 58000000,
-      "Stadium": "The Dome",
+      "Name": "Stuttgart",
+      "TransferBudget": 48000000,
+      "Stadium": "Stuttgart Arena Fields",
       "LeagueId": 6,
       "Colour": "White/Red"
     },
     {
       "ID": 130,
-      "Name": "96 Hangover",
-      "TransferBudget": 19000000,
-      "Stadium": "57 Arena",
+      "Name": "Hannover",
+      "TransferBudget": 29000000,
+      "Stadium": "Hannover Fields",
       "LeagueId": 6,
       "Colour": "Red/Green"
     },
     {
       "ID": 131,
-      "Name": "Black & White Stripes FC",
-      "TransferBudget": 88000000,
-      "Stadium": "Juventus Stadium",
-      "LeagueId": 7,
-      "Colour": "Black/White"
-    },
-    {
-      "ID": 132,
-      "Name": "Rome Italy",
-      "TransferBudget": 62000000,
-      "Stadium": "Stadio Italy",
-      "LeagueId": 7,
-      "Colour": "Red/Yellow"
-    },
-    {
-      "ID": 133,
-      "Name": "Nap-Oli",
-      "TransferBudget": 74000000,
-      "Stadium": "Diego Stadium",
-      "LeagueId": 7,
-      "Colour": "Blue"
-    },
-    {
-      "ID": 134,
-      "Name": "Atelanta",
-      "TransferBudget": 55000000,
-      "Stadium": "The Stadium",
+      "Name": "Atalanta",
+      "TransferBudget": 45000000,
+      "Stadium": "Bergamo Fields",
       "LeagueId": 7,
       "Colour": "Blue/Black"
     },
     {
+      "ID": 132,
+      "Name": "Bologna",
+      "TransferBudget": 30000000,
+      "Stadium": "Renato Dall Ara Fields",
+      "LeagueId": 7,
+      "Colour": "Red/Blue"
+    },
+    {
+      "ID": 133,
+      "Name": "Cagliari",
+      "TransferBudget": 15000000,
+      "Stadium": "Cagliari Fields",
+      "LeagueId": 7,
+      "Colour": "Red/Blue"
+    },
+    {
+      "ID": 134,
+      "Name": "Como",
+      "TransferBudget": 35000000,
+      "Stadium": "Sinigaglia Fields",
+      "LeagueId": 7,
+      "Colour": "Blue/White"
+    },
+    {
       "ID": 135,
-      "Name": "Lazyio",
-      "TransferBudget": 48000000,
-      "Stadium": "Stadio Lazy",
+      "Name": "Fiorentina",
+      "TransferBudget": 30000000,
+      "Stadium": "Artemio Franchi Fields",
+      "LeagueId": 7,
+      "Colour": "Purple/White"
+    },
+    {
+      "ID": 137,
+      "Name": "Genoa",
+      "TransferBudget": 20000000,
+      "Stadium": "Luigi Ferraris Fields",
+      "LeagueId": 7,
+      "Colour": "Red/Blue"
+    },
+    {
+      "ID": 138,
+      "Name": "Inter",
+      "TransferBudget": 100000000,
+      "Stadium": "San Siro Norte",
+      "LeagueId": 7,
+      "Colour": "Blue/Black"
+    },
+    {
+      "ID": 139,
+      "Name": "Juventus",
+      "TransferBudget": 90000000,
+      "Stadium": "Juventus Fields",
+      "LeagueId": 7,
+      "Colour": "Black/White"
+    },
+    {
+      "ID": 140,
+      "Name": "Lazio",
+      "TransferBudget": 35000000,
+      "Stadium": "Olimpico Nord Fields",
       "LeagueId": 7,
       "Colour": "Sky Blue/White"
     },
     {
-      "ID": 136,
-      "Name": "Red Milan",
-      "TransferBudget": 81000000,
-      "Stadium": "Sans Ciro Stadium",
+      "ID": 141,
+      "Name": "Lecce",
+      "TransferBudget": 12000000,
+      "Stadium": "Via del Mare Fields",
+      "LeagueId": 7,
+      "Colour": "Yellow/Red"
+    },
+    {
+      "ID": 142,
+      "Name": "Milan",
+      "TransferBudget": 90000000,
+      "Stadium": "San Siro Sud",
       "LeagueId": 7,
       "Colour": "Red/Black"
     },
     {
-      "ID": 137,
-      "Name": "Blue Milan",
-      "TransferBudget": 79000000,
-      "Stadium": "Sans Ciro Stadium",
+      "ID": 144,
+      "Name": "Napoli",
+      "TransferBudget": 85000000,
+      "Stadium": "Maradona Fields",
       "LeagueId": 7,
-      "Colour": "Blue/Black"
+      "Colour": "Sky Blue/White"
     },
     {
-      "ID": 138,
-      "Name": "Viorentina",
-      "TransferBudget": 44000000,
-      "Stadium": "Viorentina Stadium",
-      "LeagueId": 7,
-      "Colour": "Purple"
-    },
-    {
-      "ID": 139,
-      "Name": "Torino City FC",
-      "TransferBudget": 32000000,
-      "Stadium": "Grand Torino",
-      "LeagueId": 7,
-      "Colour": "Maroon"
-    },
-    {
-      "ID": 140,
-      "Name": "Samp Doria FC",
+      "ID": 145,
+      "Name": "Parma",
       "TransferBudget": 18000000,
-      "Stadium": "Samp Doria Stadium",
+      "Stadium": "Tardini Fields",
       "LeagueId": 7,
-      "Colour": "Blue"
+      "Colour": "Yellow/Blue"
     },
     {
-      "ID": 141,
-      "Name": "Red Cagliara",
-      "TransferBudget": 21000000,
-      "Stadium": "Liara Bowl",
+      "ID": 146,
+      "Name": "Roma",
+      "TransferBudget": 60000000,
+      "Stadium": "Olimpico Sud Fields",
       "LeagueId": 7,
-      "Colour": "Red/Blue"
+      "Colour": "Red/Yellow"
     },
     {
-      "ID": 142,
-      "Name": "Sassyolo",
-      "TransferBudget": 28000000,
-      "Stadium": "The Football Center",
+      "ID": 147,
+      "Name": "Sassuolo",
+      "TransferBudget": 18000000,
+      "Stadium": "Sassuolo Fields",
       "LeagueId": 7,
       "Colour": "Green/Black"
     },
     {
-      "ID": 143,
-      "Name": "Udinasa",
-      "TransferBudget": 24000000,
-      "Stadium": "The Stripes Arena",
+      "ID": 148,
+      "Name": "Torino",
+      "TransferBudget": 20000000,
+      "Stadium": "Grande Torino Fields",
+      "LeagueId": 7,
+      "Colour": "Maroon/White"
+    },
+    {
+      "ID": 149,
+      "Name": "Udinese",
+      "TransferBudget": 18000000,
+      "Stadium": "Udine Fields",
       "LeagueId": 7,
       "Colour": "Black/White"
     },
     {
-      "ID": 144,
-      "Name": "Chievo Town FC",
-      "TransferBudget": 16000000,
-      "Stadium": "Stadio Chievo",
-      "LeagueId": 7,
-      "Colour": "Blue/Yellow"
-    },
-    {
-      "ID": 145,
-      "Name": "Bologne FC",
-      "TransferBudget": 37000000,
-      "Stadium": "Stadio Bolognese",
-      "LeagueId": 7,
-      "Colour": "Red/Blue"
-    },
-    {
-      "ID": 146,
-      "Name": "Genoe FC",
-      "TransferBudget": 26000000,
-      "Stadium": "Luigi Ferraris Stadium",
-      "LeagueId": 7,
-      "Colour": "Red/Blue"
-    },
-    {
-      "ID": 147,
-      "Name": "Croton FC",
-      "TransferBudget": 12000000,
-      "Stadium": "Stadio Ezio Scida",
-      "LeagueId": 7,
-      "Colour": "Red/Blue"
-    },
-    {
-      "ID": 148,
-      "Name": "Empora FC",
-      "TransferBudget": 19000000,
-      "Stadium": "The Carlo Stadium",
-      "LeagueId": 7,
-      "Colour": "Blue"
-    },
-    {
-      "ID": 149,
-      "Name": "Palermio City",
-      "TransferBudget": 14000000,
-      "Stadium": "Palermio City Stadium",
-      "LeagueId": 7,
-      "Colour": "Pink/Black"
-    },
-    {
       "ID": 150,
-      "Name": "FC Pescera",
-      "TransferBudget": 11000000,
-      "Stadium": "Pescera Arena",
+      "Name": "Venezia",
+      "TransferBudget": 15000000,
+      "Stadium": "Penzo Fields",
       "LeagueId": 7,
-      "Colour": "White/Blue"
+      "Colour": "Black/Green/Orange"
     },
     {
       "ID": 151,
-      "Name": "Monaco Island",
-      "TransferBudget": 72000000,
-      "Stadium": "Stade Monaco",
-      "LeagueId": 10,
-      "Colour": "Red/White"
-    },
-    {
-      "ID": 152,
-      "Name": "Paris San German",
-      "TransferBudget": 130000000,
-      "Stadium": "Parc Princess",
-      "LeagueId": 10,
-      "Colour": "Blue/Red"
-    },
-    {
-      "ID": 153,
-      "Name": "Nicce Fc",
-      "TransferBudget": 48000000,
-      "Stadium": "Nicce Riviera",
-      "LeagueId": 10,
-      "Colour": "Red/Black"
-    },
-    {
-      "ID": 154,
-      "Name": "Oly Lyonn",
-      "TransferBudget": 55000000,
-      "Stadium": "Olympic Stadium",
-      "LeagueId": 10,
-      "Colour": "White"
-    },
-    {
-      "ID": 155,
-      "Name": "Mars Sille",
-      "TransferBudget": 61000000,
-      "Stadium": "Orange Velodrome",
-      "LeagueId": 10,
-      "Colour": "White/Blue"
-    },
-    {
-      "ID": 156,
-      "Name": "Bored Eaux",
-      "TransferBudget": 38000000,
-      "Stadium": "Matmut Atlantique",
-      "LeagueId": 10,
-      "Colour": "Navy"
-    },
-    {
-      "ID": 157,
-      "Name": "Nantey FC",
-      "TransferBudget": 27000000,
-      "Stadium": "Stade de la Beaujoire",
+      "Name": "Nantes",
+      "TransferBudget": 18000000,
+      "Stadium": "Beaujoire Fields",
       "LeagueId": 10,
       "Colour": "Yellow/Green"
     },
     {
-      "ID": 158,
-      "Name": "Etiene Saints",
-      "TransferBudget": 22000000,
-      "Stadium": "Stade Geoffroy-Guichard",
+      "ID": 152,
+      "Name": "Angers",
+      "TransferBudget": 10000000,
+      "Stadium": "Raymond Kopa Fields",
       "LeagueId": 10,
-      "Colour": "Green"
+      "Colour": "Black/White"
     },
     {
-      "ID": 159,
-      "Name": "Renn Stade",
-      "TransferBudget": 42000000,
-      "Stadium": "Roazhon Park",
-      "LeagueId": 10,
-      "Colour": "Red/Black"
-    },
-    {
-      "ID": 160,
-      "Name": "Guinny Gamp",
-      "TransferBudget": 14000000,
-      "Stadium": "Stade du Roudourou",
-      "LeagueId": 10,
-      "Colour": "Red/Black"
-    },
-    {
-      "ID": 161,
-      "Name": "Lile",
-      "TransferBudget": 51000000,
-      "Stadium": "Decathlon Arena",
-      "LeagueId": 10,
-      "Colour": "Red"
-    },
-    {
-      "ID": 162,
-      "Name": "FC Angrey",
-      "TransferBudget": 18000000,
-      "Stadium": "Stade Raymond-Kopa",
-      "LeagueId": 10,
-      "Colour": "White/Black"
-    },
-    {
-      "ID": 163,
-      "Name": "Tou Lose FC",
-      "TransferBudget": 24000000,
-      "Stadium": "Stadium de Toulouse",
-      "LeagueId": 10,
-      "Colour": "Purple"
-    },
-    {
-      "ID": 164,
-      "Name": "Mets FC",
-      "TransferBudget": 16000000,
-      "Stadium": "Stade Saint-Symphorien",
-      "LeagueId": 10,
-      "Colour": "Maroon/White"
-    },
-    {
-      "ID": 165,
-      "Name": "Monteypellier",
-      "TransferBudget": 29000000,
-      "Stadium": "La Mosson Stadium",
-      "LeagueId": 10,
-      "Colour": "Blue/Orange"
-    },
-    {
-      "ID": 166,
-      "Name": "Chicken Dijon",
+      "ID": 153,
+      "Name": "Auxerre",
       "TransferBudget": 12000000,
-      "Stadium": "Stade Gaston Gerard",
+      "Stadium": "Abbe Deschamps Fields",
       "LeagueId": 10,
-      "Colour": "Red"
+      "Colour": "Blue/White"
     },
     {
-      "ID": 167,
-      "Name": "FC Can",
-      "TransferBudget": 13000000,
-      "Stadium": "Stade Michel d'Ornano",
-      "LeagueId": 10,
-      "Colour": "Blue/Red"
-    },
-    {
-      "ID": 168,
-      "Name": "Lorien-T FC",
-      "TransferBudget": 17000000,
-      "Stadium": "Stade du Moustoir",
-      "LeagueId": 10,
-      "Colour": "Orange"
-    },
-    {
-      "ID": 169,
-      "Name": "Nancy Bunch",
-      "TransferBudget": 11000000,
-      "Stadium": "Stade Marcel Picot",
+      "ID": 154,
+      "Name": "Brest",
+      "TransferBudget": 15000000,
+      "Stadium": "Francis Le Ble Fields",
       "LeagueId": 10,
       "Colour": "Red/White"
     },
     {
-      "ID": 170,
-      "Name": "SC Basty",
+      "ID": 155,
+      "Name": "Le Havre",
       "TransferBudget": 10000000,
-      "Stadium": "Stade Armand Cesari",
+      "Stadium": "Oceane Fields",
       "LeagueId": 10,
-      "Colour": "Blue"
+      "Colour": "Sky Blue/Navy"
+    },
+    {
+      "ID": 156,
+      "Name": "Le Mans",
+      "TransferBudget": 8000000,
+      "Stadium": "Marie Marvingt Fields",
+      "LeagueId": 10,
+      "Colour": "Red/Yellow"
+    },
+    {
+      "ID": 157,
+      "Name": "Lens",
+      "TransferBudget": 25000000,
+      "Stadium": "Bollaert Fields",
+      "LeagueId": 10,
+      "Colour": "Red/Yellow"
+    },
+    {
+      "ID": 158,
+      "Name": "Lille",
+      "TransferBudget": 40000000,
+      "Stadium": "Pierre Mauroy Fields",
+      "LeagueId": 10,
+      "Colour": "Red/Blue"
+    },
+    {
+      "ID": 159,
+      "Name": "Lorient",
+      "TransferBudget": 15000000,
+      "Stadium": "Moustoir Fields",
+      "LeagueId": 10,
+      "Colour": "Orange/Black"
+    },
+    {
+      "ID": 160,
+      "Name": "Lyon",
+      "TransferBudget": 45000000,
+      "Stadium": "Lyon Arena Fields",
+      "LeagueId": 10,
+      "Colour": "Blue/Red/White"
+    },
+    {
+      "ID": 161,
+      "Name": "Marseille",
+      "TransferBudget": 80000000,
+      "Stadium": "Velodrome Fields",
+      "LeagueId": 10,
+      "Colour": "White/Blue"
+    },
+    {
+      "ID": 162,
+      "Name": "Monaco",
+      "TransferBudget": 70000000,
+      "Stadium": "Louis II Fields",
+      "LeagueId": 10,
+      "Colour": "Red/White"
+    },
+    {
+      "ID": 163,
+      "Name": "Nice",
+      "TransferBudget": 25000000,
+      "Stadium": "Riviera Fields",
+      "LeagueId": 10,
+      "Colour": "Red/Black"
+    },
+    {
+      "ID": 164,
+      "Name": "Paris FC",
+      "TransferBudget": 20000000,
+      "Stadium": "Jean Bouin Fields",
+      "LeagueId": 10,
+      "Colour": "Blue/White"
+    },
+    {
+      "ID": 165,
+      "Name": "Paris",
+      "TransferBudget": 130000000,
+      "Stadium": "Princes Park",
+      "LeagueId": 10,
+      "Colour": "Blue/Red"
+    },
+    {
+      "ID": 166,
+      "Name": "Rennes",
+      "TransferBudget": 30000000,
+      "Stadium": "Roazhon Fields",
+      "LeagueId": 10,
+      "Colour": "Red/Black"
+    },
+    {
+      "ID": 167,
+      "Name": "Strasbourg",
+      "TransferBudget": 30000000,
+      "Stadium": "Meinau Fields",
+      "LeagueId": 10,
+      "Colour": "Blue/White"
+    },
+    {
+      "ID": 168,
+      "Name": "Toulouse",
+      "TransferBudget": 20000000,
+      "Stadium": "Municipal de Toulouse Fields",
+      "LeagueId": 10,
+      "Colour": "Purple/White"
+    },
+    {
+      "ID": 169,
+      "Name": "Troyes",
+      "TransferBudget": 10000000,
+      "Stadium": "Aube Fields",
+      "LeagueId": 10,
+      "Colour": "Blue/White"
     },
     {
       "ID": 171,
-      "Name": "Benvica",
+      "Name": "Benfica",
       "TransferBudget": 68000000,
-      "Stadium": "Estadio da Luz",
+      "Stadium": "Estadio da Luz Grande",
       "LeagueId": 11,
       "Colour": "Red"
     },
     {
       "ID": 172,
-      "Name": "Portio",
-      "TransferBudget": 59000000,
-      "Stadium": "Estadio do Dragao",
+      "Name": "Sporting CP",
+      "TransferBudget": 55000000,
+      "Stadium": "Alvalade Fields",
       "LeagueId": 11,
-      "Colour": "Blue/White"
+      "Colour": "Green"
     },
     {
       "ID": 173,
-      "Name": "Sport CP",
-      "TransferBudget": 55000000,
-      "Stadium": "Estadio Jose Alvalade",
+      "Name": "FC Porto",
+      "TransferBudget": 60000000,
+      "Stadium": "Dragao Fields",
       "LeagueId": 11,
-      "Colour": "Green/White"
+      "Colour": "Blue"
     },
     {
       "ID": 174,
-      "Name": "Victory Guimaraes",
-      "TransferBudget": 18000000,
-      "Stadium": "Estadio D. Afonso Henriques",
-      "LeagueId": 11,
-      "Colour": "Black/White"
-    },
-    {
-      "ID": 175,
-      "Name": "FC Brag-A",
-      "TransferBudget": 28000000,
-      "Stadium": "Estadio Municipal de Braga",
+      "Name": "SC Braga",
+      "TransferBudget": 25000000,
+      "Stadium": "Municipal de Braga Fields",
       "LeagueId": 11,
       "Colour": "Red"
     },
     {
-      "ID": 176,
-      "Name": "Marryitimo",
-      "TransferBudget": 11000000,
-      "Stadium": "Estadio dos Barreiros",
+      "ID": 175,
+      "Name": "Vitoria SC",
+      "TransferBudget": 12000000,
+      "Stadium": "Afonso Henriques Fields",
       "LeagueId": 11,
-      "Colour": "Green/Red"
+      "Colour": "White"
+    },
+    {
+      "ID": 176,
+      "Name": "FC Famalicao",
+      "TransferBudget": 10000000,
+      "Stadium": "Municipal de Famalicao Fields",
+      "LeagueId": 11,
+      "Colour": "Blue"
     },
     {
       "ID": 177,
-      "Name": "Rio Avenue",
-      "TransferBudget": 9000000,
-      "Stadium": "Estadio dos Arcos",
+      "Name": "Gil Vicente",
+      "TransferBudget": 8000000,
+      "Stadium": "Barcelos Fields",
       "LeagueId": 11,
-      "Colour": "Green/White"
+      "Colour": "Red"
     },
     {
       "ID": 178,
-      "Name": "Santa Marria FC",
-      "TransferBudget": 7000000,
-      "Stadium": "Estadio Municipal Varzea do Hipico",
+      "Name": "Moreirense",
+      "TransferBudget": 6000000,
+      "Stadium": "Comendador Fields",
       "LeagueId": 11,
-      "Colour": "Red/White"
+      "Colour": "Green"
     },
     {
       "ID": 179,
-      "Name": "Bo Vista",
-      "TransferBudget": 14000000,
-      "Stadium": "Estadio do Bessa",
+      "Name": "FC Arouca",
+      "TransferBudget": 7000000,
+      "Stadium": "Municipal de Arouca Fields",
       "LeagueId": 11,
-      "Colour": "Black/White"
+      "Colour": "Yellow"
     },
     {
       "ID": 180,
-      "Name": "Praia of Estoril",
-      "TransferBudget": 8000000,
-      "Stadium": "Estadio Antonio Coimbra da Mota",
+      "Name": "Estoril Praia",
+      "TransferBudget": 7000000,
+      "Stadium": "Coimbra da Mota Fields",
       "LeagueId": 11,
       "Colour": "Yellow"
     },
     {
       "ID": 181,
-      "Name": "The Chavs",
-      "TransferBudget": 6000000,
-      "Stadium": "Estadio Municipal Eng. Manuel Branco Teixeira",
+      "Name": "Rio Ave",
+      "TransferBudget": 7000000,
+      "Stadium": "Rio Ave Fields",
       "LeagueId": 11,
-      "Colour": "Red/Blue"
+      "Colour": "Green"
     },
     {
       "ID": 182,
-      "Name": "Victory Setubal",
-      "TransferBudget": 7500000,
-      "Stadium": "Estadio do Bonfim",
+      "Name": "Santa Clara",
+      "TransferBudget": 6000000,
+      "Stadium": "Sao Miguel Fields",
       "LeagueId": 11,
-      "Colour": "Green/White"
+      "Colour": "Red"
     },
     {
       "ID": 183,
-      "Name": "Pacos Ferriry",
-      "TransferBudget": 6500000,
-      "Stadium": "Estadio da Mata Real",
+      "Name": "CD Nacional",
+      "TransferBudget": 5000000,
+      "Stadium": "Madeira Fields",
       "LeagueId": 11,
-      "Colour": "Yellow"
+      "Colour": "Black"
     },
     {
       "ID": 184,
-      "Name": "Balanenes",
-      "TransferBudget": 8500000,
-      "Stadium": "Estadio do Restelo",
+      "Name": "Estrela da Amadora",
+      "TransferBudget": 5000000,
+      "Stadium": "Jose Gomes Fields",
       "LeagueId": 11,
-      "Colour": "Blue"
+      "Colour": "Red"
     },
     {
       "ID": 185,
-      "Name": "More Irense",
-      "TransferBudget": 5000000,
-      "Stadium": "Estadio Comendador Joaquim de Almeida Freitas",
+      "Name": "Casa Pia",
+      "TransferBudget": 4000000,
+      "Stadium": "Rio Maior Fields",
       "LeagueId": 11,
-      "Colour": "Green/White"
+      "Colour": "Black"
     },
     {
       "ID": 186,
-      "Name": "Tondella",
-      "TransferBudget": 4500000,
-      "Stadium": "Estadio Joao Cardoso",
+      "Name": "FC Alverca",
+      "TransferBudget": 5000000,
+      "Stadium": "Alverca Fields",
       "LeagueId": 11,
-      "Colour": "Yellow/Green"
+      "Colour": "Red"
     },
     {
       "ID": 187,
-      "Name": "Arrouca FC",
-      "TransferBudget": 5500000,
-      "Stadium": "Estadio Municipal de Arouca",
+      "Name": "Maritimo",
+      "TransferBudget": 6000000,
+      "Stadium": "Maritimo Fields",
       "LeagueId": 11,
-      "Colour": "Yellow"
+      "Colour": "Green"
     },
     {
       "ID": 188,
-      "Name": "National",
-      "TransferBudget": 6000000,
-      "Stadium": "Estadio da Madeira",
+      "Name": "Academico de Viseu",
+      "TransferBudget": 4000000,
+      "Stadium": "Fontelo Fields",
       "LeagueId": 11,
-      "Colour": "White/Black"
+      "Colour": "Black"
+    },
+    {
+      "ID": 189,
+      "Name": "RB Leipzig",
+      "TransferBudget": 55000000,
+      "Stadium": "Leipzig Arena Fields",
+      "LeagueId": 6,
+      "Colour": "Red/White"
+    },
+    {
+      "ID": 190,
+      "Name": "Freiburg",
+      "TransferBudget": 28000000,
+      "Stadium": "Europa Fields",
+      "LeagueId": 6,
+      "Colour": "Red/Black/White"
+    },
+    {
+      "ID": 191,
+      "Name": "Reims",
+      "TransferBudget": 15000000,
+      "Stadium": "Auguste Delaune Fields",
+      "LeagueId": 10,
+      "Colour": "Red/White"
     }
   ],
   "Countries": [
