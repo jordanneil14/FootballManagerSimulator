@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Models;
+﻿namespace FootballManagerSimulator.Maui.Models;
 public class CompetitionModel
 {
     public string Type { get; set; } = "";

@@ -1,8 +1,8 @@
-﻿using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
+﻿using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Interfaces;
+namespace FootballManagerSimulator.Maui.Interfaces;
 
 public interface IState
 {

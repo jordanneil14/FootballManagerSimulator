@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FootballManagerSimulator.Events;
+namespace FootballManagerSimulator.Maui.Events;
 
 public class StadiumExpansionRequestEvent(
     IState state,

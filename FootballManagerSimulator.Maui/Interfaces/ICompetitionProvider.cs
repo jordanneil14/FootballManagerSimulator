@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Interfaces;
+namespace FootballManagerSimulator.Maui.Interfaces;
 
 public interface ICompetitionProvider
 {

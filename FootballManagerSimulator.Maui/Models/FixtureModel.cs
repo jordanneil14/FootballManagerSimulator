@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Interfaces;
 
-namespace FootballManagerSimulator.Models;
+namespace FootballManagerSimulator.Maui.Models;
 
 public class FixtureModel : IFixture
 {

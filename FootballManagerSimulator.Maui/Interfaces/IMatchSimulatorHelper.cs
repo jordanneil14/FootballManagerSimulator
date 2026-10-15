@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Interfaces;
+namespace FootballManagerSimulator.Maui.Interfaces;
 
 public interface IMatchSimulatorHelper
 {

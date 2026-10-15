@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Maui.Models;
 public class PreviewModel
 {
     public ClubModel Club { get; set; } = new ClubModel();

@@ -1,13 +1,13 @@
-using System.Reflection;
-using FootballManagerSimulator.Competitions.Services;
-using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
+﻿using System.Reflection;
+using FootballManagerSimulator.Maui.Competitions.Services;
+using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
 using NetCore.AutoRegisterDi;
 
-namespace FootballManagerSimulator.Services;
+namespace FootballManagerSimulator.Maui.Services;
 
 /// <summary>
 /// Central registration of the game domain services. Shared by every front-end host

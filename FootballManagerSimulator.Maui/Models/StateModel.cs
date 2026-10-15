@@ -1,8 +1,8 @@
-﻿using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Structures;
+namespace FootballManagerSimulator.Maui.Models;
 
 public class StateModel : IState
 {

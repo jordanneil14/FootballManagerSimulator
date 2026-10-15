@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Structures;
+﻿namespace FootballManagerSimulator.Maui.Models;
 
 public class LoadGamePreviewModel
 {

@@ -1,10 +1,10 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Exceptions;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Exceptions;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Helpers;
+namespace FootballManagerSimulator.Maui.Helpers;
 
 public class ProcessHelper(
     IState state,

@@ -1,4 +1,4 @@
-using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Interfaces;
 
 namespace FootballManagerSimulator.Maui;
 

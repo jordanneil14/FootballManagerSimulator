@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Maui.Enums;
 
-namespace FootballManagerSimulator.Models;
+namespace FootballManagerSimulator.Maui.Models;
 
 public class ScreenModel
 {

@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Interfaces;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Models;
+namespace FootballManagerSimulator.Maui.Models;
 
 public class GameCreatorModel : IGameCreator
 {

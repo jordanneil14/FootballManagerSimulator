@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Interfaces;
 
-namespace FootballManagerSimulator.Events;
+namespace FootballManagerSimulator.Maui.Events;
 
 public abstract class Event(DateOnly triggerDate, bool isCompleted) : IEvent
 {

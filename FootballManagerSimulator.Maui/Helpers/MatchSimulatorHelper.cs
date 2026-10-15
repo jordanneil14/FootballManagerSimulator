@@ -1,8 +1,8 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Helpers;
+namespace FootballManagerSimulator.Maui.Helpers;
 
 public class MatchSimulatorHelper(
     IClubHelper clubHelper,

@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Interfaces;
 
-namespace FootballManagerSimulator.Models;
+namespace FootballManagerSimulator.Maui.Models;
 
 public class LeagueModel : ICompetition
 {

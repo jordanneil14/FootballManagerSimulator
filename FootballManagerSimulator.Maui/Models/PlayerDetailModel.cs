@@ -1,4 +1,4 @@
-﻿using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Models;
 
 public class PlayerDetailModel
 {

@@ -1,4 +1,4 @@
-namespace FootballManagerSimulator.Interfaces;
+﻿namespace FootballManagerSimulator.Maui.Interfaces;
 
 /// <summary>
 /// Abstracts the two platform-specific file concerns so the shared game code can run on

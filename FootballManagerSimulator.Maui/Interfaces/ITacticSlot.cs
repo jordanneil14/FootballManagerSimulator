@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Maui.Enums;
 
-namespace FootballManagerSimulator.Interfaces;
+namespace FootballManagerSimulator.Maui.Interfaces;
 
 public interface ITacticSlot
 {

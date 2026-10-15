@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Enums;
+﻿namespace FootballManagerSimulator.Maui.Enums;
 
 public enum TacticSlotType
 {

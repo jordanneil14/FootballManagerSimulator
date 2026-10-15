@@ -1,9 +1,9 @@
-﻿using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Competitions.Services;
+namespace FootballManagerSimulator.Maui.Competitions.Services;
 
 public class EnglishLeagueCupService(
     IOptions<SettingsModel> settings,

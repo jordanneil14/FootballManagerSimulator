@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Interfaces;
+﻿namespace FootballManagerSimulator.Maui.Interfaces;
 
 public interface IEvent
 {

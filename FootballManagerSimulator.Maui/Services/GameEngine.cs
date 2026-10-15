@@ -1,14 +1,14 @@
-using System.Globalization;
-using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Exceptions;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Structures;
+﻿using System.Globalization;
+using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Exceptions;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace FootballManagerSimulator.Services;
+namespace FootballManagerSimulator.Maui.Services;
 
 /// <summary>
 /// Central orchestration layer for the Blazor front-end. All of the game-flow logic that

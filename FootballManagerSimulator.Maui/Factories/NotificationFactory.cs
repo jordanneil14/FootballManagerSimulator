@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Factories;
+namespace FootballManagerSimulator.Maui.Factories;
 
 public class NotificationFactory(IState state) : INotificationFactory
 {

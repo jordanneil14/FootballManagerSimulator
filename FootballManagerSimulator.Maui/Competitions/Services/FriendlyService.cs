@@ -1,7 +1,7 @@
-﻿using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Competitions.Services;
+namespace FootballManagerSimulator.Maui.Competitions.Services;
 
 public class FriendlyService(
     INotificationFactory notificationFactory, 

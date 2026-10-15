@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Helpers;
+﻿namespace FootballManagerSimulator.Maui.Helpers;
 
 public class NumberHelper
 {

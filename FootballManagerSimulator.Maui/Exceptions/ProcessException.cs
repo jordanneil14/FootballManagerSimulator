@@ -1,6 +1,6 @@
-﻿using FootballManagerSimulator.Enums;
+﻿using FootballManagerSimulator.Maui.Enums;
 
-namespace FootballManagerSimulator.Exceptions;
+namespace FootballManagerSimulator.Maui.Exceptions;
 
 public class ProcessException(
     ScreenType screenType) : Exception()

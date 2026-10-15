@@ -1,11 +1,11 @@
-﻿using FootballManagerSimulator.Competitions.Services;
-using FootballManagerSimulator.Events;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Competitions.Services;
+using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.PlayerGenerator;
 using Microsoft.Extensions.Options;
 
-namespace FootballManagerSimulator.Factories;
+namespace FootballManagerSimulator.Maui.Factories;
 
 public class GameFactory(
     IPlayerHelper playerHelper,

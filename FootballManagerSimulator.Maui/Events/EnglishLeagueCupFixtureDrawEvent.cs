@@ -1,9 +1,9 @@
-﻿using FootballManagerSimulator.Competitions.Services;
-using FootballManagerSimulator.Enums;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Competitions.Services;
+using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Events;
+namespace FootballManagerSimulator.Maui.Events;
 
 public class EnglishLeagueCupFixtureDrawEvent(
     IState state,

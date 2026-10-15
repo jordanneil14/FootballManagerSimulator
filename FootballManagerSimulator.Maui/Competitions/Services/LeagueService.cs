@@ -1,8 +1,8 @@
-﻿using FootballManagerSimulator.Helpers;
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
+﻿using FootballManagerSimulator.Maui.Helpers;
+using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
-namespace FootballManagerSimulator.Competitions.Services;
+namespace FootballManagerSimulator.Maui.Competitions.Services;
 
 public class LeagueService(IState state, INotificationFactory notificationFactory) : ICompetitionService
 {

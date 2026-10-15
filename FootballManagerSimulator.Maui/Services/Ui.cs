@@ -1,4 +1,4 @@
-namespace FootballManagerSimulator.Services;
+﻿namespace FootballManagerSimulator.Maui.Services;
 
 /// <summary>Small presentation helpers shared across the Razor components.</summary>
 public static class Ui

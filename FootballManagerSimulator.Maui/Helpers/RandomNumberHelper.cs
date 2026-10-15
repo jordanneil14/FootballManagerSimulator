@@ -1,4 +1,4 @@
-﻿namespace FootballManagerSimulator.Helpers;
+﻿namespace FootballManagerSimulator.Maui.Helpers;
 
 /// <summary>
 /// Convenience class for dealing with randomness.

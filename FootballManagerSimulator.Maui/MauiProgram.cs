@@ -1,6 +1,6 @@
-using FootballManagerSimulator.Interfaces;
-using FootballManagerSimulator.Models;
-using FootballManagerSimulator.Services;
+﻿using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
