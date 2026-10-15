@@ -11,13 +11,38 @@
         .Where(c => c.Clubs.Any(cl => cl.Id == Engine.MyClub.Id))
         .ToList();
 
-    var dates = myCompetitions
+    var allDates = myCompetitions
         .SelectMany(c => c.Fixtures)
         .Select(f => f.Date)
         .Distinct()
         .OrderBy(d => d)
         .ToList();
+
+    var months = allDates
+        .Select(d => new DateOnly(d.Year, d.Month, 1))
+        .Distinct()
+        .OrderBy(d => d)
+        .ToList();
+
+    if (_selectedMonth == default && months.Any())
+    {
+        var currentMonth = new DateOnly(Engine.State.Date.Year, Engine.State.Date.Month, 1);
+        _selectedMonth = months.Contains(currentMonth) ? currentMonth : months.First();
+    }
+
+    var dates = allDates
+        .Where(d => d.Year == _selectedMonth.Year && d.Month == _selectedMonth.Month)
+        .ToList();
 }
+
+<div class="league-select">
+    <select class="input" value="@_selectedMonth.ToString("yyyy-MM")" @onchange="OnMonthChanged" aria-label="Month">
+        @foreach (var m in months)
+        {
+            <option value="@m.ToString("yyyy-MM")" selected="@(m == _selectedMonth)">@m.ToString("MMMM yyyy")</option>
+        }
+    </select>
+</div>
 
 @foreach (var date in dates)
 {
@@ -66,7 +91,20 @@
     }
 }
 
+@if (!dates.Any())
+{
+    <p class="muted">No fixtures in this month.</p>
+}
+
 @code {
+    private DateOnly _selectedMonth;
+
+    private void OnMonthChanged(ChangeEventArgs e)
+    {
+        if (DateOnly.TryParseExact(e.Value?.ToString() + "-01", "yyyy-MM-dd", out var parsed))
+            _selectedMonth = parsed;
+    }
+
     private MarkupString ScorerText(List<GoalModel> scorers)
     {
         if (!scorers.Any()) return new MarkupString("");

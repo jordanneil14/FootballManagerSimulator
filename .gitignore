@@ -24,3 +24,5 @@
 /.vs/
 /FootballManagerSimulator.PlayerGenerator/obj/
 /FootballManagerSimulator.PlayerGenerator/bin/
+/FootballManagerSimulator.apk
+/footballmanager.keystore

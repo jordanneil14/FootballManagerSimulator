@@ -2,13 +2,13 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Hub</PageTitle>
 
 <div class="page-head">
     <div>
         <h1>Manager Hub</h1>
-        <div class="subtitle">@Engine.State.DateFriendly</div>
     </div>
     <div class="page-actions">
         <button class="btn btn-primary btn-lg" @onclick="Advance">⏩ Advance</button>
@@ -51,12 +51,12 @@
 
 <div class="stat-row">
     <div class="stat-pair">
-        <div class="stat">
+        <div class="stat" style="cursor:pointer" @onclick='() => Nav.NavigateTo("/league-table")'>
             <div class="label">Position</div>
-            <div class="value accent">@PositionText</div>
+            <div class="value" style="color:@PositionColour">@PositionText</div>
         </div>
         <div class="stat">
-            <div class="label">Squad</div>
+            <div class="label">Squad Size</div>
             <div class="value">@Engine.State.Players.Count(p => p.Contract != null && p.Contract.ClubId == Engine.MyClub.Id)</div>
         </div>
     </div>
@@ -84,10 +84,8 @@
                     var home = fixture.HomeClub.Id == Engine.MyClub.Id;
                     <tr>
                         <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
-                        <td>
-                            <span class="@(home ? "" : "muted")">vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</span>
-                            <span class="tag" style="margin-left:.4rem">@(home ? "H" : "A")</span>
-                        </td>
+                        <td>vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</td>
+                        <td style="width:36px"><span class="tag">@(home ? "H" : "A")</span></td>
                         <td class="muted">@competition.Name</td>
                     </tr>
                 }
@@ -107,15 +105,41 @@
 
     private void NextNotification() => Engine.MarkLatestNotificationRead();
 
+    private SettingsModel Settings => SettingsOptions.Value;
+
+    private (int position, int total) PositionInfo
+    {
+        get
+        {
+            if (Engine.MyCompetition is not LeagueModel league) return (0, 0);
+            var table = league.GenerateLeagueTable().ToList();
+            var index = table.FindIndex(p => p.Club.Id == Engine.MyClub.Id);
+            return index < 0 ? (0, 0) : (index + 1, table.Count);
+        }
+    }
+
     private string PositionText
     {
         get
         {
-            if (Engine.MyCompetition is not LeagueModel league) return "—";
-            var table = league.GenerateLeagueTable().ToList();
-            var index = table.FindIndex(p => p.Club.Id == Engine.MyClub.Id);
-            if (index < 0) return "—";
-            return Ordinal(index + 1);
+            var (pos, _) = PositionInfo;
+            return pos > 0 ? Ordinal(pos) : "—";
+        }
+    }
+
+    private string PositionColour
+    {
+        get
+        {
+            if (Engine.MyCompetition is not LeagueModel league) return "var(--text)";
+            var (pos, _) = PositionInfo;
+            if (pos <= 0) return "var(--text)";
+            var cfg = Settings.Competitions.FirstOrDefault(p => p.Id == league.Id)?.LeagueTable;
+            if (cfg == null) return "var(--accent)";
+            if (pos <= cfg.AutomaticPromotionPlaces) return "var(--accent)";
+            if (pos <= cfg.AutomaticPromotionPlaces + cfg.PlayoffPlaces) return "#7fb2ff";
+            if (pos > cfg.Places - cfg.RelegationPlaces) return "var(--danger)";
+            return "var(--text)";
         }
     }
 

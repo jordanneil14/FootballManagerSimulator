@@ -13,14 +13,14 @@
 }
 
 <div class="page-head">
-    <div><h1>@(league?.Name ?? "League Table")</h1><div class="subtitle">Standings</div></div>
+    <div><h1>@CountryFlag(leagueId) @(league?.Name ?? "League Table")</h1><div class="subtitle">Standings</div></div>
 </div>
 
 <div class="league-select">
     <select class="input" value="@leagueId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="League">
         @foreach (var l in Engine.Leagues.OrderBy(p => p.Rank))
         {
-            <option value="@l.Id" selected="@(l.Id == leagueId)">@l.Name</option>
+            <option value="@l.Id" selected="@(l.Id == leagueId)">@CountryName(l.Id) - @l.Name</option>
         }
     </select>
 </div>
@@ -70,6 +70,28 @@ else
     [Parameter] public int? Id { get; set; }
 
     private SettingsModel Settings => SettingsOptions.Value;
+
+    private static readonly Dictionary<string, string> CountryFlags = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["England"] = "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        ["Spain"] = "🇪🇸",
+        ["Germany"] = "🇩🇪",
+        ["Italy"] = "🇮🇹",
+        ["France"] = "🇫🇷",
+        ["Portugal"] = "🇵🇹",
+    };
+
+    private string CountryFlag(int competitionId)
+    {
+        var name = CountryName(competitionId);
+        return CountryFlags.TryGetValue(name, out var flag) ? flag : "🏳️";
+    }
+
+    private string CountryName(int competitionId)
+    {
+        var countryId = Settings.Competitions.FirstOrDefault(p => p.Id == competitionId)?.CountryId;
+        return Settings.Countries.FirstOrDefault(c => c.Id == countryId)?.Name ?? "";
+    }
 
     private string ZoneClass(int position, int leagueId)
     {

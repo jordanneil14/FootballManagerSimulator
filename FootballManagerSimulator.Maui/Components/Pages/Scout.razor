@@ -7,8 +7,23 @@
 
 <div class="page-head">
     <div><h1>Scout</h1><div class="subtitle">Search every player in the game</div></div>
-    <div class="page-actions">
-        <input class="input" style="width:240px" placeholder="Search name or club…" value="@_search" @oninput="OnSearch" />
+</div>
+
+<div class="panel">
+    <h2>Filters</h2>
+    <div class="inline-form">
+        <div class="field">
+            <label>Name or Club</label>
+            <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
+        </div>
+        <div class="field">
+            <label>Contract Status</label>
+            <select class="input" style="width:180px" value="@_contractFilter" @onchange="OnContractFilterChanged">
+                <option value="All">All Players</option>
+                <option value="Contracted">Contracted</option>
+                <option value="FreeAgent">Free Agents</option>
+            </select>
+        </div>
     </div>
 </div>
 
@@ -38,7 +53,7 @@
                 }
                 @if (!pagePlayers.Any())
                 {
-                    <tr><td colspan="5" class="center muted">No players match your search.</td></tr>
+                    <tr><td colspan="5" class="center muted">No players match your filters.</td></tr>
                 }
             </tbody>
         </table>
@@ -54,6 +69,7 @@
 @code {
     private int _page = 1;
     private string _search = "";
+    private string _contractFilter = "All";
     private const int PageSize = 20;
 
     private void OnSearch(ChangeEventArgs e)
@@ -62,28 +78,41 @@
         _page = 1;
     }
 
+    private void OnContractFilterChanged(ChangeEventArgs e)
+    {
+        _contractFilter = e.Value?.ToString() ?? "All";
+        _page = 1;
+    }
+
     private List<PlayerModel> BuildPlayerList()
     {
-        IEnumerable<PlayerModel> contracted = Engine.State.Players
-            .Where(p => p.Contract != null)
-            .OrderBy(p => p.Contract!.ClubName)
-            .ThenByDescending(p => p.Rating);
-
-        IEnumerable<PlayerModel> freeAgents = Engine.State.Players
-            .Where(p => p.Contract == null)
-            .OrderByDescending(p => p.Rating)
-            .Take(100);
-
-        var combined = contracted.Concat(freeAgents);
+        IEnumerable<PlayerModel> players = _contractFilter switch
+        {
+            "Contracted" => Engine.State.Players
+                .Where(p => p.Contract != null)
+                .OrderBy(p => p.Contract!.ClubName)
+                .ThenByDescending(p => p.Rating),
+            "FreeAgent" => Engine.State.Players
+                .Where(p => p.Contract == null)
+                .OrderByDescending(p => p.Rating),
+            _ => Engine.State.Players
+                .Where(p => p.Contract != null)
+                .OrderBy(p => p.Contract!.ClubName)
+                .ThenByDescending(p => p.Rating)
+                .Concat(Engine.State.Players
+                    .Where(p => p.Contract == null)
+                    .OrderByDescending(p => p.Rating)
+                    .Take(100))
+        };
 
         if (!string.IsNullOrWhiteSpace(_search))
         {
             var term = _search.Trim().ToLower();
-            combined = combined.Where(p =>
+            players = players.Where(p =>
                 p.Name.ToLower().Contains(term) ||
                 (p.Contract?.ClubName ?? "free agent").ToLower().Contains(term));
         }
 
-        return combined.ToList();
+        return players.ToList();
     }
 }
