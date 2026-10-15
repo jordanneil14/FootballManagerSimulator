@@ -11,17 +11,21 @@
     <div class="feedback"><div class="feedback-item">@_message</div></div>
 }
 
-<div class="stat-row">
+<div class="grid grid-3">
     <div class="stat"><div class="label">Transfer Budget</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
     <div class="stat"><div class="label">Wage Budget</div><div class="value">@Ui.Money(Engine.MyClub.WageBudget)</div></div>
     <div class="stat"><div class="label">Stadium Capacity</div><div class="value">@Engine.MyClub.StadiumSize.ToString("n0")</div></div>
 </div>
 
-<div class="grid grid-2">
+<div class="grid grid-3">
     <div class="panel">
         <h2>💷 Transfer Budget</h2>
         <p>Request additional funds from the board. They will consider your request and respond within a couple of days.</p>
         <button class="btn btn-primary" @onclick="RequestBudget">Request a Higher Transfer Budget</button>
+    </div>
+    <div class="panel">
+        <h2>💰 Wage Budget</h2>
+        <p>Your current weekly wage bill across the squad.</p>
     </div>
     <div class="panel">
         <h2>🏟️ Stadium</h2>

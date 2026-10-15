@@ -194,7 +194,7 @@
     },
     {
       "ID": 22,
-      "Name": "Brigton",
+      "Name": "Brighton",
       "TransferBudget": 53000000,
       "Stadium": "South Downs Fields",
       "LeagueId": 1,
@@ -293,7 +293,7 @@
     },
     {
       "ID": 33,
-      "Name": "West Midland Clarets",
+      "Name": "Villa",
       "TransferBudget": 74000000,
       "Stadium": "Villa Park Grounds",
       "LeagueId": 1,
@@ -1049,7 +1049,7 @@
     },
     {
       "ID": 117,
-      "Name": "Schalka",
+      "Name": "Schalke",
       "TransferBudget": 38000000,
       "Stadium": "Gelsenkirchen Fields",
       "LeagueId": 6,

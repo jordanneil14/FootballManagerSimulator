@@ -10,21 +10,26 @@
 </div>
 
 <div class="panel">
-    <h2>Filters</h2>
-    <div class="inline-form">
-        <div class="field">
-            <label>Name or Club</label>
-            <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
+    <h2 class="clickable" style="cursor:pointer;user-select:none" @onclick="() => _filtersOpen = !_filtersOpen">
+        @(_filtersOpen ? "▾" : "▸") Filters
+    </h2>
+    @if (_filtersOpen)
+    {
+        <div class="inline-form">
+            <div class="field">
+                <label>Name or Club</label>
+                <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
+            </div>
+            <div class="field">
+                <label>Contract Status</label>
+                <select class="input" style="width:180px" value="@_contractFilter" @onchange="OnContractFilterChanged">
+                    <option value="All">All Players</option>
+                    <option value="Contracted">Contracted</option>
+                    <option value="FreeAgent">Free Agents</option>
+                </select>
+            </div>
         </div>
-        <div class="field">
-            <label>Contract Status</label>
-            <select class="input" style="width:180px" value="@_contractFilter" @onchange="OnContractFilterChanged">
-                <option value="All">All Players</option>
-                <option value="Contracted">Contracted</option>
-                <option value="FreeAgent">Free Agents</option>
-            </select>
-        </div>
-    </div>
+    }
 </div>
 
 @{
@@ -67,6 +72,7 @@
 </div>
 
 @code {
+    private bool _filtersOpen = true;
     private int _page = 1;
     private string _search = "";
     private string _contractFilter = "All";

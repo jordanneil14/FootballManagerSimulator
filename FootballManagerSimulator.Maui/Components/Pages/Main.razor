@@ -10,9 +10,10 @@
     <div>
         <h1>Manager Hub</h1>
     </div>
-    <div class="page-actions">
-        <button class="btn btn-primary btn-lg" @onclick="Advance">⏩ Advance</button>
-    </div>
+</div>
+
+<div style="margin-bottom:1.4rem">
+    <button class="btn btn-primary btn-lg" style="width:100%" @onclick="Advance">⏩ Advance</button>
 </div>
 
 <div class="panel">
@@ -77,20 +78,22 @@
     }
     else
     {
-        <table class="data">
-            <tbody>
-                @foreach (var (fixture, competition) in upcoming)
-                {
-                    var home = fixture.HomeClub.Id == Engine.MyClub.Id;
-                    <tr>
-                        <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
-                        <td>vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</td>
-                        <td style="width:36px"><span class="tag">@(home ? "H" : "A")</span></td>
-                        <td class="muted">@competition.Name</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="table-wrap">
+            <table class="data">
+                <tbody>
+                    @foreach (var (fixture, competition) in upcoming)
+                    {
+                        var home = fixture.HomeClub.Id == Engine.MyClub.Id;
+                        <tr>
+                            <td style="width:92px" class="muted">@fixture.Date.ToString("ddd dd MMM")</td>
+                            <td>vs @(home ? fixture.AwayClub.Name : fixture.HomeClub.Name)</td>
+                            <td style="width:36px"><span class="tag">@(home ? "H" : "A")</span></td>
+                            <td class="muted">@competition.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
 

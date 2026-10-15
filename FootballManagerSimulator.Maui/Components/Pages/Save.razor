@@ -5,7 +5,7 @@
 
 <PageTitle>Save Game</PageTitle>
 
-<div class="page-head"><div><h1>Save Game</h1><div class="subtitle">Your game will be saved to your desktop as a <code>.fms</code> file.</div></div></div>
+<div class="page-head"><div><h1>Save Game</h1></div></div>
 
 <div class="panel" style="max-width:520px">
     @if (_message != null)
@@ -19,7 +19,6 @@
         </div>
         <div class="inline-form">
             <button class="btn btn-primary" type="submit" disabled="@string.IsNullOrWhiteSpace(_fileName)">💾 Save</button>
-            <button class="btn btn-ghost" type="button" @onclick="@(() => Nav.NavigateTo("/game"))">Back to Hub</button>
         </div>
     </EditForm>
 </div>
