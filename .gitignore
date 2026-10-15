@@ -22,3 +22,5 @@
 /FootballManagerSimulator/obj/project.nuget.cache
 /FootballManagerSimulator/bin/
 /.vs/
+/FootballManagerSimulator.PlayerGenerator/obj/
+/FootballManagerSimulator.PlayerGenerator/bin/
