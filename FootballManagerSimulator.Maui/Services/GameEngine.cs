@@ -155,6 +155,12 @@ public class GameEngine(
     /// Reproduces the old PreMatch screen "Start Match" action. Returns an error message when the
     /// team is not fully selected, otherwise kicks off the first half and returns null.
     /// </summary>
+    public bool IsPlayerSuspended(int playerId)
+    {
+        var player = GetPlayer(playerId);
+        return player != null && player.SuspensionMatches > 0;
+    }
+
     public string? StartMatch()
     {
         var unfilledStarters = MyClub.TacticSlots
@@ -163,6 +169,13 @@ public class GameEngine(
 
         if (unfilledStarters)
             return "Unable to start game. Your team has not been fully selected.";
+
+        var suspendedStarter = MyClub.TacticSlots
+            .Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES && p.PlayerId != null)
+            .Any(p => IsPlayerSuspended(p.PlayerId!.Value));
+
+        if (suspendedStarter)
+            return "Unable to start game. You have a suspended player in your starting lineup.";
 
         foreach (var competition in State.Competitions)
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date))

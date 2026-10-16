@@ -45,7 +45,8 @@ public class MatchSimulatorHelper(
     private void SimulatePenalties(FixtureModel fixture)
     {
         fixture.GoalsAway += 1;
-        EndFixture(fixture);
+        var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
+        EndFixture(fixture, competition);
     }
 
     private void SimulateExtraTime(FixtureModel fixture)
@@ -98,7 +99,10 @@ public class MatchSimulatorHelper(
         fixture.Minute = 120;
 
         if (fixture.GoalsHome != fixture.GoalsAway)
-            EndFixture(fixture);
+        {
+            var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
+            EndFixture(fixture, competition);
+        }
     }
 
     private void SimulateFirstHalf(FixtureModel fixture)
@@ -150,6 +154,8 @@ public class MatchSimulatorHelper(
                 fixture.GoalsAway += 1;
             }
         }
+
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
 
         fixture.Minute = 45;
     }
@@ -222,12 +228,12 @@ public class MatchSimulatorHelper(
             }
         }
 
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
+
         fixture.Minute = 90;
 
-        //if (competition.Type == CompetitionType.Cup && fixture.GoalsHome == fix)
-
         if (competition.Type != CompetitionType.Cup || fixture.GoalsHome != fixture.GoalsAway)
-            EndFixture(fixture);
+            EndFixture(fixture, competition);
     }
 
     public void ConcludeFixture(FixtureModel fixture, ICompetition competition)
@@ -238,7 +244,85 @@ public class MatchSimulatorHelper(
         }
     }
 
-    private static void EndFixture(FixtureModel fixture)
+    private void SimulateCards(
+        FixtureModel fixture,
+        IEnumerable<TacticSlotModel> homeSlots,
+        IEnumerable<TacticSlotModel> awaySlots,
+        int minuteFrom,
+        int minuteTo)
+    {
+        var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        var awayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+
+        for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(5, 15))
+        {
+            if (RandomNumberHelper.Next(1, 12) != 1)
+                continue;
+
+            var isHome = RandomNumberHelper.Next(0, 2) == 0;
+            var playerIds = isHome ? homePlayerIds : awayPlayerIds;
+            var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
+
+            if (!playerIds.Any()) continue;
+
+            var playerId = playerIds[RandomNumberHelper.Next(0, playerIds.Count)];
+
+            var isStraightRed = RandomNumberHelper.Next(1, 20) == 1;
+
+            if (isStraightRed)
+            {
+                cards.Add(new CardModel { Minute = minute, PlayerId = playerId, IsRed = true });
+            }
+            else
+            {
+                cards.Add(new CardModel { Minute = minute, PlayerId = playerId, IsRed = false });
+
+                var yellowCount = cards.Count(c => !c.IsRed && c.PlayerId == playerId);
+                if (yellowCount >= 2)
+                    cards.Add(new CardModel { Minute = minute, PlayerId = playerId, IsRed = true });
+            }
+        }
+    }
+
+    private bool IsCompetitivFixture(ICompetition competition)
+    {
+        return competition.Type != CompetitionType.Friendly;
+    }
+
+    private void ApplySuspensions(FixtureModel fixture, ICompetition competition)
+    {
+        if (!IsCompetitivFixture(competition))
+            return;
+
+        var allCards = fixture.HomeCards.Concat(fixture.AwayCards);
+        var redCardPlayerIds = allCards.Where(c => c.IsRed).Select(c => c.PlayerId).Distinct();
+
+        foreach (var playerId in redCardPlayerIds)
+        {
+            var player = PlayerHelper.GetPlayerById(playerId);
+            if (player == null) continue;
+
+            var allPlayerCards = allCards.Where(c => c.PlayerId == playerId).ToList();
+            var hasStraightRed = allPlayerCards.Any(c => c.IsRed && allPlayerCards.Count(y => !y.IsRed && y.PlayerId == playerId) < 2);
+
+            player.SuspensionMatches = hasStraightRed ? 3 : 1;
+        }
+    }
+
+    private void ReduceSuspensions(FixtureModel fixture, ICompetition competition)
+    {
+        if (!IsCompetitivFixture(competition))
+            return;
+
+        var clubIds = new[] { fixture.HomeClub.Id, fixture.AwayClub.Id };
+        var suspendedPlayers = State.Players
+            .Where(p => p.SuspensionMatches > 0 && p.Contract != null && clubIds.Contains(p.Contract.ClubId));
+
+        foreach (var player in suspendedPlayers)
+            player.SuspensionMatches--;
+    }
+
+    private void EndFixture(FixtureModel fixture, ICompetition competition)
     {
         fixture.Concluded = true;
 
@@ -247,6 +331,8 @@ public class MatchSimulatorHelper(
         else
             fixture.ClubWon = fixture.HomeClub;
 
+        ReduceSuspensions(fixture, competition);
+        ApplySuspensions(fixture, competition);
     }
 
     public void PrepareMatch(FixtureModel fixture)

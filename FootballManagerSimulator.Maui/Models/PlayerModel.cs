@@ -63,6 +63,7 @@ public class PlayerModel : IPerson
     public int GKKicking { get; set; }
     public int GKHandling { get; set; }
     public int GKReflexes { get; set; }
+    public int SuspensionMatches { get; set; }
     // Only players which are signed to a team will have a contract
     public ContractModel? Contract { get; set; }
     public class ContractModel

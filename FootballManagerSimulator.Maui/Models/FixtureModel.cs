@@ -18,6 +18,8 @@ public class FixtureModel : IFixture
 
     public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
     public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();
+    public List<CardModel> HomeCards { get; set; } = new List<CardModel>();
+    public List<CardModel> AwayCards { get; set; } = new List<CardModel>();
     public TimeOnly KickOffTime { get; set; }
     public FixtureType FixtureType { get; set; } = FixtureType.Base;
 }

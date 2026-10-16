@@ -480,9 +480,18 @@ public class TacticHelper(
         }
     }
 
+    private HashSet<int> GetSuspendedPlayerIds(int clubId)
+    {
+        return State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId == clubId && p.SuspensionMatches > 0)
+            .Select(p => p.Id)
+            .ToHashSet();
+    }
+
     private void FillEmptyFirstElevenTacticSlotsByClubId(int clubId)
     {
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId);
+        var suspendedIds = GetSuspendedPlayerIds(clubId);
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId && !suspendedIds.Contains(p.Id));
 
         // Move players from the reserves into the starting 11
         var tacticSlots = State.Clubs
@@ -504,7 +513,7 @@ public class TacticHelper(
             var reserves = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value));
 
             var selectedPlayer = reserves.Join(preferredPlayers, arg => arg.PlayerId, arg2 => arg2.Id,
                 (first, second) => new
@@ -538,7 +547,7 @@ public class TacticHelper(
             var selectedPlayer = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null);
+                .FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value));
             if (selectedPlayer == null) continue;
 
             State.Clubs
@@ -557,6 +566,8 @@ public class TacticHelper(
 
     private void FillEmptySubTacticSlotsByClubId(int clubId)
     {
+        var suspendedIds = GetSuspendedPlayerIds(clubId);
+
         // Move the remaining players from the reserves into the SUB positions
         var tacticSlots = State.Clubs
             .First(p => p.Id == clubId)
@@ -569,7 +580,7 @@ public class TacticHelper(
             var reserves = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null)
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value))
                 .Select(p => new
                 {
                     TacticSlot = p,
