@@ -326,6 +326,15 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .scoreboard .score { font-family: var(--mono); font-size: 2.6rem; font-weight: 700; letter-spacing: .08em; }
 .scoreboard .minute { margin-top: .6rem; color: var(--accent); font-weight: 700; font-family: var(--mono); letter-spacing: .08em; }
 
+.event-feed { display: flex; flex-direction: column; gap: .35rem; max-height: 240px; overflow-y: auto; }
+.event-row { display: flex; align-items: center; gap: .6rem; padding: .4rem .6rem; border-radius: var(--radius); font-size: .9rem; background: var(--bg-2); }
+.event-minute { font-family: var(--mono); font-weight: 700; min-width: 2.4rem; color: var(--text-faint); }
+.event-icon { font-size: 1rem; }
+.event-text { flex: 1; }
+.event-goal { background: rgba(76,175,80,.12); }
+.event-yellow { background: rgba(255,235,59,.1); }
+.event-red { background: rgba(244,67,54,.1); }
+
 .lineups { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .lineup h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
 .lineup-row { display: flex; align-items: center; gap: .6rem; padding: .32rem 0; font-size: .9rem; }

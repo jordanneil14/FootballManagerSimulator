@@ -232,7 +232,7 @@ public class MatchSimulatorHelper(
 
         fixture.Minute = 90;
 
-        if (competition.Type != CompetitionType.Cup || fixture.GoalsHome != fixture.GoalsAway)
+        if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
             EndFixture(fixture, competition);
     }
 
@@ -333,6 +333,109 @@ public class MatchSimulatorHelper(
 
         ReduceSuspensions(fixture, competition);
         ApplySuspensions(fixture, competition);
+    }
+
+    public void PreGenerateMatch(FixtureModel fixture)
+    {
+        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
+        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
+
+        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
+        var max = homeRating + awayRating;
+
+        fixture.GoalsHome = 0;
+        fixture.GoalsAway = 0;
+
+        var minute = 0;
+        while (minute <= 45)
+        {
+            minute += RandomNumberHelper.Next(1, 11);
+            if (minute > 45) break;
+            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+        }
+
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
+
+        minute = 45;
+        while (minute <= 90)
+        {
+            minute += RandomNumberHelper.Next(1, 10);
+            if (minute > 90) break;
+            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+        }
+
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
+    }
+
+    public void GenerateExtraTimeEvents(FixtureModel fixture)
+    {
+        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
+        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
+
+        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
+        var max = homeRating + awayRating;
+
+        var minute = 90;
+        while (minute <= 120)
+        {
+            minute += RandomNumberHelper.Next(1, 10);
+            if (minute > 120) break;
+            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+        }
+    }
+
+    public void GeneratePenaltyEvents(FixtureModel fixture)
+    {
+        fixture.AwayScorers.Add(new GoalModel
+        {
+            Minute = 121,
+            PlayerId = GetGoalScorer(ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id))
+        });
+    }
+
+    public void FinaliseMatch(FixtureModel fixture, ICompetition competition)
+    {
+        EndFixture(fixture, competition);
+    }
+
+    private (int homeRating, int awayRating) GetAdjustedRatings(FixtureModel fixture)
+    {
+        var homeRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.HomeClub.Id);
+        var awayRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id);
+
+        if (fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
+            homeRating = (int)(homeRating * 1.3);
+        else
+            awayRating = (int)(awayRating * 1.3);
+
+        awayRating = (int)(awayRating * .8);
+
+        return (homeRating, awayRating);
+    }
+
+    private void AddGoal(FixtureModel fixture, int minute, int max, int homeRating,
+        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
+    {
+        var randomNumber = RandomNumberHelper.Next(0, max);
+        if (randomNumber <= homeRating)
+        {
+            fixture.HomeScorers.Add(new GoalModel
+            {
+                Minute = minute,
+                PlayerId = GetGoalScorer(homeSlots)
+            });
+        }
+        else
+        {
+            fixture.AwayScorers.Add(new GoalModel
+            {
+                Minute = minute,
+                PlayerId = GetGoalScorer(awaySlots)
+            });
+        }
     }
 
     public void PrepareMatch(FixtureModel fixture)

@@ -34,6 +34,7 @@ public class GameEngine(
 
     public IState State { get; } = state;
     public IGameCreator GameCreator { get; } = gameCreator;
+    public IMatchSimulatorHelper MatchSimulator { get; } = matchSimulator;
 
     /// <summary>
     /// Raised whenever the game state changes in a way that the persistent layout
@@ -177,9 +178,22 @@ public class GameEngine(
         if (suspendedStarter)
             return "Unable to start game. You have a suspended player in your starting lineup.";
 
+        var myFixture = MyFixtureToday();
+
         foreach (var competition in State.Competitions)
+        {
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date))
-                matchSimulator.ProcessMatch(fixture, competition);
+            {
+                if (fixture == myFixture)
+                {
+                    matchSimulator.PreGenerateMatch(fixture);
+                }
+                else
+                {
+                    matchSimulator.ConcludeFixture(fixture, competition);
+                }
+            }
+        }
 
         NotifyChanged();
         return null;
@@ -208,6 +222,17 @@ public class GameEngine(
         }
 
         return false;
+    }
+
+    public ICompetition? GetCompetitionForFixture(FixtureModel fixture) =>
+        State.Competitions.FirstOrDefault(p => p.Fixtures.Contains(fixture));
+
+    public void FinalisePlayerMatch(FixtureModel fixture)
+    {
+        var competition = GetCompetitionForFixture(fixture);
+        if (competition != null)
+            matchSimulator.FinaliseMatch(fixture, competition);
+        NotifyChanged();
     }
 
     /// <summary>Reproduces the old FullTime screen "Continue" action.</summary>

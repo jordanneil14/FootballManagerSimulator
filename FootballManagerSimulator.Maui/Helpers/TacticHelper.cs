@@ -592,7 +592,7 @@ public class TacticHelper(
 
             int? playerId = null;
             if (i == 0)
-                playerId = reserves?.FirstOrDefault(p => p.Player.PreferredPosition == "GK").Player?.Id;
+                playerId = reserves?.FirstOrDefault(p => p.Player.PreferredPosition == "GK")?.Player?.Id;
 
             if (playerId == null)
                 playerId = reserves!.First().Player?.Id;

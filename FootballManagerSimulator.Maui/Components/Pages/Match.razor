@@ -2,14 +2,11 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@implements IDisposable
 
 <PageTitle>Match</PageTitle>
 
-@{
-    var fixture = Engine.MyFixtureToday();
-}
-
-@if (fixture == null)
+@if (_fixture == null)
 {
     <p class="muted">No match in progress.</p>
 }
@@ -18,37 +15,277 @@ else
     <div class="page-head">
         <div><h1>Live Match</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
         <div class="page-actions">
-            <button class="btn btn-primary btn-lg" @onclick="Continue">Continue Match ⏩</button>
+            @if (_phase == MatchPhase.HalfTime)
+            {
+                <button class="btn btn-primary btn-lg" @onclick="ContinueFromBreak">2nd Half ⏩</button>
+            }
+            else if (_phase == MatchPhase.FullTime || _phase == MatchPhase.Concluded)
+            {
+                <button class="btn btn-primary btn-lg" @onclick="GoToFullTime">Full Time ⏩</button>
+            }
+            else if (_phase == MatchPhase.ExtraTimeBreak)
+            {
+                <button class="btn btn-primary btn-lg" @onclick="ContinueFromBreak">Extra Time ⏩</button>
+            }
+            else if (_phase == MatchPhase.PenaltiesBreak)
+            {
+                <button class="btn btn-primary btn-lg" @onclick="StartPenalties">Penalties ⏩</button>
+            }
+            else
+            {
+                <button class="btn btn-secondary btn-lg" @onclick="TogglePause">
+                    @(_isPaused ? "Resume ▶" : "Pause ⏸")
+                </button>
+            }
         </div>
     </div>
 
     <div class="scoreboard">
         <div class="teams">
-            <div class="team-name">@fixture.HomeClub.Name</div>
-            <div class="score">@fixture.GoalsHome&nbsp;-&nbsp;@fixture.GoalsAway</div>
-            <div class="team-name">@fixture.AwayClub.Name</div>
+            <div class="team-name">@_fixture.HomeClub.Name</div>
+            <div class="score">@_displayedHomeGoals&nbsp;-&nbsp;@_displayedAwayGoals</div>
+            <div class="team-name">@_fixture.AwayClub.Name</div>
         </div>
-        <div class="minute">@MinuteCaption(fixture)</div>
+        <div class="minute">@PhaseCaption()</div>
     </div>
 
+    @if (_eventFeed.Any())
+    {
+        <div class="panel" style="margin-bottom: 1rem;">
+            <h3>Match Events</h3>
+            <div class="event-feed">
+                @foreach (var evt in _eventFeed.AsEnumerable().Reverse())
+                {
+                    <div class="event-row @evt.CssClass">
+                        <span class="event-minute">@evt.Minute'</span>
+                        <span class="event-icon">@evt.Icon</span>
+                        <span class="event-text">@evt.Description</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
     <div class="panel">
-        <MatchLineups Fixture="fixture" ShowScorers="true" />
+        <MatchLineups Fixture="_fixture" ShowScorers="true" LiveMinute="_currentMinute" />
     </div>
 }
 
 @code {
-    private void Continue()
+    private enum MatchPhase { FirstHalf, HalfTime, SecondHalf, FullTime, ExtraTime, ExtraTimeBreak, PenaltiesBreak, Concluded }
+
+    private record MatchEvent(int Minute, string Icon, string Description, string CssClass);
+
+    private FixtureModel? _fixture;
+    private ICompetition? _competition;
+    private Timer? _timer;
+    private int _currentMinute;
+    private int _displayedHomeGoals;
+    private int _displayedAwayGoals;
+    private bool _isPaused;
+    private MatchPhase _phase = MatchPhase.FirstHalf;
+    private readonly List<MatchEvent> _eventFeed = new();
+    private int _revealedHomeGoals;
+    private int _revealedAwayGoals;
+    private int _revealedHomeCards;
+    private int _revealedAwayCards;
+
+    protected override void OnInitialized()
     {
-        var concluded = Engine.ContinueMatch();
-        if (concluded)
-            Nav.NavigateTo("/fulltime");
+        _fixture = Engine.MyFixtureToday();
+        if (_fixture == null) return;
+
+        _competition = Engine.GetCompetitionForFixture(_fixture);
+        _currentMinute = 0;
+        _displayedHomeGoals = 0;
+        _displayedAwayGoals = 0;
+        _phase = MatchPhase.FirstHalf;
+
+        _timer = new Timer(OnTick, null, 1000, 1000);
     }
 
-    private static string MinuteCaption(FixtureModel fixture) => fixture.Minute switch
+    private async void OnTick(object? state)
     {
-        <= 45 => "Half Time",
-        <= 90 => "Full Time pending",
-        <= 120 => "Extra Time",
-        _ => "Penalties"
+        if (_isPaused) return;
+
+        _currentMinute++;
+        RevealEvents();
+
+        var targetMinute = _phase switch
+        {
+            MatchPhase.FirstHalf => 45,
+            MatchPhase.SecondHalf => 90,
+            MatchPhase.ExtraTime => 120,
+            _ => 90
+        };
+
+        if (_currentMinute >= targetMinute)
+        {
+            _currentMinute = targetMinute;
+            _isPaused = true;
+            TransitionPhase();
+        }
+
+        _fixture!.Minute = _currentMinute;
+        _fixture.GoalsHome = _displayedHomeGoals;
+        _fixture.GoalsAway = _displayedAwayGoals;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void RevealEvents()
+    {
+        if (_fixture == null) return;
+
+        var homeGoalsToReveal = _fixture.HomeScorers
+            .Where(g => g.Minute <= _currentMinute)
+            .OrderBy(g => g.Minute)
+            .Skip(_revealedHomeGoals)
+            .ToList();
+
+        foreach (var goal in homeGoalsToReveal)
+        {
+            var player = Engine.GetPlayer(goal.PlayerId);
+            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", "event-goal"));
+            _revealedHomeGoals++;
+        }
+
+        var awayGoalsToReveal = _fixture.AwayScorers
+            .Where(g => g.Minute <= _currentMinute)
+            .OrderBy(g => g.Minute)
+            .Skip(_revealedAwayGoals)
+            .ToList();
+
+        foreach (var goal in awayGoalsToReveal)
+        {
+            var player = Engine.GetPlayer(goal.PlayerId);
+            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", "event-goal"));
+            _revealedAwayGoals++;
+        }
+
+        var homeCardsToReveal = _fixture.HomeCards
+            .Where(c => c.Minute <= _currentMinute)
+            .OrderBy(c => c.Minute)
+            .Skip(_revealedHomeCards)
+            .ToList();
+
+        foreach (var card in homeCardsToReveal)
+        {
+            var player = Engine.GetPlayer(card.PlayerId);
+            var icon = card.IsRed ? "🟥" : "🟨";
+            var type = card.IsRed ? "Red card" : "Yellow card";
+            _eventFeed.Add(new MatchEvent(card.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", card.IsRed ? "event-red" : "event-yellow"));
+            _revealedHomeCards++;
+        }
+
+        var awayCardsToReveal = _fixture.AwayCards
+            .Where(c => c.Minute <= _currentMinute)
+            .OrderBy(c => c.Minute)
+            .Skip(_revealedAwayCards)
+            .ToList();
+
+        foreach (var card in awayCardsToReveal)
+        {
+            var player = Engine.GetPlayer(card.PlayerId);
+            var icon = card.IsRed ? "🟥" : "🟨";
+            var type = card.IsRed ? "Red card" : "Yellow card";
+            _eventFeed.Add(new MatchEvent(card.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", card.IsRed ? "event-red" : "event-yellow"));
+            _revealedAwayCards++;
+        }
+
+        _displayedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
+        _displayedAwayGoals = _fixture.AwayScorers.Count(g => g.Minute <= _currentMinute);
+    }
+
+    private void TransitionPhase()
+    {
+        _phase = _phase switch
+        {
+            MatchPhase.FirstHalf => MatchPhase.HalfTime,
+            MatchPhase.SecondHalf => CheckFullTime(),
+            MatchPhase.ExtraTime => CheckExtraTimeEnd(),
+            _ => _phase
+        };
+
+        if (_phase == MatchPhase.FullTime || _phase == MatchPhase.Concluded)
+            ConcludeMatch();
+    }
+
+    private MatchPhase CheckFullTime()
+    {
+        if ((_competition?.Type == CompetitionType.Cup || _competition?.Type == CompetitionType.EnglishCommunityShield) && _displayedHomeGoals == _displayedAwayGoals)
+        {
+            Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture!);
+            return MatchPhase.ExtraTimeBreak;
+        }
+        return MatchPhase.FullTime;
+    }
+
+    private MatchPhase CheckExtraTimeEnd()
+    {
+        if (_displayedHomeGoals == _displayedAwayGoals)
+        {
+            Engine.MatchSimulator.GeneratePenaltyEvents(_fixture!);
+            return MatchPhase.PenaltiesBreak;
+        }
+        return MatchPhase.FullTime;
+    }
+
+    private void ConcludeMatch()
+    {
+        if (_fixture == null) return;
+        _fixture.GoalsHome = _displayedHomeGoals;
+        _fixture.GoalsAway = _displayedAwayGoals;
+        Engine.FinalisePlayerMatch(_fixture);
+    }
+
+    private void ContinueFromBreak()
+    {
+        _phase = _phase switch
+        {
+            MatchPhase.HalfTime => MatchPhase.SecondHalf,
+            MatchPhase.ExtraTimeBreak => MatchPhase.ExtraTime,
+            _ => _phase
+        };
+        _isPaused = false;
+    }
+
+    private void StartPenalties()
+    {
+        _currentMinute = 121;
+        RevealEvents();
+        _fixture!.GoalsHome = _displayedHomeGoals;
+        _fixture.GoalsAway = _displayedAwayGoals;
+        _phase = MatchPhase.Concluded;
+        ConcludeMatch();
+        StateHasChanged();
+    }
+
+    private void GoToFullTime()
+    {
+        Nav.NavigateTo("/fulltime");
+    }
+
+    private void TogglePause()
+    {
+        _isPaused = !_isPaused;
+    }
+
+    private string PhaseCaption() => _phase switch
+    {
+        MatchPhase.FirstHalf => $"{_currentMinute}'",
+        MatchPhase.HalfTime => "Half Time",
+        MatchPhase.SecondHalf => $"{_currentMinute}'",
+        MatchPhase.FullTime => "Full Time",
+        MatchPhase.ExtraTime => $"{_currentMinute}' (ET)",
+        MatchPhase.ExtraTimeBreak => "Extra Time",
+        MatchPhase.PenaltiesBreak => "Penalties",
+        MatchPhase.Concluded => "Full Time",
+        _ => ""
     };
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
 }

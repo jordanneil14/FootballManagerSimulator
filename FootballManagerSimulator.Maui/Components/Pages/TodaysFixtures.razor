@@ -12,6 +12,11 @@
     </div>
 </div>
 
+@if (_error != null)
+{
+    <div class="feedback"><div class="feedback-item warn" style="white-space:pre-wrap;font-size:.8rem">@_error</div></div>
+}
+
 <p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
 
 @foreach (var competition in Engine.State.Competitions)
@@ -38,9 +43,18 @@
 }
 
 @code {
+    private string? _error;
+
     private void Advance()
     {
-        var result = Engine.AdvanceTodaysFixtures();
-        Nav.NavigateTo(result == GameEngine.TodaysFixturesResult.PreMatch ? "/prematch" : "/results");
+        try
+        {
+            var result = Engine.AdvanceTodaysFixtures();
+            Nav.NavigateTo(result == GameEngine.TodaysFixturesResult.PreMatch ? "/prematch" : "/results");
+        }
+        catch (Exception ex)
+        {
+            _error = $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
+        }
     }
 }
