@@ -2,15 +2,14 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
-using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Competitions.Providers;
 
 public class FriendlyProvider(
-    IOptions<SettingsModel> settings,
+    IState state,
     FriendlyService friendlyService) : ICompetitionProvider
 {
-    private readonly SettingsModel Settings = settings.Value;
+    private readonly IState State = state;
     private readonly FriendlyService FriendlyService = friendlyService;
     public ICompetitionService CompetitionService => FriendlyService;
 
@@ -22,12 +21,7 @@ public class FriendlyProvider(
         {
             Id = competition.Id,
             Name = competition.Name,
-            Clubs = Settings.Clubs.Select(p => new ClubModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                LeagueId = p.LeagueId
-            }).ToList(),
+            Clubs = State.Clubs.ToList(),
             DrawSettings = competition.DrawSettings.Select(p => new DrawSettingsModel
             {
                 Round = p.Round,

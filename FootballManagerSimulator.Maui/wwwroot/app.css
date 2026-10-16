@@ -230,7 +230,7 @@ p { color: var(--text-dim); line-height: 1.55; }
 }
 .panel h2 { font-size: 1.05rem; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
 .panel-title-sub { color: var(--text-faint); font-weight: 400; font-size: .85rem; }
-.grid { display: grid; gap: 1.4rem; }
+.grid { display: grid; gap: 1.4rem; margin-bottom: 1.4rem; }
 .grid-2 { grid-template-columns: 1fr 1fr; }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 1000px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
@@ -381,3 +381,27 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
     .game-content { padding: 1.2rem 1rem 3rem; }
     .topbar-next { display: none; }
 }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+.modal {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 2.2rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow);
+}
+.modal h2 { font-size: 1.15rem; margin-bottom: .6rem; }
+.modal p { margin: 0 0 1.6rem; color: var(--text-dim); line-height: 1.5; }
+.modal-actions { display: flex; gap: .8rem; justify-content: flex-end; }

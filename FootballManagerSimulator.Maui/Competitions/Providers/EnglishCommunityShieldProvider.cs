@@ -28,7 +28,7 @@ public class EnglishCommunityShieldProvider(
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
         var clubIds = competition.DrawSettings.First().IntroducedClubIds;
-        var clubs = Settings.Clubs.Where(p => clubIds.Contains(p.Id)).ToList();
+        var clubs = State.Clubs.Where(p => clubIds.Contains(p.Id)).ToList();
 
         var drawSettings = new DrawSettingsModel
         {

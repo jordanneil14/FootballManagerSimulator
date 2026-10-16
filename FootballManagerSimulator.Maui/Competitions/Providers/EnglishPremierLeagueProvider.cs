@@ -2,15 +2,14 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
-using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Competitions.Providers;
 
 public class EnglishPremierLeagueProvider(
-    IOptions<SettingsModel> settings,
+    IState state,
     EnglishPremierLeagueService premierLeagueService) : ICompetitionProvider
 {
-	private readonly SettingsModel Settings = settings.Value;
+    private readonly IState State = state;
     private readonly EnglishPremierLeagueService EnglishPremierLeagueService = premierLeagueService;
     public ICompetitionService CompetitionService => EnglishPremierLeagueService;
 
@@ -18,13 +17,8 @@ public class EnglishPremierLeagueProvider(
 
 	public ICompetition CreateCompetition(CompetitionModel competition)
 	{
-		var clubs = Settings.Clubs
-			.Where(p => p.LeagueId == competition.Id)
-			.Select(p => new ClubModel
-			{
-				Id = p.Id,
-				Name = p.Name
-			});
+		var clubs = State.Clubs
+			.Where(p => p.LeagueId == competition.Id);
 
 		if (clubs == null || !clubs.Any())
 			throw new Exception($"Unable to get clubs by leagueResourceId {competition.Id}");

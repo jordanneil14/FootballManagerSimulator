@@ -87,9 +87,11 @@ public class GameFactory(
             Id = p.Id,
             Name = p.Name,
             Stadium = p.Stadium,
+            StadiumSize = p.StadiumSize,
             TransferBudget = p.TransferBudget,
             WageBudget = p.WageBudget,
-            LeagueId = p.LeagueId
+            LeagueId = p.LeagueId,
+            Colour = p.Colour
         }).ToList();
 
         var generator = new PlayerGenerator.PlayerGenerator();

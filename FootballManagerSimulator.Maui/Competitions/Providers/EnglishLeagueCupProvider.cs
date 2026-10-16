@@ -47,7 +47,7 @@ public class EnglishLeagueCupProvider(
             .Where(p => p.IsLeague && p.CountryId == 1)
             .Select(p => p.Id);
 
-        var clubs = Settings.Clubs
+        var clubs = State.Clubs
             .Where(p => leagueIds.Contains(p.LeagueId))
             .ToList();
 

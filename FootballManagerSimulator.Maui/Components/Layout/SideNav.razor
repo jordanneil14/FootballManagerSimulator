@@ -1,4 +1,5 @@
 @inject GameEngine Engine
+@inject NavigationManager Nav
 @implements IDisposable
 
 <nav class="sidenav">
@@ -14,13 +15,29 @@
     <div class="sidenav-spacer"></div>
 
     <NavItem Href="/save" Icon="💾" Label="Save Game" />
-    <a class="nav-item nav-item-quit" href="/">
+    <a class="nav-item nav-item-quit" @onclick="ShowQuitModal" @onclick:preventDefault>
         <span class="nav-icon">⏏️</span><span class="nav-label">Main Menu</span>
     </a>
 </nav>
 
+<ConfirmModal Visible="_showQuitModal"
+              Title="Return to Main Menu?"
+              Message="Any unsaved progress will be lost."
+              OnConfirm="ConfirmQuit"
+              OnCancel="HideQuitModal" />
+
 @code {
+    private bool _showQuitModal;
+
     protected override void OnInitialized() => Engine.Changed += OnChanged;
     public void Dispose() => Engine.Changed -= OnChanged;
     private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    private void ShowQuitModal() => _showQuitModal = true;
+    private void HideQuitModal() => _showQuitModal = false;
+    private void ConfirmQuit()
+    {
+        _showQuitModal = false;
+        Nav.NavigateTo("/");
+    }
 }
