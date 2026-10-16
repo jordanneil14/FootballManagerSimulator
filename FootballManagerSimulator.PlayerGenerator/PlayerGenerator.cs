@@ -65,7 +65,7 @@ public class PlayerGenerator
     {
         var contractYears = _random.Next(1, 5);
         var startDateOnly = DateOnly.Parse(startDate);
-        var expiryDate = startDateOnly.AddYears(contractYears);
+        var expiryDate = new DateOnly(startDateOnly.Year + contractYears, 6, 30);
 
         var player = GeneratePlayerWithPosition(position, clubName, shirtNumber, startDate, leagueRank);
         player.Contract = new GeneratedContract
