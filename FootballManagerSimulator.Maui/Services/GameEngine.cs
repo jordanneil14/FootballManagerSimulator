@@ -281,11 +281,46 @@ public class GameEngine(
     }
 
     // ---------------------------------------------------------------------------------
+    // Transfer window
+    // ---------------------------------------------------------------------------------
+
+    public bool IsTransferWindowOpen
+    {
+        get
+        {
+            var month = State.Date.Month;
+            var day = State.Date.Day;
+            return (month >= 6 && month <= 8 && !(month == 6 && day < 15))
+                || (month == 1);
+        }
+    }
+
+    public string TransferWindowStatus => IsTransferWindowOpen ? "Open" : "Closed";
+
+    public DateOnly NextTransferWindowDate
+    {
+        get
+        {
+            var date = State.Date;
+            if (date.Month >= 2 && date.Month < 6)
+                return new DateOnly(date.Year, 6, 15);
+            if (date.Month == 6 && date.Day < 15)
+                return new DateOnly(date.Year, 6, 15);
+            if (date.Month >= 9)
+                return new DateOnly(date.Year + 1, 1, 1);
+            return date;
+        }
+    }
+
+    // ---------------------------------------------------------------------------------
     // Transfers
     // ---------------------------------------------------------------------------------
 
     public string? BuyTransferListedPlayer(int playerId)
     {
+        if (!IsTransferWindowOpen)
+            return "The transfer window is currently closed.";
+
         var item = transferListHelper.GetTransferListItemByPlayerId(playerId);
         if (item == null) return "This player is not on the transfer list.";
         if (item.AskingPrice > MyClub.TransferBudget) return "Insufficient funds to purchase this player.";
@@ -295,8 +330,14 @@ public class GameEngine(
         return player == null ? null : $"{player.Name} has been signed.";
     }
 
-    public void ListPlayerForTransfer(int playerId, int askingPrice) =>
+    public string? ListPlayerForTransfer(int playerId, int askingPrice)
+    {
+        if (!IsTransferWindowOpen)
+            return "The transfer window is currently closed.";
+
         transferListHelper.AddPlayerToTransferList(playerId, askingPrice);
+        return null;
+    }
 
     public void RemovePlayerFromTransferList(int playerId) =>
         transferListHelper.RemovePlayerFromTransferList(playerId);

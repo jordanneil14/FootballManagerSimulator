@@ -32,7 +32,11 @@ public class ProcessHelper(
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
             TransferListHelper.UpdateTransferList();
 
-        TransferListHelper.ProcessAITransfers();
+        var m = State.Date.Month;
+        var d = State.Date.Day;
+        var windowOpen = (m >= 6 && m <= 8 && !(m == 6 && d < 15)) || m == 1;
+        if (windowOpen)
+            TransferListHelper.ProcessAITransfers();
 
         foreach (var comp in State.Competitions)
         {

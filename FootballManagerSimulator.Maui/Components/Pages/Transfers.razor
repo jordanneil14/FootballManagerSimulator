@@ -10,7 +10,20 @@
 </div>
 
 <div class="stat-row">
-    <div class="stat" style="flex-basis:100%"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+    <div class="stat"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+    <div class="stat">
+        <div class="label">Transfer Window</div>
+        <div class="value" style="font-size:1.1rem">
+            @if (Engine.IsTransferWindowOpen)
+            {
+                <span style="color:var(--accent)">Open</span>
+            }
+            else
+            {
+                <span style="color:var(--danger)">Closed</span> <span class="muted" style="font-size:.8rem;font-weight:400">· Opens @Engine.NextTransferWindowDate.ToString("d MMM")</span>
+            }
+        </div>
+    </div>
 </div>
 
 @if (_message != null)
@@ -42,7 +55,7 @@
                     {
                         var player = Engine.GetPlayer(item.PlayerId);
                         if (player == null) continue;
-                        var affordable = item.AskingPrice <= Engine.MyClub.TransferBudget;
+                        var affordable = item.AskingPrice <= Engine.MyClub.TransferBudget && Engine.IsTransferWindowOpen;
                         <tr>
                             <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
                             <td class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'><strong>@player.Name</strong></td>
