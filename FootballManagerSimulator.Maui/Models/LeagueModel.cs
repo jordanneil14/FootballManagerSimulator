@@ -15,6 +15,9 @@ public class LeagueModel : ICompetition
 
     public List<DrawSettingsModel> DrawSettings { get; set; } = new List<DrawSettingsModel>();
 
+	public int AutomaticPromotionPlaces { get; set; }
+	public int PlayoffPlaces { get; set; }
+
 	public bool IsLeague => true;
 
 	public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()

@@ -29,7 +29,9 @@ public class EnglishPremierLeagueProvider(
 			Name = competition.Name,
 			Type = CompetitionType.EnglishPremierLeague,
 			Rank = competition.Rank,
-			Clubs = clubs.ToList()
+			Clubs = clubs.ToList(),
+			AutomaticPromotionPlaces = competition.LeagueTable.AutomaticPromotionPlaces,
+			PlayoffPlaces = competition.LeagueTable.PlayoffPlaces
 		};
 
 		CompetitionService.GenerateNextRoundOfFixtures(league);

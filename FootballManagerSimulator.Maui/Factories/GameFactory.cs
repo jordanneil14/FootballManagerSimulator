@@ -1,8 +1,10 @@
 ﻿using FootballManagerSimulator.Maui.Competitions.Services;
+using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.PlayerGenerator;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Factories;
@@ -19,7 +21,8 @@ public class GameFactory(
     ITransferListHelper transferListHelper,
     FriendlyService friendlyService,
     IEventManager eventManager,
-    IAppStorage appStorage) : IGameFactory
+    IAppStorage appStorage,
+    IServiceProvider serviceProvider) : IGameFactory
 {
     private readonly IAppStorage AppStorage = appStorage;
 
@@ -34,6 +37,7 @@ public class GameFactory(
     private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly FriendlyService FriendlyService = friendlyService;
     private readonly IEventManager EventManager = eventManager;
+    private readonly IServiceProvider ServiceProvider = serviceProvider;
 
     public void FinaliseGameState()
     {
@@ -137,6 +141,22 @@ public class GameFactory(
             var competition1 = competitionProvider.CreateCompetition(competition);
 
             State.Competitions.Add(competition1);
+        }
+
+        foreach (var league in State.Competitions.Where(p => p.IsLeague).Cast<LeagueModel>())
+        {
+            if (league.PlayoffPlaces <= 0)
+                continue;
+
+            var lastBaseFixtureDate = league.Fixtures
+                .Where(p => p.FixtureType == FixtureType.Base)
+                .Max(p => p.Date);
+
+            var triggerDate = lastBaseFixtureDate.AddDays(1);
+
+            var playoffEvent = ActivatorUtilities.CreateInstance<LeaguePlayoffEvent>(
+                ServiceProvider, triggerDate, false, league.Id);
+            EventManager.ValidateAndAddEvent(playoffEvent);
         }
     }
 

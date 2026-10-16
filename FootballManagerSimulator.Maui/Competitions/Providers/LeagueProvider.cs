@@ -28,7 +28,9 @@ public class LeagueProvider(
             Id = competition.Id,
             Name = competition.Name,
             Rank = competition.Rank,
-            Clubs = clubs.ToList()
+            Clubs = clubs.ToList(),
+            AutomaticPromotionPlaces = competition.LeagueTable.AutomaticPromotionPlaces,
+            PlayoffPlaces = competition.LeagueTable.PlayoffPlaces
         };
 
         CompetitionService.GenerateNextRoundOfFixtures(league);

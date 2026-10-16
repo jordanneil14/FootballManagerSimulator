@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Maui.Interfaces;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Interfaces;
 
 namespace FootballManagerSimulator.Maui.Models;
 
@@ -18,4 +19,5 @@ public class FixtureModel : IFixture
     public List<GoalModel> HomeScorers { get; set; } = new List<GoalModel>();
     public List<GoalModel> AwayScorers { get; set; } = new List<GoalModel>();
     public TimeOnly KickOffTime { get; set; }
+    public FixtureType FixtureType { get; set; } = FixtureType.Base;
 }
