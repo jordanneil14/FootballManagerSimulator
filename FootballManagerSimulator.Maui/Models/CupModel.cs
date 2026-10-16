@@ -11,6 +11,7 @@ public class CupModel : ICompetition
     public string Name { get; set; } = string.Empty;
     public List<FixtureModel> Fixtures { get; set; } = new List<FixtureModel>();
     public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
+    public int Year { get; set; }
     public List<DrawSettingsModel> DrawSettings { get; set; } = [];
     public int CountryId { get; set; }
 	public bool IsLeague => false;

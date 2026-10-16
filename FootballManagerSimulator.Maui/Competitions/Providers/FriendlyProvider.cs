@@ -17,15 +17,18 @@ public class FriendlyProvider(
 
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
+        var currentYear = State.Date.Year;
+
         var friendy = new FriendlyModel
         {
             Id = competition.Id,
             Name = competition.Name,
+            Year = currentYear,
             Clubs = State.Clubs.ToList(),
             DrawSettings = competition.DrawSettings.Select(p => new DrawSettingsModel
             {
                 Round = p.Round,
-                FixtureDate = p.FixtureDate
+                FixtureDate = new DateOnly(currentYear, p.FixtureDate.Month, p.FixtureDate.Day)
             }).ToList()
         };
 

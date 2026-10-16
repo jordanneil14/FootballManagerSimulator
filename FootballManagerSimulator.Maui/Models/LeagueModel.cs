@@ -13,10 +13,13 @@ public class LeagueModel : ICompetition
 
     public CompetitionType Type { get; set; } = CompetitionType.League;
 
+    public int Year { get; set; }
+    public int CountryId { get; set; }
     public List<DrawSettingsModel> DrawSettings { get; set; } = new List<DrawSettingsModel>();
 
 	public int AutomaticPromotionPlaces { get; set; }
 	public int PlayoffPlaces { get; set; }
+	public int RelegationPlaces { get; set; }
 
 	public bool IsLeague => true;
 

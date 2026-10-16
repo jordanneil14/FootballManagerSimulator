@@ -55,6 +55,7 @@ public class EnglishLeagueCupProvider(
         {
             Id = competition.Id,
             Name = competition.Name,
+            Year = State.Date.Year,
             Clubs = clubs,
             DrawSettings = []
         };

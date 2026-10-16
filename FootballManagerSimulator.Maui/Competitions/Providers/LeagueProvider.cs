@@ -29,8 +29,11 @@ public class LeagueProvider(
             Name = competition.Name,
             Rank = competition.Rank,
             Clubs = clubs.ToList(),
+            CountryId = competition.CountryId,
+            Year = State.Date.Year,
             AutomaticPromotionPlaces = competition.LeagueTable.AutomaticPromotionPlaces,
-            PlayoffPlaces = competition.LeagueTable.PlayoffPlaces
+            PlayoffPlaces = competition.LeagueTable.PlayoffPlaces,
+            RelegationPlaces = competition.LeagueTable.RelegationPlaces
         };
 
         CompetitionService.GenerateNextRoundOfFixtures(league);
