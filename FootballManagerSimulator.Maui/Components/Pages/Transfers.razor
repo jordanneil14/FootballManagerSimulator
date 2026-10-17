@@ -11,6 +11,9 @@
 
 <div class="stat-row">
     <div class="stat"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+</div>
+
+<div class="stat-row">
     <div class="stat">
         <div class="label">Transfer Window</div>
         <div class="value" style="font-size:1.1rem">
@@ -38,15 +41,14 @@
         .ToList();
 }
 
-<div class="panel panel-fill">
-    @if (!items.Any())
-    {
-        <p class="muted">No players are currently transfer listed. Check back after advancing a few days.</p>
-    }
-    else
-    {
-        <div class="table-wrap">
-            <table class="data">
+@if (!items.Any())
+{
+    <p class="muted">No players are currently transfer listed. Check back after advancing a few days.</p>
+}
+else
+{
+    <div class="table-wrap">
+        <table class="data">
                 <thead>
                     <tr><th>Pos</th><th>Name</th><th>Club</th><th class="num">Rating</th><th class="num">Value</th><th class="num">Asking Price</th><th></th></tr>
                 </thead>
@@ -71,8 +73,7 @@
                 </tbody>
             </table>
         </div>
-    }
-</div>
+}
 
 @code {
     private string? _message;

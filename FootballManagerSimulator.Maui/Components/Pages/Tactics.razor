@@ -52,19 +52,7 @@
             {
                 @SlotRow(slot)
             }
-        </tbody>
-    </table>
-
-    <h2 style="margin-top:1.4rem">Substitutes</h2>
-    <table class="data">
-        <tbody>
             @foreach (var slot in subs) { @SlotRow(slot) }
-        </tbody>
-    </table>
-
-    <h2 style="margin-top:1.4rem">Reserves <span class="panel-title-sub">@reserves.Count players</span></h2>
-    <table class="data">
-        <tbody>
             @foreach (var slot in reserves) { @SlotRow(slot) }
         </tbody>
     </table>
@@ -105,13 +93,22 @@
     private static (double x, double y) PitchPosition(List<TacticSlotModel> starters, int index)
     {
         var line = LineOf(starters[index].TacticSlotType);
-        var sameLine = starters.Select((s, i) => (s, i)).Where(t => LineOf(t.s.TacticSlotType) == line).ToList();
+        var sameLine = starters.Select((s, i) => (s, i)).Where(t => LineOf(t.s.TacticSlotType) == line)
+            .OrderBy(t => SideOrder(t.s.TacticSlotType)).ToList();
         var posInLine = sameLine.FindIndex(t => t.i == index);
         var count = sameLine.Count;
-        var x = count == 1 ? 50.0 : 15.0 + posInLine * (70.0 / (count - 1));
+        var spread = count >= 4 ? 70.0 : count == 3 ? 50.0 : 30.0;
+        var x = count == 1 ? 50.0 : (50.0 - spread / 2) + posInLine * (spread / (count - 1));
         var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
         return (x, y);
     }
+
+    private static int SideOrder(TacticSlotType type) => type switch
+    {
+        TacticSlotType.LB or TacticSlotType.LM or TacticSlotType.LW or TacticSlotType.LF or TacticSlotType.LS => 0,
+        TacticSlotType.RB or TacticSlotType.RM or TacticSlotType.RW => 2,
+        _ => 1
+    };
 
     private static int LineOf(TacticSlotType type) => type switch
     {

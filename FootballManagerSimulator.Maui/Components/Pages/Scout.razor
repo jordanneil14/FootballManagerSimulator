@@ -10,8 +10,8 @@
 </div>
 
 <div class="panel">
-    <h2 class="clickable" style="cursor:pointer;user-select:none" @onclick="() => _filtersOpen = !_filtersOpen">
-        @(_filtersOpen ? "▾" : "▸") Filters
+    <h2 class="clickable" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" @onclick="() => _filtersOpen = !_filtersOpen">
+        Filters <span>@(_filtersOpen ? "▾" : "▸")</span>
     </h2>
     @if (_filtersOpen)
     {
@@ -39,36 +39,34 @@
     var pagePlayers = all.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
 }
 
-<div class="panel panel-fill">
-    <div class="table-wrap">
-        <table class="data">
-            <thead>
-                <tr><th>Pos</th><th>Name</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
-            </thead>
-            <tbody>
-                @foreach (var player in pagePlayers)
-                {
-                    <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
-                        <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
-                        <td><strong>@player.Name</strong></td>
-                        <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
-                        <td>@(player.Contract?.ClubName ?? "Free Agent")</td>
-                        <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
-                    </tr>
-                }
-                @if (!pagePlayers.Any())
-                {
-                    <tr><td colspan="5" class="center muted">No players match your filters.</td></tr>
-                }
-            </tbody>
-        </table>
-    </div>
+<div class="table-wrap">
+    <table class="data">
+        <thead>
+            <tr><th>Pos</th><th>Name</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var player in pagePlayers)
+            {
+                <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
+                    <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
+                    <td><strong>@player.Name</strong></td>
+                    <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
+                    <td>@(player.Contract?.ClubName ?? "Free Agent")</td>
+                    <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
+                </tr>
+            }
+            @if (!pagePlayers.Any())
+            {
+                <tr><td colspan="5" class="center muted">No players match your filters.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
 
-    <div class="pager">
-        <button class="btn" @onclick="() => _page--" disabled="@(_page <= 1)">← Prev</button>
-        <span>Page @_page / @pageCount</span>
-        <button class="btn" @onclick="() => _page++" disabled="@(_page >= pageCount)">Next →</button>
-    </div>
+<div class="pager">
+    <button class="btn" @onclick="() => _page--" disabled="@(_page <= 1)">← Prev</button>
+    <span>Page @_page / @pageCount</span>
+    <button class="btn" @onclick="() => _page++" disabled="@(_page >= pageCount)">Next →</button>
 </div>
 
 @code {
