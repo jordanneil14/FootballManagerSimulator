@@ -40,37 +40,164 @@ else
         </div>
     </div>
 
-    <div>
-        <div class="scoreboard" style="margin-bottom:0">
-            <div class="teams">
-                <div class="team-name">@_fixture.HomeClub.Name</div>
-                <div class="score">@_displayedHomeGoals&nbsp;-&nbsp;@_displayedAwayGoals</div>
-                <div class="team-name">@_fixture.AwayClub.Name</div>
+    <div class="scoreboard">
+        <div class="teams">
+            <div class="team-name">@_fixture.HomeClub.Name</div>
+            <div class="score">@_displayedHomeGoals&nbsp;-&nbsp;@_displayedAwayGoals</div>
+            <div class="team-name">@_fixture.AwayClub.Name</div>
+        </div>
+        <div class="minute">@PhaseCaption()</div>
+        @if (_eventFeed.Any())
+        {
+            var latest = _eventFeed[^1];
+            <div class="event-row @latest.CssClass" style="font-size:.82rem;margin-top:.6rem;justify-content:center">
+                <span class="event-icon">@latest.Icon</span>
+                <span class="event-text">@latest.Description</span>
             </div>
-            <div class="minute">@PhaseCaption()</div>
+        }
+    </div>
 
-            @if (_eventFeed.Any())
-            {
-                <div class="event-feed" style="margin-top:1rem">
-                    @foreach (var evt in _eventFeed.AsEnumerable().Reverse())
+    <div class="tab-bar">
+        <button class="tab-btn @(_tab == 0 ? "active" : "")" @onclick="() => _tab = 0">Match Events</button>
+        <button class="tab-btn @(_tab == 1 ? "active" : "")" @onclick="() => _tab = 1">Lineups</button>
+        <button class="tab-btn @(_tab == 2 ? "active" : "")" @onclick="() => _tab = 2">Tactics</button>
+        <button class="tab-btn @(_tab == 3 ? "active" : "")" @onclick="() => _tab = 3">Live Scores</button>
+        <button class="tab-btn @(_tab == 4 ? "active" : "")" @onclick="() => _tab = 4">Formations</button>
+    </div>
+
+    @if (_tab == 0)
+    {
+        @if (_eventFeed.Any())
+        {
+            <div class="event-feed">
+                @foreach (var evt in _eventFeed.AsEnumerable().Reverse())
+                {
+                    <div class="event-row @evt.CssClass">
+                        <span class="event-minute">@evt.Minute'</span>
+                        <span class="event-icon">@evt.Icon</span>
+                        <span class="event-text">@evt.Description</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="muted">No events yet.</p>
+        }
+    }
+    else if (_tab == 1)
+    {
+        <div class="panel">
+            <h2>Lineups</h2>
+            <MatchLineups Fixture="_fixture" ShowScorers="true" ShowMinutes="false" ShowTeamNames="false" LiveMinute="_currentMinute" />
+        </div>
+    }
+    else if (_tab == 2)
+    {
+        <div class="panel">
+            <h2>Formation</h2>
+            <div class="page-actions" style="margin-bottom:1rem">
+                @foreach (var f in new[] { "4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2" })
+                {
+                    <button class="btn @(Engine.MyClub.Formation == f ? "btn-primary" : "")" @onclick="() => Engine.ChangeFormation(f)">@f</button>
+                }
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Squad</h2>
+            @{
+                var slots = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.RES).ToList();
+            }
+            <table class="data">
+                <tbody>
+                    @foreach (var slot in slots)
                     {
-                        <div class="event-row @evt.CssClass">
-                            <span class="event-minute">@evt.Minute'</span>
-                            <span class="event-icon">@evt.Icon</span>
-                            <span class="event-text">@evt.Description</span>
+                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                        <tr>
+                            <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
+                            <td>@(player?.Name ?? "— empty —")</td>
+                            <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else if (_tab == 3)
+    {
+        var otherFixtures = Engine.TodaysFixtures()
+            .Where(f => f != _fixture)
+            .ToList();
+        if (!otherFixtures.Any())
+        {
+            <p class="muted">No other matches in progress today.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data">
+                    <tbody>
+                        @foreach (var f in otherFixtures)
+                        {
+                            var liveHome = f.HomeScorers.Count(g => g.Minute <= _currentMinute);
+                            var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
+                            <tr>
+                                <td style="text-align:right">@f.HomeClub.Name</td>
+                                <td class="num" style="width:60px;text-align:center;font-weight:800">@liveHome - @liveAway</td>
+                                <td>@f.AwayClub.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+    else if (_tab == 4)
+    {
+        var homeClub = Engine.GetClub(_fixture.HomeClub.Id);
+        var awayClub = Engine.GetClub(_fixture.AwayClub.Id);
+
+        <div class="panel">
+            <h2>@_fixture.HomeClub.Name</h2>
+            @if (homeClub != null)
+            {
+                var homeStarters = homeClub.TacticSlots.Take(11).ToList();
+                <div class="pitch">
+                    @for (var i = 0; i < homeStarters.Count; i++)
+                    {
+                        var slot = homeStarters[i];
+                        var (x, y) = PitchPosition(homeStarters, i);
+                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                        <div class="pitch-player" style="left:@(x)%;top:@(y)%">
+                            <div class="dot">@slot.TacticSlotType</div>
+                            <div class="pname">@(player != null ? Surname(player.Name) : "—")</div>
                         </div>
                     }
                 </div>
             }
         </div>
 
-        
-    </div>
-
-    <div class="panel" style="margin-top:1rem">
-        <h2>Lineups</h2>
-        <MatchLineups Fixture="_fixture" ShowScorers="true" ShowMinutes="false" ShowTeamNames="false" LiveMinute="_currentMinute" />
-    </div>
+        <div class="panel">
+            <h2>@_fixture.AwayClub.Name</h2>
+            @if (awayClub != null)
+            {
+                var awayStarters = awayClub.TacticSlots.Take(11).ToList();
+                <div class="pitch">
+                    @for (var i = 0; i < awayStarters.Count; i++)
+                    {
+                        var slot = awayStarters[i];
+                        var (x, y) = PitchPosition(awayStarters, i);
+                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                        <div class="pitch-player" style="left:@(x)%;top:@(y)%">
+                            <div class="dot">@slot.TacticSlotType</div>
+                            <div class="pname">@(player != null ? Surname(player.Name) : "—")</div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
 }
 
 @code {
@@ -78,6 +205,7 @@ else
 
     private record MatchEvent(int Minute, string Icon, string Description, string CssClass);
 
+    private int _tab;
     private FixtureModel? _fixture;
     private ICompetition? _competition;
     private Timer? _timer;
@@ -284,6 +412,42 @@ else
         MatchPhase.PenaltiesBreak => "Penalties",
         MatchPhase.Concluded => "Full Time",
         _ => ""
+    };
+
+    private static string Surname(string name)
+    {
+        var parts = name.Split(' ');
+        return parts.Length > 1 ? parts[^1] : name;
+    }
+
+    private static (double x, double y) PitchPosition(List<TacticSlotModel> starters, int index)
+    {
+        var line = LineOf(starters[index].TacticSlotType);
+        var sameLine = starters.Select((s, i) => (s, i)).Where(t => LineOf(t.s.TacticSlotType) == line)
+            .OrderBy(t => SideOrder(t.s.TacticSlotType)).ToList();
+        var posInLine = sameLine.FindIndex(t => t.i == index);
+        var count = sameLine.Count;
+        var spread = count >= 4 ? 70.0 : count == 3 ? 50.0 : 30.0;
+        var x = count == 1 ? 50.0 : (50.0 - spread / 2) + posInLine * (spread / (count - 1));
+        var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
+        return (x, y);
+    }
+
+    private static int SideOrder(TacticSlotType type) => type switch
+    {
+        TacticSlotType.LB or TacticSlotType.LM or TacticSlotType.LW or TacticSlotType.LF or TacticSlotType.LS => 0,
+        TacticSlotType.RB or TacticSlotType.RM or TacticSlotType.RW => 2,
+        _ => 1
+    };
+
+    private static int LineOf(TacticSlotType type) => type switch
+    {
+        TacticSlotType.GK => 0,
+        TacticSlotType.RB or TacticSlotType.LB or TacticSlotType.CB => 1,
+        TacticSlotType.CDM => 2,
+        TacticSlotType.RM or TacticSlotType.LM or TacticSlotType.CM => 3,
+        TacticSlotType.CAM => 4,
+        _ => 5
     };
 
     public void Dispose()

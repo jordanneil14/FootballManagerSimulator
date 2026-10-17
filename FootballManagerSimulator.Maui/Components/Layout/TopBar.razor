@@ -3,7 +3,7 @@
 
 <header class="topbar">
     <div class="topbar-club">
-        <span class="crest" style="@CrestStyle(Engine.MyClub.Colour)">@Initials(Engine.MyClub.Name)</span>
+        <span class="crest" style="@CrestStyle(Engine.MyClub.Colour)">🛡️</span>
         <div>
             <div class="topbar-club-name">@Engine.MyClub.Name</div>
             <div class="topbar-manager">@Engine.State.ManagerName</div>
@@ -88,23 +88,18 @@
         }
 
         var hexes = parts.Select(p => ToHex(p)).ToArray();
-        var stripeSize = 100.0 / (hexes.Length * 2);
+        var stripeWidth = 6;
         var stops = new List<string>();
         for (var i = 0; i < hexes.Length; i++)
         {
-            var start = i * stripeSize * 2;
-            var end = start + stripeSize;
-            stops.Add($"{hexes[i]} {start:F0}%");
-            stops.Add($"{hexes[i]} {end:F0}%");
-            if (i < hexes.Length - 1)
-            {
-                stops.Add($"{hexes[i + 1]} {end:F0}%");
-            }
+            var start = i * stripeWidth;
+            var end = (i + 1) * stripeWidth;
+            stops.Add($"{hexes[i]} {start}px");
+            stops.Add($"{hexes[i]} {end}px");
         }
-        stops.Add($"{hexes[^1]} 100%");
 
         var primaryHex = hexes[0];
         var textCol2 = IsLight(primaryHex) ? "#111" : "#fff";
-        return $"background:repeating-linear-gradient(135deg,{string.Join(",", stops)});color:{textCol2};text-shadow:0 1px 2px rgba(0,0,0,0.5)";
+        return $"background:repeating-linear-gradient(90deg,{string.Join(",", stops)});color:{textCol2};text-shadow:0 1px 2px rgba(0,0,0,0.5)";
     }
 }
