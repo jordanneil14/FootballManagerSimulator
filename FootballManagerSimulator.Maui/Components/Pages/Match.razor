@@ -33,41 +33,43 @@ else
             }
             else
             {
-                <button class="btn btn-secondary btn-lg" @onclick="TogglePause">
+                <button class="btn btn-primary btn-lg" @onclick="TogglePause">
                     @(_isPaused ? "Resume ▶" : "Pause ⏸")
                 </button>
             }
         </div>
     </div>
 
-    <div class="scoreboard">
-        <div class="teams">
-            <div class="team-name">@_fixture.HomeClub.Name</div>
-            <div class="score">@_displayedHomeGoals&nbsp;-&nbsp;@_displayedAwayGoals</div>
-            <div class="team-name">@_fixture.AwayClub.Name</div>
+    <div>
+        <div class="scoreboard" style="margin-bottom:0">
+            <div class="teams">
+                <div class="team-name">@_fixture.HomeClub.Name</div>
+                <div class="score">@_displayedHomeGoals&nbsp;-&nbsp;@_displayedAwayGoals</div>
+                <div class="team-name">@_fixture.AwayClub.Name</div>
+            </div>
+            <div class="minute">@PhaseCaption()</div>
+
+            @if (_eventFeed.Any())
+            {
+                <div class="event-feed" style="margin-top:1rem">
+                    @foreach (var evt in _eventFeed.AsEnumerable().Reverse())
+                    {
+                        <div class="event-row @evt.CssClass">
+                            <span class="event-minute">@evt.Minute'</span>
+                            <span class="event-icon">@evt.Icon</span>
+                            <span class="event-text">@evt.Description</span>
+                        </div>
+                    }
+                </div>
+            }
         </div>
-        <div class="minute">@PhaseCaption()</div>
+
+        
     </div>
 
-    @if (_eventFeed.Any())
-    {
-        <div class="panel" style="margin-bottom: 1rem;">
-            <h3>Match Events</h3>
-            <div class="event-feed">
-                @foreach (var evt in _eventFeed.AsEnumerable().Reverse())
-                {
-                    <div class="event-row @evt.CssClass">
-                        <span class="event-minute">@evt.Minute'</span>
-                        <span class="event-icon">@evt.Icon</span>
-                        <span class="event-text">@evt.Description</span>
-                    </div>
-                }
-            </div>
-        </div>
-    }
-
-    <div class="panel">
-        <MatchLineups Fixture="_fixture" ShowScorers="true" LiveMinute="_currentMinute" />
+    <div class="panel" style="margin-top:1rem">
+        <h2>Lineups</h2>
+        <MatchLineups Fixture="_fixture" ShowScorers="true" ShowMinutes="false" ShowTeamNames="false" LiveMinute="_currentMinute" />
     </div>
 }
 

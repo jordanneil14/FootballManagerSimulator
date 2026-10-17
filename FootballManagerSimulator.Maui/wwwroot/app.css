@@ -344,7 +344,6 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .lineup-row .scorer { color: var(--accent); font-size: .82rem; }
 .lineup-sep { border-top: 1px dashed var(--border); margin: .5rem 0; }
 .lineup-row.empty { color: var(--text-faint); font-style: italic; }
-@media (max-width: 800px) { .lineups { grid-template-columns: 1fr; } }
 
 /* ---------- Pitch (formation) ---------- */
 .pitch {
