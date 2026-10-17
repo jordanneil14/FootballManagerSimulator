@@ -97,24 +97,29 @@ else
         <div class="panel">
             <h2>Formation</h2>
             <div class="page-actions" style="margin-bottom:1rem">
-                @foreach (var f in new[] { "4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2" })
+                @foreach (var f in new[] { "4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "3-4-3", "3-4-1-2", "5-2-1-2", "5-4-1", "5-3-2" })
                 {
-                    <button class="btn @(Engine.MyClub.Formation == f ? "btn-primary" : "")" @onclick="() => Engine.ChangeFormation(f)">@f</button>
+                    <button class="btn @(Engine.MyClub.Formation == f ? "btn-primary" : "")"
+                            disabled="@(!_isPaused)"
+                            @onclick="() => { Engine.ChangeFormation(f); OnLineupChanged(); }">@f</button>
                 }
             </div>
         </div>
 
         <div class="panel">
-            <h2>Squad</h2>
+            <h2>Squad @(_isPaused ? "(tap to swap)" : "")</h2>
             @{
                 var slots = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.RES).ToList();
             }
             <table class="data">
                 <tbody>
-                    @foreach (var slot in slots)
+                    @for (var i = 0; i < slots.Count; i++)
                     {
+                        var idx = Engine.MyClub.TacticSlots.IndexOf(slots[i]);
+                        var slot = slots[i];
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        <tr>
+                        <tr class="@(_isPaused ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
+                            @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
                             <td>@(player?.Name ?? "— empty —")</td>
                             <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
@@ -219,6 +224,7 @@ else
     private int _revealedAwayGoals;
     private int _revealedHomeCards;
     private int _revealedAwayCards;
+    private int? _selectedSlot;
 
     protected override void OnInitialized()
     {
@@ -399,6 +405,30 @@ else
     private void TogglePause()
     {
         _isPaused = !_isPaused;
+        if (!_isPaused) _selectedSlot = null;
+    }
+
+    private void OnSlotClick(int index)
+    {
+        if (!_isPaused) return;
+        if (_selectedSlot == null) { _selectedSlot = index; return; }
+        if (_selectedSlot == index) { _selectedSlot = null; return; }
+        Engine.SwapTacticSlots(_selectedSlot.Value, index);
+        _selectedSlot = null;
+        OnLineupChanged();
+    }
+
+    private void OnLineupChanged()
+    {
+        if (_fixture == null) return;
+        Engine.MatchSimulator.ReGenerateFromMinute(_fixture, _currentMinute);
+
+        _revealedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
+        _revealedAwayGoals = _fixture.AwayScorers.Count(g => g.Minute <= _currentMinute);
+        _revealedHomeCards = _fixture.HomeCards.Count(c => c.Minute <= _currentMinute);
+        _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
+
+        _eventFeed.RemoveAll(e => e.Minute > _currentMinute);
     }
 
     private string PhaseCaption() => _phase switch

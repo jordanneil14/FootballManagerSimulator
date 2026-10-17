@@ -18,7 +18,7 @@ public class LeaguePlayoffEvent(
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
-    private readonly int CompetitionId = competitionId;
+    public int CompetitionId { get; } = competitionId;
 
     public override void Execute()
     {

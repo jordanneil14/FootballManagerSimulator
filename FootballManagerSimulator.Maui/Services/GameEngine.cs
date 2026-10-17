@@ -502,11 +502,15 @@ public class GameEngine(
             State.Events.Clear();
             foreach (var @event in deserialised.Events)
             {
+                var args = new List<object> { @event.TriggerDate, @event.IsCompleted };
+                var compIdProp = @event.GetType().GetProperty("CompetitionId");
+                if (compIdProp != null)
+                    args.Add((int)compIdProp.GetValue(@event)!);
+
                 var gameEvent = (IEvent)ActivatorUtilities.CreateInstance(
                     serviceProvider,
                     @event.GetType(),
-                    @event.TriggerDate,
-                    @event.IsCompleted);
+                    args.ToArray());
                 eventManager.ValidateAndAddEvent(gameEvent);
             }
 

@@ -13,7 +13,7 @@ public class LeaguePlayoffFinalEvent(
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
-    private readonly int CompetitionId = competitionId;
+    public int CompetitionId { get; } = competitionId;
 
     public override void Execute()
     {

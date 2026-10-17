@@ -5,7 +5,7 @@
 <PageTitle>Load Game</PageTitle>
 
 <div class="menu-card wide">
-    <div class="brand"><h1>Load Game</h1><p>Saved games are read from your desktop.</p></div>
+    <div class="brand"><h1>Load Game</h1></div>
 
     @if (_error != null)
     {
@@ -21,13 +21,13 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>File</th><th>Club</th><th>Manager</th><th>Last Saved</th><th></th></tr>
+                    <tr><th>Name</th><th>Club</th><th>Manager Name</th><th>Last Saved</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach (var save in _saves)
                     {
                         <tr class="clickable" @onclick="() => LoadSave(save.FileName)">
-                            <td><strong>@save.FileName</strong></td>
+                            <td><strong>@(save.FileName.Replace(".fms", ""))</strong></td>
                             <td>@save.ClubName</td>
                             <td>@save.ManagerName</td>
                             <td class="muted">@save.SaveDate.ToString("dd MMM yyyy HH:mm")</td>
@@ -39,8 +39,6 @@
         </div>
     }
 
-    <div class="divider"></div>
-    <button class="btn btn-ghost" @onclick="@(() => Nav.NavigateTo("/"))">← Back to menu</button>
 </div>
 
 @code {
