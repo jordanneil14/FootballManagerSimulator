@@ -30,11 +30,17 @@ public class EnglishCommunityShieldProvider(
         var clubIds = competition.DrawSettings.First().IntroducedClubIds;
         var clubs = State.Clubs.Where(p => clubIds.Contains(p.Id)).ToList();
 
+        var premierLeague = State.Competitions.First(p => p.Id == 1);
+        var firstLeagueFixtureDate = premierLeague.Fixtures.Min(f => f.Date);
+        var shieldDate = firstLeagueFixtureDate.AddDays(-7);
+        var daysSinceSaturday = ((int)shieldDate.DayOfWeek - (int)DayOfWeek.Saturday + 7) % 7;
+        shieldDate = shieldDate.AddDays(-daysSinceSaturday);
+
         var drawSettings = new DrawSettingsModel
         {
             Round = 1,
             DrawDate = State.Date.AddDays(-1),
-            FixtureDate = new DateOnly(State.Date.Year, 8, 13),
+            FixtureDate = shieldDate,
             IntroducedClubIds = clubIds
         };
 

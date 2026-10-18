@@ -2,28 +2,21 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Results</PageTitle>
 
 <div class="page-head">
-    <div><h1>Today's Results</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
-    <div class="page-actions">
-        <button class="btn btn-primary btn-lg" @onclick="@(() => Nav.NavigateTo("/game"))">Continue ⏩</button>
-    </div>
+    <div><h1>Today's Results <button class="btn btn-primary" style="margin-left:.6rem;vertical-align:middle" @onclick="@(() => Nav.NavigateTo("/game"))">Continue ⏩</button></h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
 </div>
 
-@{
-    var myCompetitions = Engine.State.Competitions
-        .Where(c => c.Clubs.Any(cl => cl.Id == Engine.MyClub.Id));
-}
-
-@foreach (var competition in myCompetitions)
+@foreach (var competition in Engine.State.Competitions)
 {
     var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
     if (!fixtures.Any()) continue;
 
     <div class="panel">
-        <h2>@competition.Name <span class="panel-title-sub">Round @fixtures.First().Round</span></h2>
+        <h2>@CompetitionHeading(competition) <span class="panel-title-sub">Round @fixtures.First().Round</span></h2>
         <table class="data fixture-table">
             <tbody>
                 @foreach (var f in fixtures)
@@ -51,6 +44,16 @@
 }
 
 @code {
+    private SettingsModel Settings => SettingsOptions.Value;
+
+    private string CompetitionHeading(ICompetition competition)
+    {
+        var config = Settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
+        if (config == null || config.CountryId == 0) return competition.Name;
+        var country = Settings.Countries.FirstOrDefault(p => p.Id == config.CountryId);
+        return country != null ? $"{country.Name} - {competition.Name}" : competition.Name;
+    }
+
     private MarkupString Scorers(List<GoalModel> scorers)
     {
         if (!scorers.Any()) return new MarkupString("");

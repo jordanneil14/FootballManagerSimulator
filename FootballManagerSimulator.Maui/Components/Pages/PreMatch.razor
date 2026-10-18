@@ -30,9 +30,16 @@ else
 
     <div class="scoreboard">
         <div class="teams">
-            <div class="team-name">@fixture.HomeClub.Name</div>
-            <div class="score muted">vs</div>
-            <div class="team-name">@fixture.AwayClub.Name</div>
+            <div class="team-row">
+                <span class="crest" style="@CrestStyle(fixture.HomeClub.Colour)">🛡️</span>
+                <div class="team-name" style="flex:1">@fixture.HomeClub.Name</div>
+                <div class="score">0</div>
+            </div>
+            <div class="team-row">
+                <span class="crest" style="@CrestStyle(fixture.AwayClub.Colour)">🛡️</span>
+                <div class="team-name" style="flex:1">@fixture.AwayClub.Name</div>
+                <div class="score">0</div>
+            </div>
         </div>
         <div class="minute">Kick-off @fixture.KickOffTime.ToString("HH:mm")</div>
     </div>
@@ -51,5 +58,46 @@ else
         _error = Engine.StartMatch();
         if (_error == null)
             Nav.NavigateTo("/match");
+    }
+
+    private static readonly Dictionary<string, string> ColourMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["Red"] = "#d32f2f", ["Blue"] = "#1565c0", ["White"] = "#e8e8e8", ["Black"] = "#1a1a1a",
+        ["Yellow"] = "#f9a825", ["Green"] = "#2e7d32", ["Navy"] = "#1a237e", ["Sky Blue"] = "#4fc3f7",
+        ["Light Blue"] = "#4fc3f7", ["Claret"] = "#7b1f3a", ["Maroon"] = "#7b1f3a", ["Amber"] = "#ff8f00",
+        ["Gold"] = "#ffc107", ["Orange"] = "#e65100", ["Tangerine"] = "#ff6d00", ["Purple"] = "#7b1fa2",
+    };
+
+    private static string ToHex(string name) =>
+        ColourMap.TryGetValue(name.Trim(), out var hex) ? hex : "#15c47e";
+
+    private static bool IsLight(string hex)
+    {
+        var r = Convert.ToInt32(hex[1..3], 16);
+        var g = Convert.ToInt32(hex[3..5], 16);
+        var b = Convert.ToInt32(hex[5..7], 16);
+        return (0.299 * r + 0.587 * g + 0.114 * b) > 160;
+    }
+
+    private static string CrestStyle(string colour)
+    {
+        if (string.IsNullOrWhiteSpace(colour)) return "";
+        var parts = colour.Split('/');
+        if (parts.Length == 1)
+        {
+            var hex = ToHex(parts[0]);
+            var textCol = IsLight(hex) ? "#111" : "#fff";
+            return $"background:{hex};color:{textCol}";
+        }
+        var hexes = parts.Select(p => ToHex(p)).ToArray();
+        var stripeWidth = 6;
+        var stops = new List<string>();
+        for (var i = 0; i < hexes.Length; i++)
+        {
+            stops.Add($"{hexes[i]} {i * stripeWidth}px");
+            stops.Add($"{hexes[i]} {(i + 1) * stripeWidth}px");
+        }
+        var textCol2 = IsLight(hexes[0]) ? "#111" : "#fff";
+        return $"background:repeating-linear-gradient(90deg,{string.Join(",", stops)});color:{textCol2};text-shadow:0 1px 2px rgba(0,0,0,0.5)";
     }
 }

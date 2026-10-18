@@ -1,17 +1,16 @@
 @page "/fixtures"
 @layout GameLayout
 @inject GameEngine Engine
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Fixtures &amp; Results</PageTitle>
 
-<div class="page-head"><div><h1>Fixtures &amp; Results</h1><div class="subtitle">@Engine.MyClub.Name's season</div></div></div>
+<div class="page-head"><div><h1>Fixtures &amp; Results</h1></div></div>
 
 @{
-    var myCompetitions = Engine.State.Competitions
-        .Where(c => c.Clubs.Any(cl => cl.Id == Engine.MyClub.Id))
-        .ToList();
+    var allCompetitions = Engine.State.Competitions.ToList();
 
-    var allDates = myCompetitions
+    var allDates = allCompetitions
         .SelectMany(c => c.Fixtures)
         .Select(f => f.Date)
         .Distinct()
@@ -46,7 +45,7 @@
 
 @foreach (var date in dates)
 {
-    var blocks = myCompetitions
+    var blocks = allCompetitions
         .Select(c => (competition: c, fixtures: c.Fixtures.Where(f => f.Date == date).ToList()))
         .Where(x => x.fixtures.Any())
         .ToList();
@@ -54,7 +53,7 @@
     foreach (var block in blocks)
     {
         <div class="panel">
-            <h2>@block.competition.Name
+            <h2>@CompetitionHeading(block.competition)
                 <span class="panel-title-sub">Round @block.fixtures.First().Round · @date.ToString("dddd, dd MMM yyyy")</span>
             </h2>
             <table class="data fixture-table">
@@ -97,6 +96,7 @@
 }
 
 @code {
+    private SettingsModel Settings => SettingsOptions.Value;
     private DateOnly _selectedMonth;
 
     private void OnMonthChanged(ChangeEventArgs e)
@@ -116,5 +116,13 @@
                 return $"{name} ({mins})";
             });
         return new MarkupString($"<span class='muted' style='font-size:.82rem'>{string.Join("<br/>", grouped)}</span>");
+    }
+
+    private string CompetitionHeading(ICompetition competition)
+    {
+        var config = Settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
+        if (config == null || config.CountryId == 0) return competition.Name;
+        var country = Settings.Countries.FirstOrDefault(p => p.Id == config.CountryId);
+        return country != null ? $"{country.Name} - {competition.Name}" : competition.Name;
     }
 }

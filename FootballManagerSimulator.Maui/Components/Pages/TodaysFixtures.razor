@@ -2,6 +2,7 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Today's Fixtures</PageTitle>
 
@@ -17,7 +18,18 @@
     <div class="feedback"><div class="feedback-item warn" style="white-space:pre-wrap;font-size:.8rem">@_error</div></div>
 }
 
-<p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+@{
+    var hasFixtures = Engine.State.Competitions.Any(c => c.Fixtures.Any(f => f.Date == Engine.State.Date));
+}
+
+@if (hasFixtures)
+{
+    <p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+}
+else
+{
+    <p class="muted">No fixtures scheduled today. Advance to continue.</p>
+}
 
 @foreach (var competition in Engine.State.Competitions)
 {
@@ -25,7 +37,7 @@
     if (!fixtures.Any()) continue;
 
     <div class="panel">
-        <h2>@competition.Name</h2>
+        <h2>@CompetitionHeading(competition)</h2>
         <table class="data fixture-table">
             <tbody>
                 @foreach (var f in fixtures)
@@ -43,6 +55,7 @@
 }
 
 @code {
+    private SettingsModel Settings => SettingsOptions.Value;
     private string? _error;
 
     private void Advance()
@@ -56,5 +69,13 @@
         {
             _error = $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
         }
+    }
+
+    private string CompetitionHeading(ICompetition competition)
+    {
+        var config = Settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
+        if (config == null || config.CountryId == 0) return competition.Name;
+        var country = Settings.Countries.FirstOrDefault(p => p.Id == config.CountryId);
+        return country != null ? $"{country.Name} - {competition.Name}" : competition.Name;
     }
 }

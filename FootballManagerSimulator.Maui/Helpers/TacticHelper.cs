@@ -672,49 +672,66 @@ public class TacticHelper(
     private void FillEmptySubTacticSlotsByClubId(int clubId)
     {
         var suspendedIds = GetSuspendedPlayerIds(clubId);
+        var club = State.Clubs.First(p => p.Id == clubId);
 
-        // Move the remaining players from the reserves into the SUB positions
-        var tacticSlots = State.Clubs
-            .First(p => p.Id == clubId)
-            .TacticSlots
+        var subSlots = club.TacticSlots
             .Where(p => p.TacticSlotType == TacticSlotType.SUB && p.PlayerId == null)
             .ToList();
 
-        for (var i = 0; i < tacticSlots.Count; i++)
+        if (!subSlots.Any()) return;
+
+        var assignedIds = new HashSet<int>();
+        var positionGroups = new[] { "GK", "DEF", "MID", "ATT" };
+
+        foreach (var group in positionGroups)
         {
-            var reserves = State.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value))
-                .Select(p => new
-                {
-                    TacticSlot = p,
-                    Player = PlayerHelper.GetPlayerById(p.PlayerId.Value)
-                });
+            var emptySlot = subSlots.FirstOrDefault(s => !s.PlayerId.HasValue);
+            if (emptySlot == null) break;
 
-            if (!reserves.Any())
-                return;
+            var bestPlayer = club.TacticSlots
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null
+                    && !suspendedIds.Contains(p.PlayerId.Value)
+                    && !assignedIds.Contains(p.PlayerId.Value))
+                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId.Value) })
+                .Where(p => GetPositionGroup(p.Player.PreferredPosition) == group)
+                .OrderByDescending(p => p.Player.Rating)
+                .FirstOrDefault();
 
-            int? playerId = null;
-            if (i == 0)
-                playerId = reserves?.FirstOrDefault(p => p.Player.PreferredPosition == "GK")?.Player?.Id;
+            if (bestPlayer == null) continue;
 
-            if (playerId == null)
-                playerId = reserves!.First().Player?.Id;
-
-            State.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .First(p => p.Id == tacticSlots.ElementAt(i).Id)
-                .PlayerId = playerId;
-
-            State.Clubs
-                .First(p => p.Id == clubId)
-                .TacticSlots
-                .Where(p => p.PlayerId == playerId)
-                .Skip(1)
-                .First().PlayerId = null;
+            emptySlot.PlayerId = bestPlayer.Player.Id;
+            bestPlayer.Slot.PlayerId = null;
+            assignedIds.Add(bestPlayer.Player.Id);
         }
+
+        foreach (var emptySlot in subSlots.Where(s => !s.PlayerId.HasValue).ToList())
+        {
+            var bestRemaining = club.TacticSlots
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null
+                    && !suspendedIds.Contains(p.PlayerId.Value)
+                    && !assignedIds.Contains(p.PlayerId.Value))
+                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId.Value) })
+                .OrderByDescending(p => p.Player.Rating)
+                .FirstOrDefault();
+
+            if (bestRemaining == null) break;
+
+            emptySlot.PlayerId = bestRemaining.Player.Id;
+            bestRemaining.Slot.PlayerId = null;
+            assignedIds.Add(bestRemaining.Player.Id);
+        }
+    }
+
+    private static string GetPositionGroup(string position)
+    {
+        return position switch
+        {
+            "GK" => "GK",
+            "CB" or "RB" or "LB" => "DEF",
+            "CM" or "CDM" or "CAM" or "RM" or "LM" => "MID",
+            "ST" or "CF" or "RW" or "LW" or "RF" or "LF" => "ATT",
+            _ => "MID"
+        };
     }
 
     private void FillEmptyReserveSlotsByClubId(int clubId)

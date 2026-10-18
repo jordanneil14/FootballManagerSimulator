@@ -314,8 +314,15 @@ public class GameEngine(
 
     public void ChangeFormation(string formation)
     {
+        var oldPlayerIds = MyClub.TacticSlots
+            .Select(s => s.PlayerId)
+            .ToList();
+
         MyClub.Formation = formation;
         tacticHelper.ResetTacticForClub(MyClub);
+
+        for (var i = 0; i < Math.Min(oldPlayerIds.Count, MyClub.TacticSlots.Count); i++)
+            MyClub.TacticSlots[i].PlayerId = oldPlayerIds[i];
     }
 
     // ---------------------------------------------------------------------------------
