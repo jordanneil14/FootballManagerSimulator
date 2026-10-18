@@ -38,7 +38,8 @@ public class EnglishLeagueCupService(
             .Where(p => p.ClubWon != null)
             .Select(p => p.ClubWon)
             .Cast<ClubModel>();
-        var includedClubs = drawDate.IntroducedClubIds == null ? [] : cup.Clubs.Where(p => drawDate.IntroducedClubIds.Contains(p.Id));
+
+        var includedClubs = GetIntroducedClubs(cup.Round, cup);
         var nextRoundClubs = winningClubs.Concat(includedClubs);
 
         cup.Fixtures.AddRange(GenerateFixtures(nextRoundClubs, drawDate.FixtureDate, cup.Round));
@@ -63,6 +64,23 @@ public class EnglishLeagueCupService(
             });
         }
         return fixtures;
+    }
+
+    private IEnumerable<ClubModel> GetIntroducedClubs(int round, CupModel cup)
+    {
+        if (round != 2 && round != 3)
+            return [];
+
+        var premierLeague = State.Competitions
+            .OfType<LeagueModel>()
+            .First(p => p.Id == 1);
+
+        var table = premierLeague.GenerateLeagueTable().ToList();
+
+        if (round == 2)
+            return table.TakeLast(12).Select(p => p.Club).ToList();
+
+        return table.Take(8).Select(p => p.Club).ToList();
     }
 
     public void GeneratePreMatchReportForFixture(FixtureModel fixture)

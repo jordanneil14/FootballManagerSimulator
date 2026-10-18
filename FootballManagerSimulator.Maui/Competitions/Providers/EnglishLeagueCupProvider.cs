@@ -60,13 +60,12 @@ public class EnglishLeagueCupProvider(
             DrawSettings = []
         };
 
-        for(var i = 1; i <= NUMBER_OF_ROUNDS; i++)
+        for (var i = 1; i <= NUMBER_OF_ROUNDS; i++)
         {
-            var roundSettings = competition.DrawSettings.FirstOrDefault(p => p.Round == i);
             var drawSettings = new DrawSettingsModel
             {
                 Round = i,
-                IntroducedClubIds = roundSettings == null ? [] : roundSettings.IntroducedClubIds,
+                IntroducedClubIds = [],
                 FixtureDate = GetFixtureDateForRound(i)
             };
 

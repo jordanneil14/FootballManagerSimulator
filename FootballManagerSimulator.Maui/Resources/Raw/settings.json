@@ -2042,39 +2042,7 @@
       "CountryId": 1,
       "IsLeague": false,
       "Type": "Cup",
-      "Name": "English Leagues Cup",
-      "DrawSettings": [
-        {
-          "Round": 2,
-          "IntroducedClubIds": [
-            1,
-            7,
-            9,
-            10,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20
-          ]
-        },
-        {
-          "Round": 3,
-          "IntroducedClubIds": [
-            12,
-            5,
-            2,
-            3,
-            6,
-            8,
-            11,
-            4
-          ]
-        }
-      ]
+      "Name": "English Leagues Cup"
     },
     {
       "Id": 9,
