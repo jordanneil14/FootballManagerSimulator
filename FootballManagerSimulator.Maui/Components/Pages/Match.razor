@@ -13,7 +13,7 @@
 else
 {
     <div class="page-head">
-        <div><h1>Live Match</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+        <div><h1>Live Match</h1><div class="subtitle">@(_competition?.Name ?? Engine.State.DateFriendly)</div></div>
         <div class="page-actions">
             @if (_phase == MatchPhase.HalfTime)
             {
@@ -140,22 +140,34 @@ else
         }
         else
         {
-            <div class="table-wrap">
-                <table class="data">
-                    <tbody>
-                        @foreach (var f in otherFixtures)
-                        {
-                            var liveHome = f.HomeScorers.Count(g => g.Minute <= _currentMinute);
-                            var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
-                            <tr>
-                                <td style="text-align:right">@f.HomeClub.Name</td>
-                                <td class="num" style="width:60px;text-align:center;font-weight:800">@liveHome - @liveAway</td>
-                                <td>@f.AwayClub.Name</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+            var grouped = otherFixtures
+                .Select(f => new { Fixture = f, Competition = Engine.GetCompetitionForFixture(f) })
+                .GroupBy(x => x.Competition?.Name ?? "Other")
+                .OrderBy(g => g.Key);
+
+            @foreach (var group in grouped)
+            {
+                <div class="panel">
+                    <h2>@group.Key</h2>
+                    <div class="table-wrap">
+                        <table class="data">
+                            <tbody>
+                                @foreach (var item in group)
+                                {
+                                    var f = item.Fixture;
+                                    var liveHome = f.HomeScorers.Count(g => g.Minute <= _currentMinute);
+                                    var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
+                                    <tr>
+                                        <td style="text-align:right">@f.HomeClub.Name</td>
+                                        <td class="num" style="width:60px;text-align:center;font-weight:800">@liveHome - @liveAway</td>
+                                        <td>@f.AwayClub.Name</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
         }
     }
     else if (_tab == 4)
@@ -181,10 +193,8 @@ else
                     }
                 </div>
             }
-        </div>
 
-        <div class="panel">
-            <h2>@_fixture.AwayClub.Name</h2>
+            <h2 style="margin-top:2rem">@_fixture.AwayClub.Name</h2>
             @if (awayClub != null)
             {
                 var awayStarters = awayClub.TacticSlots.Take(11).ToList();

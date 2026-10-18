@@ -39,6 +39,11 @@
     }
 </div>
 
+@if (_error != null)
+{
+    <div class="feedback"><div class="feedback-item warn" style="white-space:pre-wrap;font-size:.8rem">@_error</div></div>
+}
+
 @if (Engine.State.UserFeedbackUpdates.Any())
 {
     <div class="feedback">
@@ -97,12 +102,22 @@
 </div>
 
 @code {
+    private string? _error;
+
     private void Advance()
     {
+        _error = null;
         Engine.State.UserFeedbackUpdates.Clear();
-        var result = Engine.Advance();
-        if (result == GameEngine.AdvanceResult.MustPlayFixtures)
-            Nav.NavigateTo("/today");
+        try
+        {
+            var result = Engine.Advance();
+            if (result == GameEngine.AdvanceResult.MustPlayFixtures)
+                Nav.NavigateTo("/today");
+        }
+        catch (Exception ex)
+        {
+            _error = $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
+        }
     }
 
     private void NextNotification() => Engine.MarkLatestNotificationRead();

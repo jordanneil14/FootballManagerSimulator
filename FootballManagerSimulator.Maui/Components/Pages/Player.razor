@@ -42,8 +42,10 @@ else
     <div class="stat-row">
         <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
         <div class="stat"><div class="label">Age</div><div class="value">@player.Age</div></div>
+    </div>
+
+    <div class="stat-row">
         <div class="stat"><div class="label">Transfer Value</div><div class="value">@Ui.Money(Engine.GetTransferValue(player))</div></div>
-        <div class="stat"><div class="label">Preferred Foot</div><div class="value" style="font-size:1.1rem">@player.PreferredFoot</div></div>
     </div>
 
     <div class="grid grid-2">
@@ -54,6 +56,7 @@ else
                 <dt>Height</dt><dd>@player.Height</dd>
                 <dt>Weight</dt><dd>@player.Weight</dd>
                 <dt>Nationality</dt><dd>@player.Nationality</dd>
+                <dt>Preferred Foot</dt><dd>@player.PreferredFoot</dd>
                 <dt>Work Rate</dt><dd>@player.WorkRate</dd>
                 @if (player.Contract != null)
                 {

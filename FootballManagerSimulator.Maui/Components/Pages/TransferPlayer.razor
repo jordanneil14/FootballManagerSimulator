@@ -18,7 +18,6 @@ else
     var listed = Engine.IsPlayerTransferListed(player.Id);
     var item = Engine.GetTransferListItem(player.Id);
 
-    <a class="back-link" href="@($"/player/{player.Id}")">← Back to profile</a>
     <div class="page-head"><div><h1>@player.Name</h1><div class="subtitle">Transfer options</div></div></div>
 
     @if (!Engine.IsTransferWindowOpen)

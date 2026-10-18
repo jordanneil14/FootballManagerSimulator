@@ -68,8 +68,7 @@ public class GameFactory(
 			State.Date.AddDays(1),
 			"Scout",
 			"Players With Expired Contracts",
-			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are a\n" +
-			$"small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
+			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{
