@@ -267,7 +267,7 @@ public class MatchSimulatorHelper(
 
             var playerId = playerIds[RandomNumberHelper.Next(0, playerIds.Count)];
 
-            var isStraightRed = RandomNumberHelper.Next(1, 20) == 1;
+            var isStraightRed = RandomNumberHelper.Next(1, 12) == 1;
 
             if (isStraightRed)
             {
