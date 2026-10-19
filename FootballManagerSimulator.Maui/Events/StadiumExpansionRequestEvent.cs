@@ -25,7 +25,7 @@ public class StadiumExpansionRequestEvent(
         {
             var completionDate = State.Date.AddMonths(3);
 
-            var @event = ActivatorUtilities.CreateInstance<StadiumExpansionEvent>(ServiceProvider, completionDate);
+            var @event = ActivatorUtilities.CreateInstance<StadiumExpansionEvent>(ServiceProvider, completionDate, false);
             EventManager.ValidateAndAddEvent(@event);
 
             NotificationFactory.AddNotification(
@@ -48,8 +48,9 @@ public class StadiumExpansionRequestEvent(
 
     public override (bool success, string errorMessage) ValidateAdd()
     {
+        var recentRequest = State.Events.OfType<StadiumExpansionRequestEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3));
         return (
-            State.Events.OfType<StadiumExpansionRequestEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3)),
+            !recentRequest,
             "You must wait at least 3 months before re-requesting a stadium expansion");
     }
 }

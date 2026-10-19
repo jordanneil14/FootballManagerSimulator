@@ -405,15 +405,19 @@ public class GameEngine(
 
     public string RequestHigherTransferBudget()
     {
-        var request = ActivatorUtilities.CreateInstance<IncreaseTransferBudgetRequestEvent>(serviceProvider, State.Date.AddDays(2));
-        eventManager.ValidateAndAddEvent(request);
+        var request = ActivatorUtilities.CreateInstance<IncreaseTransferBudgetRequestEvent>(serviceProvider, State.Date.AddDays(2), false);
+        var (success, errorMessage) = request.ValidateAdd();
+        if (!success) return errorMessage;
+        State.Events.Add(request);
         return "Transfer budget request has been submitted.";
     }
 
     public string RequestStadiumExpansion()
     {
-        var request = ActivatorUtilities.CreateInstance<StadiumExpansionRequestEvent>(serviceProvider, State.Date.AddDays(2));
-        eventManager.ValidateAndAddEvent(request);
+        var request = ActivatorUtilities.CreateInstance<StadiumExpansionRequestEvent>(serviceProvider, State.Date.AddDays(2), false);
+        var (success, errorMessage) = request.ValidateAdd();
+        if (!success) return errorMessage;
+        State.Events.Add(request);
         return "Stadium expansion request has been submitted.";
     }
 

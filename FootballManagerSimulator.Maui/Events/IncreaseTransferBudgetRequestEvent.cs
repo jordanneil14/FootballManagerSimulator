@@ -20,14 +20,15 @@ public class IncreaseTransferBudgetRequestEvent(
             State.Date,
             "Chairman",
             "Transfer Budget Request",
-            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n} to spend.");
+            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n0} to spend.");
 
     }
 
     public override (bool success, string errorMessage) ValidateAdd()
     {
+        var recentRequest = State.Events.OfType<IncreaseTransferBudgetRequestEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3));
         return (
-            State.Events.OfType<IncreaseTransferBudgetRequestEvent>().Any(p => p.TriggerDate > State.Date.AddMonths(-3)),
-            "You must wait at least 3 months before re-requesting a stadium expansion");
+            !recentRequest,
+            "You must wait at least 3 months before re-requesting a higher transfer budget");
     }
 }

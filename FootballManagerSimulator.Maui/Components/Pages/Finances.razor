@@ -16,6 +16,18 @@
     <div class="stat"><div class="label">Stadium Capacity</div><div class="value">@Engine.MyClub.StadiumSize.ToString("n0")</div></div>
 </div>
 
+@{
+    var expansionEvent = Engine.State.Events
+        .OfType<FootballManagerSimulator.Maui.Events.StadiumExpansionEvent>()
+        .FirstOrDefault(e => !e.IsCompleted);
+
+    var requestPending = Engine.State.Events
+        .OfType<FootballManagerSimulator.Maui.Events.StadiumExpansionRequestEvent>()
+        .Any(e => !e.IsCompleted);
+
+    var expansionInProgress = expansionEvent != null || requestPending;
+}
+
 <div class="grid grid-2">
     <div class="panel">
         <h2>💷 Transfer Budget</h2>
@@ -23,9 +35,32 @@
         <button class="btn btn-primary" @onclick="RequestBudget">Request a Higher Transfer Budget</button>
     </div>
     <div class="panel">
-        <h2>🏟️ Stadium</h2>
-        <p>Ask the board to invest in expanding <strong>@Engine.MyClub.Stadium</strong> to grow matchday revenue.</p>
-        <button class="btn btn-primary" @onclick="RequestStadium">Request Stadium Expansion</button>
+        <h2>🏟️ Stadium Expansion</h2>
+        @if (expansionEvent != null)
+        {
+            var totalDays = (double)(expansionEvent.TriggerDate.DayNumber - expansionEvent.TriggerDate.AddMonths(-3).DayNumber);
+            var elapsed = (double)(Engine.State.Date.DayNumber - expansionEvent.TriggerDate.AddMonths(-3).DayNumber);
+            var progress = Math.Clamp(elapsed / totalDays, 0, 1);
+            var daysRemaining = expansionEvent.TriggerDate.DayNumber - Engine.State.Date.DayNumber;
+
+            <p>Stadium expansion is underway at <strong>@Engine.MyClub.Stadium</strong>.</p>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" style="width:@((int)(progress * 100))%"></div>
+            </div>
+            <p style="font-size:.82rem;margin-top:.5rem">
+                <strong>@((int)(progress * 100))%</strong> complete · @daysRemaining days remaining
+                · Completion: @expansionEvent.TriggerDate.ToString("dd MMM yyyy")
+            </p>
+        }
+        else if (requestPending)
+        {
+            <p>Your stadium expansion request is being reviewed by the board.</p>
+        }
+        else
+        {
+            <p>Ask the board to invest in expanding <strong>@Engine.MyClub.Stadium</strong> to grow matchday revenue.</p>
+            <button class="btn btn-primary" @onclick="RequestStadium">Request Stadium Expansion</button>
+        }
     </div>
 </div>
 
