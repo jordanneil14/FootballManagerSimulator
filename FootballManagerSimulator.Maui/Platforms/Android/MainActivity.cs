@@ -12,8 +12,16 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnCreate(savedInstanceState);
 
-        // Android 15+ draws edge-to-edge, which puts the app under the status and navigation bars.
-        // Pad the content by the system bar (and keyboard) sizes so nothing is cut off.
+        if (Window != null)
+        {
+            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
+            Window.SetNavigationBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
+
+            var controller = WindowCompat.GetInsetsController(Window, Window.DecorView);
+            controller.AppearanceLightStatusBars = false;
+            controller.AppearanceLightNavigationBars = false;
+        }
+
         var content = Window?.DecorView.FindViewById(Android.Resource.Id.Content);
         if (content == null) return;
 
