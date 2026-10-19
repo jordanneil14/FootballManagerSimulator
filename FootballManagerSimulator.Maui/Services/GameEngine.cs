@@ -361,7 +361,7 @@ public class GameEngine(
     // Transfers
     // ---------------------------------------------------------------------------------
 
-    public string? BuyTransferListedPlayer(int playerId)
+    public string? BuyTransferListedPlayer(int playerId, int contractYears = 2)
     {
         if (!IsTransferWindowOpen)
             return "The transfer window is currently closed.";
@@ -371,7 +371,14 @@ public class GameEngine(
         if (item.AskingPrice > MyClub.TransferBudget) return "Insufficient funds to purchase this player.";
 
         transferListHelper.TransferContractedPlayerByPlayerIdAndClubId(item.PlayerId, MyClub.Id);
+
         var player = playerHelper.GetPlayerById(playerId);
+        if (player?.Contract != null)
+        {
+            var expiryYear = State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1;
+            player.Contract.ExpiryDate = new DateOnly(expiryYear, 6, 30).AddYears(contractYears - 1);
+        }
+
         return player == null ? null : $"{player.Name} has been signed.";
     }
 
@@ -392,11 +399,94 @@ public class GameEngine(
     public TransferListItemModel? GetTransferListItem(int playerId) =>
         transferListHelper.GetTransferListItemByPlayerId(playerId);
 
-    public string SignFreeAgent(int playerId)
+    public string SignFreeAgent(int playerId, int contractYears)
     {
-        transferListHelper.SignFreeAgentByPlayerId(playerId);
+        transferListHelper.SignFreeAgentByPlayerId(playerId, contractYears);
         var player = playerHelper.GetPlayerById(playerId);
         return player == null ? "Player signed." : $"{player.Name} has been signed.";
+    }
+
+    public BidResultModel SubmitBid(int playerId, int bidAmount)
+    {
+        var player = playerHelper.GetPlayerById(playerId);
+        if (player == null)
+            return new BidResultModel { Message = "Player not found." };
+
+        if (!IsTransferWindowOpen)
+            return new BidResultModel { Message = "The transfer window is currently closed." };
+
+        if (bidAmount > MyClub.TransferBudget)
+            return new BidResultModel { Message = "Insufficient transfer budget." };
+
+        var transferValue = playerHelper.GetTransferValue(player);
+        var isTransferListed = transferListHelper.IsPlayerTransferListed(playerId);
+        var minimumAcceptable = isTransferListed ? (int)(transferValue * 0.9) : (int)(transferValue * 1.3);
+        var counterAmount = isTransferListed ? (int)(transferValue * 1.0) : (int)(transferValue * 1.3);
+
+        if (bidAmount >= minimumAcceptable)
+        {
+            return new BidResultModel
+            {
+                Accepted = true,
+                Message = $"{player.Contract?.ClubName ?? "The club"} have accepted your bid of {Ui.Money(bidAmount)} for {player.Name}."
+            };
+        }
+
+        if (bidAmount >= transferValue * 0.5)
+        {
+            return new BidResultModel
+            {
+                CounterOffer = counterAmount,
+                Message = $"{player.Contract?.ClubName ?? "The club"} rejected your bid but would accept {Ui.Money(counterAmount)}."
+            };
+        }
+
+        return new BidResultModel
+        {
+            Message = $"{player.Contract?.ClubName ?? "The club"} rejected your bid outright. It was too low."
+        };
+    }
+
+    public string CompletePurchase(int playerId, int fee, int contractYears)
+    {
+        var player = playerHelper.GetPlayerById(playerId);
+        if (player?.Contract == null) return "Player not found.";
+
+        var sellingClubId = player.Contract.ClubId;
+        var sellingClub = clubHelper.GetClubById(sellingClubId);
+
+        var oldSlot = sellingClub.TacticSlots.FirstOrDefault(p => p.PlayerId == playerId);
+        if (oldSlot != null) oldSlot.PlayerId = null;
+
+        sellingClub.TransferBudget += fee;
+        MyClub.TransferBudget -= fee;
+
+        var expiryYear = State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1;
+        var expiryDate = new DateOnly(expiryYear, 6, 30).AddYears(contractYears - 1);
+
+        player.Contract = new PlayerModel.ContractModel
+        {
+            ClubId = MyClub.Id,
+            ClubName = MyClub.Name,
+            ExpiryDate = expiryDate
+        };
+
+        var takenNumbers = State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId == MyClub.Id && p.ShirtNumber.HasValue)
+            .Select(p => p.ShirtNumber!.Value)
+            .ToHashSet();
+        player.ShirtNumber = Enumerable.Range(1, 99).First(n => !takenNumbers.Contains(n));
+
+        MyClub.TacticSlots
+            .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)
+            .PlayerId = playerId;
+
+        // Remove from transfer list if present
+        if (transferListHelper.IsPlayerTransferListed(playerId))
+            transferListHelper.RemovePlayerFromTransferList(playerId);
+
+        NotifyChanged();
+        return $"{player.Name} has signed for {Ui.Money(fee)}!";
     }
 
     // ---------------------------------------------------------------------------------

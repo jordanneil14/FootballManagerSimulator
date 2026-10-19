@@ -34,10 +34,19 @@ else
             }
             else if (player.Contract == null)
             {
-                <button class="btn btn-primary" @onclick="SignFreeAgent">Sign Free Agent</button>
+                <button class="btn btn-primary" @onclick="() => _showSignModal = true">Sign Free Agent</button>
+            }
+            else if (!playsForMe)
+            {
+                <button class="btn btn-primary" @onclick="OpenBidModal">Buy Player</button>
             }
         </div>
     </div>
+
+    @if (Engine.IsPlayerTransferListed(player.Id))
+    {
+        <div class="feedback"><div class="feedback-item">This player is transfer listed for @(Engine.GetTransferListItem(player.Id)?.AskingPriceFriendly).</div></div>
+    }
 
     <div class="stat-row">
         <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
@@ -104,13 +113,144 @@ else
     </div>
 }
 
+@if (_showSignModal)
+{
+    var p = Engine.GetPlayer(Id);
+    <div class="modal-overlay" @onclick="() => _showSignModal = false">
+        <div class="modal" @onclick:stopPropagation>
+            <h2>Sign Free Agent</h2>
+            <p>@(p?.Name ?? "This player") would like to join your club.</p>
+            <div style="margin-bottom:1rem">
+                <label class="label">Contract Length</label>
+                <select class="input" @bind="_contractYears">
+                    @for (var y = 1; y <= 5; y++)
+                    {
+                        <option value="@y">@y @(y == 1 ? "year" : "years")</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" @onclick="() => _showSignModal = false">Cancel</button>
+                <button class="btn btn-primary" @onclick="ConfirmSignFreeAgent">Confirm</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showBidModal)
+{
+    var p = Engine.GetPlayer(Id);
+    <div class="modal-overlay" @onclick="CloseBidModal">
+        <div class="modal" @onclick:stopPropagation>
+            <h2>Make a Bid</h2>
+            <p>Submit an offer to <strong>@(p?.Contract?.ClubName ?? "the club")</strong> for <strong>@(p?.Name ?? "this player")</strong>.</p>
+            <div class="stat-row" style="margin-bottom:.5rem">
+                <div class="stat"><div class="label">Transfer Value</div><div class="value">@Ui.Money(Engine.GetTransferValue(p!))</div></div>
+            </div>
+            <div class="stat-row" style="margin-bottom:1rem">
+                <div class="stat"><div class="label">Your Budget</div><div class="value">@Ui.Money(Engine.MyClub.TransferBudget)</div></div>
+            </div>
+            @if (_bidResponse != null)
+            {
+                <div class="feedback" style="margin-bottom:1rem">
+                    <div class="feedback-item @(_bidResult?.Accepted == true ? "good" : "warn")">@_bidResponse</div>
+                </div>
+            }
+            @if (_bidResult?.Accepted != true)
+            {
+                <div style="margin-bottom:1rem">
+                    <label class="label">Bid Amount (£)</label>
+                    <input class="input" type="number" @bind="_bidAmount" min="0" step="100000" />
+                </div>
+                @if (_bidResult?.CounterOffer > 0)
+                {
+                    <div class="modal-actions">
+                        <button class="btn" @onclick="CloseBidModal">Walk Away</button>
+                        <button class="btn" @onclick="SubmitBid">New Bid</button>
+                        <button class="btn btn-primary" @onclick="AcceptCounter">Accept @Ui.Money(_bidResult.CounterOffer)</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="modal-actions">
+                        <button class="btn" @onclick="CloseBidModal">Cancel</button>
+                        <button class="btn btn-primary" @onclick="SubmitBid">Submit Bid</button>
+                    </div>
+                }
+            }
+            else
+            {
+                <div style="margin-bottom:1rem">
+                    <label class="label">Contract Length</label>
+                    <select class="input" @bind="_contractYears">
+                        @for (var y = 1; y <= 5; y++)
+                        {
+                            <option value="@y">@y @(y == 1 ? "year" : "years")</option>
+                        }
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn" @onclick="CloseBidModal">Cancel</button>
+                    <button class="btn btn-primary" @onclick="CompletePurchase">Confirm Signing</button>
+                </div>
+            }
+        </div>
+    </div>
+}
+
 @code {
     [Parameter] public int Id { get; set; }
     private string? _message;
+    private bool _showSignModal;
+    private bool _showBidModal;
+    private int _contractYears = 2;
+    private int _bidAmount;
+    private int _agreedFee;
+    private string? _bidResponse;
+    private BidResultModel? _bidResult;
 
-    private void SignFreeAgent()
+    private void ConfirmSignFreeAgent()
     {
-        _message = Engine.SignFreeAgent(Id);
+        _showSignModal = false;
+        _message = Engine.SignFreeAgent(Id, _contractYears);
+    }
+
+    private void OpenBidModal()
+    {
+        var player = Engine.GetPlayer(Id);
+        if (player == null) return;
+        _bidAmount = Engine.GetTransferValue(player);
+        _bidResponse = null;
+        _bidResult = null;
+        _showBidModal = true;
+    }
+
+    private void CloseBidModal()
+    {
+        _showBidModal = false;
+        _bidResponse = null;
+        _bidResult = null;
+    }
+
+    private void SubmitBid()
+    {
+        _bidResult = Engine.SubmitBid(Id, _bidAmount);
+        _bidResponse = _bidResult.Message;
+        if (_bidResult.Accepted)
+            _agreedFee = _bidAmount;
+    }
+
+    private void AcceptCounter()
+    {
+        _agreedFee = _bidResult!.CounterOffer;
+        _bidResult = Engine.SubmitBid(Id, _agreedFee);
+        _bidResponse = _bidResult.Message;
+    }
+
+    private void CompletePurchase()
+    {
+        _showBidModal = false;
+        _message = Engine.CompletePurchase(Id, _agreedFee, _contractYears);
     }
 
     private RenderFragment Attr(string name, int value) => builder =>

@@ -34,16 +34,41 @@
     <div class="feedback"><div class="feedback-item @(_isError ? "warn" : "")">@_message</div></div>
 }
 
+<div class="panel">
+    <h2 class="clickable" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" @onclick="() => _filtersOpen = !_filtersOpen">
+        Filters <span>@(_filtersOpen ? "▾" : "▸")</span>
+    </h2>
+    @if (_filtersOpen)
+    {
+        <div class="inline-form">
+            <div class="field">
+                <label>Name or Club</label>
+                <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
+            </div>
+        </div>
+    }
+</div>
+
 @{
     var items = Engine.State.TransferListItems
         .Where(t => Engine.GetPlayer(t.PlayerId)?.Contract?.ClubId != Engine.MyClub.Id)
-        .OrderByDescending(t => Engine.GetPlayer(t.PlayerId)?.Rating ?? 0)
+        .Select(t => new { Item = t, Player = Engine.GetPlayer(t.PlayerId) })
+        .Where(x => x.Player != null)
+        .OrderByDescending(x => x.Player!.Rating)
         .ToList();
+
+    if (!string.IsNullOrWhiteSpace(_search))
+    {
+        var term = _search.Trim().ToLower();
+        items = items.Where(x =>
+            x.Player!.Name.ToLower().Contains(term) ||
+            (x.Player.Contract?.ClubName ?? "").ToLower().Contains(term)).ToList();
+    }
 }
 
 @if (!items.Any())
 {
-    <p class="muted">No players are currently transfer listed. Check back after advancing a few days.</p>
+    <p class="muted">No players match your search. Check back after advancing a few days.</p>
 }
 else
 {
@@ -53,10 +78,10 @@ else
                     <tr><th>Pos</th><th>Name</th><th>Club</th><th class="num">Rating</th><th class="num">Value</th><th class="num">Asking Price</th><th></th></tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in items)
+                    @foreach (var x in items)
                     {
-                        var player = Engine.GetPlayer(item.PlayerId);
-                        if (player == null) continue;
+                        var player = x.Player!;
+                        var item = x.Item;
                         var affordable = item.AskingPrice <= Engine.MyClub.TransferBudget && Engine.IsTransferWindowOpen;
                         <tr>
                             <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
@@ -66,7 +91,7 @@ else
                             <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
                             <td class="num">@item.AskingPriceFriendly</td>
                             <td class="num">
-                                <button class="btn btn-primary" disabled="@(!affordable)" @onclick="() => Buy(item.PlayerId)">Buy</button>
+                                <button class="btn btn-primary" disabled="@(!affordable)" @onclick="() => OpenBuyModal(item.PlayerId)">Buy</button>
                             </td>
                         </tr>
                     }
@@ -75,13 +100,57 @@ else
         </div>
 }
 
+@if (_showBuyModal && _buyPlayerId != null)
+{
+    var p = Engine.GetPlayer(_buyPlayerId.Value);
+    <div class="modal-overlay" @onclick="() => _showBuyModal = false">
+        <div class="modal" @onclick:stopPropagation>
+            <h2>Sign Player</h2>
+            <p><strong>@(p?.Name ?? "This player")</strong> would like to join your club.</p>
+            <div style="margin-bottom:1rem">
+                <label class="label">Contract Length</label>
+                <select class="input" @bind="_contractYears">
+                    @for (var y = 1; y <= 5; y++)
+                    {
+                        <option value="@y">@y @(y == 1 ? "year" : "years")</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" @onclick="() => _showBuyModal = false">Cancel</button>
+                <button class="btn btn-primary" @onclick="ConfirmBuy">Confirm</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private string? _message;
     private bool _isError;
+    private bool _showBuyModal;
+    private int? _buyPlayerId;
+    private int _contractYears = 2;
+    private bool _filtersOpen = true;
+    private string _search = "";
 
-    private void Buy(int playerId)
+    private void OnSearch(ChangeEventArgs e)
     {
-        _message = Engine.BuyTransferListedPlayer(playerId);
+        _search = e.Value?.ToString() ?? "";
+    }
+
+    private void OpenBuyModal(int playerId)
+    {
+        _buyPlayerId = playerId;
+        _contractYears = 2;
+        _showBuyModal = true;
+    }
+
+    private void ConfirmBuy()
+    {
+        if (_buyPlayerId == null) return;
+        _showBuyModal = false;
+        _message = Engine.BuyTransferListedPlayer(_buyPlayerId.Value, _contractYears);
         _isError = _message is not null && _message.Contains("Insufficient");
+        _buyPlayerId = null;
     }
 }

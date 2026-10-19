@@ -42,15 +42,17 @@ public class TransferListHelper(
         return date;
     }
 
-    public void SignFreeAgentByPlayerId(int playerId)
+    public void SignFreeAgentByPlayerId(int playerId, int contractYears)
     {
         var club = State.Clubs.First(p => p.Id == State.MyClubId);
+
+        var expiryDate = GetEndOfCurrentSeasonDate().AddYears(contractYears - 1);
 
         State.Players.First(p => p.Id == playerId).Contract = new PlayerModel.ContractModel
         {
             ClubId = club.Id,
             ClubName = club.Name,
-            ExpiryDate = GetEndOfCurrentSeasonDate()
+            ExpiryDate = expiryDate
         };
 
         State.Players.First(p => p.Id == playerId).ShirtNumber = GetAvailableShirtNumber(club.Id);
@@ -68,7 +70,13 @@ public class TransferListHelper(
         var existingClubId = State.Players.First(p => p.Id == playerId).Contract.ClubId;
         State.Clubs.First(p => p.Id == existingClubId).TransferBudget += transferListItem.AskingPrice;
 
+        var oldClub = State.Clubs.First(p => p.Id == existingClubId);
+        var oldSlot = oldClub.TacticSlots.FirstOrDefault(p => p.PlayerId == playerId);
+        if (oldSlot != null)
+            oldSlot.PlayerId = null;
+
         State.Players.First(p => p.Id == playerId).Contract!.ClubId = clubId;
+        State.Players.First(p => p.Id == playerId).Contract!.ClubName = State.Clubs.First(p => p.Id == clubId).Name;
         State.Players.First(p => p.Id == playerId).ShirtNumber = GetAvailableShirtNumber(clubId);
         State.TransferListItems.Remove(transferListItem);
         State.Clubs.First(p => p.Id == clubId).TransferBudget -= transferListItem.AskingPrice;
@@ -98,18 +106,23 @@ public class TransferListHelper(
 
     public void UpdateTransferList()
     {
+        var myListedItems = State.TransferListItems
+            .Where(p => p.ClubId == State.MyClubId)
+            .ToList();
+
         State.TransferListItems.Clear();
+        State.TransferListItems.AddRange(myListedItems);
 
         foreach (var league in State.Competitions)
         {
             var clubIds = league.Clubs.Select(p => p.Id);
-            var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId));
+            var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId) && p.Contract.ClubId != State.MyClubId);
             var randomPlayers = players.OrderBy(p => RandomNumberHelper.Next()).Take(20);
 
             var transferListItems = randomPlayers.Select(p =>
             {
                 var transferValue = PlayerHelper.GetTransferValue(p);
-                var askingPrice = RandomNumberHelper.Next(transferValue, (int)(transferValue * 1.5));
+                var askingPrice = RandomNumberHelper.Next((int)(transferValue * 0.6), (int)(transferValue * 0.9));
                 return new TransferListItemModel
                 {
                     PlayerId = p.Id,
@@ -134,6 +147,7 @@ public class TransferListHelper(
             var randomNumber = RandomNumberHelper.Next(State.TransferListItems.Count);
             var randomPlayer = State.TransferListItems[randomNumber];
             var randomPlayerAskingPrice = randomPlayer.AskingPrice;
+            var isMyPlayer = randomPlayer.ClubId == State.MyClubId;
 
             var groupedPlayers = State.Players
                 .Where(p => p.Contract != null)
@@ -148,7 +162,7 @@ public class TransferListHelper(
             var max = State.Players.First(p => p.Id == randomPlayer.PlayerId).Rating + 5;
 
             var suitableClub = groupedPlayers
-                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != State.Clubs.First(p => p.Id == State.MyClubId).Id && ClubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
+                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != randomPlayer.ClubId && ClubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
             if (suitableClub == null)
                 continue;
 
@@ -158,11 +172,22 @@ public class TransferListHelper(
             var club = ClubHelper.GetClubById(suitableClub.ClubId);
             var player = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
 
-            NotificationFactory.AddNotification(
-                State.Date,
-                "Press Officer",
-                $"{club.Name} sign {player.Name}",
-                $"{player.Name} signs for {club.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
+            if (isMyPlayer)
+            {
+                NotificationFactory.AddNotification(
+                    State.Date,
+                    "Director of Football",
+                    $"{player.Name} sold to {club.Name}",
+                    $"{player.Name} has been sold to {club.Name} for {randomPlayer.AskingPriceFriendly}. The fee has been added to your transfer budget.");
+            }
+            else
+            {
+                NotificationFactory.AddNotification(
+                    State.Date,
+                    "Press Officer",
+                    $"{club.Name} sign {player.Name}",
+                    $"{player.Name} signs for {club.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
+            }
         }
     }
 }

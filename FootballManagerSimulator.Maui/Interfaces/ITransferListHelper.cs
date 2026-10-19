@@ -10,6 +10,6 @@ public interface ITransferListHelper
     bool IsPlayerTransferListed(int playerId);
     void AddPlayerToTransferList(int playerId, int askingPrice);
     void RemovePlayerFromTransferList(int playerId);
-    void SignFreeAgentByPlayerId(int playerId);
+    void SignFreeAgentByPlayerId(int playerId, int contractYears);
     void ProcessAITransfers();
 }
