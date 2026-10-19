@@ -326,10 +326,12 @@ public class MatchSimulatorHelper(
     {
         fixture.Concluded = true;
 
-        if (fixture.GoalsAway > fixture.GoalsHome)
+        if (fixture.GoalsHome > fixture.GoalsAway)
+            fixture.ClubWon = fixture.HomeClub;
+        else if (fixture.GoalsAway > fixture.GoalsHome)
             fixture.ClubWon = fixture.AwayClub;
         else
-            fixture.ClubWon = fixture.HomeClub;
+            fixture.ClubWon = null;
 
         ReduceSuspensions(fixture, competition);
         ApplySuspensions(fixture, competition);
