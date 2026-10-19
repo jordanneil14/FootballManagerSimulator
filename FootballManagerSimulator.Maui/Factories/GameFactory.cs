@@ -50,13 +50,13 @@ public class GameFactory(
 			State.Date,
 			"Chairman",
 			$"Welcome to {State.Clubs.First(p => p.Id == State.MyClubId).Name}",
-			"Everyone at the club wishes you a successful reign as manager.");
+			"Everyone at the club wishes you a successful reign as manager");
 
 		NotificationFactory.AddNotification(
 			State.Date,
 			"Chairman",
 			"Transfer Budget",
-			$"Your transfer budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}.");
+			$"Your transfer budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}");
 
 		var freeAgents = State.Players
 			.Where(p => p.Contract == null)
@@ -68,7 +68,7 @@ public class GameFactory(
 			State.Date.AddDays(1),
 			"Scout",
 			"Players With Expired Contracts",
-			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page.");
+			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page");
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{

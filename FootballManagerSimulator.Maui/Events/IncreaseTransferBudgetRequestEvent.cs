@@ -20,7 +20,7 @@ public class IncreaseTransferBudgetRequestEvent(
             State.Date,
             "Chairman",
             "Transfer Budget Request",
-            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n0} to spend.");
+            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n0} to spend");
 
     }
 

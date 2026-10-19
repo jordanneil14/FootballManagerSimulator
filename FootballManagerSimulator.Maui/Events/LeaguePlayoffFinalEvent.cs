@@ -50,7 +50,7 @@ public class LeaguePlayoffFinalEvent(
 
         var message = $"The {competition.Name} playoff final has been set:\n" +
             $"{final.HomeClub.Name} v {final.AwayClub.Name}\n" +
-            $"The match will be played on {nextSaturday:d MMMM yyyy}.";
+            $"The match will be played on {nextSaturday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,

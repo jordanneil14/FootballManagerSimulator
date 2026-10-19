@@ -72,7 +72,7 @@ public class LeaguePlayoffEvent(
         var message = $"The {competition.Name} playoff semi-finals have been drawn:\n" +
             $"{semiFinal1.HomeClub.Name} v {semiFinal1.AwayClub.Name}\n" +
             $"{semiFinal2.HomeClub.Name} v {semiFinal2.AwayClub.Name}\n" +
-            $"Fixtures will be played on {nextSaturday:d MMMM yyyy}.";
+            $"Fixtures will be played on {nextSaturday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,

@@ -178,7 +178,7 @@ public class TransferListHelper(
                     State.Date,
                     "Director of Football",
                     $"{player.Name} sold to {club.Name}",
-                    $"{player.Name} has been sold to {club.Name} for {randomPlayer.AskingPriceFriendly}. The fee has been added to your transfer budget.");
+                    $"{player.Name} has been sold to {club.Name} for {randomPlayer.AskingPriceFriendly}. The fee has been added to your transfer budget");
             }
             else
             {

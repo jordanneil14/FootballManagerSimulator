@@ -42,7 +42,7 @@ public class StadiumExpansionRequestEvent(
                 State.Date,
                 "Chairman",
                 "Stadium Expansion Request",
-                $"Your stadium expansion request has been rejected by the owner. The club finances do not allow this move.");
+                $"Your stadium expansion request has been rejected by the owner. The club finances do not allow this move");
         }
     }
 
