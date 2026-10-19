@@ -40,9 +40,13 @@
     {
         <p class="muted">Match in progress. Resume to continue playing.</p>
     }
+    else if (myFixture != null)
+    {
+        <p class="muted">You have a fixture scheduled today. Review the day's matches, then advance to play.</p>
+    }
     else
     {
-        <p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+        <p class="muted">Fixtures are scheduled today but you're not playing. Advance to simulate them.</p>
     }
 }
 else
