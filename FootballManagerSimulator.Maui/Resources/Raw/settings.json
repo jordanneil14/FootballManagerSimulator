@@ -2111,13 +2111,13 @@
       "CountryId": 1,
       "Rank": 5,
       "IsLeague": true,
-      "Type": "EnglishFootballLeague",
+      "Type": "EnglishNationalLeague",
       "Name": "Division 5",
       "LeagueTable": {
         "Places": 24,
-        "AutomaticPromotionPlaces": 3,
-        "PlayoffPlaces": 4,
-        "RelegationPlaces": 2
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 6,
+        "RelegationPlaces": 4
       }
     }
   ]

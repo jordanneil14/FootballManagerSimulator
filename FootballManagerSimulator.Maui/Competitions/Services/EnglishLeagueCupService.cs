@@ -23,7 +23,7 @@ public class EnglishLeagueCupService(
 
         if (cup.Round == 1)
         {
-            var leagues = Settings.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague.ToString());
+            var leagues = Settings.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague.ToString() || p.Type == CompetitionType.EnglishNationalLeague.ToString());
             var leagueIds = leagues.Select(p => p.Id);
 
             var clubs = cup.Clubs.Where(p => leagueIds.Contains(p.LeagueId));

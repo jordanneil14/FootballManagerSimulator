@@ -1,0 +1,32 @@
+@page "/settings"
+@layout GameLayout
+@inject GameEngine Engine
+
+<PageTitle>Settings</PageTitle>
+
+<div class="page-head">
+    <div><h1>Settings</h1></div>
+</div>
+
+<div class="panel">
+    <h2>Match</h2>
+    <div class="field" style="margin-bottom:1rem">
+        <label class="label">Match Speed</label>
+        <select class="input" style="width:240px" value="@Engine.State.MatchSpeedMs" @onchange="OnSpeedChanged">
+            <option value="2000">Slow</option>
+            <option value="1000">Normal</option>
+            <option value="500">Fast</option>
+            <option value="250">Very Fast</option>
+        </select>
+    </div>
+</div>
+
+@code {
+    private void OnSpeedChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var ms))
+        {
+            Engine.State.MatchSpeedMs = ms;
+        }
+    }
+}

@@ -20,5 +20,6 @@ public class StateModel : IState
     public PreviewModel Preview { get; set; } = new PreviewModel();
     public List<TransferListItemModel> TransferListItems { get; set; } = new List<TransferListItemModel>();
     public List<IEvent> Events { get; set; } = [];
+    public int MatchSpeedMs { get; set; } = 1000;
 }
 

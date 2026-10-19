@@ -321,7 +321,8 @@ else
             _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
         }
 
-        _timer = new Timer(OnTick, null, 1000, 1000);
+        var speed = Engine.State.MatchSpeedMs;
+        _timer = new Timer(OnTick, null, speed, speed);
     }
 
     private void RebuildEventFeed()

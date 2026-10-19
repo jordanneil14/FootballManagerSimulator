@@ -20,4 +20,5 @@ public interface IState
     public List<TransferListItemModel> TransferListItems { get; set; }
     int? MyClubId { get; set; }
     List<IEvent> Events { get; set; }
+    int MatchSpeedMs { get; set; }
 }
