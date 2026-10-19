@@ -6,10 +6,22 @@
 
 <PageTitle>Today's Fixtures</PageTitle>
 
+@{
+    var myFixture = Engine.MyFixtureToday();
+    var matchInProgress = myFixture != null && myFixture.Minute > 0 && !myFixture.Concluded;
+}
+
 <div class="page-head">
     <div><h1>Match Day</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
     <div class="page-actions">
-        <button class="btn btn-primary btn-lg" @onclick="Advance">Advance ⏩</button>
+        @if (matchInProgress)
+        {
+            <button class="btn btn-primary btn-lg" @onclick="Resume">Resume ▶</button>
+        }
+        else
+        {
+            <button class="btn btn-primary btn-lg" @onclick="Advance">Advance ⏩</button>
+        }
     </div>
 </div>
 
@@ -24,7 +36,14 @@
 
 @if (hasFixtures)
 {
-    <p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+    @if (matchInProgress)
+    {
+        <p class="muted">Match in progress. Resume to continue playing.</p>
+    }
+    else
+    {
+        <p class="muted">You have fixtures scheduled today. Review them, then advance to play.</p>
+    }
 }
 else
 {
@@ -41,15 +60,34 @@ else
         @foreach (var f in fixtures)
         {
             var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+            var liveMinute = matchInProgress ? (myFixture?.Minute ?? 0) : 0;
+            var showLive = matchInProgress && !f.Concluded;
+            var liveHome = showLive ? f.HomeScorers.Count(g => g.Minute <= liveMinute) : 0;
+            var liveAway = showLive ? f.AwayScorers.Count(g => g.Minute <= liveMinute) : 0;
             <div class="fixture-row @(mine ? "mine" : "")">
                 <div class="fixture-row-border"></div>
                 <div class="fixture-row-inner">
                     <span class="fixture-team home">@f.HomeClub.Name</span>
                     <span class="fixture-score">
-                        <span class="fixture-time">@f.KickOffTime.ToString("HH:mm")</span>
+                        @if (showLive)
+                        {
+                            <strong>@liveHome - @liveAway</strong>
+                        }
+                        else if (f.Concluded)
+                        {
+                            <strong>@f.GoalsHome - @f.GoalsAway</strong>
+                        }
+                        else
+                        {
+                            <span class="fixture-time">@f.KickOffTime.ToString("HH:mm")</span>
+                        }
                     </span>
                     <span class="fixture-team away">@f.AwayClub.Name</span>
                 </div>
+                @if (showLive)
+                {
+                    <span class="fixture-live-badge">@liveMinute'</span>
+                }
             </div>
         }
     </div>
@@ -58,6 +96,11 @@ else
 @code {
     private SettingsModel Settings => SettingsOptions.Value;
     private string? _error;
+
+    private void Resume()
+    {
+        Nav.NavigateTo("/match");
+    }
 
     private void Advance()
     {

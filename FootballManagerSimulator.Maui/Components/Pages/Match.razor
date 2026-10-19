@@ -271,13 +271,92 @@ else
         if (_fixture == null) return;
 
         _competition = Engine.GetCompetitionForFixture(_fixture);
-        _currentMinute = 0;
-        _displayedHomeGoals = 0;
-        _displayedAwayGoals = 0;
-        _phase = MatchPhase.FirstHalf;
-        _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
+
+        var resumeMinute = _fixture.Minute;
+        if (resumeMinute > 0)
+        {
+            _currentMinute = resumeMinute;
+            _displayedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
+            _displayedAwayGoals = _fixture.AwayScorers.Count(g => g.Minute <= _currentMinute);
+            _revealedHomeGoals = _displayedHomeGoals;
+            _revealedAwayGoals = _displayedAwayGoals;
+            _revealedHomeCards = _fixture.HomeCards.Count(c => c.Minute <= _currentMinute);
+            _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
+
+            _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
+            RebuildEventFeed();
+
+            if (_fixture.Concluded)
+            {
+                _phase = MatchPhase.Concluded;
+                _isPaused = true;
+            }
+            else if (_currentMinute >= 120)
+            {
+                _phase = MatchPhase.Concluded;
+                _isPaused = true;
+            }
+            else if (_currentMinute >= 90)
+            {
+                _phase = MatchPhase.ExtraTime;
+                _isPaused = true;
+            }
+            else if (_currentMinute >= 45)
+            {
+                _phase = MatchPhase.SecondHalf;
+                _isPaused = true;
+            }
+            else
+            {
+                _phase = MatchPhase.FirstHalf;
+                _isPaused = true;
+            }
+        }
+        else
+        {
+            _currentMinute = 0;
+            _displayedHomeGoals = 0;
+            _displayedAwayGoals = 0;
+            _phase = MatchPhase.FirstHalf;
+            _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
+        }
 
         _timer = new Timer(OnTick, null, 1000, 1000);
+    }
+
+    private void RebuildEventFeed()
+    {
+        if (_fixture == null) return;
+
+        var events = new List<(int Minute, MatchEvent Event)>();
+
+        foreach (var g in _fixture.HomeScorers.Where(g => g.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(g.PlayerId);
+            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", "event-goal")));
+        }
+        foreach (var g in _fixture.AwayScorers.Where(g => g.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(g.PlayerId);
+            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", "event-goal")));
+        }
+        foreach (var c in _fixture.HomeCards.Where(c => c.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(c.PlayerId);
+            var icon = c.IsRed ? "🟥" : "🟨";
+            var type = c.IsRed ? "Red card" : "Yellow card";
+            events.Add((c.Minute, new MatchEvent(c.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", c.IsRed ? "event-red" : "event-yellow")));
+        }
+        foreach (var c in _fixture.AwayCards.Where(c => c.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(c.PlayerId);
+            var icon = c.IsRed ? "🟥" : "🟨";
+            var type = c.IsRed ? "Red card" : "Yellow card";
+            events.Add((c.Minute, new MatchEvent(c.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", c.IsRed ? "event-red" : "event-yellow")));
+        }
+
+        foreach (var e in events.OrderBy(e => e.Minute))
+            _eventFeed.Add(e.Event);
     }
 
     private async void OnTick(object? state)

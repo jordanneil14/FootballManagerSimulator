@@ -7,7 +7,10 @@
 <PageTitle>Results</PageTitle>
 
 <div class="page-head">
-    <div><h1>Today's Results <button class="btn btn-primary" style="margin-left:.6rem;vertical-align:middle" @onclick="@(() => Nav.NavigateTo("/game"))">Continue ⏩</button></h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+    <div><h1>Results</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+    <div class="page-actions">
+        <button class="btn btn-primary btn-lg" @onclick="@(() => Nav.NavigateTo("/game"))">Continue ⏩</button>
+    </div>
 </div>
 
 @foreach (var competition in Engine.State.Competitions)
