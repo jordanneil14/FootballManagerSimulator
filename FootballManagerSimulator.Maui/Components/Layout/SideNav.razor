@@ -4,10 +4,10 @@
 
 <nav class="sidenav">
     <NavItem Href="/game" Icon="🏠" Label="Hub" Badge="@(Engine.UnreadNotificationCount > 0 ? Engine.UnreadNotificationCount.ToString() : null)" />
-    <NavItem Href="/league-table" Icon="📊" Label="League Table" />
-    <NavItem Href="/fixtures" Icon="📅" Label="Fixtures" />
     <NavItem Href="@($"/club/{Engine.MyClub.Id}")" Icon="👕" Label="My Club" />
     <NavItem Href="/tactics" Icon="♟️" Label="Tactics" />
+    <NavItem Href="/league-table" Icon="📊" Label="League Table" />
+    <NavItem Href="/fixtures" Icon="📅" Label="Fixtures" />
     <NavItem Href="/scout" Icon="🔍" Label="Scout" />
     <NavItem Href="/transfers" Icon="💷" Label="Transfer List" />
     <NavItem Href="/finances" Icon="🏦" Label="Finances" />
