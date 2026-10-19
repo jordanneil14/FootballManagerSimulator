@@ -19,12 +19,12 @@ public class EnglishLeagueCupFixtureDrawEvent(
     public override void Execute()
     {
         var competition = State.Competitions.First(p => p.Type == CompetitionType.Cup);
-        var round = competition.Fixtures.Any() ? competition.Fixtures.Max(p => p.Round) + 1 : 1;
-
 		var cup = (CupModel)competition;
-        cup.Round += 1;
+        var round = cup.Round;
 
 		EnglishLeagueCupService.GenerateNextRoundOfFixtures(competition);
+
+        cup.Round += 1;
 
         var clubIds = competition.Clubs.Select(p => p.Id);
         if (clubIds.Any())

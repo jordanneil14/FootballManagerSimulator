@@ -5,31 +5,36 @@
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
-<PageTitle>League Table</PageTitle>
+<PageTitle>Competitions</PageTitle>
 
 @{
-    var leagueId = Id ?? Engine.MyClub.LeagueId;
-    var league = Engine.State.Competitions.FirstOrDefault(p => p.Id == leagueId) as LeagueModel;
+    var selectedId = Id ?? Engine.MyClub.LeagueId;
+    var competition = Engine.State.Competitions.FirstOrDefault(p => p.Id == selectedId);
+    var league = competition as LeagueModel;
+    var cup = competition as CupModel;
 }
 
 <div class="page-head">
-    <div><h1>@CountryFlag(leagueId) @(league?.Name ?? "League Table")</h1><div class="subtitle">Standings</div></div>
+    <div>
+        <h1>@CountryFlag(selectedId) @(competition?.Name ?? "Competitions")</h1>
+        <div class="subtitle">@(league != null ? "Standings" : "Draw")</div>
+    </div>
 </div>
 
 <div class="league-select">
-    <select class="input" value="@leagueId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="League">
+    <select class="input" value="@selectedId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="Competition">
         @foreach (var l in Engine.Leagues.OrderBy(p => p.Rank))
         {
-            <option value="@l.Id" selected="@(l.Id == leagueId)">@CountryName(l.Id) - @l.Name</option>
+            <option value="@l.Id" selected="@(l.Id == selectedId)">@CountryName(l.Id) - @l.Name</option>
+        }
+        @foreach (var c in Engine.State.Competitions.Where(p => !p.IsLeague && p.Type != CompetitionType.Friendly))
+        {
+            <option value="@c.Id" selected="@(c.Id == selectedId)">@CompetitionLabel(c)</option>
         }
     </select>
 </div>
 
-@if (league == null)
-{
-    <p class="muted">League not found.</p>
-}
-else
+@if (league != null)
 {
     var table = league.GenerateLeagueTable().ToList();
     <div class="table-wrap">
@@ -65,6 +70,52 @@ else
         <span class="tag red">Relegation</span>
     </div>
 }
+else if (cup != null)
+{
+    var rounds = cup.Fixtures
+        .GroupBy(f => f.Round)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    @if (!rounds.Any())
+    {
+        <p class="muted">No fixtures drawn yet.</p>
+    }
+    else
+    {
+        @foreach (var round in rounds)
+        {
+            <div class="fixture-block">
+                <div class="fixture-block-head">Round @round.Key</div>
+                @foreach (var f in round.OrderBy(f => f.Date).ThenBy(f => f.KickOffTime))
+                {
+                    var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+                    <div class="fixture-row @(mine ? "mine" : "")">
+                        <div class="fixture-row-border"></div>
+                        <div class="fixture-row-inner">
+                            <span class="fixture-team home">@f.HomeClub.Name</span>
+                            <span class="fixture-score">
+                                @if (f.Concluded)
+                                {
+                                    <strong>@f.GoalsHome - @f.GoalsAway</strong>
+                                }
+                                else
+                                {
+                                    <span class="fixture-time">@f.Date.ToString("dd MMM")</span>
+                                }
+                            </span>
+                            <span class="fixture-team away">@f.AwayClub.Name</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+}
+else
+{
+    <p class="muted">Competition not found.</p>
+}
 
 @code {
     [Parameter] public int? Id { get; set; }
@@ -91,6 +142,12 @@ else
     {
         var countryId = Settings.Competitions.FirstOrDefault(p => p.Id == competitionId)?.CountryId;
         return Settings.Countries.FirstOrDefault(c => c.Id == countryId)?.Name ?? "";
+    }
+
+    private string CompetitionLabel(ICompetition competition)
+    {
+        var country = CountryName(competition.Id);
+        return string.IsNullOrEmpty(country) ? competition.Name : $"{country} - {competition.Name}";
     }
 
     private string ZoneClass(int position, int leagueId)
