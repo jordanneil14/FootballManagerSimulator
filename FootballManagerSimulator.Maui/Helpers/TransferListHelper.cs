@@ -24,15 +24,25 @@ public class TransferListHelper(
         });
     }
 
-    private int GetAvailableShirtNumber(int clubId)
+    private static readonly HashSet<int> GkNumbers = [1, 12, 13, 21];
+
+    private int GetAvailableShirtNumber(int clubId, string position)
     {
         var takenNumbers = State.Players
             .Where(p => p.Contract != null && p.Contract.ClubId == clubId && p.ShirtNumber.HasValue)
             .Select(p => p.ShirtNumber!.Value)
             .ToHashSet();
 
-        var available = Enumerable.Range(1, 99).Where(n => !takenNumbers.Contains(n)).ToList();
-        return available[RandomNumberHelper.Next(available.Count)];
+        var isGk = position == "GK";
+        var available = Enumerable.Range(1, 99)
+            .Where(n => !takenNumbers.Contains(n))
+            .Where(n => isGk ? GkNumbers.Contains(n) : !GkNumbers.Contains(n))
+            .ToList();
+
+        if (available.Count == 0)
+            available = Enumerable.Range(1, 99).Where(n => !takenNumbers.Contains(n)).ToList();
+
+        return available[0];
     }
 
     private DateOnly GetEndOfCurrentSeasonDate()
@@ -55,7 +65,8 @@ public class TransferListHelper(
             ExpiryDate = expiryDate
         };
 
-        State.Players.First(p => p.Id == playerId).ShirtNumber = GetAvailableShirtNumber(club.Id);
+        var player = State.Players.First(p => p.Id == playerId);
+        player.ShirtNumber = GetAvailableShirtNumber(club.Id, player.Position);
 
         // Add player to reserve tactic slot
         club.TacticSlots
@@ -77,7 +88,7 @@ public class TransferListHelper(
 
         State.Players.First(p => p.Id == playerId).Contract!.ClubId = clubId;
         State.Players.First(p => p.Id == playerId).Contract!.ClubName = State.Clubs.First(p => p.Id == clubId).Name;
-        State.Players.First(p => p.Id == playerId).ShirtNumber = GetAvailableShirtNumber(clubId);
+        State.Players.First(p => p.Id == playerId).ShirtNumber = GetAvailableShirtNumber(clubId, State.Players.First(p => p.Id == playerId).Position);
         State.TransferListItems.Remove(transferListItem);
         State.Clubs.First(p => p.Id == clubId).TransferBudget -= transferListItem.AskingPrice;
 

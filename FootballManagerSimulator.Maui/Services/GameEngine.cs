@@ -475,7 +475,15 @@ public class GameEngine(
             .Where(p => p.Contract != null && p.Contract.ClubId == MyClub.Id && p.ShirtNumber.HasValue)
             .Select(p => p.ShirtNumber!.Value)
             .ToHashSet();
-        player.ShirtNumber = Enumerable.Range(1, 99).First(n => !takenNumbers.Contains(n));
+        var gkNumbers = new HashSet<int> { 1, 12, 13, 21 };
+        var isGk = player.Position == "GK";
+        var candidates = Enumerable.Range(1, 99)
+            .Where(n => !takenNumbers.Contains(n))
+            .Where(n => isGk ? gkNumbers.Contains(n) : !gkNumbers.Contains(n))
+            .ToList();
+        if (candidates.Count == 0)
+            candidates = Enumerable.Range(1, 99).Where(n => !takenNumbers.Contains(n)).ToList();
+        player.ShirtNumber = candidates[0];
 
         MyClub.TacticSlots
             .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)

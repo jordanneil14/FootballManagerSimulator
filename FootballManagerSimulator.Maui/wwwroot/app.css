@@ -420,9 +420,9 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 2rem 2.2rem;
-    width: 100%;
-    max-width: 420px;
+    padding: 1.6rem 1.8rem;
+    width: calc(100% - 3rem);
+    max-width: 340px;
     box-shadow: var(--shadow);
 }
 .modal h2 { font-size: 1.15rem; margin-bottom: .6rem; }
