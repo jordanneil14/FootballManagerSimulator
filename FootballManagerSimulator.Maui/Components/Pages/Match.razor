@@ -179,29 +179,22 @@ else
 
             @foreach (var group in grouped)
             {
-                <div class="panel">
-                    <h2>@group.Key</h2>
-                    <div class="table-wrap">
-                        <table class="data">
-                            <tbody>
-                                @foreach (var item in group)
-                                {
-                                    var f = item.Fixture;
-                                    var liveHome = f.HomeScorers.Count(g => g.Minute <= _currentMinute);
-                                    var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
-                                    <tr>
-                                        <td>@f.HomeClub.Name</td>
-                                        <td class="num" style="width:40px;text-align:right;font-weight:800">@liveHome</td>
-                                    </tr>
-                                    <tr>
-                                        <td>@f.AwayClub.Name</td>
-                                        <td class="num" style="width:40px;text-align:right;font-weight:800">@liveAway</td>
-                                    </tr>
-                                    <tr><td colspan="2" style="height:.4rem"></td></tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="fixture-block">
+                    <div class="fixture-block-head">@group.Key</div>
+                    @foreach (var item in group)
+                    {
+                        var f = item.Fixture;
+                        var liveHome = f.HomeScorers.Count(g => g.Minute <= _currentMinute);
+                        var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
+                        <div class="fixture-row">
+                            <div class="fixture-row-border"></div>
+                            <div class="fixture-row-inner">
+                                <span class="fixture-team home">@f.HomeClub.Name</span>
+                                <span class="fixture-score"><strong>@liveHome - @liveAway</strong></span>
+                                <span class="fixture-team away">@f.AwayClub.Name</span>
+                            </div>
+                        </div>
+                    }
                 </div>
             }
         }

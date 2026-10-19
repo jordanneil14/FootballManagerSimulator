@@ -36,21 +36,22 @@ else
     var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
     if (!fixtures.Any()) continue;
 
-    <div class="panel">
-        <h2>@CompetitionHeading(competition)</h2>
-        <table class="data fixture-table">
-            <tbody>
-                @foreach (var f in fixtures)
-                {
-                    var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
-                    <tr class="@(mine ? "highlight" : "")">
-                        <td style="text-align:right"><strong>@f.HomeClub.Name</strong></td>
-                        <td class="center muted">@f.KickOffTime.ToString("HH:mm")</td>
-                        <td><strong>@f.AwayClub.Name</strong></td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="fixture-block">
+        <div class="fixture-block-head">@CompetitionHeading(competition)</div>
+        @foreach (var f in fixtures)
+        {
+            var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+            <div class="fixture-row @(mine ? "mine" : "")">
+                <div class="fixture-row-border"></div>
+                <div class="fixture-row-inner">
+                    <span class="fixture-team home">@f.HomeClub.Name</span>
+                    <span class="fixture-score">
+                        <span class="fixture-time">@f.KickOffTime.ToString("HH:mm")</span>
+                    </span>
+                    <span class="fixture-team away">@f.AwayClub.Name</span>
+                </div>
+            </div>
+        }
     </div>
 }
 

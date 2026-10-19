@@ -29,11 +29,22 @@
         _selectedMonth = months.Contains(currentMonth) ? currentMonth : months.First();
     }
 
-    var dates = allDates
+    var datesInMonth = allDates
         .Where(d => d.Year == _selectedMonth.Year && d.Month == _selectedMonth.Month)
         .ToList();
+
+    if (_selectedDate == default && datesInMonth.Any())
+    {
+        _selectedDate = datesInMonth.Contains(Engine.State.Date) ? Engine.State.Date : datesInMonth.First();
+    }
+
+    if (_selectedDate != default && (_selectedDate.Year != _selectedMonth.Year || _selectedDate.Month != _selectedMonth.Month))
+    {
+        _selectedDate = datesInMonth.Any() ? datesInMonth.First() : default;
+    }
 }
 
+<!-- Month dropdown -->
 <div class="league-select">
     <select class="input" value="@_selectedMonth.ToString("yyyy-MM")" @onchange="OnMonthChanged" aria-label="Month">
         @foreach (var m in months)
@@ -43,54 +54,67 @@
     </select>
 </div>
 
-@foreach (var date in dates)
+<!-- Day scroll tabs -->
+@if (datesInMonth.Any())
+{
+    <div class="day-tabs" @ref="_dayTabsRef">
+        @foreach (var date in datesInMonth)
+        {
+            var isSelected = date == _selectedDate;
+            var isToday = date == Engine.State.Date;
+            <button class="day-tab @(isSelected ? "active" : "") @(isToday ? "today" : "")"
+                    @onclick="@(() => SelectDate(date))">
+                <span class="day-tab-name">@date.ToString("ddd")</span>
+                <span class="day-tab-num">@date.Day</span>
+            </button>
+        }
+    </div>
+}
+
+<!-- Fixtures for selected day -->
+@if (_selectedDate != default)
 {
     var blocks = allCompetitions
-        .Select(c => (competition: c, fixtures: c.Fixtures.Where(f => f.Date == date).ToList()))
+        .Select(c => (competition: c, fixtures: c.Fixtures.Where(f => f.Date == _selectedDate).ToList()))
         .Where(x => x.fixtures.Any())
         .ToList();
 
-    foreach (var block in blocks)
+    if (blocks.Any())
     {
-        <div class="panel">
-            <h2>@CompetitionHeading(block.competition)
-                <span class="panel-title-sub">Round @block.fixtures.First().Round · @date.ToString("dddd, dd MMM yyyy")</span>
-            </h2>
-            <table class="data fixture-table">
-                <tbody>
-                    @foreach (var fixture in block.fixtures)
-                    {
-                        var mine = fixture.HomeClub.Id == Engine.MyClub.Id || fixture.AwayClub.Id == Engine.MyClub.Id;
-                        <tr class="@(mine ? "highlight" : "")">
-                            <td style="text-align:right"><strong>@fixture.HomeClub.Name</strong></td>
-                            <td class="center">
+        foreach (var block in blocks)
+        {
+            <div class="fixture-block">
+                <div class="fixture-block-head">@CompetitionHeading(block.competition)</div>
+                @foreach (var fixture in block.fixtures)
+                {
+                    var mine = fixture.HomeClub.Id == Engine.MyClub.Id || fixture.AwayClub.Id == Engine.MyClub.Id;
+                    <div class="fixture-row @(mine ? "mine" : "")">
+                        <div class="fixture-row-border"></div>
+                        <div class="fixture-row-inner">
+                            <span class="fixture-team home">@fixture.HomeClub.Name</span>
+                            <span class="fixture-score">
                                 @if (fixture.Concluded)
                                 {
-                                    <strong class="num">@fixture.GoalsHome&nbsp;-&nbsp;@fixture.GoalsAway</strong>
+                                    <strong>@fixture.GoalsHome - @fixture.GoalsAway</strong>
                                 }
                                 else
                                 {
-                                    <span class="muted">@fixture.KickOffTime.ToString("HH:mm")</span>
+                                    <span class="fixture-time">@fixture.KickOffTime.ToString("HH:mm")</span>
                                 }
-                            </td>
-                            <td><strong>@fixture.AwayClub.Name</strong></td>
-                        </tr>
-                        @if (fixture.Concluded && (fixture.HomeScorers.Any() || fixture.AwayScorers.Any()))
-                        {
-                            <tr>
-                                <td style="text-align:right;vertical-align:top" class="scorer-cell">@ScorerText(fixture.HomeScorers)</td>
-                                <td class="center muted">⚽</td>
-                                <td style="vertical-align:top" class="scorer-cell">@ScorerText(fixture.AwayScorers)</td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
-        </div>
+                            </span>
+                            <span class="fixture-team away">@fixture.AwayClub.Name</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <p class="muted" style="margin-top:1rem">No fixtures on this day.</p>
     }
 }
-
-@if (!dates.Any())
+else if (!datesInMonth.Any())
 {
     <p class="muted">No fixtures in this month.</p>
 }
@@ -98,24 +122,21 @@
 @code {
     private SettingsModel Settings => SettingsOptions.Value;
     private DateOnly _selectedMonth;
+    private DateOnly _selectedDate;
+    private ElementReference _dayTabsRef;
 
     private void OnMonthChanged(ChangeEventArgs e)
     {
         if (DateOnly.TryParseExact(e.Value?.ToString() + "-01", "yyyy-MM-dd", out var parsed))
+        {
             _selectedMonth = parsed;
+            _selectedDate = default;
+        }
     }
 
-    private MarkupString ScorerText(List<GoalModel> scorers)
+    private void SelectDate(DateOnly date)
     {
-        if (!scorers.Any()) return new MarkupString("");
-        var grouped = scorers.GroupBy(s => s.PlayerId)
-            .Select(g =>
-            {
-                var name = Engine.GetPlayer(g.Key)?.Name ?? "Unknown";
-                var mins = string.Join(", ", g.Select(x => $"{x.Minute}'"));
-                return $"{name} ({mins})";
-            });
-        return new MarkupString($"<span class='muted' style='font-size:.82rem'>{string.Join("<br/>", grouped)}</span>");
+        _selectedDate = date;
     }
 
     private string CompetitionHeading(ICompetition competition)
