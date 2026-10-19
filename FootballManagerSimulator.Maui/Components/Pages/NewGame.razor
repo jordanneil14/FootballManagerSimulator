@@ -76,7 +76,7 @@
         <div class="divider"></div>
         <div class="menu-actions">
             <button class="btn btn-primary btn-lg btn-block" @onclick="StartCareer">Start Career</button>
-            <button class="btn btn-ghost btn-block" @onclick="() => _step = 2">← Back</button>
+            <button class="btn btn-ghost btn-block" @onclick="GoBackFromSummary">← Back</button>
         </div>
     }
 </div>
@@ -114,6 +114,12 @@
     {
         _summaryClub = Engine.GameCreator.Clubs.First(p => p.Id == clubId);
         _step = 3;
+    }
+
+    private void GoBackFromSummary()
+    {
+        _summaryClub = null;
+        _step = 1;
     }
 
     private void StartCareer()
