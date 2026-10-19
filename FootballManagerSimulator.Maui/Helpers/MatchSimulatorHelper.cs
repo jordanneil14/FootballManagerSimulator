@@ -71,7 +71,7 @@ public class MatchSimulatorHelper(
         while (fixture.Minute <= 90)
         {
             var randomNumber = RandomNumberHelper.Next(0, max);
-            var isGoal = RandomNumberHelper.Next(1, 6) == 3;
+            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
             if (!isGoal) continue;
 
@@ -131,7 +131,7 @@ public class MatchSimulatorHelper(
         while (fixture.Minute <= 45)
         {
             var randomNumber = RandomNumberHelper.Next(0, max);
-            var isGoal = RandomNumberHelper.Next(1, 6) == 3;
+            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 11);
             if (!isGoal) continue;
 
@@ -204,7 +204,7 @@ public class MatchSimulatorHelper(
         while (fixture.Minute <= 90)
         {
             var randomNumber = RandomNumberHelper.Next(0, max);
-            var isGoal = RandomNumberHelper.Next(1, 6) == 3;
+            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
             if (!isGoal) continue;
 
@@ -353,7 +353,7 @@ public class MatchSimulatorHelper(
         {
             minute += RandomNumberHelper.Next(1, 11);
             if (minute > 45) break;
-            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
             AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
         }
 
@@ -364,7 +364,7 @@ public class MatchSimulatorHelper(
         {
             minute += RandomNumberHelper.Next(1, 10);
             if (minute > 90) break;
-            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
             AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
         }
 
@@ -384,7 +384,7 @@ public class MatchSimulatorHelper(
         {
             minute += RandomNumberHelper.Next(1, 10);
             if (minute > 120) break;
-            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
             AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
         }
     }
@@ -460,7 +460,7 @@ public class MatchSimulatorHelper(
             {
                 minute += RandomNumberHelper.Next(1, 11);
                 if (minute > 45) break;
-                if (RandomNumberHelper.Next(1, 6) != 3) continue;
+                if (RandomNumberHelper.Next(1, 8) != 3) continue;
                 AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
             }
             SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
@@ -472,7 +472,7 @@ public class MatchSimulatorHelper(
         {
             minute2 += RandomNumberHelper.Next(1, 10);
             if (minute2 > 90) break;
-            if (RandomNumberHelper.Next(1, 6) != 3) continue;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
             AddGoal(fixture, minute2, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
         }
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
