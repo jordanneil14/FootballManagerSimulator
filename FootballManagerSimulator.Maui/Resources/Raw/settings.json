@@ -86,7 +86,7 @@
     },
     {
       "ID": 10,
-      "Name": "The Albions",
+      "Name": "West Bromwich",
       "TransferBudget": 11000000,
       "Stadium": "The Hawthorns Grounds",
       "LeagueId": 2,
@@ -518,7 +518,7 @@
     },
     {
       "ID": 58,
-      "Name": "Walsaw",
+      "Name": "Walsall",
       "TransferBudget": 750000,
       "Stadium": "Bescot Fields",
       "LeagueId": 4,
@@ -527,7 +527,7 @@
     },
     {
       "ID": 59,
-      "Name": "Wimbeldon",
+      "Name": "Wimbledon",
       "TransferBudget": 4800000,
       "Stadium": "Plough Lane Grounds",
       "LeagueId": 3,
