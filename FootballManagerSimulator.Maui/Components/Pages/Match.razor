@@ -174,13 +174,13 @@ else
         {
             var grouped = otherFixtures
                 .Select(f => new { Fixture = f, Competition = Engine.GetCompetitionForFixture(f) })
-                .GroupBy(x => x.Competition?.Name ?? "Other")
+                .GroupBy(x => x.Competition?.Id ?? 0)
                 .OrderBy(g => g.Key);
 
             @foreach (var group in grouped)
             {
                 <div class="fixture-block">
-                    <div class="fixture-block-head">@group.Key</div>
+                    <div class="fixture-block-head">@(group.First().Competition?.Name ?? "Other")</div>
                     @foreach (var item in group)
                     {
                         var f = item.Fixture;
