@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FootballManagerSimulator.Maui.Events;
 
-public class LeaguePlayoffEvent(
+public class EnglishFootballLeaguePlayoffEvent(
     IState state,
     INotificationFactory notificationFactory,
     IEventManager eventManager,
@@ -46,7 +46,9 @@ public class LeaguePlayoffEvent(
         var maxRound = competition.Fixtures.Any() ? competition.Fixtures.Max(p => p.Round) : 0;
         var playoffRound = maxRound + 1;
 
-        var semiFinal1 = new FixtureModel
+        var nextTuesday = nextSaturday.AddDays(3);
+
+        var semiFinal1Leg1 = new FixtureModel
         {
             HomeClub = playoffTeams[0],
             AwayClub = playoffTeams[^1],
@@ -56,7 +58,7 @@ public class LeaguePlayoffEvent(
             FixtureType = FixtureType.Playoff
         };
 
-        var semiFinal2 = new FixtureModel
+        var semiFinal2Leg1 = new FixtureModel
         {
             HomeClub = playoffTeams[1],
             AwayClub = playoffTeams[^2],
@@ -66,13 +68,36 @@ public class LeaguePlayoffEvent(
             FixtureType = FixtureType.Playoff
         };
 
-        competition.Fixtures.Add(semiFinal1);
-        competition.Fixtures.Add(semiFinal2);
+        var semiFinal1Leg2 = new FixtureModel
+        {
+            HomeClub = playoffTeams[^1],
+            AwayClub = playoffTeams[0],
+            Round = playoffRound,
+            Date = nextTuesday,
+            KickOffTime = new TimeOnly(19, 45),
+            FixtureType = FixtureType.PlayoffSecondLeg
+        };
+
+        var semiFinal2Leg2 = new FixtureModel
+        {
+            HomeClub = playoffTeams[^2],
+            AwayClub = playoffTeams[1],
+            Round = playoffRound,
+            Date = nextTuesday,
+            KickOffTime = new TimeOnly(19, 45),
+            FixtureType = FixtureType.PlayoffSecondLeg
+        };
+
+        competition.Fixtures.Add(semiFinal1Leg1);
+        competition.Fixtures.Add(semiFinal2Leg1);
+        competition.Fixtures.Add(semiFinal1Leg2);
+        competition.Fixtures.Add(semiFinal2Leg2);
 
         var message = $"The {competition.Name} playoff semi-finals have been drawn:\n" +
-            $"{semiFinal1.HomeClub.Name} v {semiFinal1.AwayClub.Name}\n" +
-            $"{semiFinal2.HomeClub.Name} v {semiFinal2.AwayClub.Name}\n" +
-            $"Fixtures will be played on {nextSaturday:d MMMM yyyy}";
+            $"{semiFinal1Leg1.HomeClub.Name} v {semiFinal1Leg1.AwayClub.Name}\n" +
+            $"{semiFinal2Leg1.HomeClub.Name} v {semiFinal2Leg1.AwayClub.Name}\n" +
+            $"1st Leg: {nextSaturday:d MMMM yyyy}\n" +
+            $"2nd Leg: {nextTuesday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,
@@ -80,8 +105,8 @@ public class LeaguePlayoffEvent(
             $"{competition.Name} Playoffs",
             message);
 
-        var finalTriggerDate = nextSaturday.AddDays(1);
-        var finalEvent = ActivatorUtilities.CreateInstance<LeaguePlayoffFinalEvent>(
+        var finalTriggerDate = nextTuesday.AddDays(1);
+        var finalEvent = ActivatorUtilities.CreateInstance<EnglishFootballLeaguePlayoffFinalEvent>(
             ServiceProvider, finalTriggerDate, false, CompetitionId);
         EventManager.ValidateAndAddEvent(finalEvent);
     }

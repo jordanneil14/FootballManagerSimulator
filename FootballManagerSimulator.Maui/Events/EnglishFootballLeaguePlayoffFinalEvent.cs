@@ -4,7 +4,7 @@ using FootballManagerSimulator.Maui.Models;
 
 namespace FootballManagerSimulator.Maui.Events;
 
-public class LeaguePlayoffFinalEvent(
+public class EnglishFootballLeaguePlayoffFinalEvent(
     IState state,
     INotificationFactory notificationFactory,
     DateOnly triggerDate,
@@ -19,16 +19,32 @@ public class LeaguePlayoffFinalEvent(
     {
         var competition = State.Competitions.First(p => p.Id == CompetitionId);
 
-        var semiFinals = competition.Fixtures
-            .Where(p => p.FixtureType == FixtureType.Playoff && p.Concluded)
+        var secondLegs = competition.Fixtures
+            .Where(p => p.FixtureType == FixtureType.PlayoffSecondLeg && p.Concluded)
             .ToList();
 
-        if (semiFinals.Count < 2)
+        if (secondLegs.Count < 2)
             return;
 
-        var winners = semiFinals
-            .Select(p => p.ClubWon ?? (p.GoalsHome > p.GoalsAway ? p.HomeClub : p.AwayClub))
-            .ToList();
+        var winners = new List<ClubModel>();
+        foreach (var secondLeg in secondLegs)
+        {
+            if (secondLeg.ClubWon != null)
+            {
+                winners.Add(secondLeg.ClubWon);
+            }
+            else
+            {
+                var firstLeg = competition.Fixtures.First(p =>
+                    p.FixtureType == FixtureType.Playoff && p.Concluded &&
+                    p.HomeClub.Id == secondLeg.AwayClub.Id && p.AwayClub.Id == secondLeg.HomeClub.Id);
+
+                var homeAgg = (secondLeg.GoalsHome ?? 0) + (firstLeg.GoalsAway ?? 0);
+                var awayAgg = (secondLeg.GoalsAway ?? 0) + (firstLeg.GoalsHome ?? 0);
+
+                winners.Add(homeAgg > awayAgg ? secondLeg.HomeClub : secondLeg.AwayClub);
+            }
+        }
 
         var nextSaturday = State.Date;
         while (nextSaturday.DayOfWeek != DayOfWeek.Saturday)

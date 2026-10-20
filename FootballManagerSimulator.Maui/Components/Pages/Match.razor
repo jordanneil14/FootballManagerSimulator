@@ -474,11 +474,36 @@ else
             Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture!);
             return MatchPhase.ExtraTimeBreak;
         }
+
+        if (_fixture?.FixtureType == FixtureType.PlayoffSecondLeg && _competition != null)
+        {
+            Engine.MatchSimulator.PopulateFirstLegScores(_fixture, _competition);
+            var homeAgg = _displayedHomeGoals + (_fixture.FirstLegGoalsAway ?? 0);
+            var awayAgg = _displayedAwayGoals + (_fixture.FirstLegGoalsHome ?? 0);
+            if (homeAgg == awayAgg)
+            {
+                Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture);
+                return MatchPhase.ExtraTimeBreak;
+            }
+        }
+
         return MatchPhase.FullTime;
     }
 
     private MatchPhase CheckExtraTimeEnd()
     {
+        if (_fixture?.FixtureType == FixtureType.PlayoffSecondLeg)
+        {
+            var homeAgg = _displayedHomeGoals + (_fixture.FirstLegGoalsAway ?? 0);
+            var awayAgg = _displayedAwayGoals + (_fixture.FirstLegGoalsHome ?? 0);
+            if (homeAgg == awayAgg)
+            {
+                Engine.MatchSimulator.GeneratePenaltyEvents(_fixture);
+                return MatchPhase.PenaltiesBreak;
+            }
+            return MatchPhase.FullTime;
+        }
+
         if (_displayedHomeGoals == _displayedAwayGoals)
         {
             Engine.MatchSimulator.GeneratePenaltyEvents(_fixture!);

@@ -98,10 +98,17 @@ public class MatchSimulatorHelper(
 
         fixture.Minute = 120;
 
-        if (fixture.GoalsHome != fixture.GoalsAway)
+        var etCompetition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
+        if (fixture.FixtureType == FixtureType.PlayoffSecondLeg)
         {
-            var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
-            EndFixture(fixture, competition);
+            var homeAgg = (fixture.GoalsHome ?? 0) + (fixture.FirstLegGoalsAway ?? 0);
+            var awayAgg = (fixture.GoalsAway ?? 0) + (fixture.FirstLegGoalsHome ?? 0);
+            if (homeAgg != awayAgg)
+                EndFixture(fixture, etCompetition);
+        }
+        else if (fixture.GoalsHome != fixture.GoalsAway)
+        {
+            EndFixture(fixture, etCompetition);
         }
     }
 
@@ -232,8 +239,18 @@ public class MatchSimulatorHelper(
 
         fixture.Minute = 90;
 
-        if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
+        if (fixture.FixtureType == FixtureType.PlayoffSecondLeg)
+        {
+            PopulateFirstLegScores(fixture, competition);
+            var homeAgg = (fixture.GoalsHome ?? 0) + (fixture.FirstLegGoalsAway ?? 0);
+            var awayAgg = (fixture.GoalsAway ?? 0) + (fixture.FirstLegGoalsHome ?? 0);
+            if (homeAgg != awayAgg)
+                EndFixture(fixture, competition);
+        }
+        else if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
+        {
             EndFixture(fixture, competition);
+        }
     }
 
     public void ConcludeFixture(FixtureModel fixture, ICompetition competition)
@@ -401,6 +418,22 @@ public class MatchSimulatorHelper(
     public void FinaliseMatch(FixtureModel fixture, ICompetition competition)
     {
         EndFixture(fixture, competition);
+    }
+
+    public void PopulateFirstLegScores(FixtureModel secondLeg, ICompetition competition)
+    {
+        if (secondLeg.FirstLegGoalsHome != null)
+            return;
+
+        var firstLeg = competition.Fixtures.FirstOrDefault(p =>
+            p.FixtureType == FixtureType.Playoff && p.Concluded &&
+            p.HomeClub.Id == secondLeg.AwayClub.Id && p.AwayClub.Id == secondLeg.HomeClub.Id);
+
+        if (firstLeg == null)
+            return;
+
+        secondLeg.FirstLegGoalsHome = firstLeg.GoalsHome;
+        secondLeg.FirstLegGoalsAway = firstLeg.GoalsAway;
     }
 
     private (int homeRating, int awayRating) GetAdjustedRatings(FixtureModel fixture)

@@ -278,7 +278,7 @@ public class ProcessHelper(
             State.Competitions.Add(newCompetition);
         }
 
-        foreach (var league in State.Competitions.Where(p => p.IsLeague).Cast<LeagueModel>())
+        foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague).Cast<LeagueModel>())
         {
             if (league.PlayoffPlaces <= 0)
                 continue;
@@ -289,7 +289,7 @@ public class ProcessHelper(
 
             var triggerDate = lastBaseFixtureDate.AddDays(1);
 
-            var playoffEvent = ActivatorUtilities.CreateInstance<LeaguePlayoffEvent>(
+            var playoffEvent = ActivatorUtilities.CreateInstance<EnglishFootballLeaguePlayoffEvent>(
                 ServiceProvider, triggerDate, false, league.Id);
             EventManager.ValidateAndAddEvent(playoffEvent);
         }

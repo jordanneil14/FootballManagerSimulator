@@ -11,5 +11,6 @@ public interface IMatchSimulatorHelper
     void GenerateExtraTimeEvents(FixtureModel fixture);
     void GeneratePenaltyEvents(FixtureModel fixture);
     void FinaliseMatch(FixtureModel fixture, ICompetition competition);
+    void PopulateFirstLegScores(FixtureModel secondLeg, ICompetition competition);
     void ReGenerateFromMinute(FixtureModel fixture, int fromMinute);
 }

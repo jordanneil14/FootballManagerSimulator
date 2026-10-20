@@ -22,4 +22,6 @@ public class FixtureModel : IFixture
     public List<CardModel> AwayCards { get; set; } = new List<CardModel>();
     public TimeOnly KickOffTime { get; set; }
     public FixtureType FixtureType { get; set; } = FixtureType.Base;
+    public int? FirstLegGoalsHome { get; set; }
+    public int? FirstLegGoalsAway { get; set; }
 }

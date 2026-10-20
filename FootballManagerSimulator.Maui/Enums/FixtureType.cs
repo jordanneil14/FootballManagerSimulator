@@ -4,5 +4,6 @@ public enum FixtureType
 {
     Base = 0,
     Playoff = 1,
-    PlayoffFinal = 2
+    PlayoffFinal = 2,
+    PlayoffSecondLeg = 3
 }
