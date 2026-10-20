@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Maui.Competitions.Services;
+﻿using FootballManagerSimulator.Maui.Competitions.Providers;
+using FootballManagerSimulator.Maui.Competitions.Services;
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
@@ -10,10 +11,12 @@ public class EnglishLeagueCupFixtureDrawEvent(
     INotificationFactory notificationFactory,
     DateOnly triggerDate,
     bool isCompleted,
-    EnglishLeagueCupService englishLeagueCupService) : Event(triggerDate, isCompleted)
+    EnglishLeagueCupService englishLeagueCupService,
+    EnglishLeagueCupProvider englishLeagueCupProvider) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly EnglishLeagueCupService EnglishLeagueCupService = englishLeagueCupService;
+    private readonly EnglishLeagueCupProvider EnglishLeagueCupProvider = englishLeagueCupProvider;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
     public override void Execute()
@@ -22,6 +25,7 @@ public class EnglishLeagueCupFixtureDrawEvent(
 		var cup = (CupModel)competition;
         var round = cup.Round;
 
+		EnglishLeagueCupProvider.PopulateIntroducedClubs(cup);
 		EnglishLeagueCupService.GenerateNextRoundOfFixtures(competition);
 
         cup.Round += 1;

@@ -41,6 +41,23 @@ public class EnglishLeagueCupProvider(
         return roundOneFixtureDate.AddDays(((round - 1) * 14) + 4);
 	}
 
+    public void PopulateIntroducedClubs(CupModel cup)
+    {
+        var drawSettings = cup.DrawSettings.FirstOrDefault(p => p.Round == cup.Round);
+        if (drawSettings == null || (cup.Round != 2 && cup.Round != 3))
+            return;
+
+        var premierLeague = State.Competitions
+            .OfType<LeagueModel>()
+            .First(p => p.Id == 1);
+
+        var table = premierLeague.GenerateLeagueTable().ToList();
+
+        drawSettings.IntroducedClubIds = cup.Round == 2
+            ? table.TakeLast(12).Select(p => p.Club.Id).ToList()
+            : table.Take(8).Select(p => p.Club.Id).ToList();
+    }
+
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
         var leagueIds = Settings.Competitions
