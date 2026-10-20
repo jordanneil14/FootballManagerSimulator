@@ -487,6 +487,14 @@ else
             }
         }
 
+        if ((_fixture?.FixtureType == FixtureType.PlayoffFinal ||
+             (_fixture?.FixtureType == FixtureType.Playoff && _competition?.Type == CompetitionType.EnglishNationalLeague))
+            && _displayedHomeGoals == _displayedAwayGoals)
+        {
+            Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture!);
+            return MatchPhase.ExtraTimeBreak;
+        }
+
         return MatchPhase.FullTime;
     }
 

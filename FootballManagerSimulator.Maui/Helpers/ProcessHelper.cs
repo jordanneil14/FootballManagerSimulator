@@ -294,6 +294,22 @@ public class ProcessHelper(
             EventManager.ValidateAndAddEvent(playoffEvent);
         }
 
+        foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishNationalLeague).Cast<LeagueModel>())
+        {
+            if (league.PlayoffPlaces < 6)
+                continue;
+
+            var lastBaseFixtureDate = league.Fixtures
+                .Where(p => p.FixtureType == FixtureType.Base)
+                .Max(p => p.Date);
+
+            var triggerDate = lastBaseFixtureDate.AddDays(1);
+
+            var playoffEvent = ActivatorUtilities.CreateInstance<NationalLeaguePlayoffQuarterFinalEvent>(
+                ServiceProvider, triggerDate, false, league.Id);
+            EventManager.ValidateAndAddEvent(playoffEvent);
+        }
+
         foreach (var competition in State.Competitions.Where(p => p.Type == CompetitionType.Friendly))
         {
             foreach (var drawDate in competition.DrawSettings)

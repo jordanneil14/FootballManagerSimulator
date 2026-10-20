@@ -247,6 +247,12 @@ public class MatchSimulatorHelper(
             if (homeAgg != awayAgg)
                 EndFixture(fixture, competition);
         }
+        else if (fixture.FixtureType == FixtureType.PlayoffFinal ||
+                 (fixture.FixtureType == FixtureType.Playoff && competition.Type == CompetitionType.EnglishNationalLeague))
+        {
+            if (fixture.GoalsHome != fixture.GoalsAway)
+                EndFixture(fixture, competition);
+        }
         else if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
         {
             EndFixture(fixture, competition);
