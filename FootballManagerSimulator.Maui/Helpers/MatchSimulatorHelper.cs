@@ -61,9 +61,9 @@ public class MatchSimulatorHelper(
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
         if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.3);
+            homeClubRating = (int)(homeClubRating * 1.1);
         else
-            awayClubRating = (int)(awayClubRating * 1.3);
+            awayClubRating = (int)(awayClubRating * 1.1);
 
         awayClubRating = (int)(awayClubRating * .8);
 
@@ -117,9 +117,9 @@ public class MatchSimulatorHelper(
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
         if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.3);
+            homeClubRating = (int)(homeClubRating * 1.1);
         else
-            awayClubRating = (int)(awayClubRating * 1.3);
+            awayClubRating = (int)(awayClubRating * 1.1);
 
         awayClubRating = (int)(awayClubRating * .8);
 
@@ -194,9 +194,9 @@ public class MatchSimulatorHelper(
         var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
 
         if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.3);
+            homeClubRating = (int)(homeClubRating * 1.1);
         else
-            awayClubRating = (int)(awayClubRating * 1.3);
+            awayClubRating = (int)(awayClubRating * 1.1);
 
         awayClubRating = (int)(awayClubRating * .8);
 
@@ -409,9 +409,9 @@ public class MatchSimulatorHelper(
         var awayRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id);
 
         if (fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeRating = (int)(homeRating * 1.3);
+            homeRating = (int)(homeRating * 1.1);
         else
-            awayRating = (int)(awayRating * 1.3);
+            awayRating = (int)(awayRating * 1.1);
 
         awayRating = (int)(awayRating * .8);
 
