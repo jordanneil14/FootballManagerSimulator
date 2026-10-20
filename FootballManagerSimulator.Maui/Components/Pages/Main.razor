@@ -35,7 +35,17 @@
             <div class="notif-msg">@latest.Message</div>
         </div>
         <div class="divider"></div>
-        <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
+        @if (latest.RequiresAction)
+        {
+            <div class="page-actions">
+                <button class="btn btn-primary" @onclick="() => AcceptBid(latest)">✅ Accept</button>
+                <button class="btn btn-danger" @onclick="() => RejectBid(latest)">❌ Reject</button>
+            </div>
+        }
+        else
+        {
+            <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
+        }
     }
 </div>
 
@@ -113,6 +123,8 @@
             var result = Engine.Advance();
             if (result == GameEngine.AdvanceResult.MustPlayFixtures)
                 Nav.NavigateTo("/today");
+            else if (result == GameEngine.AdvanceResult.BlockedByNotification)
+                _error = "You have a notification that requires your attention before you can advance.";
         }
         catch (Exception ex)
         {
@@ -121,6 +133,10 @@
     }
 
     private void NextNotification() => Engine.MarkLatestNotificationRead();
+
+    private void AcceptBid(NotificationModel notification) => Engine.AcceptBid(notification);
+
+    private void RejectBid(NotificationModel notification) => Engine.RejectBid(notification);
 
     private SettingsModel Settings => SettingsOptions.Value;
 

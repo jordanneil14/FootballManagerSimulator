@@ -150,6 +150,12 @@ public class TransferListHelper(
     {
         if (State.TransferListItems.Count == 0) return;
 
+        ProcessAITransferListBids();
+        ProcessUnsolicitedBidsForMyPlayers();
+    }
+
+    private void ProcessAITransferListBids()
+    {
         var randomNoOfTransfers = RandomNumberHelper.Next(3);
         for (int i = 0; i < randomNoOfTransfers; i++)
         {
@@ -157,48 +163,88 @@ public class TransferListHelper(
 
             var randomNumber = RandomNumberHelper.Next(State.TransferListItems.Count);
             var randomPlayer = State.TransferListItems[randomNumber];
-            var randomPlayerAskingPrice = randomPlayer.AskingPrice;
             var isMyPlayer = randomPlayer.ClubId == State.MyClubId;
 
-            var groupedPlayers = State.Players
-                .Where(p => p.Contract != null)
-                .GroupBy(p => p.Contract!.ClubId, r => r.Rating)
-                .Select(p => new
-                {
-                    ClubId = p.Key,
-                    Rating = p.Average()
-                });
-
-            var min = State.Players.First(p => p.Id == randomPlayer.PlayerId).Rating - 5;
-            var max = State.Players.First(p => p.Id == randomPlayer.PlayerId).Rating + 5;
-
-            var suitableClub = groupedPlayers
-                .FirstOrDefault(p => p.Rating > min && p.Rating < max && p.ClubId != randomPlayer.ClubId && ClubHelper.GetClubById(p.ClubId).TransferBudget > randomPlayer.AskingPrice);
+            var suitableClub = FindSuitableClub(randomPlayer.PlayerId, randomPlayer.ClubId, randomPlayer.AskingPrice);
             if (suitableClub == null)
                 continue;
 
-            TransferContractedPlayerByPlayerIdAndClubId(randomPlayer.PlayerId, suitableClub.ClubId);
-
-            var previousClub = ClubHelper.GetClubById(randomPlayer.ClubId);
-            var club = ClubHelper.GetClubById(suitableClub.ClubId);
-            var player = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
-
             if (isMyPlayer)
             {
-                NotificationFactory.AddNotification(
-                    State.Date,
-                    "Director of Football",
-                    $"{player.Name} sold to {club.Name}",
-                    $"{player.Name} has been sold to {club.Name} for {randomPlayer.AskingPriceFriendly}. The fee has been added to your transfer budget");
+                var club = ClubHelper.GetClubById(suitableClub.Value);
+                var player = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
+                AddBidNotification(player!, club, randomPlayer.AskingPrice);
+                continue;
             }
-            else
-            {
-                NotificationFactory.AddNotification(
-                    State.Date,
-                    "Press Officer",
-                    $"{club.Name} sign {player.Name}",
-                    $"{player.Name} signs for {club.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
-            }
+
+            TransferContractedPlayerByPlayerIdAndClubId(randomPlayer.PlayerId, suitableClub.Value);
+
+            var previousClub = ClubHelper.GetClubById(randomPlayer.ClubId);
+            var buyingClub = ClubHelper.GetClubById(suitableClub.Value);
+            var transferredPlayer = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
+
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Press Officer",
+                $"{buyingClub.Name} sign {transferredPlayer.Name}",
+                $"{transferredPlayer.Name} signs for {buyingClub.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
         }
+    }
+
+    private void ProcessUnsolicitedBidsForMyPlayers()
+    {
+        if (RandomNumberHelper.Next(100) >= 8) return;
+
+        var myPlayers = State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId == State.MyClubId
+                && !IsPlayerTransferListed(p.Id))
+            .ToList();
+
+        if (myPlayers.Count == 0) return;
+
+        var target = myPlayers[RandomNumberHelper.Next(myPlayers.Count)];
+        var transferValue = PlayerHelper.GetTransferValue(target);
+        var bidAmount = RandomNumberHelper.Next((int)(transferValue * 0.7), (int)(transferValue * 1.3));
+
+        var suitableClubId = FindSuitableClub(target.Id, State.MyClubId!.Value, bidAmount);
+        if (suitableClubId == null) return;
+
+        var biddingClub = ClubHelper.GetClubById(suitableClubId.Value);
+        AddBidNotification(target, biddingClub, bidAmount);
+    }
+
+    private int? FindSuitableClub(int playerId, int currentClubId, int price)
+    {
+        var player = State.Players.First(p => p.Id == playerId);
+
+        var groupedPlayers = State.Players
+            .Where(p => p.Contract != null)
+            .GroupBy(p => p.Contract!.ClubId, r => r.Rating)
+            .Select(p => new { ClubId = p.Key, Rating = p.Average() });
+
+        var min = player.Rating - 5;
+        var max = player.Rating + 5;
+
+        var suitable = groupedPlayers
+            .FirstOrDefault(p => p.Rating > min && p.Rating < max
+                && p.ClubId != currentClubId
+                && ClubHelper.GetClubById(p.ClubId).TransferBudget > price);
+
+        return suitable?.ClubId;
+    }
+
+    private void AddBidNotification(PlayerModel player, ClubModel biddingClub, int bidAmount)
+    {
+        State.Notifications.Add(new NotificationModel
+        {
+            Date = State.Date,
+            Recipient = "Director of Football",
+            Subject = $"Bid received for {player.Name}",
+            Message = $"{biddingClub.Name} have made a bid of £{bidAmount:n0} for {player.Name}. Do you want to accept or reject this offer?",
+            RequiresAction = true,
+            BidPlayerId = player.Id,
+            BidAmount = bidAmount,
+            BiddingClubId = biddingClub.Id
+        });
     }
 }

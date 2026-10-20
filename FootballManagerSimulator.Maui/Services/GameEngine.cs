@@ -48,7 +48,59 @@ public class GameEngine(
     public void MarkLatestNotificationRead()
     {
         if (State.Notifications.Any())
+        {
+            var latest = State.Notifications[0];
+            if (latest.RequiresAction) return;
             State.Notifications.RemoveAt(0);
+        }
+        NotifyChanged();
+    }
+
+    public bool HasBlockingNotification =>
+        State.Notifications.Any(p => p.Date <= State.Date && p.RequiresAction);
+
+    public void AcceptBid(NotificationModel notification)
+    {
+        if (notification.BidPlayerId == null || notification.BidAmount == null || notification.BiddingClubId == null) return;
+
+        var player = GetPlayer(notification.BidPlayerId.Value);
+        if (player?.Contract == null) return;
+
+        var biddingClub = GetClub(notification.BiddingClubId.Value);
+        if (biddingClub == null) return;
+
+        var oldSlot = MyClub.TacticSlots.FirstOrDefault(p => p.PlayerId == notification.BidPlayerId);
+        if (oldSlot != null) oldSlot.PlayerId = null;
+
+        MyClub.TransferBudget += notification.BidAmount.Value;
+        biddingClub.TransferBudget -= notification.BidAmount.Value;
+
+        player.Contract = new PlayerModel.ContractModel
+        {
+            ClubId = biddingClub.Id,
+            ClubName = biddingClub.Name,
+            ExpiryDate = new DateOnly(State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1, 6, 30).AddYears(1)
+        };
+
+        if (transferListHelper.IsPlayerTransferListed(notification.BidPlayerId.Value))
+            transferListHelper.RemovePlayerFromTransferList(notification.BidPlayerId.Value);
+
+        notification.RequiresAction = false;
+        notification.Message = $"You accepted {biddingClub.Name}'s bid of £{notification.BidAmount.Value:n0} for {player.Name}. The fee has been added to your transfer budget.";
+
+        NotifyChanged();
+    }
+
+    public void RejectBid(NotificationModel notification)
+    {
+        if (notification.BidPlayerId == null || notification.BiddingClubId == null) return;
+
+        var player = GetPlayer(notification.BidPlayerId.Value);
+        var biddingClub = GetClub(notification.BiddingClubId.Value);
+
+        notification.RequiresAction = false;
+        notification.Message = $"You rejected {biddingClub?.Name}'s bid of £{notification.BidAmount ?? 0:n0} for {player?.Name}.";
+
         NotifyChanged();
     }
 
@@ -98,10 +150,13 @@ public class GameEngine(
     // Day advancement
     // ---------------------------------------------------------------------------------
 
-    public enum AdvanceResult { Advanced, MustPlayFixtures }
+    public enum AdvanceResult { Advanced, MustPlayFixtures, BlockedByNotification }
 
     public AdvanceResult Advance()
     {
+        if (HasBlockingNotification)
+            return AdvanceResult.BlockedByNotification;
+
         try
         {
             processHelper.Process();
@@ -109,7 +164,6 @@ public class GameEngine(
         }
         catch (ProcessException)
         {
-            // Outstanding fixtures exist for the current day – the user must play them first.
             return AdvanceResult.MustPlayFixtures;
         }
         finally

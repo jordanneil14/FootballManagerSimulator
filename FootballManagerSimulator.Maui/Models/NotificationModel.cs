@@ -7,6 +7,10 @@ public class NotificationModel
 	public string Recipient { get; set; } = "";
     public string Subject { get; set; } = "";
     public string Message { get; set; } = "";
+    public bool RequiresAction { get; set; }
+    public int? BidPlayerId { get; set; }
+    public int? BidAmount { get; set; }
+    public int? BiddingClubId { get; set; }
     public override string ToString()
     {
         return $"From: {Recipient}\nDate: {DateFriendly}\nSubject: {Subject}\nMessage: {Message}";
