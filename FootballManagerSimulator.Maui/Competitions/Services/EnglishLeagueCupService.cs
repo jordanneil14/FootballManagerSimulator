@@ -73,6 +73,6 @@ public class EnglishLeagueCupService(
             State.Date,
             "Club Analyst",
             "Pre-Match Report",
-            "English league Cup match incoming");
+            "English Cup match incoming");
     }
 }
