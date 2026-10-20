@@ -14,7 +14,7 @@ public class MainActivity : MauiAppCompatActivity
 
         if (Window != null)
         {
-            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#151b23"));
+            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
             Window.SetNavigationBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
 
             var controller = WindowCompat.GetInsetsController(Window, Window.DecorView);
