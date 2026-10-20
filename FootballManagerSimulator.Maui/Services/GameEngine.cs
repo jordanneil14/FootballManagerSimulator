@@ -7,6 +7,7 @@ using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FootballManagerSimulator.Maui.Services;
 
@@ -561,13 +562,18 @@ public class GameEngine(
             return games;
         }
 
+        var previewSettings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            Error = (sender, args) => args.ErrorContext.Handled = true
+        };
+
         foreach (var file in files)
         {
             try
             {
                 var deserialised = JsonConvert.DeserializeObject<StateModel>(
-                    File.ReadAllText(file.FullName),
-                    new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+                    File.ReadAllText(file.FullName), previewSettings);
                 if (deserialised == null) continue;
 
                 var myClub = deserialised.Clubs.FirstOrDefault(p => p.Id == deserialised.MyClubId);
@@ -593,7 +599,13 @@ public class GameEngine(
         try
         {
             var fileContent = File.ReadAllText(Path.Combine(SaveDirectory, fileName));
-            var deserialised = JsonConvert.DeserializeObject<StateModel>(fileContent, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+
+            var json = JObject.Parse(fileContent);
+            var eventsJson = json["Events"] as JArray;
+            json.Remove("Events");
+
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var deserialised = json.ToObject<StateModel>(JsonSerializer.Create(settings));
             if (deserialised == null) return "Unable to load game.";
 
             State.Weather = deserialised.Weather;
@@ -609,18 +621,35 @@ public class GameEngine(
             State.TransferListItems = deserialised.TransferListItems;
 
             State.Events.Clear();
-            foreach (var @event in deserialised.Events)
+            if (eventsJson != null)
             {
-                var args = new List<object> { @event.TriggerDate, @event.IsCompleted };
-                var compIdProp = @event.GetType().GetProperty("CompetitionId");
-                if (compIdProp != null)
-                    args.Add((int)compIdProp.GetValue(@event)!);
+                foreach (var eventToken in eventsJson)
+                {
+                    try
+                    {
+                        var typeName = eventToken["$type"]?.Value<string>();
+                        if (typeName == null) continue;
 
-                var gameEvent = (IEvent)ActivatorUtilities.CreateInstance(
-                    serviceProvider,
-                    @event.GetType(),
-                    args.ToArray());
-                eventManager.ValidateAndAddEvent(gameEvent);
+                        var eventType = Type.GetType(typeName);
+                        if (eventType == null) continue;
+
+                        var triggerDate = eventToken["TriggerDate"]?.ToObject<DateOnly>() ?? default;
+                        var isCompleted = eventToken["IsCompleted"]?.Value<bool>() ?? false;
+
+                        var args = new List<object> { triggerDate, isCompleted };
+
+                        var compIdToken = eventToken["CompetitionId"];
+                        if (compIdToken != null)
+                            args.Add(compIdToken.Value<int>());
+
+                        var gameEvent = (IEvent)ActivatorUtilities.CreateInstance(
+                            serviceProvider, eventType, args.ToArray());
+                        eventManager.ValidateAndAddEvent(gameEvent);
+                    }
+                    catch
+                    {
+                    }
+                }
             }
 
             return null;
