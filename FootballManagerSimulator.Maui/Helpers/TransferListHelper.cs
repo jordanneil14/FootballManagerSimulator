@@ -124,10 +124,11 @@ public class TransferListHelper(
         State.TransferListItems.Clear();
         State.TransferListItems.AddRange(myListedItems);
 
-        foreach (var league in State.Competitions)
+        foreach (var league in State.Competitions.Where(p => p.IsLeague))
         {
             var clubIds = league.Clubs.Select(p => p.Id);
-            var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId) && p.Contract.ClubId != State.MyClubId);
+            var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId) && p.Contract.ClubId != State.MyClubId
+                && !IsPlayerTransferListed(p.Id));
             var randomPlayers = players.OrderBy(p => RandomNumberHelper.Next()).Take(20);
 
             var transferListItems = randomPlayers.Select(p =>
@@ -140,7 +141,7 @@ public class TransferListHelper(
                     AskingPrice = askingPrice,
                     ClubId = p.Contract.ClubId
                 };
-            });
+            }).ToList();
 
             State.TransferListItems.AddRange(transferListItems);
         }
@@ -163,6 +164,15 @@ public class TransferListHelper(
 
             var randomNumber = RandomNumberHelper.Next(State.TransferListItems.Count);
             var randomPlayer = State.TransferListItems[randomNumber];
+
+            // Drop items whose player has since been released or moved clubs.
+            var listedPlayer = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
+            if (listedPlayer?.Contract == null || listedPlayer.Contract.ClubId != randomPlayer.ClubId)
+            {
+                State.TransferListItems.Remove(randomPlayer);
+                continue;
+            }
+
             var isMyPlayer = randomPlayer.ClubId == State.MyClubId;
 
             var suitableClub = FindSuitableClub(randomPlayer.PlayerId, randomPlayer.ClubId, randomPlayer.AskingPrice);
@@ -228,6 +238,7 @@ public class TransferListHelper(
         var suitable = groupedPlayers
             .FirstOrDefault(p => p.Rating > min && p.Rating < max
                 && p.ClubId != currentClubId
+                && p.ClubId != State.MyClubId
                 && ClubHelper.GetClubById(p.ClubId).TransferBudget > price);
 
         return suitable?.ClubId;

@@ -44,57 +44,29 @@ public class MatchSimulatorHelper(
 
     private void SimulatePenalties(FixtureModel fixture)
     {
-        fixture.GoalsAway += 1;
+        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, 121);
+        if (RandomNumberHelper.Next(0, homeRating + awayRating) < homeRating)
+            fixture.GoalsHome += 1;
+        else
+            fixture.GoalsAway += 1;
+
         var competition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
         EndFixture(fixture, competition);
     }
 
     private void SimulateExtraTime(FixtureModel fixture)
     {
-        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
-
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
-
-        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.1);
-        else
-            awayClubRating = (int)(awayClubRating * 1.1);
-
-        awayClubRating = (int)(awayClubRating * .8);
-
-        var max = homeClubRating + awayClubRating;
         while (fixture.Minute <= 90)
         {
-            var randomNumber = RandomNumberHelper.Next(0, max);
             var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
             if (!isGoal) continue;
 
-            if (randomNumber <= homeClubRating)
-            {
-                fixture.HomeScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(homeClubTacticSlots)
-                });
-                fixture.GoalsHome += 1;
-            }
-            else if (randomNumber > homeClubRating)
-            {
-                fixture.AwayScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(awayClubTacticSlots)
-                });
-                fixture.GoalsAway += 1;
-            }
+            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }
-
 
         fixture.Minute = 120;
 
@@ -114,55 +86,22 @@ public class MatchSimulatorHelper(
 
     private void SimulateFirstHalf(FixtureModel fixture)
     {
-        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
-
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
-        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
-
-        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.1);
-        else
-            awayClubRating = (int)(awayClubRating * 1.1);
-
-        awayClubRating = (int)(awayClubRating * .8);
-
-        var max = homeClubRating + awayClubRating;
 
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
 
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
+
         while (fixture.Minute <= 45)
         {
-            var randomNumber = RandomNumberHelper.Next(0, max);
             var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 11);
             if (!isGoal) continue;
 
-            if (randomNumber <= homeClubRating)
-            {
-                fixture.HomeScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(homeClubTacticSlots)
-                });
-                fixture.GoalsHome += 1;
-            }
-            else if (randomNumber > homeClubRating)
-            {
-                fixture.AwayScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(awayClubTacticSlots)
-                });
-                fixture.GoalsAway += 1;
-            }
+            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }
-
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
 
         fixture.Minute = 45;
     }
@@ -170,72 +109,43 @@ public class MatchSimulatorHelper(
     private int GetGoalScorer(IEnumerable<TacticSlotModel> tacticSlots)
     {
         var playerRatingModels = new List<PlayerRatingModel>();
+        var cumulative = 0d;
         foreach (var slot in tacticSlots)
         {
             var player = PlayerHelper.GetPlayerById(slot.PlayerId.Value);
+            cumulative += player.ScoringProbability;
             playerRatingModels.Add(new PlayerRatingModel
             {
                 PlayerId = slot.PlayerId.Value,
-                Rating = playerRatingModels.Sum(x => x.Rating) + player.ScoringProbability
+                Rating = cumulative
             });
         }
 
-        var sum = playerRatingModels.Max(p => p.Rating);
-        var randomNumber = RandomNumberHelper.Next(1, (int)sum);
+        if (cumulative <= 0)
+            return playerRatingModels[RandomNumberHelper.Next(0, playerRatingModels.Count)].PlayerId;
+
+        var randomNumber = RandomNumberHelper.NextDouble() * cumulative;
 
         return playerRatingModels
-            .Where(p => randomNumber <= p.Rating)
-            .First()
+            .First(p => randomNumber < p.Rating)
             .PlayerId;
     }
 
     private void SimulateSecondHalf(FixtureModel fixture, ICompetition competition)
     {
-        var homeClub = ClubHelper.GetClubById(fixture.HomeClub.Id);
-        var awayClub = ClubHelper.GetClubById(fixture.AwayClub.Id);
-
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var homeClubRating = ClubHelper.GetStartingElevenSumRatingForClub(homeClub.Id);
-        var awayClubRating = ClubHelper.GetStartingElevenSumRatingForClub(awayClub.Id);
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
 
-        if (homeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
-            homeClubRating = (int)(homeClubRating * 1.1);
-        else
-            awayClubRating = (int)(awayClubRating * 1.1);
-
-        awayClubRating = (int)(awayClubRating * .8);
-
-        var max = homeClubRating + awayClubRating;
         while (fixture.Minute <= 90)
         {
-            var randomNumber = RandomNumberHelper.Next(0, max);
             var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
             if (!isGoal) continue;
 
-            if (randomNumber <= homeClubRating)
-            {
-                fixture.HomeScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(homeClubTacticSlots)
-                });
-                fixture.GoalsHome += 1;
-            }
-            else if (randomNumber > homeClubRating)
-            {
-                fixture.AwayScorers.Add(new GoalModel
-                {
-                    Minute = fixture.Minute,
-                    PlayerId = GetGoalScorer(awayClubTacticSlots)
-                });
-                fixture.GoalsAway += 1;
-            }
+            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }
-
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
 
         fixture.Minute = 90;
 
@@ -283,8 +193,9 @@ public class MatchSimulatorHelper(
                 continue;
 
             var isHome = RandomNumberHelper.Next(0, 2) == 0;
-            var playerIds = isHome ? homePlayerIds : awayPlayerIds;
             var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
+            var sentOff = GetSentOffPlayerIds(cards, minute + 1);
+            var playerIds = (isHome ? homePlayerIds : awayPlayerIds).Where(id => !sentOff.Contains(id)).ToList();
 
             if (!playerIds.Any()) continue;
 
@@ -365,11 +276,10 @@ public class MatchSimulatorHelper(
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
-        var max = homeRating + awayRating;
-
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
+
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
 
         var minute = 0;
         while (minute <= 45)
@@ -377,10 +287,10 @@ public class MatchSimulatorHelper(
             minute += RandomNumberHelper.Next(1, 11);
             if (minute > 45) break;
             if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
         }
 
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
 
         minute = 45;
         while (minute <= 90)
@@ -388,37 +298,32 @@ public class MatchSimulatorHelper(
             minute += RandomNumberHelper.Next(1, 10);
             if (minute > 90) break;
             if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
         }
-
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
     }
 
-    public void GenerateExtraTimeEvents(FixtureModel fixture)
+    public void GenerateExtraTimeEvents(FixtureModel fixture) => GenerateExtraTimeEventsFrom(fixture, 90);
+
+    private void GenerateExtraTimeEventsFrom(FixtureModel fixture, int fromMinute)
     {
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
-        var max = homeRating + awayRating;
-
-        var minute = 90;
+        var minute = fromMinute;
         while (minute <= 120)
         {
             minute += RandomNumberHelper.Next(1, 10);
             if (minute > 120) break;
             if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
         }
     }
 
     public void GeneratePenaltyEvents(FixtureModel fixture)
     {
-        fixture.AwayScorers.Add(new GoalModel
-        {
-            Minute = 121,
-            PlayerId = GetGoalScorer(ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id))
-        });
+        AddGoal(fixture, 121,
+            ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id),
+            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id));
     }
 
     public void FinaliseMatch(FixtureModel fixture, ICompetition competition)
@@ -447,9 +352,9 @@ public class MatchSimulatorHelper(
         var homeRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.HomeClub.Id);
         var awayRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id);
 
-        if (fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id)
+        if (fixture.HomeClub.Id == State.MyClubId)
             homeRating = (int)(homeRating * 1.1);
-        else
+        else if (fixture.AwayClub.Id == State.MyClubId)
             awayRating = (int)(awayRating * 1.1);
 
         awayRating = (int)(awayRating * .8);
@@ -457,30 +362,65 @@ public class MatchSimulatorHelper(
         return (homeRating, awayRating);
     }
 
-    private void AddGoal(FixtureModel fixture, int minute, int max, int homeRating,
+    // Each player sent off before the given minute costs the team 20% of its rating.
+    private (int homeRating, int awayRating) GetRatingsAtMinute(FixtureModel fixture, int minute)
+    {
+        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
+        var homeReds = GetSentOffPlayerIds(fixture.HomeCards, minute).Count;
+        var awayReds = GetSentOffPlayerIds(fixture.AwayCards, minute).Count;
+
+        return ((int)(homeRating * Math.Pow(0.8, homeReds)), (int)(awayRating * Math.Pow(0.8, awayReds)));
+    }
+
+    private static HashSet<int> GetSentOffPlayerIds(IEnumerable<CardModel> cards, int minute)
+    {
+        return cards.Where(c => c.IsRed && c.Minute < minute).Select(c => c.PlayerId).ToHashSet();
+    }
+
+    // Returns true if the goal went to the home side, false for the away side, or null if
+    // neither side has a player who could score.
+    private bool? AddGoal(FixtureModel fixture, int minute,
         IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
     {
-        var randomNumber = RandomNumberHelper.Next(0, max);
-        if (randomNumber <= homeRating)
+        var homeFilled = homeSlots.Where(s => s.PlayerId != null).ToList();
+        var awayFilled = awaySlots.Where(s => s.PlayerId != null).ToList();
+
+        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
+        var isHome = RandomNumberHelper.Next(0, homeRating + awayRating) < homeRating;
+
+        if (isHome && !homeFilled.Any()) isHome = false;
+        else if (!isHome && !awayFilled.Any()) isHome = true;
+
+        var slots = isHome ? homeFilled : awayFilled;
+        if (!slots.Any()) return null;
+
+        var sentOff = GetSentOffPlayerIds(isHome ? fixture.HomeCards : fixture.AwayCards, minute);
+        var onPitch = slots.Where(s => !sentOff.Contains(s.PlayerId!.Value)).ToList();
+
+        (isHome ? fixture.HomeScorers : fixture.AwayScorers).Add(new GoalModel
         {
-            fixture.HomeScorers.Add(new GoalModel
-            {
-                Minute = minute,
-                PlayerId = GetGoalScorer(homeSlots)
-            });
-        }
-        else
-        {
-            fixture.AwayScorers.Add(new GoalModel
-            {
-                Minute = minute,
-                PlayerId = GetGoalScorer(awaySlots)
-            });
-        }
+            Minute = minute,
+            PlayerId = GetGoalScorer(onPitch.Any() ? onPitch : slots)
+        });
+
+        return isHome;
+    }
+
+    private static void CountGoal(FixtureModel fixture, bool? scoredByHome)
+    {
+        if (scoredByHome == true)
+            fixture.GoalsHome += 1;
+        else if (scoredByHome == false)
+            fixture.GoalsAway += 1;
     }
 
     public void ReGenerateFromMinute(FixtureModel fixture, int fromMinute)
     {
+        // Extra time and penalties are pre-generated when the match reaches them, so a lineup
+        // change after that point must regenerate them too.
+        var inExtraTime = !fixture.Concluded && fromMinute >= 90 && fromMinute < 120;
+        var hadPenalty = fixture.HomeScorers.Concat(fixture.AwayScorers).Any(g => g.Minute > 120);
+
         fixture.HomeScorers.RemoveAll(g => g.Minute > fromMinute);
         fixture.AwayScorers.RemoveAll(g => g.Minute > fromMinute);
         fixture.HomeCards.RemoveAll(c => c.Minute > fromMinute);
@@ -489,32 +429,35 @@ public class MatchSimulatorHelper(
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
-        var max = homeRating + awayRating;
-
         if (fromMinute < 45)
         {
+            SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
             var minute = fromMinute;
             while (minute <= 45)
             {
                 minute += RandomNumberHelper.Next(1, 11);
                 if (minute > 45) break;
                 if (RandomNumberHelper.Next(1, 8) != 3) continue;
-                AddGoal(fixture, minute, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+                AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
             }
-            SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
         }
 
         var secondHalfStart = Math.Max(fromMinute, 45);
+        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
         var minute2 = secondHalfStart;
         while (minute2 <= 90)
         {
             minute2 += RandomNumberHelper.Next(1, 10);
             if (minute2 > 90) break;
             if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute2, max, homeRating, homeClubTacticSlots, awayClubTacticSlots);
+            AddGoal(fixture, minute2, homeClubTacticSlots, awayClubTacticSlots);
         }
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
+
+        if (inExtraTime)
+            GenerateExtraTimeEventsFrom(fixture, fromMinute);
+
+        if (hadPenalty && fromMinute <= 120)
+            GeneratePenaltyEvents(fixture);
     }
 
     public void PrepareMatch(FixtureModel fixture)
