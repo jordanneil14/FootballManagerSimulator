@@ -145,10 +145,14 @@ public class ProcessHelper(
     private void ExpireContracts()
     {
         var expiredPlayers = State.Players
-            .Where(p => p.Contract != null && DateOnly.Parse($"{State.Date.Year}-06-30") >= p.Contract.ExpiryDate);
+            .Where(p => p.Contract != null && DateOnly.Parse($"{State.Date.Year}-06-30") >= p.Contract.ExpiryDate)
+            .ToList();
 
         foreach (var player in expiredPlayers)
+        {
             player.Contract = null;
+            TransferListHelper.RemovePlayerFromTransferList(player.Id);
+        }
     }
 
     private void TopUpSquads()

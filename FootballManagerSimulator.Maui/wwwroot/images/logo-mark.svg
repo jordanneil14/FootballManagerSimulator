@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Pocket Gaffer logo mark: the tactics board on its own, no text. Coordinates match the
+     456px app-icon canvas, so the <g> can be dropped into Resources/AppIcon/appiconfg.svg as-is. -->
+<svg width="236" height="236" viewBox="110 110 236 236" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <rect x="110" y="110" width="236" height="236" rx="52" fill="#0e1116" />
+    <g>
+        <rect x="133" y="133" width="190" height="190" rx="16" fill="#15c47e" />
+        <rect x="145" y="145" width="166" height="166" rx="3" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <line x1="145" y1="228" x2="311" y2="228" stroke="#e8edf2" stroke-width="4" />
+        <circle cx="228" cy="228" r="24" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <circle cx="228" cy="228" r="3.5" fill="#e8edf2" />
+        <rect x="188" y="145" width="80" height="30" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <rect x="208" y="145" width="40" height="12" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <rect x="188" y="281" width="80" height="30" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <rect x="208" y="299" width="40" height="12" fill="none" stroke="#e8edf2" stroke-width="4" />
+        <path d="M188 183 L202 197 M202 183 L188 197 M254 183 L268 197 M268 183 L254 197" fill="none" stroke="#0e1116" stroke-width="5" stroke-linecap="round" />
+        <circle cx="180" cy="266" r="10" fill="#e8c547" stroke="#0e1116" stroke-width="3" />
+        <circle cx="228" cy="256" r="10" fill="#e8c547" stroke="#0e1116" stroke-width="3" />
+        <circle cx="276" cy="266" r="10" fill="#e8c547" stroke="#0e1116" stroke-width="3" />
+        <path d="M184 252 Q186 215 220 200" fill="none" stroke="#e8c547" stroke-width="5" stroke-linecap="round" />
+        <path d="M212.7 210.8 L220 200 L207.1 198" fill="none" stroke="#e8c547" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+</svg>

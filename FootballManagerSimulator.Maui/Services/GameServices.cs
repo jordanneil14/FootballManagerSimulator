@@ -39,7 +39,8 @@ public static class GameServices
         // Orchestration layer that replaces the old console screen HandleInput logic.
         services.AddScoped<GameEngine>();
 
-        // Concrete competition services are also resolved directly (by providers / the factory).
+        // Concrete types resolved directly (by events / providers / the factory).
+        services.AddScoped<Competitions.Providers.EnglishLeagueCupProvider>();
         services.AddScoped<EnglishLeagueCupService>();
         services.AddScoped<FriendlyService>();
         services.AddScoped<EnglishPremierLeagueService>();

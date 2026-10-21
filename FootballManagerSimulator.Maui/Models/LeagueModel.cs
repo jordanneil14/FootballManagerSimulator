@@ -28,7 +28,7 @@ public class LeagueModel : ICompetition
         var table = new List<LeaguePositionModel>();
         foreach (var club in Clubs)
         {
-            var clubFixtures = Fixtures.Where(p => p.Concluded && (p.HomeClub.Id == club.Id || p.AwayClub.Id == club.Id));
+            var clubFixtures = Fixtures.Where(p => p.Concluded && p.FixtureType == FixtureType.Base && (p.HomeClub.Id == club.Id || p.AwayClub.Id == club.Id));
             var homeWinPoints = clubFixtures.Where(p => p.HomeClub.Id == club.Id && p.GoalsHome > p.GoalsAway).Count() * 3;
             var awayWinPoints = clubFixtures.Where(p => p.AwayClub.Id == club.Id && p.GoalsAway > p.GoalsHome).Count() * 3;
             var drawPoints = clubFixtures.Where(p => p.GoalsAway == p.GoalsHome).Count();

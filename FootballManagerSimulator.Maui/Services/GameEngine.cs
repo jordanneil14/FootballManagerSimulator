@@ -64,10 +64,15 @@ public class GameEngine(
         if (notification.BidPlayerId == null || notification.BidAmount == null || notification.BiddingClubId == null) return;
 
         var player = GetPlayer(notification.BidPlayerId.Value);
-        if (player?.Contract == null) return;
-
         var biddingClub = GetClub(notification.BiddingClubId.Value);
-        if (biddingClub == null) return;
+
+        if (player?.Contract == null || player.Contract.ClubId != MyClub.Id || biddingClub == null)
+        {
+            notification.RequiresAction = false;
+            notification.Message = $"The bid for {player?.Name ?? "this player"} is no longer valid because he is no longer at your club.";
+            NotifyChanged();
+            return;
+        }
 
         var oldSlot = MyClub.TacticSlots.FirstOrDefault(p => p.PlayerId == notification.BidPlayerId);
         if (oldSlot != null) oldSlot.PlayerId = null;
@@ -294,7 +299,7 @@ public class GameEngine(
     public void CompleteRemainingFixtures()
     {
         foreach (var competition in State.Competitions)
-            foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && p.ClubWon == null))
+            foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded))
                 matchSimulator.ProcessMatch(fixture, competition);
 
         NotifyChanged();
