@@ -18,6 +18,7 @@
     --radius-sm: 8px;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     --mono: "Oswald", "Inter", sans-serif;
+    --safe-top: 0px; /* status bar height, set at runtime by SafeAreaStyle */
     font-family: "Inter", system-ui, sans-serif;
 }
 
@@ -89,7 +90,7 @@ p { color: var(--text-dim); line-height: 1.55; }
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: calc(2rem + var(--safe-top)) 1rem 2rem;
 }
 .menu-card {
     width: 100%;
@@ -150,7 +151,7 @@ p { color: var(--text-dim); line-height: 1.55; }
 .topbar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 1rem;
-    padding: .85rem 1.4rem;
+    padding: calc(.85rem + var(--safe-top)) 1.4rem .85rem;
     background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
     border-bottom: 1px solid var(--border);
     position: sticky; top: 0; z-index: 20;
@@ -182,8 +183,8 @@ p { color: var(--text-dim); line-height: 1.55; }
     background: var(--bg-2);
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column; gap: .25rem;
-    position: sticky; top: 61px; align-self: flex-start;
-    height: calc(100vh - 61px);
+    position: sticky; top: calc(61px + var(--safe-top)); align-self: flex-start;
+    height: calc(100vh - 61px - var(--safe-top));
     overflow-y: auto;
 }
 .sidenav-spacer { flex: 1; }
@@ -377,7 +378,7 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .pager { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; color: var(--text-dim); }
 
 /* ---------- Misc ---------- */
-.empty-state { min-height: 60vh; display: grid; place-content: center; text-align: center; gap: .6rem; }
+.empty-state { min-height: 60vh; padding-top: var(--safe-top);display: grid; place-content: center; text-align: center; gap: .6rem; }
 .muted { color: var(--text-faint); }
 .spread { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .inline-form { display: flex; gap: .6rem; align-items: flex-end; flex-wrap: wrap; }

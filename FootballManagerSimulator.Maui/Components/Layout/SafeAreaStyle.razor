@@ -1,0 +1,11 @@
+@implements IDisposable
+
+<style>:root { --safe-top: @(SafeArea.Top.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))px; }</style>
+
+@code {
+    protected override void OnInitialized() => SafeArea.Changed += OnChanged;
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => SafeArea.Changed -= OnChanged;
+}

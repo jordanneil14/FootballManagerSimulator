@@ -2,6 +2,7 @@
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.View;
+using FootballManagerSimulator.Maui.Services;
 
 namespace FootballManagerSimulator.Maui;
 
@@ -44,7 +45,10 @@ public class MainActivity : MauiAppCompatActivity
         {
             var bars = insets.GetInsets(WindowInsetsCompat.Type.SystemBars() | WindowInsetsCompat.Type.DisplayCutout());
             var ime = insets.GetInsets(WindowInsetsCompat.Type.Ime());
-            v.SetPadding(bars.Left, bars.Top, bars.Right, Math.Max(bars.Bottom, ime.Bottom));
+            // No top padding: the WebView draws behind the status bar so the page background shows there,
+            // and the CSS pads its content by --safe-top instead.
+            v.SetPadding(bars.Left, 0, bars.Right, Math.Max(bars.Bottom, ime.Bottom));
+            SafeArea.SetTop(bars.Top / (v.Resources?.DisplayMetrics?.Density ?? 1f));
             return WindowInsetsCompat.Consumed;
         }
     }
