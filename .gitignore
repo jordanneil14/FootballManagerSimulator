@@ -27,3 +27,5 @@
 /FootballManagerSimulator.apk
 /footballmanager.keystore
 *.apk
+/FootballManagerSimulator.Tests/bin/
+/FootballManagerSimulator.Tests/obj/

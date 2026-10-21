@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- The linked game sources were written for the app project's warning set; don't fail on their nullable warnings here. -->
+    <NoWarn>$(NoWarn);CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8619;CS8625;CS8629;CS0105;CS9124</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    The game logic lives inside the Android-only MAUI app project, which a plain net10.0 test
+    project can't reference. The platform-independent folders are compiled straight into this
+    test assembly instead (same namespaces), so the tests exercise exactly the shipped code.
+    MAUI-specific files (MauiProgram, MauiAppStorage, Platforms, Razor components, SafeArea)
+    are deliberately not linked.
+  -->
+  <PropertyGroup>
+    <GameSourceDir>..\FootballManagerSimulator.Maui\</GameSourceDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(GameSourceDir)Competitions\**\*.cs" Link="Game\Competitions\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Enums\**\*.cs" Link="Game\Enums\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Events\**\*.cs" Link="Game\Events\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Exceptions\**\*.cs" Link="Game\Exceptions\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Factories\**\*.cs" Link="Game\Factories\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Helpers\**\*.cs" Link="Game\Helpers\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Interfaces\**\*.cs" Link="Game\Interfaces\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Models\**\*.cs" Link="Game\Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="$(GameSourceDir)Services\GameEngine.cs" Link="Game\Services\GameEngine.cs" />
+    <Compile Include="$(GameSourceDir)Services\GameServices.cs" Link="Game\Services\GameServices.cs" />
+    <Compile Include="$(GameSourceDir)Services\Ui.cs" Link="Game\Services\Ui.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The real bundled settings, used by the end-to-end season test. -->
+    <None Include="$(GameSourceDir)Resources\Raw\settings.json" Link="settings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NetCore.AutoRegisterDi" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FootballManagerSimulator.PlayerGenerator\FootballManagerSimulator.PlayerGenerator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>
