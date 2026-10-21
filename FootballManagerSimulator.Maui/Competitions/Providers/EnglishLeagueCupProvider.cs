@@ -53,9 +53,18 @@ public class EnglishLeagueCupProvider(
 
         var table = premierLeague.GenerateLeagueTable().ToList();
 
-        drawSettings.IntroducedClubIds = cup.Round == 2
-            ? table.TakeLast(12).Select(p => p.Club.Id).ToList()
-            : table.Take(8).Select(p => p.Club.Id).ToList();
+        if (cup.Round == 2)
+        {
+            drawSettings.IntroducedClubIds = table.TakeLast(12).Select(p => p.Club.Id).ToList();
+            return;
+        }
+
+        // The table moves between the round 2 and round 3 draws, so take whoever wasn't introduced in round 2.
+        var roundTwoClubIds = cup.DrawSettings.First(p => p.Round == 2).IntroducedClubIds;
+        drawSettings.IntroducedClubIds = table
+            .Select(p => p.Club.Id)
+            .Where(id => !roundTwoClubIds.Contains(id))
+            .ToList();
     }
 
     public ICompetition CreateCompetition(CompetitionModel competition)
