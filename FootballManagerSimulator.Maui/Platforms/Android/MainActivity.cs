@@ -14,8 +14,17 @@ public class MainActivity : MauiAppCompatActivity
 
         if (Window != null)
         {
-            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#151b23"));
-            Window.SetNavigationBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
+            // Android 15+ is edge-to-edge and ignores bar colours; the decor view shows through the bars instead.
+            Window.DecorView.SetBackgroundColor(Android.Graphics.Color.ParseColor("#151b23"));
+
+            if (OperatingSystem.IsAndroidVersionAtLeast(29))
+                Window.NavigationBarContrastEnforced = false;
+
+            if (!OperatingSystem.IsAndroidVersionAtLeast(35))
+            {
+                Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#151b23"));
+                Window.SetNavigationBarColor(Android.Graphics.Color.ParseColor("#0e1116"));
+            }
 
             var controller = WindowCompat.GetInsetsController(Window, Window.DecorView);
             controller.AppearanceLightStatusBars = false;
