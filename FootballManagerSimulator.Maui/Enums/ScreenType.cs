@@ -22,7 +22,7 @@ public enum ScreenType
     SelectClub,
     PostMatchScores,
     PostMatchLeagueTable,
-    Finances,
+    Board,
     TransferList,
     TransferPlayer,
     Formation,
