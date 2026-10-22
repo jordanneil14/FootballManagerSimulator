@@ -33,6 +33,10 @@ else
             {
                 <a class="btn btn-primary" href="@($"/transfers/player/{player.Id}")">Transfer Options</a>
             }
+            else if (Engine.IsUnemployed)
+            {
+                // No club to sign players for.
+            }
             else if (retiring)
             {
                 <span class="tag">Retiring</span>

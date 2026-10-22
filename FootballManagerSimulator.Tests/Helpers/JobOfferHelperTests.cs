@@ -170,4 +170,42 @@ public class JobOfferHelperTests
             old => Assert.Equal((3, _state.Date), (old.ClubId, old.EndDate)),
             current => Assert.Equal((5, (DateOnly?)null), (current.ClubId, current.EndDate)));
     }
+
+    [Fact]
+    public void SackUser_LeavesMeWithoutAClubAndClearsMyClubsBusiness()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 3);
+        club.JobSecurity = 3;
+        _state.BoardConfidence = 3;
+        _state.ManagerHistory.StartJob(club, new DateOnly(2026, 7, 1));
+        var pendingBid = new NotificationModel { Date = _state.Date, RequiresAction = true, BidPlayerId = 1 };
+        _state.Notifications.Add(pendingBid);
+        var upgrade = new AcademyUpgradeEvent(_state, _notifications, _state.Date.AddMonths(1), false);
+        _state.Events.Add(upgrade);
+
+        _helper.SackUser();
+
+        Assert.Null(_state.MyClubId);
+        Assert.Equal(_state.Date, Assert.Single(_state.ManagerHistory.Jobs).EndDate);
+        Assert.Null(club.VacantUntil); // replaced straight away, so it can't be rejoined
+        Assert.Equal(BoardConfidenceRules.Starting, club.JobSecurity);
+        Assert.False(pendingBid.RequiresAction);
+        Assert.True(upgrade.IsCompleted);
+        Assert.Contains(_state.Notifications, n => n.Subject == $"Sacked by {club.Name}");
+        Assert.DoesNotContain(_helper.Vacancies(), p => p.Id == 3);
+    }
+
+    [Fact]
+    public void JoinClub_WorksWhileUnemployed()
+    {
+        _state.ManagerHistory.StartJob(_state.Clubs.Single(p => p.Id == 3), new DateOnly(2026, 7, 1));
+        _helper.SackUser();
+        _state.Clubs.Single(p => p.Id == 5).VacantUntil = _state.Date.AddDays(5);
+
+        Assert.True(_helper.JoinClub(5));
+
+        Assert.Equal(5, _state.MyClubId);
+        Assert.Equal(5, _state.ManagerHistory.CurrentJob!.ClubId);
+        Assert.Equal(2, _state.ManagerHistory.Jobs.Count);
+    }
 }

@@ -15,7 +15,7 @@
 }
 else
 {
-    var won = fixture.ClubWon?.Id == Engine.MyClub.Id;
+    var won = fixture.ClubWon?.Id == Engine.State.MyClubId;
     var draw = fixture.GoalsHome == fixture.GoalsAway;
     var myResult = draw ? "Draw" : won ? "Win" : "Loss";
 

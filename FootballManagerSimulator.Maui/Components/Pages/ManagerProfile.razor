@@ -9,7 +9,7 @@
     var goalDifference = history.GoalsFor - history.GoalsAgainst;
 }
 
-<div class="page-head"><div><h1>Manager Profile</h1><div class="subtitle">@Engine.State.ManagerName · Manager of @Engine.MyClub.Name</div></div></div>
+<div class="page-head"><div><h1>Manager Profile</h1><div class="subtitle">@Engine.State.ManagerName · @(Engine.CurrentClub is { } club ? $"Manager of {club.Name}" : "Unemployed")</div></div></div>
 
 <div class="panel">
     <h2>🆚 Head-To-Head</h2>

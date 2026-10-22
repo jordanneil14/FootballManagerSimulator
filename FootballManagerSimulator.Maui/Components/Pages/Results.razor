@@ -22,7 +22,7 @@
         <div class="fixture-block-head">@CompetitionHeading(competition) <span style="font-weight:400;color:var(--text-faint);margin-left:.5rem">Round @fixtures.First().Round</span></div>
         @foreach (var f in fixtures)
         {
-            var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+            var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
             <div class="fixture-row @(mine ? "mine" : "")">
                 <div class="fixture-row-border"></div>
                 <div class="fixture-row-inner">

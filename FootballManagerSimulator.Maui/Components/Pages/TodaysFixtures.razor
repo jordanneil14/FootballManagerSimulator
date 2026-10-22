@@ -63,7 +63,7 @@ else
         <div class="fixture-block-head">@CompetitionHeading(competition) <span style="font-weight:400;color:var(--text-faint);margin-left:.5rem">Round @fixtures.First().Round</span></div>
         @foreach (var f in fixtures)
         {
-            var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+            var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
             var liveMinute = matchInProgress ? (myFixture?.Minute ?? 0) : 0;
             var showLive = matchInProgress && !f.Concluded;
             var liveHome = showLive ? f.HomeScorers.Count(g => g.Minute <= liveMinute) : 0;

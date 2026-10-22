@@ -15,7 +15,7 @@
 }
 else
 {
-    var isMine = club.Id == Engine.MyClub.Id;
+    var isMine = club.Id == Engine.State.MyClubId;
     var squad = Engine.State.Players.Where(p => p.Contract != null && p.Contract.ClubId == club.Id).ToList();
 
     <div class="page-head">

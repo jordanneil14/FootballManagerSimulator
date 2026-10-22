@@ -34,7 +34,7 @@ public class FriendlyService(
 
         competition.Fixtures.AddRange(fixtures);
 
-        var myClubFixture = fixtures.First(p => p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId);
+        var myClubFixture = fixtures.FirstOrDefault(p => p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId);
         if (myClubFixture != null)
         {
             var oppositionClubName = myClubFixture.HomeClub.Id == State.MyClubId ? myClubFixture.AwayClub.Name : myClubFixture.HomeClub.Name;

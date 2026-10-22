@@ -1,6 +1,7 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Helpers;
+using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.Maui.Services;
 using FootballManagerSimulator.Tests.Support;
@@ -115,6 +116,41 @@ public class FullGameTests : IDisposable
         Assert.DoesNotContain(vacant, c => c.Id == 9);
         Assert.All(vacant, c => Assert.InRange(c.VacantUntil!.Value.DayNumber - engine.State.Date.DayNumber,
             BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays));
+    }
+
+    [Fact]
+    public void LosingTheBoardsConfidence_GetsMeSackedAndTheGameCarriesOnUntilIFindAJob()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var state = engine.State;
+        PlayUntil(engine, new DateOnly(2026, 8, 20));
+
+        state.BoardConfidence = BoardConfidenceRules.UserSackedBelow - 1;
+        PlayUntil(engine, state.Date.AddDays(1));
+
+        Assert.True(engine.IsUnemployed);
+        Assert.True(engine.GameInProgress);
+        Assert.Null(engine.CurrentClub);
+        Assert.Null(engine.MyCompetition);
+        Assert.Contains(state.Notifications, n => n.Subject.StartsWith("Sacked by"));
+
+        // Months pass with the AI playing every fixture, my old club's included.
+        PlayUntil(engine, new DateOnly(2026, 10, 20));
+        Assert.All(state.Competitions.SelectMany(c => c.Fixtures).Where(f => f.Date < state.Date), f => Assert.True(f.Concluded));
+        Assert.Contains("Out of work", engine.NextMatchCaption());
+
+        // Still unemployed after a save and load.
+        Assert.Equal("Game saved successfully.", engine.SaveGame("unemployed"));
+        engine.StartNewGame();
+        Assert.Null(engine.LoadGame("unemployed.fms"));
+        Assert.True(engine.IsUnemployed);
+
+        var vacancy = state.Clubs.First(c => c.Id != 9);
+        vacancy.VacantUntil = state.Date.AddDays(7);
+        Assert.True(_host.Get<IJobOfferHelper>().JoinClub(vacancy.Id));
+        Assert.False(engine.IsUnemployed);
+        Assert.Equal(vacancy.Id, engine.MyClub.Id);
+        PlayUntil(engine, state.Date.AddDays(14));
     }
 
     [Fact]

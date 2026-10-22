@@ -8,7 +8,7 @@
 <PageTitle>Competitions</PageTitle>
 
 @{
-    var selectedId = Id ?? Engine.MyClub.LeagueId;
+    var selectedId = Id ?? Engine.CurrentClub?.LeagueId ?? Engine.Leagues.OrderBy(p => p.Rank).FirstOrDefault()?.Id ?? 0;
     var competition = Engine.State.Competitions.FirstOrDefault(p => p.Id == selectedId);
     var league = competition as LeagueModel;
     var cup = competition as CupModel;
@@ -50,7 +50,7 @@
                 @for (var i = 0; i < table.Count; i++)
                 {
                     var row = table[i];
-                    var isMine = row.Club.Id == Engine.MyClub.Id;
+                    var isMine = row.Club.Id == Engine.State.MyClubId;
                     <tr class="clickable @(isMine ? "highlight" : "") @ZoneClass(i + 1, league.Id)" @onclick='() => Nav.NavigateTo($"/club/{row.Club.Id}")'>
                         <td class="num">@(i + 1)</td>
                         <td><strong>@row.Club.Name</strong></td>
@@ -89,7 +89,7 @@ else if (cup != null)
                 <div class="fixture-block-head">Round @round.Key</div>
                 @foreach (var f in round.OrderBy(f => f.Date).ThenBy(f => f.KickOffTime))
                 {
-                    var mine = f.HomeClub.Id == Engine.MyClub.Id || f.AwayClub.Id == Engine.MyClub.Id;
+                    var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
                     <div class="fixture-row @(mine ? "mine" : "")">
                         <div class="fixture-row-border"></div>
                         <div class="fixture-row-inner">

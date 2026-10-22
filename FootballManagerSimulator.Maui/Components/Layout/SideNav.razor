@@ -5,13 +5,19 @@
 <nav class="sidenav">
     <NavItem Href="/game" Icon="🏠" Label="Hub" Badge="@(Engine.UnreadNotificationCount > 0 ? Engine.UnreadNotificationCount.ToString() : null)" />
     <NavItem Href="/manager" Icon="👨‍💼" Label="Manager Profile" />
-    <NavItem Href="@($"/club/{Engine.MyClub.Id}")" Icon="👕" Label="My Club" />
-    <NavItem Href="/tactics" Icon="♟️" Label="Tactics" />
+    @if (!Engine.IsUnemployed)
+    {
+        <NavItem Href="@($"/club/{Engine.MyClub.Id}")" Icon="👕" Label="My Club" />
+        <NavItem Href="/tactics" Icon="♟️" Label="Tactics" />
+    }
     <NavItem Href="/league-table" Icon="📊" Label="League Table" />
     <NavItem Href="/fixtures" Icon="📅" Label="Fixtures" />
     <NavItem Href="/scout" Icon="🔍" Label="Scout" />
-    <NavItem Href="/transfers" Icon="💷" Label="Transfer List" />
-    <NavItem Href="/board" Icon="🏛️" Label="Board" />
+    @if (!Engine.IsUnemployed)
+    {
+        <NavItem Href="/transfers" Icon="💷" Label="Transfer List" />
+        <NavItem Href="/board" Icon="🏛️" Label="Board" />
+    }
     <NavItem Href="/jobs" Icon="💼" Label="Jobs" />
 
     <div class="sidenav-spacer"></div>

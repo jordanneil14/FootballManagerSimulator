@@ -28,7 +28,7 @@
     private string? _message;
 
     protected override void OnInitialized() =>
-        _fileName = $"{Engine.MyClub.Name}".Replace(" ", "-").ToLower();
+        _fileName = $"{Engine.CurrentClub?.Name ?? Engine.State.ManagerName}".Replace(" ", "-").ToLower();
 
     private void DoSave()
     {

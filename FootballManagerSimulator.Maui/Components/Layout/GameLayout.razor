@@ -17,8 +17,34 @@ else
         <div class="game-body">
             <SideNav />
             <section class="game-content">
-                @Body
+                @if (Engine.IsUnemployed && IsClubOnlyPage)
+                {
+                    <div class="empty-state">
+                        <h1>You are not managing a club</h1>
+                        <p>Find your next job to get back in the dugout.</p>
+                        <a class="btn btn-primary" href="/jobs">View Jobs</a>
+                    </div>
+                }
+                else
+                {
+                    @Body
+                }
             </section>
         </div>
     </div>
+}
+
+@code {
+    // Pages that only make sense while you have a club, e.g. reached via the back button after being sacked.
+    private static readonly string[] ClubOnlyPages = ["tactics", "transfers", "board", "prematch", "match", "fulltime"];
+
+    private bool IsClubOnlyPage
+    {
+        get
+        {
+            var path = Nav.ToBaseRelativePath(Nav.Uri).Split('?', '#')[0];
+            var section = path.Split('/', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
+            return ClubOnlyPages.Contains(section, StringComparer.OrdinalIgnoreCase);
+        }
+    }
 }

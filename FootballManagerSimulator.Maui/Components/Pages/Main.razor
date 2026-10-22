@@ -61,6 +61,16 @@
     }
 </div>
 
+@if (Engine.IsUnemployed)
+{
+    <div class="panel">
+        <h2>💼 Out of Work</h2>
+        <p>You are not managing a club. Keep an eye on the Jobs screen for clubs looking for a new manager.</p>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/jobs")'>View Jobs</button>
+    </div>
+}
+else
+{
 <div class="stat-row">
     <div class="stat-pair">
         <div class="stat" style="cursor:pointer" @onclick='() => Nav.NavigateTo("/league-table")'>
@@ -107,6 +117,7 @@
         </div>
     }
 </div>
+}
 
 @code {
     private string? _error;

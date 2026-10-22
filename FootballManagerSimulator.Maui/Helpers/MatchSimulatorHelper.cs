@@ -557,13 +557,13 @@ public class MatchSimulatorHelper(
 
     public void PrepareMatch(FixtureModel fixture)
     {
-        if (fixture.HomeClub.Id != State.Clubs.First(p => p.Id == State.MyClubId).Id)
+        if (fixture.HomeClub.Id != State.MyClubId)
         {
             TacticHelper.ResetTacticForClub(fixture.HomeClub);
             TacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
         }
 
-        if (fixture.AwayClub.Id != State.Clubs.First(p => p.Id == State.MyClubId).Id)
+        if (fixture.AwayClub.Id != State.MyClubId)
         {
             TacticHelper.ResetTacticForClub(fixture.AwayClub);
             TacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);

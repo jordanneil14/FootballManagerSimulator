@@ -126,9 +126,15 @@ public class GameEngine(
         NotifyChanged();
     }
 
-    public bool GameInProgress => State.MyClubId != null && State.Clubs.Any(p => p.Id == State.MyClubId);
+    // Sacked managers carry on without a club. A job history tells that apart from a game still being set up.
+    public bool IsUnemployed => State.MyClubId == null && State.ManagerHistory.Jobs.Count > 0 && State.Clubs.Count > 0;
 
+    public bool GameInProgress => (State.MyClubId != null && State.Clubs.Any(p => p.Id == State.MyClubId)) || IsUnemployed;
+
+    // Only use where a club is guaranteed, i.e. pages and actions that are hidden while unemployed.
     public ClubModel MyClub => State.Clubs.First(p => p.Id == State.MyClubId);
+
+    public ClubModel? CurrentClub => State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
 
     // ---------------------------------------------------------------------------------
     // New-game flow (Welcome -> CreateManager -> SelectLeague -> SelectClub)
@@ -342,13 +348,14 @@ public class GameEngine(
 
     public int UnreadNotificationCount => State.Notifications.Count(p => p.Date <= State.Date);
 
-    public ICompetition? MyCompetition => State.Competitions.FirstOrDefault(p => p.Id == MyClub.LeagueId);
+    public ICompetition? MyCompetition => CurrentClub is { } club ? State.Competitions.FirstOrDefault(p => p.Id == club.LeagueId) : null;
 
     public IEnumerable<LeagueModel> Leagues => State.Competitions.Where(p => p.IsLeague).Cast<LeagueModel>();
 
     public string NextMatchCaption()
     {
-        var myClub = MyClub;
+        if (CurrentClub is not { } myClub) return "Out of work · find a club on the Jobs screen";
+
         var nextFixture = State.Competitions
             .SelectMany(p => p.Fixtures)
             .Where(p => p.Date >= State.Date && (p.HomeClub.Id == myClub.Id || p.AwayClub.Id == myClub.Id))
@@ -668,7 +675,8 @@ public class GameEngine(
     public PlayerModel? GetPlayer(int id) => playerHelper.GetPlayerById(id);
     public int GetTransferValue(PlayerModel player) => playerHelper.GetTransferValue(player);
     public ClubModel? GetClub(int id) => clubHelper.GetClubById(id);
-    public bool PlayerPlaysForMyClub(int playerId) => playerHelper.DoesPlayerPlaysForClub(playerId, MyClub.Id);
+    public bool PlayerPlaysForMyClub(int playerId) =>
+        State.MyClubId is { } myClubId && playerHelper.DoesPlayerPlaysForClub(playerId, myClubId);
 
     // ---------------------------------------------------------------------------------
     // Save / load

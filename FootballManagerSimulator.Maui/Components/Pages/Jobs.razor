@@ -72,7 +72,7 @@
 
 <ConfirmModal Visible="_pendingClub != null"
               Title="@($"Join {_pendingClub?.Name}?")"
-              Message="@($"You will leave {Engine.MyClub.Name} and take charge of {_pendingClub?.Name}. Board confidence starts again at {BoardConfidenceRules.Starting}/100.")"
+              Message="@($"{(Engine.CurrentClub is { } current ? $"You will leave {current.Name} and take charge" : "You will take charge")} of {_pendingClub?.Name}. Board confidence starts again at {BoardConfidenceRules.Starting}/100.")"
               OnConfirm="ConfirmJoin"
               OnCancel="() => _pendingClub = null" />
 

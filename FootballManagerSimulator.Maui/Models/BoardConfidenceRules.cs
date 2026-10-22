@@ -15,6 +15,9 @@ public static class BoardConfidenceRules
 
     // AI clubs sack their manager below this and stay without one for a short spell.
     public const int SackedBelow = 10;
+
+    // The board sacks you when its confidence falls below this.
+    public const int UserSackedBelow = 5;
     public const int VacancyMinDays = 7;
     public const int VacancyMaxDays = 14;
 

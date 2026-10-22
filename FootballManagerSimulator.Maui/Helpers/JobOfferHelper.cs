@@ -98,11 +98,12 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             notification.Message = $"You accepted the job at {State.Clubs.First(p => p.Id == State.MyClubId).Name} and left {oldClubName}.";
     }
 
+    // Works whether you are leaving a club or out of work.
     public bool JoinClub(int clubId)
     {
         var newClub = State.Clubs.FirstOrDefault(p => p.Id == clubId);
         var oldClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
-        if (newClub == null || oldClub == null || newClub.Id == oldClub.Id)
+        if (newClub == null || newClub.Id == oldClub?.Id)
             return false;
 
         State.MyClubId = newClub.Id;
@@ -111,18 +112,9 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         // Both clubs start afresh: the new one with you, the old one with a replacement.
         newClub.JobSecurity = BoardConfidenceRules.Starting;
         newClub.VacantUntil = null;
-        oldClub.JobSecurity = BoardConfidenceRules.Starting;
 
-        // Requests made at the old club would otherwise pay out to (or rebuild) the new one.
-        foreach (var @event in State.Events.Where(p => !p.IsCompleted
-            && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionRequestEvent or StadiumExpansionEvent))
-            @event.IsCompleted = true;
-
-        foreach (var pending in State.Notifications.Where(p => p.RequiresAction))
-        {
-            pending.RequiresAction = false;
-            pending.Message += $"\n\nNo longer relevant: you have left {oldClub.Name}.";
-        }
+        if (oldClub != null)
+            LeaveClub(oldClub);
 
         NotificationFactory.AddNotification(
             State.Date,
@@ -131,6 +123,42 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             $"Everyone at {newClub.Name} wishes you a successful reign as manager. Your transfer budget is {newClub.TransferBudgetFriendly}.");
 
         return true;
+    }
+
+    // The board has run out of patience. The club appoints a replacement straight away, so it never
+    // shows up as a vacancy you could walk back into.
+    public void SackUser()
+    {
+        var club = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
+        if (club == null)
+            return;
+
+        State.MyClubId = null;
+        State.ManagerHistory.EndJob(State.Date);
+        State.BoardConfidence = BoardConfidenceRules.Starting;
+        LeaveClub(club);
+
+        NotificationFactory.AddNotification(
+            State.Date,
+            $"{club.Name} Chairman",
+            $"Sacked by {club.Name}",
+            $"Results have not been good enough and the board has lost confidence in you. You have been relieved of your duties as manager of {club.Name}. Vacant jobs are listed on the Jobs screen.");
+    }
+
+    private void LeaveClub(ClubModel oldClub)
+    {
+        oldClub.JobSecurity = BoardConfidenceRules.Starting;
+
+        // Requests made at the old club would otherwise pay out to (or rebuild) whichever club you manage next.
+        foreach (var @event in State.Events.Where(p => !p.IsCompleted
+            && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionRequestEvent or StadiumExpansionEvent or AcademyUpgradeEvent))
+            @event.IsCompleted = true;
+
+        foreach (var pending in State.Notifications.Where(p => p.RequiresAction))
+        {
+            pending.RequiresAction = false;
+            pending.Message += $"\n\nNo longer relevant: you have left {oldClub.Name}.";
+        }
     }
 
     public void DeclineJobOffer(NotificationModel notification)

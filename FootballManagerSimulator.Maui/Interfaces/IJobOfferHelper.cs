@@ -12,4 +12,5 @@ public interface IJobOfferHelper
     IEnumerable<ClubModel> ManagersUnderThreat();
     void ProcessVacancies();
     bool JoinClub(int clubId);
+    void SackUser();
 }

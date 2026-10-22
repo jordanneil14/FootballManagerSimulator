@@ -166,6 +166,13 @@ p { color: var(--text-dim); line-height: 1.55; }
     color: #04130c; font-weight: 800; font-family: var(--mono); letter-spacing: .02em;
     font-size: .82rem;
 }
+/* Shown in place of a club crest while the manager is out of work */
+.crest.crest-unemployed {
+    background: var(--panel-2);
+    border: 2px dashed var(--text-faint);
+    color: var(--text-dim);
+    font-size: 1.3rem;
+}
 .topbar-club-name { font-weight: 700; font-size: 1.05rem; }
 .topbar-manager { font-size: .82rem; color: var(--text-dim); }
 .topbar-next {

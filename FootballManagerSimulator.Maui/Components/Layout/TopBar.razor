@@ -3,9 +3,16 @@
 
 <header class="topbar">
     <div class="topbar-club">
-        <span class="crest" style="@CrestStyle(Engine.MyClub.Colour)">🛡️</span>
+        @if (Engine.CurrentClub is { } club)
+        {
+            <span class="crest" style="@CrestStyle(club.Colour)">🛡️</span>
+        }
+        else
+        {
+            <span class="crest crest-unemployed" title="Unemployed">💼</span>
+        }
         <div>
-            <div class="topbar-club-name">@Engine.MyClub.Name</div>
+            <div class="topbar-club-name">@(Engine.CurrentClub?.Name ?? "Unemployed")</div>
             <div class="topbar-manager">@Engine.State.ManagerName</div>
         </div>
     </div>

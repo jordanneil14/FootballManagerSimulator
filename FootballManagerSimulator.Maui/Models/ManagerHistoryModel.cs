@@ -37,6 +37,12 @@ public class ManagerHistoryModel
         Jobs.Add(new ManagerJobModel { ClubId = club.Id, ClubName = club.Name, StartDate = date });
     }
 
+    public void EndJob(DateOnly date)
+    {
+        if (CurrentJob is { } current)
+            current.EndDate = date;
+    }
+
     public void RecordResult(int goalsFor, int goalsAgainst, bool? won)
     {
         var job = CurrentJob;

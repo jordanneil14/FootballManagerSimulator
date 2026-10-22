@@ -45,6 +45,10 @@ public class ProcessHelper(
         State.Date = State.Date.AddDays(1);
         State.Weather = WeatherHelper.GetTodaysWeather();
 
+        // Checked the day after a result so the match day itself plays out normally.
+        if (State.MyClubId != null && State.BoardConfidence < BoardConfidenceRules.UserSackedBelow)
+            JobOfferHelper.SackUser();
+
         if (State.Date.Month == 6 && State.Date.Day == 30)
         {
             ProcessEndOfSeason();
@@ -71,7 +75,7 @@ public class ProcessHelper(
         foreach (var comp in State.Competitions.Where(p => p.Year == State.Date.Year || p.Year == State.Date.Year - 1))
         {
             var fixture = comp.Fixtures
-                .Where(p => p.Date >= State.Date && (p.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id || p.AwayClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id))
+                .Where(p => p.Date >= State.Date && (p.HomeClub.Id == State.MyClubId || p.AwayClub.Id == State.MyClubId))
                 .OrderBy(p => p.Round)
                 .FirstOrDefault();
 
