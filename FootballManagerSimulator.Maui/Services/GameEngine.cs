@@ -621,26 +621,16 @@ public class GameEngine(
             return games;
         }
 
-        var previewSettings = new JsonSerializerSettings
-        {
-            TypeNameHandling = TypeNameHandling.Auto,
-            Error = (sender, args) => args.ErrorContext.Handled = true
-        };
-
         foreach (var file in files)
         {
             try
             {
-                var deserialised = JsonConvert.DeserializeObject<StateModel>(
-                    File.ReadAllText(file.FullName), previewSettings);
-                if (deserialised == null) continue;
-
-                var myClub = deserialised.Clubs.FirstOrDefault(p => p.Id == deserialised.MyClubId);
+                var (clubName, managerName) = ReadSavePreview(file.FullName);
                 games.Add(new LoadGamePreviewModel
                 {
                     FileName = file.Name,
-                    ClubName = myClub?.Name ?? "",
-                    ManagerName = deserialised.ManagerName,
+                    ClubName = clubName,
+                    ManagerName = managerName,
                     SaveDate = file.LastWriteTime
                 });
             }
@@ -651,6 +641,71 @@ public class GameEngine(
         }
 
         return games.OrderByDescending(p => p.SaveDate);
+    }
+
+    // Streams only the top-level fields the preview needs, skipping players/competitions without allocating them.
+    private static (string ClubName, string ManagerName) ReadSavePreview(string path)
+    {
+        using var reader = new JsonTextReader(new StreamReader(path));
+        var clubNames = new Dictionary<int, string>();
+        int? myClubId = null;
+        string? managerName = null;
+
+        if (!reader.Read() || reader.TokenType != JsonToken.StartObject)
+            throw new JsonException("Not a save file.");
+
+        while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
+        {
+            var property = (string)reader.Value!;
+            reader.Read();
+
+            switch (property)
+            {
+                case nameof(StateModel.ManagerName):
+                    managerName = reader.Value as string;
+                    break;
+                case nameof(StateModel.MyClubId):
+                    myClubId = reader.Value == null ? null : Convert.ToInt32(reader.Value);
+                    break;
+                case nameof(StateModel.Clubs) when reader.TokenType == JsonToken.StartArray:
+                    ReadClubNames(reader, clubNames);
+                    break;
+                default:
+                    reader.Skip();
+                    break;
+            }
+
+            if (managerName != null && myClubId != null && clubNames.Count > 0)
+                break;
+        }
+
+        var clubName = myClubId != null && clubNames.TryGetValue(myClubId.Value, out var name) ? name : "";
+        return (clubName, managerName ?? "");
+    }
+
+    private static void ReadClubNames(JsonTextReader reader, Dictionary<int, string> clubNames)
+    {
+        while (reader.Read() && reader.TokenType == JsonToken.StartObject)
+        {
+            int? id = null;
+            string? name = null;
+
+            while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
+            {
+                var property = (string)reader.Value!;
+                reader.Read();
+
+                if (property == nameof(ClubModel.Id))
+                    id = Convert.ToInt32(reader.Value);
+                else if (property == nameof(ClubModel.Name))
+                    name = reader.Value as string;
+                else
+                    reader.Skip();
+            }
+
+            if (id != null && name != null)
+                clubNames[id.Value] = name;
+        }
     }
 
     public string? LoadGame(string fileName)
