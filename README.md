@@ -32,7 +32,7 @@ dotnet build FootballManagerSimulator.Maui -f net10.0-android -c Debug
 Output APK:
 
 ```
-FootballManagerSimulator.Maui\bin\Debug\net10.0-android\com.jordanneil.footballmanagersimulator-Signed.apk
+FootballManagerSimulator.Maui\bin\Debug\net10.0-android\com.jordanneil.pocketgaffer-Signed.apk
 ```
 
 Debug builds embed the .NET assemblies in the APK (`EmbedAssembliesIntoApk` in the csproj), so it is
@@ -54,5 +54,5 @@ dotnet publish FootballManagerSimulator.Maui -f net10.0-android -c Release
 Sign the resulting app bundle with your own keystore. (The debug APK above is signed with the debug
 key — fine for local installs/testing, not for store submission.)
 
-- **App ID:** `com.jordanneil.footballmanagersimulator`
-- **Display name:** Football Manager
+- **App ID:** `com.jordanneil.pocketgaffer`
+- **Display name:** Pocket Gaffer
