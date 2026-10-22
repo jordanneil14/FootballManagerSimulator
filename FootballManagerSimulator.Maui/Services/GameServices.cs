@@ -3,7 +3,6 @@ using FootballManagerSimulator.Maui.Competitions.Services;
 using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
-using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
 using NetCore.AutoRegisterDi;
 

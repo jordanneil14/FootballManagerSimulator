@@ -4,7 +4,6 @@ using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Exceptions;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
-using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -205,7 +204,7 @@ public class GameEngine(
         if (includesMyClub)
         {
             foreach (var fixture in TodaysFixtures())
-                matchSimulator.PrepareMatch(fixture);
+                MatchSimulator.PrepareMatch(fixture);
 
             NotifyChanged();
             return TodaysFixturesResult.PreMatch;
@@ -215,8 +214,8 @@ public class GameEngine(
         {
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date))
             {
-                matchSimulator.PrepareMatch(fixture);
-                matchSimulator.ConcludeFixture(fixture, competition);
+                MatchSimulator.PrepareMatch(fixture);
+                MatchSimulator.ConcludeFixture(fixture, competition);
             }
         }
 
@@ -258,11 +257,11 @@ public class GameEngine(
             {
                 if (fixture == myFixture)
                 {
-                    matchSimulator.PreGenerateMatch(fixture);
+                    MatchSimulator.PreGenerateMatch(fixture);
                 }
                 else
                 {
-                    matchSimulator.ConcludeFixture(fixture, competition);
+                    MatchSimulator.ConcludeFixture(fixture, competition);
                 }
             }
         }
@@ -279,7 +278,7 @@ public class GameEngine(
     {
         foreach (var competition in State.Competitions)
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date))
-                matchSimulator.ProcessMatch(fixture, competition);
+                MatchSimulator.ProcessMatch(fixture, competition);
 
         NotifyChanged();
 
@@ -288,7 +287,7 @@ public class GameEngine(
         {
             foreach (var competition in State.Competitions)
                 foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded))
-                    matchSimulator.ProcessMatch(fixture, competition);
+                    MatchSimulator.ProcessMatch(fixture, competition);
 
             return true;
         }
@@ -303,7 +302,7 @@ public class GameEngine(
     {
         var competition = GetCompetitionForFixture(fixture);
         if (competition != null)
-            matchSimulator.FinaliseMatch(fixture, competition);
+            MatchSimulator.FinaliseMatch(fixture, competition);
         NotifyChanged();
     }
 
@@ -312,7 +311,7 @@ public class GameEngine(
     {
         foreach (var competition in State.Competitions)
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded))
-                matchSimulator.ProcessMatch(fixture, competition);
+                MatchSimulator.ProcessMatch(fixture, competition);
 
         NotifyChanged();
     }

@@ -690,11 +690,7 @@ public class TacticHelper(
             var emptySlot = subSlots.FirstOrDefault(s => !s.PlayerId.HasValue);
             if (emptySlot == null) break;
 
-            var bestPlayer = club.TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null
-                    && !suspendedIds.Contains(p.PlayerId.Value)
-                    && !assignedIds.Contains(p.PlayerId.Value))
-                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId.Value) })
+            var bestPlayer = AvailableReserves(club, suspendedIds, assignedIds)
                 .Where(p => GetPositionGroup(p.Player.PreferredPosition) == group)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
@@ -708,11 +704,7 @@ public class TacticHelper(
 
         foreach (var emptySlot in subSlots.Where(s => !s.PlayerId.HasValue).ToList())
         {
-            var bestRemaining = club.TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null
-                    && !suspendedIds.Contains(p.PlayerId.Value)
-                    && !assignedIds.Contains(p.PlayerId.Value))
-                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId.Value) })
+            var bestRemaining = AvailableReserves(club, suspendedIds, assignedIds)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
 
@@ -723,6 +715,21 @@ public class TacticHelper(
             assignedIds.Add(bestRemaining.Player.Id);
         }
     }
+
+    // Reserves who can be named as a substitute: not suspended and not already picked.
+    private IEnumerable<ReserveCandidate> AvailableReserves(ClubModel club, HashSet<int> suspendedIds, HashSet<int> assignedIds)
+    {
+        foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES))
+        {
+            if (slot.PlayerId is not { } playerId || suspendedIds.Contains(playerId) || assignedIds.Contains(playerId))
+                continue;
+
+            if (PlayerHelper.GetPlayerById(playerId) is { } player)
+                yield return new ReserveCandidate(slot, player);
+        }
+    }
+
+    private sealed record ReserveCandidate(TacticSlotModel Slot, PlayerModel Player);
 
     private static string GetPositionGroup(string position)
     {

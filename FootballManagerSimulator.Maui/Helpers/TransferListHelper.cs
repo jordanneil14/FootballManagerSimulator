@@ -78,7 +78,7 @@ public class TransferListHelper(
     {
         var transferListItem = State.TransferListItems.First(p => p.PlayerId == playerId);
 
-        var existingClubId = State.Players.First(p => p.Id == playerId).Contract.ClubId;
+        var existingClubId = State.Players.First(p => p.Id == playerId).Contract?.ClubId ?? transferListItem.ClubId;
         State.Clubs.First(p => p.Id == existingClubId).TransferBudget += transferListItem.AskingPrice;
 
         var oldClub = State.Clubs.First(p => p.Id == existingClubId);
@@ -139,7 +139,7 @@ public class TransferListHelper(
                 {
                     PlayerId = p.Id,
                     AskingPrice = askingPrice,
-                    ClubId = p.Contract.ClubId
+                    ClubId = p.Contract!.ClubId // only contracted players are picked above
                 };
             }).ToList();
 
@@ -191,13 +191,12 @@ public class TransferListHelper(
 
             var previousClub = ClubHelper.GetClubById(randomPlayer.ClubId);
             var buyingClub = ClubHelper.GetClubById(suitableClub.Value);
-            var transferredPlayer = PlayerHelper.GetPlayerById(randomPlayer.PlayerId);
 
             NotificationFactory.AddNotification(
                 State.Date,
                 "Press Officer",
-                $"{buyingClub.Name} sign {transferredPlayer.Name}",
-                $"{transferredPlayer.Name} signs for {buyingClub.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
+                $"{buyingClub.Name} sign {listedPlayer.Name}",
+                $"{listedPlayer.Name} signs for {buyingClub.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
         }
     }
 

@@ -28,8 +28,11 @@ public class MainActivity : MauiAppCompatActivity
             }
 
             var controller = WindowCompat.GetInsetsController(Window, Window.DecorView);
-            controller.AppearanceLightStatusBars = false;
-            controller.AppearanceLightNavigationBars = false;
+            if (controller != null)
+            {
+                controller.AppearanceLightStatusBars = false;
+                controller.AppearanceLightNavigationBars = false;
+            }
         }
 
         var content = Window?.DecorView.FindViewById(Android.Resource.Id.Content);
@@ -41,10 +44,16 @@ public class MainActivity : MauiAppCompatActivity
 
     private sealed class InsetsListener : Java.Lang.Object, IOnApplyWindowInsetsListener
     {
-        public WindowInsetsCompat OnApplyWindowInsets(Android.Views.View v, WindowInsetsCompat insets)
+        public WindowInsetsCompat? OnApplyWindowInsets(Android.Views.View? v, WindowInsetsCompat? insets)
         {
+            if (v == null || insets == null)
+                return insets;
+
             var bars = insets.GetInsets(WindowInsetsCompat.Type.SystemBars() | WindowInsetsCompat.Type.DisplayCutout());
             var ime = insets.GetInsets(WindowInsetsCompat.Type.Ime());
+            if (bars == null || ime == null)
+                return insets;
+
             // No top padding: the WebView draws behind the status bar so the page background shows there,
             // and the CSS pads its content by --safe-top instead.
             v.SetPadding(bars.Left, 0, bars.Right, Math.Max(bars.Bottom, ime.Bottom));

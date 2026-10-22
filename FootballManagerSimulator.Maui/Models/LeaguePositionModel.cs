@@ -3,7 +3,7 @@
 
 public class LeaguePositionModel
 {
-    public ClubModel Club { get; set; }
+    public ClubModel Club { get; set; } = new ClubModel();
     public int Points { get; set; }
     public int GoalsScored { get; set; }
     public int GoalsConceded { get; set; }

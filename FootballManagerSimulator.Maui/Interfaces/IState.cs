@@ -1,6 +1,5 @@
 ﻿using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Models;
-using FootballManagerSimulator.Maui.Models;
 
 namespace FootballManagerSimulator.Maui.Interfaces;
 

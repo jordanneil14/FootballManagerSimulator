@@ -112,11 +112,13 @@ public class MatchSimulatorHelper(
         var cumulative = 0d;
         foreach (var slot in tacticSlots)
         {
-            var player = PlayerHelper.GetPlayerById(slot.PlayerId.Value);
+            if (slot.PlayerId is not { } playerId || PlayerHelper.GetPlayerById(playerId) is not { } player)
+                continue;
+
             cumulative += player.ScoringProbability;
             playerRatingModels.Add(new PlayerRatingModel
             {
-                PlayerId = slot.PlayerId.Value,
+                PlayerId = playerId,
                 Rating = cumulative
             });
         }

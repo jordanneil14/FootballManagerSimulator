@@ -38,9 +38,8 @@ public class PlayerHelper(IState state) : IPlayerHelper
     {
         for (var i = 0; i < playerData.Players.Count(); i++)
         {
-            var club = playerData.Players.ElementAt(i).Contract?.ClubName == null
-                ? null
-                : GetClubByName(playerData.Players.ElementAt(i).Contract.ClubName);
+            var clubName = playerData.Players.ElementAt(i).Contract?.ClubName;
+            var club = clubName == null ? null : GetClubByName(clubName);
 
             playerData.Players.ElementAt(i).Id = i + 1;
 

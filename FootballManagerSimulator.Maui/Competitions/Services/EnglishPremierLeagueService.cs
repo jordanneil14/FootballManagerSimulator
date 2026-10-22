@@ -18,7 +18,7 @@ public class EnglishPremierLeagueService(
             ? State.Clubs.First(p => p.Id == fixture.AwayClub.Id)
             : State.Clubs.First(p => p.Id == fixture.HomeClub.Id);
 
-        var league = State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId) as LeagueModel;
+        var league = (LeagueModel)State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId);
         var leagueTable = league.GenerateLeagueTable().ToList();
 
         var leaguePosition = leagueTable.First(p => p.Club.Id == oppositionClub.Id);
