@@ -272,8 +272,39 @@ public class MatchSimulatorHelper(
         ApplySuspensions(fixture, competition);
 
         if (!wasConcluded)
+        {
             UpdateBoardConfidence(fixture, competition);
+            RecordManagerResult(fixture, competition);
+        }
     }
+
+    private void RecordManagerResult(FixtureModel fixture, ICompetition competition)
+    {
+        var myClubId = State.MyClubId;
+        if (competition.Type == CompetitionType.Friendly || myClubId == null
+            || (fixture.HomeClub.Id != myClubId && fixture.AwayClub.Id != myClubId))
+            return;
+
+        // A shootout adds one goal to the winner's score (logged after minute 120); it isn't a real goal.
+        var isHome = fixture.HomeClub.Id == myClubId;
+        var homeGoals = (fixture.GoalsHome ?? 0) - fixture.HomeScorers.Count(g => g.Minute > 120);
+        var awayGoals = (fixture.GoalsAway ?? 0) - fixture.AwayScorers.Count(g => g.Minute > 120);
+        bool? won = fixture.ClubWon == null ? null : fixture.ClubWon.Id == myClubId;
+
+        State.ManagerHistory.RecordResult(isHome ? homeGoals : awayGoals, isHome ? awayGoals : homeGoals, won);
+
+        if (won != true)
+            return;
+
+        if (fixture.FixtureType == FixtureType.PlayoffFinal)
+            State.ManagerHistory.AddTrophy($"{competition.Name} Play-off Final", fixture.Date);
+        else if (IsCupFinal(fixture, competition))
+            State.ManagerHistory.AddTrophy(competition.Name, fixture.Date);
+    }
+
+    private static bool IsCupFinal(FixtureModel fixture, ICompetition competition) =>
+        (competition.Type == CompetitionType.Cup || competition.Type == CompetitionType.EnglishCommunityShield)
+        && (competition.DrawSettings.Count == 0 || fixture.Round == competition.DrawSettings.Max(p => p.Round));
 
     private void UpdateBoardConfidence(FixtureModel fixture, ICompetition competition)
     {

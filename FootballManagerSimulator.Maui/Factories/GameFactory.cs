@@ -1,6 +1,7 @@
 ﻿using FootballManagerSimulator.Maui.Competitions.Services;
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Helpers;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.PlayerGenerator;
@@ -44,6 +45,10 @@ public class GameFactory(
 		State.ManagerName = GameCreator.ManagerName;
 		State.MyClubId = GameCreator.ClubId;
 
+		State.ManagerHistory.StartJob(State.Clubs.First(p => p.Id == State.MyClubId), State.Date);
+
+		CreateStartingVacancies();
+
 		State.Weather = WeatherHelper.GetTodaysWeather();
 
 		NotificationFactory.AddNotification(
@@ -80,6 +85,19 @@ public class GameFactory(
 
 		TransferListHelper.UpdateTransferList();
 	}
+
+    private void CreateStartingVacancies()
+    {
+        var count = RandomNumberHelper.Next(BoardConfidenceRules.StartingVacanciesMin, BoardConfidenceRules.StartingVacanciesMax + 1);
+        var clubs = State.Clubs
+            .Where(p => p.Id != State.MyClubId)
+            .OrderBy(_ => RandomNumberHelper.Next())
+            .Take(count);
+
+        foreach (var club in clubs)
+            club.VacantUntil = State.Date.AddDays(
+                RandomNumberHelper.Next(BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays + 1));
+    }
 
     public void IntitialiseGameState()
     {

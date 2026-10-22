@@ -18,6 +18,10 @@ public static class BoardConfidenceRules
     public const int VacancyMinDays = 7;
     public const int VacancyMaxDays = 14;
 
+    // A new game opens with a few clubs already looking for a manager.
+    public const int StartingVacanciesMin = 2;
+    public const int StartingVacanciesMax = 4;
+
     public static int Apply(int confidence, int change) => Math.Clamp(confidence + change, Min, Max);
 
     public static string Label(int confidence) => confidence switch

@@ -1,0 +1,103 @@
+@page "/manager"
+@layout GameLayout
+@inject GameEngine Engine
+
+<PageTitle>Manager Profile</PageTitle>
+
+@{
+    var history = Engine.State.ManagerHistory;
+    var goalDifference = history.GoalsFor - history.GoalsAgainst;
+}
+
+<div class="page-head"><div><h1>Manager Profile</h1><div class="subtitle">@Engine.State.ManagerName · Manager of @Engine.MyClub.Name</div></div></div>
+
+<div class="panel">
+    <h2>🆚 Head-To-Head</h2>
+    <div class="table-wrap">
+        <table class="data">
+            <tbody>
+                <tr><td>Games</td><td class="num">@history.Played</td></tr>
+                <tr><td>Won</td><td class="num" style="color:var(--accent)">@history.Won</td></tr>
+                <tr><td>Drawn</td><td class="num" style="color:var(--warn)">@history.Drawn</td></tr>
+                <tr><td>Lost</td><td class="num" style="color:var(--danger)">@history.Lost</td></tr>
+                <tr><td>Win %</td><td class="num">@Percent(history.WinPercentage)</td></tr>
+                <tr><td>Points per game</td><td class="num">@history.PointsPerGame.ToString("0.00")</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="panel">
+    <h2>⚽ Goals</h2>
+    <div class="table-wrap">
+        <table class="data">
+            <tbody>
+                <tr><td>Scored</td><td class="num">@history.GoalsFor</td></tr>
+                <tr><td>Conceded</td><td class="num">@history.GoalsAgainst</td></tr>
+                <tr><td>Goal difference</td><td class="num">@(goalDifference > 0 ? "+" : "")@goalDifference</td></tr>
+                <tr><td>Scored per game</td><td class="num">@PerGame(history.GoalsFor, history.Played)</td></tr>
+                <tr><td>Conceded per game</td><td class="num">@PerGame(history.GoalsAgainst, history.Played)</td></tr>
+                <tr><td>Clean sheets</td><td class="num">@history.CleanSheets</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="panel">
+    <h2>🏆 Trophies <span class="panel-title-sub">@history.Trophies.Count</span></h2>
+    @if (!history.Trophies.Any())
+    {
+        <p class="muted">No trophies yet. League titles, cup wins and play-off finals will appear here.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Season</th><th>Trophy</th><th>Club</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var trophy in history.Trophies.OrderByDescending(p => p.Date))
+                    {
+                        <tr>
+                            <td class="muted">@trophy.Season</td>
+                            <td><strong>@trophy.Name</strong></td>
+                            <td class="muted">@trophy.ClubName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="panel">
+    <h2>💼 Job History <span class="panel-title-sub">@history.Jobs.Count</span></h2>
+    <div class="table-wrap">
+        <table class="data">
+            <thead>
+                <tr><th>Club</th><th>From</th><th>To</th><th class="num">P</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="num">Win %</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Enumerable.Reverse(history.Jobs))
+                {
+                    <tr>
+                        <td><strong>@job.ClubName</strong></td>
+                        <td class="muted">@job.StartDate.ToString("dd MMM yyyy")</td>
+                        <td class="muted">@(job.EndDate?.ToString("dd MMM yyyy") ?? "Present")</td>
+                        <td class="num">@job.Played</td>
+                        <td class="num">@job.Won</td>
+                        <td class="num">@job.Drawn</td>
+                        <td class="num">@job.Lost</td>
+                        <td class="num">@Percent(job.WinPercentage)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private static string Percent(double value) => $"{value:0.0}%";
+    private static string PerGame(int total, int played) => ManagerJobModel.PerGame(total, played).ToString("0.00");
+}

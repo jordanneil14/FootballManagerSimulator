@@ -106,6 +106,7 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             return false;
 
         State.MyClubId = newClub.Id;
+        State.ManagerHistory.StartJob(newClub, State.Date);
         State.BoardConfidence = BoardConfidenceRules.Starting;
         // Both clubs start afresh: the new one with you, the old one with a replacement.
         newClub.JobSecurity = BoardConfidenceRules.Starting;

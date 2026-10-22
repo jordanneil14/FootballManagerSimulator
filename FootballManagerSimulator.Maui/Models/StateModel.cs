@@ -22,5 +22,6 @@ public class StateModel : IState
     public List<IEvent> Events { get; set; } = [];
     public int MatchSpeedMs { get; set; } = 1000;
     public int BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
+    public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();
 }
 

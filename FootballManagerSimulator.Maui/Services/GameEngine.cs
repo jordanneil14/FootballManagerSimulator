@@ -160,6 +160,7 @@ public class GameEngine(
         State.UserFeedbackUpdates.Clear();
         State.ScreenStack.Clear();
         State.BoardConfidence = BoardConfidenceRules.Starting;
+        State.ManagerHistory = new ManagerHistoryModel();
     }
 
     // ---------------------------------------------------------------------------------
@@ -774,6 +775,12 @@ public class GameEngine(
             State.UserFeedbackUpdates = deserialised.UserFeedbackUpdates;
             State.TransferListItems = deserialised.TransferListItems;
             State.BoardConfidence = deserialised.BoardConfidence;
+            State.ManagerHistory = deserialised.ManagerHistory;
+
+            // Saves from before the manager history existed start the record from today.
+            var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
+            if (State.ManagerHistory.CurrentJob == null && myClub != null)
+                State.ManagerHistory.StartJob(myClub, State.Date);
 
             State.Events.Clear();
             if (eventsJson != null)

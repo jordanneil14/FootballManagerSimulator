@@ -105,6 +105,18 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
+    public void NewGame_OpensWithAFewVacantJobsElsewhere()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var vacant = engine.State.Clubs.Where(c => c.VacantUntil != null).ToList();
+
+        Assert.InRange(vacant.Count, BoardConfidenceRules.StartingVacanciesMin, BoardConfidenceRules.StartingVacanciesMax);
+        Assert.DoesNotContain(vacant, c => c.Id == 9);
+        Assert.All(vacant, c => Assert.InRange(c.VacantUntil!.Value.DayNumber - engine.State.Date.DayNumber,
+            BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays));
+    }
+
+    [Fact]
     public void PlayingAWholeSeason_PromotesAndRelegatesAndStartsTheNextSeason()
     {
         var engine = _host.StartNewGame(clubId: 9);

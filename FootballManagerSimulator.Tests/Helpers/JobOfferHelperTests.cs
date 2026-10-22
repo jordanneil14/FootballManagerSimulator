@@ -158,4 +158,16 @@ public class JobOfferHelperTests
         Assert.Equal(90, _state.BoardConfidence);
         Assert.False(offer.RequiresAction);
     }
+
+    [Fact]
+    public void JoinClub_EndsTheOldJobAndStartsANewOneInTheManagerHistory()
+    {
+        _state.ManagerHistory.StartJob(_state.Clubs.First(p => p.Id == 3), new DateOnly(2026, 7, 1));
+
+        _helper.JoinClub(5);
+
+        Assert.Collection(_state.ManagerHistory.Jobs,
+            old => Assert.Equal((3, _state.Date), (old.ClubId, old.EndDate)),
+            current => Assert.Equal((5, (DateOnly?)null), (current.ClubId, current.EndDate)));
+    }
 }

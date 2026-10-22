@@ -22,4 +22,5 @@ public interface IState
     List<IEvent> Events { get; set; }
     int MatchSpeedMs { get; set; }
     int BoardConfidence { get; set; }
+    ManagerHistoryModel ManagerHistory { get; set; }
 }

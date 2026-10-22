@@ -81,6 +81,7 @@ public class ProcessHelper(
 
     private void ProcessEndOfSeason()
     {
+        RecordLeagueTitle();
         ProcessPromotionAndRelegation();
         ExpireContracts();
         TopUpSquads();
@@ -112,6 +113,18 @@ public class ProcessHelper(
         }
 
         return myIncrease;
+    }
+
+    // Must run before promotion and relegation move the club into next season's league.
+    private void RecordLeagueTitle()
+    {
+        var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
+        var myLeague = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == myClub?.LeagueId);
+        if (myClub == null || myLeague == null)
+            return;
+
+        if (myLeague.GenerateLeagueTable().FirstOrDefault()?.Club.Id == myClub.Id)
+            State.ManagerHistory.AddTrophy(myLeague.Name, State.Date);
     }
 
     private void ProcessPromotionAndRelegation()

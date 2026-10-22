@@ -329,6 +329,93 @@ public class MatchSimulatorHelperTests
         Assert.Equal(BoardConfidenceRules.Starting, _state.BoardConfidence);
     }
 
+    [Fact]
+    public void FinaliseMatch_RecordsMyCompetitiveResultsOnceInTheManagerHistory()
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+
+        var (friendly, friendlyComp) = NewFixture(CompetitionType.Friendly);
+        friendly.GoalsHome = 5;
+        friendly.GoalsAway = 0;
+        _simulator.FinaliseMatch(friendly, friendlyComp);
+
+        var (league, leagueComp) = NewFixture(CompetitionType.League);
+        league.GoalsHome = 2;
+        league.GoalsAway = 0;
+        _simulator.FinaliseMatch(league, leagueComp);
+        _simulator.FinaliseMatch(league, leagueComp);
+
+        var job = _state.ManagerHistory.CurrentJob!;
+        Assert.Equal((1, 1, 0, 0), (job.Played, job.Won, job.Drawn, job.Lost));
+        Assert.Equal((2, 0, 1), (job.GoalsFor, job.GoalsAgainst, job.CleanSheets));
+        Assert.Empty(_state.ManagerHistory.Trophies); // a league win is not a trophy
+    }
+
+    [Fact]
+    public void FinaliseMatch_WinningACupFinalOnPenaltiesAddsATrophyButNotTheShootoutGoal()
+    {
+        _state.MyClubId = Away.Id;
+        _state.ManagerHistory.StartJob(Away, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.Cup);
+        competition.DrawSettings.AddRange([new DrawSettingsModel { Round = 1 }, new DrawSettingsModel { Round = 2 }]);
+        fixture.Round = 2;
+        fixture.AwayScorers.Add(new GoalModel { Minute = 121, PlayerId = Away.TacticSlots[9].PlayerId!.Value });
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 2; // 1-1 after extra time, won on penalties
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        var job = _state.ManagerHistory.CurrentJob!;
+        Assert.Equal((1, 1, 1), (job.Won, job.GoalsFor, job.GoalsAgainst));
+        var trophy = Assert.Single(_state.ManagerHistory.Trophies);
+        Assert.Equal((competition.Name, Away.Name), (trophy.Name, trophy.ClubName));
+    }
+
+    [Fact]
+    public void FinaliseMatch_WinningAnEarlierCupRoundIsNotATrophy()
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.Cup);
+        competition.DrawSettings.AddRange([new DrawSettingsModel { Round = 1 }, new DrawSettingsModel { Round = 2 }]);
+        fixture.Round = 1;
+        fixture.GoalsHome = 3;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Empty(_state.ManagerHistory.Trophies);
+    }
+
+    [Fact]
+    public void ManagerHistory_TotalsAcrossJobsAndHandlesNoGames()
+    {
+        var history = new ManagerHistoryModel();
+        Assert.Equal((0d, 0d), (history.WinPercentage, history.PointsPerGame));
+
+        history.StartJob(Home, new DateOnly(2026, 7, 1));
+        history.RecordResult(2, 1, true);
+        history.RecordResult(0, 0, null);
+        history.StartJob(Away, new DateOnly(2027, 1, 1));
+        history.RecordResult(0, 3, false);
+        history.RecordResult(1, 0, true);
+
+        Assert.Equal(2, history.Jobs.Count);
+        Assert.Equal((4, 2, 1, 1), (history.Played, history.Won, history.Drawn, history.Lost));
+        Assert.Equal(50d, history.WinPercentage);
+        Assert.Equal(7 / 4d, history.PointsPerGame);
+        Assert.Equal((3, 4, 2), (history.GoalsFor, history.GoalsAgainst, history.CleanSheets));
+    }
+
+    [Theory]
+    [InlineData(2026, 8, 1, "2026/27")]
+    [InlineData(2027, 3, 1, "2026/27")]
+    [InlineData(2027, 6, 30, "2026/27")]
+    [InlineData(2099, 7, 1, "2099/00")]
+    public void ManagerHistory_SeasonLabelRunsJulyToJune(int year, int month, int day, string expected) =>
+        Assert.Equal(expected, ManagerHistoryModel.SeasonLabel(new DateOnly(year, month, day)));
+
     [Theory]
     [InlineData(100, "Secure")]
     [InlineData(75, "Secure")]
