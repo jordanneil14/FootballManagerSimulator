@@ -75,6 +75,7 @@ public class FullGameTests : IDisposable
         Assert.Equal(_host.Settings.Competitions.Count(), state.Competitions.Count);
         Assert.Equal(state.Players.Count, state.Players.Select(p => p.Id).Distinct().Count());
         Assert.Contains(state.Players, p => p.Contract == null); // free agents exist
+        Assert.All(state.Clubs, c => Assert.InRange(c.AcademyRating, AcademyRules.Min, AcademyRules.StartingMax));
 
         foreach (var club in state.Clubs)
         {
@@ -124,6 +125,16 @@ public class FullGameTests : IDisposable
         var division1 = state.Clubs.Where(c => c.LeagueId == 1).Select(c => c.Id).ToHashSet();
         var division2 = state.Clubs.Where(c => c.LeagueId == 2).Select(c => c.Id).ToHashSet();
         LeagueModel? finalDivision1 = null, finalDivision2 = null;
+
+        // 1 March: every club promotes 2-4 academy players aged 16 or 17, and I'm told about mine.
+        var lastIdBeforeIntake = state.Players.Max(p => p.Id);
+        PlayUntil(engine, new DateOnly(2027, 3, 1));
+        var intake = state.Players.Where(p => p.Id > lastIdBeforeIntake).ToList();
+        Assert.All(state.Clubs, c => Assert.InRange(intake.Count(p => p.Contract?.ClubId == c.Id), 2, 4));
+        Assert.All(intake, p => Assert.InRange(p.GetAge(state.Date), 16, 17));
+        Assert.All(intake, p => Assert.Contains(state.Clubs.Single(c => c.Id == p.Contract!.ClubId).TacticSlots, s => s.PlayerId == p.Id));
+        var youthNotification = Assert.Single(state.Notifications, n => n.Subject == "Youth Intake");
+        Assert.All(intake.Where(p => p.Contract!.ClubId == state.MyClubId), p => Assert.Contains(p.Name, youthNotification.Message));
 
         PlayUntil(engine, new DateOnly(2027, 6, 29));
 

@@ -127,6 +127,7 @@ public class GameFactory(
         foreach (var club in State.Clubs)
         {
             var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
+            club.AcademyRating = AcademyRules.StartingRating(leagueRank);
             var squadSize = random.Next(25, 31);
             var generated = generator.GenerateSquad(club.Name, squadSize, startDate, leagueRank);
             foreach (var gp in generated)

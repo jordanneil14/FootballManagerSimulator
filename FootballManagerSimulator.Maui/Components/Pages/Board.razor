@@ -14,6 +14,7 @@
 <div class="grid grid-2">
     <div class="stat"><div class="label">Transfer Budget</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
     <div class="stat"><div class="label">Stadium Capacity</div><div class="value">@Engine.MyClub.StadiumSize.ToString("n0")</div></div>
+    <div class="stat"><div class="label">Academy Rating</div><div class="value">@Engine.MyClub.AcademyRating / @AcademyRules.Max</div></div>
 </div>
 
 @{
@@ -80,10 +81,44 @@
             <button class="btn btn-primary" @onclick="RequestStadium">Request Stadium Expansion</button>
         }
     </div>
+    <div class="panel">
+        <h2>🎓 Youth Academy</h2>
+        @{
+            var academyUpgrade = Engine.AcademyUpgradeInProgress;
+            var upgradeCost = Engine.NextAcademyUpgradeCost;
+        }
+        @if (academyUpgrade != null)
+        {
+            var startDate = academyUpgrade.TriggerDate.AddMonths(-AcademyRules.UpgradeMonths);
+            var totalDays = (double)(academyUpgrade.TriggerDate.DayNumber - startDate.DayNumber);
+            var progress = Math.Clamp((Engine.State.Date.DayNumber - startDate.DayNumber) / totalDays, 0, 1);
+            var daysRemaining = academyUpgrade.TriggerDate.DayNumber - Engine.State.Date.DayNumber;
+
+            <p>The academy is being upgraded to <strong>@(Engine.MyClub.AcademyRating + 1) / @AcademyRules.Max</strong>.</p>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" style="width:@((int)(progress * 100))%"></div>
+            </div>
+            <p style="font-size:.82rem;margin-top:.5rem">
+                <strong>@((int)(progress * 100))%</strong> complete · @daysRemaining days remaining
+                · Completion: @academyUpgrade.TriggerDate.ToString("dd MMM yyyy")
+            </p>
+        }
+        else if (upgradeCost == null)
+        {
+            <p>Your academy is rated <strong>@Engine.MyClub.AcademyRating / @AcademyRules.Max</strong>, the best there is.</p>
+        }
+        else
+        {
+            <p>A better academy produces better players in the youth intake on 1 March. Your academy is rated <strong>@Engine.MyClub.AcademyRating / @AcademyRules.Max</strong>.</p>
+            <p style="font-size:.82rem">Upgrading to @(Engine.MyClub.AcademyRating + 1) costs <strong>@Ui.Money(upgradeCost.Value)</strong> from the transfer budget and takes @AcademyRules.UpgradeMonths months.</p>
+            <button class="btn btn-primary" @onclick="UpgradeAcademy" disabled="@(upgradeCost > Engine.MyClub.TransferBudget)">Upgrade Academy</button>
+        }
+    </div>
 </div>
 
 @code {
     private string? _message;
     private void RequestBudget() => _message = Engine.RequestHigherTransferBudget();
     private void RequestStadium() => _message = Engine.RequestStadiumExpansion();
+    private void UpgradeAcademy() => _message = Engine.UpgradeAcademy();
 }

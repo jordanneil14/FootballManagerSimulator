@@ -54,27 +54,28 @@ public class TransferListHelper(
 
     public void SignFreeAgentByPlayerId(int playerId, int contractYears)
     {
-        if (State.Players.First(p => p.Id == playerId).IsRetiring(State.Date))
+        var player = State.Players.First(p => p.Id == playerId);
+        if (player.IsRetiring(State.Date))
             return;
 
-        var club = State.Clubs.First(p => p.Id == State.MyClubId);
+        SignFreeAgentForClub(player, State.Clubs.First(p => p.Id == State.MyClubId), contractYears);
+    }
 
-        var expiryDate = GetEndOfCurrentSeasonDate().AddYears(contractYears - 1);
-
-        State.Players.First(p => p.Id == playerId).Contract = new PlayerModel.ContractModel
+    private void SignFreeAgentForClub(PlayerModel player, ClubModel club, int contractYears)
+    {
+        player.Contract = new PlayerModel.ContractModel
         {
             ClubId = club.Id,
             ClubName = club.Name,
-            ExpiryDate = expiryDate
+            ExpiryDate = GetEndOfCurrentSeasonDate().AddYears(contractYears - 1)
         };
 
-        var player = State.Players.First(p => p.Id == playerId);
         player.ShirtNumber = GetAvailableShirtNumber(club.Id, player.Position);
 
         // Add player to reserve tactic slot
         club.TacticSlots
             .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)
-            .PlayerId = playerId;
+            .PlayerId = player.Id;
     }
 
     public void TransferContractedPlayerByPlayerIdAndClubId(int playerId, int clubId)
@@ -152,10 +153,51 @@ public class TransferListHelper(
 
     public void ProcessAITransfers()
     {
+        ProcessAIFreeAgentSignings();
+
         if (State.TransferListItems.Count == 0) return;
 
         ProcessAITransferListBids();
         ProcessUnsolicitedBidsForMyPlayers();
+    }
+
+    private const int MaxAISquadSize = 30;
+
+    // AI clubs pick up out-of-contract players whose ability suits their squad. Free agents cost no fee.
+    private void ProcessAIFreeAgentSignings()
+    {
+        var freeAgents = State.Players
+            .Where(p => p.Contract == null && !p.IsRetiring(State.Date))
+            .ToList();
+
+        if (freeAgents.Count == 0) return;
+
+        var squads = State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId != State.MyClubId)
+            .GroupBy(p => p.Contract!.ClubId)
+            .Select(p => new { ClubId = p.Key, Size = p.Count(), Rating = p.Average(r => r.Rating) })
+            .Where(p => p.Size < MaxAISquadSize)
+            .ToList();
+
+        var randomNoOfSignings = RandomNumberHelper.Next(3);
+        for (var i = 0; i < randomNoOfSignings && freeAgents.Count > 0; i++)
+        {
+            var player = freeAgents[RandomNumberHelper.Next(freeAgents.Count)];
+            freeAgents.Remove(player);
+
+            var suitable = squads.Where(p => Math.Abs(p.Rating - player.Rating) < 5).ToList();
+            if (suitable.Count == 0)
+                continue;
+
+            var club = ClubHelper.GetClubById(suitable[RandomNumberHelper.Next(suitable.Count)].ClubId);
+            SignFreeAgentForClub(player, club, RandomNumberHelper.Next(1, 4));
+
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Press Officer",
+                $"{club.Name} sign {player.Name}",
+                $"{player.Name} has joined {club.Name} on a free transfer.");
+        }
     }
 
     private void ProcessAITransferListBids()

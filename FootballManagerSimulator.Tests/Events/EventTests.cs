@@ -127,6 +127,44 @@ public class ClubRequestEventTests : IDisposable
     }
 
     [Fact]
+    public void UpgradeAcademy_ChargesTheBudgetAndSchedulesTheWork()
+    {
+        _myClub.AcademyRating = 4;
+
+        Assert.Contains("approved", _host.Engine.UpgradeAcademy());
+
+        Assert.Equal(5_000_000 - AcademyRules.UpgradeCost(5), _myClub.TransferBudget);
+        var upgrade = Assert.Single(_host.State.Events.OfType<AcademyUpgradeEvent>());
+        Assert.Equal(_host.State.Date.AddMonths(AcademyRules.UpgradeMonths), upgrade.TriggerDate);
+        Assert.Equal(4, _myClub.AcademyRating); // not until the work is done
+        Assert.Contains("already underway", _host.Engine.UpgradeAcademy());
+    }
+
+    [Fact]
+    public void UpgradeAcademy_IsRefusedWhenUnaffordableOrAtTheMaximum()
+    {
+        _myClub.AcademyRating = 9;
+        Assert.Contains("cannot fund", _host.Engine.UpgradeAcademy());
+
+        _myClub.AcademyRating = AcademyRules.Max;
+        Assert.Contains("maximum", _host.Engine.UpgradeAcademy());
+
+        Assert.Equal(5_000_000, _myClub.TransferBudget);
+        Assert.Empty(_host.State.Events);
+    }
+
+    [Fact]
+    public void AcademyUpgrade_RaisesTheRatingByOneAndNotifies()
+    {
+        _myClub.AcademyRating = 6;
+
+        Create<AcademyUpgradeEvent>(_host.State.Date).Execute();
+
+        Assert.Equal(7, _myClub.AcademyRating);
+        Assert.Equal("Academy Upgrade", Assert.Single(_host.State.Notifications).Subject);
+    }
+
+    [Fact]
     public void StadiumExpansion_GrowsCapacityByTwentyPercent()
     {
         _myClub.StadiumSize = 12_345;

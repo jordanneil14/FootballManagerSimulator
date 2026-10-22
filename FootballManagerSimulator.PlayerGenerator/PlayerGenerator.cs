@@ -55,6 +55,35 @@ public class PlayerGenerator
         return players;
     }
 
+    // Academy graduates: 16 or 17 years old, rated below the senior squad, on a 2-3 year first contract.
+    // A rating-5 academy knocks 10-20 off a senior rating; each point above or below 5 shifts that by 2.
+    public List<GeneratedPlayer> GenerateYouthIntake(string clubName, int count, string startDate, int leagueRank, int academyRating)
+    {
+        var academyBonus = (academyRating - 5) * 2;
+        var players = new List<GeneratedPlayer>(count);
+        var startDateOnly = DateOnly.Parse(startDate);
+
+        for (int i = 0; i < count; i++)
+        {
+            var position = PickRandom(["GK", "CB", "CB", "LB", "RB", "CDM", "CM", "CM", "CAM", "LM", "RM", "ST", "ST", "LW", "RW"]);
+            var age = _random.Next(16, 18);
+            var rating = Math.Max(35, GenerateRating(leagueRank) - _random.Next(10, 21) + academyBonus);
+
+            var player = GeneratePlayerWithPosition(position, clubName, null, startDate, startDateOnly, leagueRank, age, rating);
+            player.Contract = new GeneratedContract
+            {
+                ClubID = 0,
+                ClubName = clubName,
+                ExpiryDate = new DateOnly(startDateOnly.Year, 6, 30).AddYears(_random.Next(2, 4)).ToString("yyyy-MM-dd"),
+                WeeklyWage = 0,
+                StartDate = startDate
+            };
+            players.Add(player);
+        }
+
+        return players;
+    }
+
     public GeneratedPlayer GeneratePlayer(string referenceDate)
     {
         var position = PickRandom(NameData.Positions);
@@ -79,13 +108,13 @@ public class PlayerGenerator
         return player;
     }
 
-    private GeneratedPlayer GeneratePlayerWithPosition(string position, string? clubName, int? shirtNumber, string? clubJoining, DateOnly referenceDate, int leagueRank = 1)
+    private GeneratedPlayer GeneratePlayerWithPosition(string position, string? clubName, int? shirtNumber, string? clubJoining, DateOnly referenceDate, int leagueRank = 1, int? fixedAge = null, int? fixedRating = null)
     {
         var nationality = PickWeightedNationality();
         var (firstName, lastName) = GenerateName(nationality);
-        var age = GenerateAge();
+        var age = fixedAge ?? GenerateAge();
         var birthDate = GenerateBirthDate(age, referenceDate);
-        var rating = GenerateRating(leagueRank);
+        var rating = fixedRating ?? GenerateRating(leagueRank);
         var (height, weight) = GeneratePhysicals(position);
         var preferredFoot = _random.Next(100) < 70 ? "Right" : "Left";
 

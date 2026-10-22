@@ -635,6 +635,32 @@ public class GameEngine(
         return "Stadium expansion request has been submitted.";
     }
 
+    public AcademyUpgradeEvent? AcademyUpgradeInProgress =>
+        State.Events.OfType<AcademyUpgradeEvent>().FirstOrDefault(e => !e.IsCompleted);
+
+    public int? NextAcademyUpgradeCost =>
+        MyClub.AcademyRating >= AcademyRules.Max ? null : AcademyRules.UpgradeCost(MyClub.AcademyRating + 1);
+
+    // Paid for out of the transfer budget up front; the new rating applies once the work finishes.
+    public string UpgradeAcademy()
+    {
+        if (NextAcademyUpgradeCost is not { } cost)
+            return $"Your academy is already rated the maximum of {AcademyRules.Max}.";
+
+        if (cost > MyClub.TransferBudget)
+            return $"The board cannot fund this. Upgrading the academy costs {Ui.Money(cost)}.";
+
+        var completionDate = State.Date.AddMonths(AcademyRules.UpgradeMonths);
+        var upgrade = ActivatorUtilities.CreateInstance<AcademyUpgradeEvent>(serviceProvider, completionDate, false);
+        var (success, errorMessage) = upgrade.ValidateAdd();
+        if (!success) return errorMessage;
+
+        State.Events.Add(upgrade);
+        MyClub.TransferBudget -= cost;
+        NotifyChanged();
+        return $"The board has approved the academy upgrade for {Ui.Money(cost)}. Work will finish on {completionDate:dd MMM yyyy}.";
+    }
+
     // ---------------------------------------------------------------------------------
     // Player / club helpers surfaced to the UI
     // ---------------------------------------------------------------------------------
@@ -825,6 +851,13 @@ public class GameEngine(
             var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
             if (State.ManagerHistory.CurrentJob == null && myClub != null)
                 State.ManagerHistory.StartJob(myClub, State.Date);
+
+            // Saves from before academies existed hand every club its starting rating.
+            foreach (var club in State.Clubs.Where(p => p.AcademyRating == 0))
+            {
+                var leagueRank = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == club.LeagueId)?.Rank ?? 1;
+                club.AcademyRating = AcademyRules.StartingRating(leagueRank);
+            }
 
             State.Events.Clear();
             if (eventsJson != null)

@@ -160,6 +160,39 @@ public class TransferListHelperTests
     }
 
     [Fact]
+    public void ProcessAITransfers_AIClubsSignSuitableFreeAgents()
+    {
+        // Squads average a rating of about 62, so a 62-rated free agent suits every AI club.
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
+        _state.Players.Add(freeAgent);
+
+        for (var i = 0; i < 200 && freeAgent.Contract == null; i++)
+            _helper.ProcessAITransfers();
+
+        var club = _state.Clubs.Single(c => c.Id == freeAgent.Contract!.ClubId);
+        Assert.NotEqual(1, club.Id); // never signed to my club behind my back
+        Assert.InRange(freeAgent.Contract!.ExpiryDate.Year, 2027, 2029);
+        Assert.NotNull(freeAgent.ShirtNumber);
+        Assert.Contains(club.TacticSlots, s => s.TacticSlotType == TacticSlotType.RES && s.PlayerId == freeAgent.Id);
+        Assert.Contains(_notifications.Sent, n => n.Message.Contains(freeAgent.Name));
+    }
+
+    [Fact]
+    public void ProcessAITransfers_AIClubsIgnoreRetiringAndUnsuitableFreeAgents()
+    {
+        var retiring = TestData.Player(5000, clubId: null, rating: 62);
+        retiring.BirthDate = "01/15/1990";
+        var tooGood = TestData.Player(5001, clubId: null, rating: 90);
+        _state.Players.AddRange([retiring, tooGood]);
+
+        for (var i = 0; i < 200; i++)
+            _helper.ProcessAITransfers();
+
+        Assert.Null(retiring.Contract);
+        Assert.Null(tooGood.Contract);
+    }
+
+    [Fact]
     public void ProcessAITransfers_BidsForMyListedPlayersBecomeActionableNotifications()
     {
         // Club 2 is rich and its squad average matches my player's rating, so it is a suitable buyer.

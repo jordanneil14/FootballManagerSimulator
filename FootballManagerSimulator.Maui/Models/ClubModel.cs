@@ -8,6 +8,8 @@ public class ClubModel
     public int LeagueId { get; set; }
     public string Stadium { get; set; } = "";
     public int StadiumSize { get; set; }
+    // 1-10; drives the quality of the 1 March youth intake
+    public int AcademyRating { get; set; }
 	public string TransferBudgetFriendly { get => $"£{TransferBudget:n0}"; }
 	public int WageBudget { get; set; }
     public List<TacticSlotModel> TacticSlots { get; set; } = new List<TacticSlotModel>();

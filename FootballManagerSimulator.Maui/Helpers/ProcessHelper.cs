@@ -51,6 +51,9 @@ public class ProcessHelper(
             return;
         }
 
+        if (State.Date.Month == 3 && State.Date.Day == 1)
+            ProcessYouthIntake();
+
         JobOfferHelper.ProcessVacancies();
 
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
@@ -231,6 +234,59 @@ public class ProcessHelper(
 
         State.TransferListItems.RemoveAll(p => retiredIds.Contains(p.PlayerId));
         State.Players.RemoveAll(p => retiredIds.Contains(p.Id));
+    }
+
+    // Every club promotes a handful of 16-17 year olds from its academy on 1 March.
+    private void ProcessYouthIntake()
+    {
+        var generator = new PlayerGenerator.PlayerGenerator();
+        var random = new Random();
+        var startDate = State.Date.ToString("yyyy-MM-dd");
+        var nextId = State.Players.Max(p => p.Id) + 1;
+        var myIntake = new List<PlayerModel>();
+
+        var leagueRankLookup = Settings.Competitions
+            .Where(c => c.IsLeague)
+            .ToDictionary(c => c.Id, c => c.Rank);
+
+        foreach (var club in State.Clubs)
+        {
+            var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
+            var generated = generator.GenerateYouthIntake(club.Name, random.Next(2, 5), startDate, leagueRank, club.AcademyRating);
+
+            foreach (var gp in generated)
+            {
+                var player = MapToPlayerModel(gp, club);
+                player.Id = nextId++;
+                player.ShirtNumber = GetAvailableYouthShirtNumber(club.Id);
+                State.Players.Add(player);
+
+                var reserveSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
+                if (reserveSlot != null)
+                    reserveSlot.PlayerId = player.Id;
+
+                if (club.Id == State.MyClubId)
+                    myIntake.Add(player);
+            }
+        }
+
+        if (myIntake.Count > 0)
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Head of Youth Development",
+                "Youth Intake",
+                $"The following players have been promoted from the academy:\n\t{string.Join("\n\t", myIntake.Select(p => $"{p.Name} ({p.PreferredPosition}, {p.Rating})"))}");
+    }
+
+    // Academy players take the first free squad number from 30 upwards.
+    private int GetAvailableYouthShirtNumber(int clubId)
+    {
+        var takenNumbers = State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId == clubId && p.ShirtNumber.HasValue)
+            .Select(p => p.ShirtNumber!.Value)
+            .ToHashSet();
+
+        return Enumerable.Range(30, 70).Concat(Enumerable.Range(1, 29)).FirstOrDefault(n => !takenNumbers.Contains(n));
     }
 
     private void TopUpSquads()
