@@ -178,6 +178,50 @@ public class TransferListHelperTests
     }
 
     [Fact]
+    public void ProcessAITransfers_AIClubsWithFullSquadsSignNoFreeAgents()
+    {
+        // Fill both AI squads to the 30-player cap.
+        foreach (var clubId in new[] { 2, 3 })
+            for (var i = 0; i < 12; i++)
+                _state.Players.Add(TestData.Player(1000 * clubId + i, clubId, rating: 62));
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
+        _state.Players.Add(freeAgent);
+
+        for (var i = 0; i < 200; i++)
+            _helper.ProcessAITransfers();
+
+        Assert.Null(freeAgent.Contract);
+    }
+
+    [Fact]
+    public void ProcessAITransfers_AIClubsWithFullSquadsDoNotBuyFromTheTransferList()
+    {
+        // Club 2 lists a player; club 3, the only other AI club, already has a full squad.
+        for (var i = 0; i < 12; i++)
+            _state.Players.Add(TestData.Player(3000 + i, clubId: 3, rating: 62));
+        var listed = PlayerAt(2);
+        _helper.AddPlayerToTransferList(listed.Id, 1);
+
+        for (var i = 0; i < 200; i++)
+            _helper.ProcessAITransfers();
+
+        Assert.Equal(2, listed.Contract!.ClubId);
+    }
+
+    [Fact]
+    public void UpdateTransferList_NeverListsRetiringPlayers()
+    {
+        _state.Competitions.Add(TestData.League(1, _state.Clubs));
+        var retiring = _state.Players.Where(p => p.Contract?.ClubId != 1).Where((_, i) => i % 2 == 0).ToList();
+        retiring.ForEach(p => p.BirthDate = "01/15/1990");
+
+        _helper.UpdateTransferList();
+
+        Assert.NotEmpty(_state.TransferListItems);
+        Assert.DoesNotContain(_state.TransferListItems, i => retiring.Any(p => p.Id == i.PlayerId));
+    }
+
+    [Fact]
     public void ProcessAITransfers_AIClubsIgnoreRetiringAndUnsuitableFreeAgents()
     {
         var retiring = TestData.Player(5000, clubId: null, rating: 62);

@@ -213,6 +213,28 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void TryMakeJobOffer_NoOffersWhileUnemployed()
+    {
+        _state.ManagerHistory.StartJob(_state.Clubs.Single(p => p.Id == 3), new DateOnly(2026, 7, 1));
+        _helper.SackUser();
+        _state.BoardConfidence = 100;
+
+        Assert.False(_helper.TryMakeJobOffer());
+        Assert.DoesNotContain(_state.Notifications, n => n.JobOfferClubId != null);
+    }
+
+    [Fact]
+    public void SackUser_DoesNothingWhenAlreadyUnemployed()
+    {
+        _state.MyClubId = null;
+
+        _helper.SackUser();
+        _helper.ResignUser();
+
+        Assert.Empty(_state.Notifications);
+    }
+
+    [Fact]
     public void JoinClub_WorksWhileUnemployed()
     {
         _state.ManagerHistory.StartJob(_state.Clubs.Single(p => p.Id == 3), new DateOnly(2026, 7, 1));

@@ -105,6 +105,24 @@ public class FriendlyServiceTests
     }
 
     [Fact]
+    public void GenerateNextRoundOfFixtures_WhileUnemployedStillDrawsButTellsMeNothing()
+    {
+        var state = TestData.StateWithClubs(4);
+        state.MyClubId = null;
+        var notifications = new RecordingNotifications { Now = state.Date };
+        var friendly = new FriendlyModel
+        {
+            Clubs = state.Clubs.ToList(),
+            DrawSettings = [new DrawSettingsModel { Round = 1, FixtureDate = new DateOnly(2026, 7, 11) }]
+        };
+
+        new FriendlyService(notifications, state).GenerateNextRoundOfFixtures(friendly);
+
+        Assert.Equal(2, friendly.Fixtures.Count);
+        Assert.Empty(notifications.Sent);
+    }
+
+    [Fact]
     public void PreMatchReport_NamesTheOpposition()
     {
         var state = TestData.StateWithClubs(2, myClubId: 2);

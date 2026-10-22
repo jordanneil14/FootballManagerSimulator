@@ -454,6 +454,34 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void AcceptBid_FallsThroughOnceMyPlayerIsRetiring()
+    {
+        var mine = PlayerAt(1);
+        mine.BirthDate = "01/15/1990";
+        var budget = MyClub.TransferBudget;
+        var bid = new NotificationModel { Date = _state.Date, RequiresAction = true, BidPlayerId = mine.Id, BidAmount = 500_000, BiddingClubId = 2 };
+        _state.Notifications.Add(bid);
+
+        _engine.AcceptBid(bid);
+
+        Assert.Equal(1, mine.Contract!.ClubId);
+        Assert.Equal(budget, MyClub.TransferBudget);
+        Assert.False(bid.RequiresAction);
+        Assert.Contains("fallen through", bid.Message);
+    }
+
+    [Fact]
+    public void LoadGame_GivesClubsFromOlderSavesAStartingAcademyRating()
+    {
+        _state.Clubs.ForEach(c => c.AcademyRating = 0);
+        _engine.SaveGame("before-academies");
+
+        Assert.Null(_engine.LoadGame("before-academies.fms"));
+
+        Assert.All(_state.Clubs, c => Assert.InRange(c.AcademyRating, AcademyRules.Min, AcademyRules.StartingMax));
+    }
+
+    [Fact]
     public void RenewContract_ExtendsFromTheEndOfTheCurrentSeason()
     {
         var mine = PlayerAt(1); // contracted until June 2028

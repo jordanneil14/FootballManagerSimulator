@@ -264,18 +264,21 @@ public class TransferListHelper(
         var groupedPlayers = State.Players
             .Where(p => p.Contract != null)
             .GroupBy(p => p.Contract!.ClubId, r => r.Rating)
-            .Select(p => new { ClubId = p.Key, Rating = p.Average() });
+            .Select(p => new { ClubId = p.Key, Size = p.Count(), Rating = p.Average() });
 
         var min = player.Rating - 5;
         var max = player.Rating + 5;
 
+        // Any suitable club with room in its squad may bid, so the same club doesn't win every deal.
         var suitable = groupedPlayers
-            .FirstOrDefault(p => p.Rating > min && p.Rating < max
+            .Where(p => p.Rating > min && p.Rating < max
+                && p.Size < MaxAISquadSize
                 && p.ClubId != currentClubId
                 && p.ClubId != State.MyClubId
-                && ClubHelper.GetClubById(p.ClubId).TransferBudget > price);
+                && ClubHelper.GetClubById(p.ClubId).TransferBudget > price)
+            .ToList();
 
-        return suitable?.ClubId;
+        return suitable.Count == 0 ? null : suitable[RandomNumberHelper.Next(suitable.Count)].ClubId;
     }
 
     private void AddBidNotification(PlayerModel player, ClubModel biddingClub, int bidAmount)
