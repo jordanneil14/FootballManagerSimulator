@@ -39,8 +39,13 @@ public class FullGameTests : IDisposable
 
     private static void AnswerBids(GameEngine engine)
     {
-        foreach (var bid in engine.State.Notifications.Where(n => n.RequiresAction).ToList())
-            engine.RejectBid(bid);
+        foreach (var pending in engine.State.Notifications.Where(n => n.RequiresAction).ToList())
+        {
+            if (pending.JobOfferClubId != null)
+                pending.RequiresAction = false; // stay at the club so the test's assumptions hold
+            else
+                engine.RejectBid(pending);
+        }
     }
 
     /// <summary>Advances day by day until <paramref name="until"/>, playing every fixture on the way.</summary>

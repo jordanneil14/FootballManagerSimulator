@@ -20,6 +20,7 @@ public class ProcessHelper(
     INotificationFactory notificationFactory,
     FriendlyService friendlyService,
     ITacticHelper tacticHelper,
+    IJobOfferHelper jobOfferHelper,
     IServiceProvider serviceProvider) : IProcessHelper
 {
     private readonly IState State = state;
@@ -31,6 +32,7 @@ public class ProcessHelper(
     private readonly INotificationFactory NotificationFactory = notificationFactory;
     private readonly FriendlyService FriendlyService = friendlyService;
     private readonly ITacticHelper TacticHelper = tacticHelper;
+    private readonly IJobOfferHelper JobOfferHelper = jobOfferHelper;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
 
     // Advances the simulation by one day. If the user's club (or any club) has an
@@ -50,7 +52,10 @@ public class ProcessHelper(
         }
 
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
+        {
             TransferListHelper.UpdateTransferList();
+            JobOfferHelper.ProcessJobOffers();
+        }
 
         var m = State.Date.Month;
         var d = State.Date.Day;
