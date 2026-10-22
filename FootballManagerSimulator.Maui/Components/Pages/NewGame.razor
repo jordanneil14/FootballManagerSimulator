@@ -76,12 +76,16 @@
         <div class="divider"></div>
         <div class="menu-actions">
             <button class="btn btn-primary btn-lg btn-block" @onclick="StartCareer">Start Career</button>
-            <button class="btn btn-ghost btn-block" @onclick="GoBackFromSummary">← Back</button>
         </div>
     }
 </div>
 
 @code {
+    // Each step is its own history entry so the OS back button/gesture walks back through them.
+    [SupplyParameterFromQuery] public int? Step { get; set; }
+    [SupplyParameterFromQuery] public int? League { get; set; }
+    [SupplyParameterFromQuery] public int? Club { get; set; }
+
     private int _step;
     private string _managerName = "";
     private int _leagueId;
@@ -96,31 +100,41 @@
             Engine.StartNewGame();
     }
 
+    protected override void OnParametersSet()
+    {
+        // Back from the game lands here; setup can't be re-run once a career has started.
+        if (Engine.GameInProgress)
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
+        _leagueId = League ?? 0;
+        _summaryClub = Club == null ? null : Engine.GameCreator.Clubs.FirstOrDefault(p => p.Id == Club);
+
+        // Fall back to the earliest step whose inputs are missing.
+        var step = Step ?? 0;
+        if (step >= 3 && _summaryClub == null) step = 2;
+        if (step >= 2 && _leagueId == 0) step = 1;
+        if (step >= 1 && string.IsNullOrWhiteSpace(Engine.GameCreator.ManagerName)) step = 0;
+        _step = step;
+
+        if (_step >= 2)
+            Engine.SelectLeague(_leagueId);
+    }
+
     private void SubmitName()
     {
         if (string.IsNullOrWhiteSpace(_managerName)) return;
         Engine.SetManagerName(_managerName);
-        _step = 1;
+        Nav.NavigateTo("/new?step=1");
     }
 
-    private void PickLeague(int leagueId)
-    {
-        _leagueId = leagueId;
-        Engine.SelectLeague(leagueId);
-        _step = 2;
-    }
+    private void PickLeague(int leagueId) =>
+        Nav.NavigateTo($"/new?step=2&league={leagueId}");
 
-    private void PickClub(int clubId)
-    {
-        _summaryClub = Engine.GameCreator.Clubs.First(p => p.Id == clubId);
-        _step = 3;
-    }
-
-    private void GoBackFromSummary()
-    {
-        _summaryClub = null;
-        _step = 1;
-    }
+    private void PickClub(int clubId) =>
+        Nav.NavigateTo($"/new?step=3&league={_leagueId}&club={clubId}");
 
     private void StartCareer()
     {
