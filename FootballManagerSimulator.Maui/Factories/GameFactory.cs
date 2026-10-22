@@ -130,7 +130,10 @@ public class GameFactory(
         State.Players.AddRange(allPlayers);
 
         foreach (var club in State.Clubs)
+        {
+            club.Formation = Helpers.TacticHelper.Formations[random.Next(Helpers.TacticHelper.Formations.Length)];
             TacticHelper.ResetTacticForClub(club);
+        }
 
         foreach (var competition in Settings.Competitions.OrderByDescending(p => p.Type == "Cup"))
         {

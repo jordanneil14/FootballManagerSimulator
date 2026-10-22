@@ -1,5 +1,6 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Helpers;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.Maui.Services;
 using FootballManagerSimulator.Tests.Support;
@@ -75,7 +76,11 @@ public class FullGameTests : IDisposable
             var squad = state.Players.Count(p => p.Contract?.ClubId == club.Id);
             Assert.InRange(squad, 25, 30);
             Assert.Equal(99, club.TacticSlots.Count);
+            Assert.Contains(club.Formation, TacticHelper.Formations);
         }
+
+        // Clubs start with a random formation rather than all defaulting to 4-4-2.
+        Assert.True(state.Clubs.Select(c => c.Formation).Distinct().Count() > 1);
 
         foreach (var league in engine.Leagues)
         {
@@ -116,8 +121,13 @@ public class FullGameTests : IDisposable
         var relegated = finalDivision1.GenerateLeagueTable().TakeLast(3).Select(p => p.Club.Id).ToList();
         var promoted = finalDivision2.GenerateLeagueTable().Take(2).Select(p => p.Club.Id).ToList();
         promoted.Add(finalDivision2.Fixtures.Single(f => f.FixtureType == FixtureType.PlayoffFinal).ClubWon!.Id);
+        var budgetsBefore = state.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
+
+        // Every club receives its seasonal transfer budget allocation on top of what it had left.
+        var allocations = _host.Settings.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
+        Assert.All(state.Clubs, c => Assert.Equal(budgetsBefore[c.Id] + allocations[c.Id], c.TransferBudget));
 
         Assert.All(relegated, id => Assert.Equal(2, state.Clubs.Single(c => c.Id == id).LeagueId));
         Assert.All(promoted, id => Assert.Equal(1, state.Clubs.Single(c => c.Id == id).LeagueId));

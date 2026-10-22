@@ -11,6 +11,8 @@ public class TacticHelper(
     private readonly IState State = state;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
 
+    public static readonly string[] Formations = ["4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "3-4-3", "3-4-1-2", "5-2-1-2", "5-4-1", "5-3-2"];
+
     public void ResetTacticForClub(ClubModel club)
     {
         club.TacticSlots = club.Formation switch
