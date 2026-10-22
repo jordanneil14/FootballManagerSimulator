@@ -643,6 +643,43 @@ public class GameEngine(
         return games.OrderByDescending(p => p.SaveDate);
     }
 
+    // Single streaming pass; Events stay as JSON because they need DI to be constructed.
+    private static (StateModel State, JArray? EventsJson) ReadSave(string path)
+    {
+        using var reader = new JsonTextReader(new StreamReader(path));
+        var serializer = JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+        var state = new StateModel();
+        JArray? eventsJson = null;
+
+        if (!reader.Read() || reader.TokenType != JsonToken.StartObject)
+            throw new JsonException("Not a save file.");
+
+        while (reader.Read() && reader.TokenType == JsonToken.PropertyName)
+        {
+            var name = (string)reader.Value!;
+            reader.Read();
+
+            if (name == nameof(StateModel.Events))
+            {
+                eventsJson = reader.TokenType == JsonToken.StartArray ? JArray.Load(reader) : null;
+                continue;
+            }
+
+            var property = typeof(StateModel).GetProperty(name);
+            if (property == null || !property.CanWrite)
+            {
+                reader.Skip();
+                continue;
+            }
+
+            var value = serializer.Deserialize(reader, property.PropertyType);
+            if (value != null || !property.PropertyType.IsValueType)
+                property.SetValue(state, value);
+        }
+
+        return (state, eventsJson);
+    }
+
     // Streams only the top-level fields the preview needs, skipping players/competitions without allocating them.
     private static (string ClubName, string ManagerName) ReadSavePreview(string path)
     {
@@ -712,15 +749,7 @@ public class GameEngine(
     {
         try
         {
-            var fileContent = File.ReadAllText(Path.Combine(SaveDirectory, fileName));
-
-            var json = JObject.Parse(fileContent);
-            var eventsJson = json["Events"] as JArray;
-            json.Remove("Events");
-
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-            var deserialised = json.ToObject<StateModel>(JsonSerializer.Create(settings));
-            if (deserialised == null) return "Unable to load game.";
+            var (deserialised, eventsJson) = ReadSave(Path.Combine(SaveDirectory, fileName));
 
             State.Weather = deserialised.Weather;
             State.ScreenStack = deserialised.ScreenStack;

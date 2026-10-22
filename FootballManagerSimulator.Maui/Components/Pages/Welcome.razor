@@ -47,7 +47,8 @@
     private async Task StartNew()
     {
         await ShowThrobber();
-        Engine.StartNewGame();
+        // Off the UI thread so the WebView can keep animating the throbber.
+        await Task.Run(Engine.StartNewGame);
         Nav.NavigateTo("/new");
     }
 }

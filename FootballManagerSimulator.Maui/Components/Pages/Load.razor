@@ -12,7 +12,11 @@
         <div class="feedback"><div class="feedback-item warn">@_error</div></div>
     }
 
-    @if (!_saves.Any())
+    @if (_saves == null || _busy)
+    {
+        <div class="throbber-wrap"><div class="throbber"></div></div>
+    }
+    else if (!_saves.Any())
     {
         <p class="muted" style="text-align:center">No saved games were found.</p>
     }
@@ -42,15 +46,29 @@
 </div>
 
 @code {
-    private List<LoadGamePreviewModel> _saves = new();
+    private List<LoadGamePreviewModel>? _saves;
     private string? _error;
+    private bool _busy;
 
-    protected override void OnInitialized() => _saves = Engine.ListSaves().ToList();
+    // File work runs off the UI thread so the WebView can keep animating the throbber.
+    protected override async Task OnInitializedAsync() =>
+        _saves = await Task.Run(() => Engine.ListSaves().ToList());
 
-    private void LoadSave(string fileName)
+    private async Task LoadSave(string fileName)
     {
-        _error = Engine.LoadGame(fileName);
+        if (_busy) return;
+        _busy = true;
+        _error = null;
+        StateHasChanged();
+
+        _error = await Task.Run(() => Engine.LoadGame(fileName));
         if (_error == null)
+        {
+            Engine.NotifyChanged();
             Nav.NavigateTo("/game");
+            return;
+        }
+
+        _busy = false;
     }
 }
