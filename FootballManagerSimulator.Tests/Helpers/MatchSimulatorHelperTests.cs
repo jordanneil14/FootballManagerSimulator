@@ -220,6 +220,59 @@ public class MatchSimulatorHelperTests
         Assert.Null(league.ClubWon);
     }
 
+    [Theory]
+    [InlineData(2, 0, 53)]
+    [InlineData(1, 1, 50)]
+    [InlineData(0, 2, 47)]
+    public void FinaliseMatch_MyCompetitiveResultMovesBoardConfidence(int homeGoals, int awayGoals, int expected)
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        fixture.GoalsHome = homeGoals;
+        fixture.GoalsAway = awayGoals;
+
+        _simulator.FinaliseMatch(fixture, competition);
+        _simulator.FinaliseMatch(fixture, competition); // a second finalise must not count twice
+
+        Assert.Equal(expected, _state.BoardConfidence);
+    }
+
+    [Fact]
+    public void FinaliseMatch_FriendliesAndOtherClubsMatchesLeaveBoardConfidence()
+    {
+        var (otherClubs, otherComp) = NewFixture(CompetitionType.League); // my club is 3, not playing
+        otherClubs.GoalsHome = 3;
+        otherClubs.GoalsAway = 0;
+        _simulator.FinaliseMatch(otherClubs, otherComp);
+
+        _state.MyClubId = Home.Id;
+        var (friendly, friendlyComp) = NewFixture(CompetitionType.Friendly);
+        friendly.GoalsHome = 0;
+        friendly.GoalsAway = 4;
+        _simulator.FinaliseMatch(friendly, friendlyComp);
+
+        Assert.Equal(BoardConfidenceRules.Starting, _state.BoardConfidence);
+    }
+
+    [Theory]
+    [InlineData(100, "Secure")]
+    [InlineData(75, "Secure")]
+    [InlineData(74, "Stable")]
+    [InlineData(30, "Stable")]
+    [InlineData(29, "Under pressure")]
+    [InlineData(15, "Under pressure")]
+    [InlineData(14, "At risk")]
+    [InlineData(0, "At risk")]
+    public void BoardConfidence_LabelsCoverTheirRanges(int confidence, string expected) =>
+        Assert.Equal(expected, BoardConfidenceRules.Label(confidence));
+
+    [Fact]
+    public void BoardConfidence_StaysWithinZeroAndOneHundred()
+    {
+        Assert.Equal(100, BoardConfidenceRules.Apply(99, BoardConfidenceRules.Win));
+        Assert.Equal(0, BoardConfidenceRules.Apply(1, BoardConfidenceRules.Loss));
+    }
+
     [Fact]
     public void PopulateFirstLegScores_CopiesTheReversedFirstLeg()
     {

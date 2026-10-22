@@ -149,6 +149,7 @@ public class GameEngine(
         State.Events.Clear();
         State.UserFeedbackUpdates.Clear();
         State.ScreenStack.Clear();
+        State.BoardConfidence = BoardConfidenceRules.Starting;
     }
 
     // ---------------------------------------------------------------------------------
@@ -762,6 +763,7 @@ public class GameEngine(
             State.Competitions = deserialised.Competitions;
             State.UserFeedbackUpdates = deserialised.UserFeedbackUpdates;
             State.TransferListItems = deserialised.TransferListItems;
+            State.BoardConfidence = deserialised.BoardConfidence;
 
             State.Events.Clear();
             if (eventsJson != null)

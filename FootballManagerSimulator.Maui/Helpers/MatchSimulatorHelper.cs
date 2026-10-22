@@ -258,6 +258,7 @@ public class MatchSimulatorHelper(
 
     private void EndFixture(FixtureModel fixture, ICompetition competition)
     {
+        var wasConcluded = fixture.Concluded;
         fixture.Concluded = true;
 
         if (fixture.GoalsHome > fixture.GoalsAway)
@@ -269,6 +270,25 @@ public class MatchSimulatorHelper(
 
         ReduceSuspensions(fixture, competition);
         ApplySuspensions(fixture, competition);
+
+        if (!wasConcluded)
+            UpdateBoardConfidence(fixture, competition);
+    }
+
+    private void UpdateBoardConfidence(FixtureModel fixture, ICompetition competition)
+    {
+        if (competition.Type == CompetitionType.Friendly)
+            return;
+
+        var myClubId = State.MyClubId;
+        if (myClubId == null || (fixture.HomeClub.Id != myClubId && fixture.AwayClub.Id != myClubId))
+            return;
+
+        var change = fixture.ClubWon == null ? BoardConfidenceRules.Draw
+            : fixture.ClubWon.Id == myClubId ? BoardConfidenceRules.Win
+            : BoardConfidenceRules.Loss;
+
+        State.BoardConfidence = BoardConfidenceRules.Apply(State.BoardConfidence, change);
     }
 
     public void PreGenerateMatch(FixtureModel fixture)

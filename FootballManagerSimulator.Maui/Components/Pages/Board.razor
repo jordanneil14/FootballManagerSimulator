@@ -17,6 +17,24 @@
 </div>
 
 @{
+    var confidence = Engine.State.BoardConfidence;
+    var confidenceColour = confidence >= BoardConfidenceRules.StableFrom ? "var(--accent)"
+        : confidence >= BoardConfidenceRules.UnderPressureFrom ? "var(--warn)"
+        : "var(--danger)";
+}
+
+<div class="panel">
+    <h2>🤝 Board Confidence</h2>
+    <p>The board's faith in you as manager. It rises with wins and falls with defeats.</p>
+    <div class="progress-bar">
+        <div class="progress-bar-fill" style="width:@(confidence)%;background:@confidenceColour"></div>
+    </div>
+    <p style="font-size:.82rem;margin-top:.5rem">
+        <strong style="color:@confidenceColour">@BoardConfidenceRules.Label(confidence)</strong> · @confidence / 100
+    </p>
+</div>
+
+@{
     var expansionEvent = Engine.State.Events
         .OfType<FootballManagerSimulator.Maui.Events.StadiumExpansionEvent>()
         .FirstOrDefault(e => !e.IsCompleted);

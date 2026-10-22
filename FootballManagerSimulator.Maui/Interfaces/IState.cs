@@ -21,4 +21,5 @@ public interface IState
     int? MyClubId { get; set; }
     List<IEvent> Events { get; set; }
     int MatchSpeedMs { get; set; }
+    int BoardConfidence { get; set; }
 }
