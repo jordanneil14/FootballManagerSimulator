@@ -32,7 +32,7 @@
         <ApplicationTitle>Pocket Gaffer</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.jordanneil.footballmanagersimulator</ApplicationId>
+        <ApplicationId>com.jordanneil.pocketgaffer</ApplicationId>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>

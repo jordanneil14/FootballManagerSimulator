@@ -84,12 +84,32 @@ public class ProcessHelper(
         TopUpSquads();
         ResetSuspensions();
         RecreateCompetitions();
+        var myIncrease = IncreaseTransferBudgets();
 
         NotificationFactory.AddNotification(
             State.Date,
             "Chairman",
             "New Season",
-            "The new season has begun. Good luck!");
+            $"The new season has begun. The board has added £{myIncrease:n0} to your transfer budget. Good luck!");
+    }
+
+    // Each club receives its seasonal allocation (its starting budget from settings) on
+    // top of whatever it has left. Returns the amount given to the user's club.
+    private int IncreaseTransferBudgets()
+    {
+        var allocations = Settings.Clubs.ToDictionary(p => p.Id, p => p.TransferBudget);
+        var myIncrease = 0;
+
+        foreach (var club in State.Clubs)
+        {
+            var increase = allocations.GetValueOrDefault(club.Id);
+            club.TransferBudget = (int)Math.Min((long)club.TransferBudget + increase, int.MaxValue);
+
+            if (club.Id == State.MyClubId)
+                myIncrease = increase;
+        }
+
+        return myIncrease;
     }
 
     private void ProcessPromotionAndRelegation()
