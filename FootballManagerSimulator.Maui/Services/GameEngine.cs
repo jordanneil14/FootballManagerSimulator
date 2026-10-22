@@ -490,6 +490,25 @@ public class GameEngine(
             : null;
     }
 
+    // Renewals can happen at any time; the new deal runs from the end of the current season like any other contract.
+    public string RenewContract(int playerId, int contractYears)
+    {
+        var player = playerHelper.GetPlayerById(playerId);
+        if (player?.Contract == null || player.Contract.ClubId != MyClub.Id)
+            return "This player is not contracted to your club.";
+
+        if (RetirementRefusal(playerId) is { } refusal) return refusal;
+
+        var expiryYear = State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1;
+        var expiryDate = new DateOnly(expiryYear, 6, 30).AddYears(contractYears - 1);
+        if (expiryDate <= player.Contract.ExpiryDate)
+            return $"{player.Name}'s current contract already runs until {player.Contract.ExpiryDate:dd MMM yyyy}.";
+
+        player.Contract.ExpiryDate = expiryDate;
+        NotifyChanged();
+        return $"{player.Name} has signed a new contract until {expiryDate:dd MMM yyyy}.";
+    }
+
     public string SignFreeAgent(int playerId, int contractYears)
     {
         if (RetirementRefusal(playerId) is { } refusal) return refusal;

@@ -18,7 +18,12 @@ else
     var listed = Engine.IsPlayerTransferListed(player.Id);
     var item = Engine.GetTransferListItem(player.Id);
 
-    <div class="page-head"><div><h1>@player.Name</h1><div class="subtitle">Transfer options</div></div></div>
+    <div class="page-head">
+        <div><h1>@player.Name</h1><div class="subtitle">Transfer options</div></div>
+        <div class="page-actions">
+            @if (_message != null) { <span class="tag green">@_message</span> }
+        </div>
+    </div>
 
     @if (!Engine.IsTransferWindowOpen)
     {
@@ -55,11 +60,40 @@ else
             </div>
         }
     </div>
+
+    @if (player.Contract != null)
+    {
+        <div class="panel" style="max-width:560px">
+            <h2>Renew Contract</h2>
+            <p>Current contract runs until @player.Contract.ExpiryDate.ToString("dd MMM yyyy").</p>
+            @if (Engine.IsPlayerRetiring(player))
+            {
+                <p class="muted">@player.Name is retiring and will not sign a new contract.</p>
+            }
+            else
+            {
+                <div class="inline-form">
+                    <div class="field">
+                        <label>Contract length</label>
+                        <select class="input" @bind="_contractYears">
+                            @for (var y = 1; y <= 5; y++)
+                            {
+                                <option value="@y">@y @(y == 1 ? "year" : "years")</option>
+                            }
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" @onclick="Renew">Offer New Contract</button>
+                </div>
+            }
+        </div>
+    }
 }
 
 @code {
     [Parameter] public int Id { get; set; }
     private int _askingPrice;
+    private int _contractYears = 2;
+    private string? _message;
 
     protected override void OnInitialized()
     {
@@ -74,4 +108,6 @@ else
     }
 
     private void Remove() => Engine.RemovePlayerFromTransferList(Id);
+
+    private void Renew() => _message = Engine.RenewContract(Id, _contractYears);
 }

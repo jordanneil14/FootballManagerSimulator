@@ -454,6 +454,35 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void RenewContract_ExtendsFromTheEndOfTheCurrentSeason()
+    {
+        var mine = PlayerAt(1); // contracted until June 2028
+
+        Assert.Contains("until", _engine.RenewContract(mine.Id, 4));
+        Assert.Equal(new DateOnly(2030, 6, 30), mine.Contract!.ExpiryDate);
+    }
+
+    [Fact]
+    public void RenewContract_MustRunPastTheCurrentDeal()
+    {
+        var mine = PlayerAt(1);
+
+        Assert.Contains("already runs until", _engine.RenewContract(mine.Id, 2));
+        Assert.Equal(new DateOnly(2028, 6, 30), mine.Contract!.ExpiryDate);
+    }
+
+    [Fact]
+    public void RenewContract_IsRefusedByRetiringPlayersAndOtherClubsPlayers()
+    {
+        var mine = PlayerAt(1);
+        mine.BirthDate = "01/15/1991";
+
+        Assert.Contains("retiring", _engine.RenewContract(mine.Id, 5));
+        Assert.Equal(new DateOnly(2028, 6, 30), mine.Contract!.ExpiryDate);
+        Assert.Contains("not contracted to your club", _engine.RenewContract(PlayerAt(2).Id, 5));
+    }
+
+    [Fact]
     public void ListPlayerForTransfer_OnlyWhileTheWindowIsOpen()
     {
         var mine = PlayerAt(1);
