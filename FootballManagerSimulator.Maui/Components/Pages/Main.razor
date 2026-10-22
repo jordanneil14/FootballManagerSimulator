@@ -31,7 +31,7 @@
 }
 
 <div class="panel">
-    <h2>📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread</span></h2>
+    <h2 style="cursor:pointer" @onclick="OpenNotifications">📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread · View all →</span></h2>
     @{
         var latest = Engine.State.Notifications.Where(p => p.Date <= Engine.State.Date).FirstOrDefault();
     }
@@ -41,7 +41,7 @@
     }
     else
     {
-        <div class="notif">
+        <div class="notif" style="cursor:pointer" @onclick="OpenNotifications">
             <div class="notif-head">
                 <span class="notif-from">@latest.Recipient</span>
                 <span class="notif-date">@latest.Date.ToString("ddd, dd MMM yyyy")</span>
@@ -131,6 +131,8 @@
             _error = $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}";
         }
     }
+
+    private void OpenNotifications() => Nav.NavigateTo("/notifications");
 
     private void NextNotification() => Engine.MarkLatestNotificationRead();
 

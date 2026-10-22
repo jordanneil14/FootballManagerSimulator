@@ -133,6 +133,18 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void ClearUnreadNotifications_KeepsActionableAndFutureNotifications()
+    {
+        _state.Notifications.Add(new NotificationModel { Subject = "info", Date = _state.Date });
+        _state.Notifications.Add(new NotificationModel { Subject = "bid", Date = _state.Date, RequiresAction = true });
+        _state.Notifications.Add(new NotificationModel { Subject = "future", Date = _state.Date.AddDays(1) });
+
+        _engine.ClearUnreadNotifications();
+
+        Assert.Equal(["bid", "future"], _state.Notifications.Select(p => p.Subject));
+    }
+
+    [Fact]
     public void AcceptBid_SellsThePlayer()
     {
         var player = PlayerAt(1);

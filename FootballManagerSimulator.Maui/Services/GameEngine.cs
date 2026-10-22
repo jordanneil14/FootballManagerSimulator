@@ -56,6 +56,16 @@ public class GameEngine(
         NotifyChanged();
     }
 
+    public IEnumerable<NotificationModel> UnreadNotifications =>
+        State.Notifications.Where(p => p.Date <= State.Date);
+
+    /// <summary>Removes every unread notification except those still awaiting a decision.</summary>
+    public void ClearUnreadNotifications()
+    {
+        State.Notifications.RemoveAll(p => p.Date <= State.Date && !p.RequiresAction);
+        NotifyChanged();
+    }
+
     public bool HasBlockingNotification =>
         State.Notifications.Any(p => p.Date <= State.Date && p.RequiresAction);
 

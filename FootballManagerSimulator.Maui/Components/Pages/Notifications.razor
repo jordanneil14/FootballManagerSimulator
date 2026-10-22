@@ -1,0 +1,68 @@
+@page "/notifications"
+@layout GameLayout
+@inject GameEngine Engine
+
+<PageTitle>Notifications</PageTitle>
+
+@{
+    var unread = Engine.UnreadNotifications.ToList();
+    var clearable = unread.Any(p => !p.RequiresAction);
+}
+
+<div class="page-head">
+    <div><h1>Notifications</h1><div class="subtitle">@unread.Count unread</div></div>
+    <div class="page-actions">
+        <button class="btn" disabled="@(!clearable)" @onclick="Engine.ClearUnreadNotifications">🧹 Clear all</button>
+    </div>
+</div>
+
+@if (!unread.Any())
+{
+    <div class="panel"><p class="muted">No unread notifications.</p></div>
+}
+else
+{
+    @if (unread.Any(p => p.RequiresAction))
+    {
+        <p class="muted" style="font-size:.82rem">Notifications that need a decision stay here until you respond to them.</p>
+    }
+    @foreach (var day in unread.GroupBy(p => p.Date).OrderByDescending(g => g.Key))
+    {
+        <div class="panel">
+            <h2>@DayLabel(day.Key) <span class="panel-title-sub">@day.Count()</span></h2>
+            <div style="display:flex;flex-direction:column;gap:.75rem">
+                @foreach (var notification in day)
+                {
+                    <div class="notif">
+                        <div class="notif-head">
+                            <span class="notif-from">@notification.Recipient</span>
+                        </div>
+                        <div class="notif-subject">@notification.Subject</div>
+                        <div class="notif-msg">@notification.Message</div>
+                        @if (notification.RequiresAction)
+                        {
+                            <div class="page-actions" style="margin-top:.75rem">
+                                <button class="btn btn-primary" @onclick="() => Engine.AcceptBid(notification)">✅ Accept</button>
+                                <button class="btn btn-danger" @onclick="() => Engine.RejectBid(notification)">❌ Reject</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private string DayLabel(DateOnly date)
+    {
+        var daysAgo = Engine.State.Date.DayNumber - date.DayNumber;
+        var label = date.ToString("dddd, dd MMMM yyyy");
+        return daysAgo switch
+        {
+            0 => $"Today · {label}",
+            1 => $"Yesterday · {label}",
+            _ => label
+        };
+    }
+}
