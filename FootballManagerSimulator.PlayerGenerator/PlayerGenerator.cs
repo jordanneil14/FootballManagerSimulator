@@ -31,28 +31,50 @@ public class PlayerGenerator
         int midCount = (int)Math.Ceiling(squadSize * 0.32);
         int fwdCount = squadSize - gkCount - defCount - midCount;
 
-        var shirtNumbers = Enumerable.Range(1, 99).OrderBy(_ => _random.Next()).ToList();
-        int shirtIndex = 0;
-
         for (int i = 0; i < gkCount; i++)
-            players.Add(GeneratePlayerForClub(clubName, "GK", shirtNumbers[shirtIndex++], startDate, leagueRank));
+            players.Add(GeneratePlayerForClub(clubName, "GK", startDate, leagueRank));
         for (int i = 0; i < defCount; i++)
         {
             var pos = PickRandom(["CB", "CB", "CB", "LB", "RB", "LB", "RB"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, shirtNumbers[shirtIndex++], startDate, leagueRank));
+            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
         }
         for (int i = 0; i < midCount; i++)
         {
             var pos = PickRandom(["CDM", "CM", "CM", "CAM", "LM", "RM"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, shirtNumbers[shirtIndex++], startDate, leagueRank));
+            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
         }
         for (int i = 0; i < fwdCount; i++)
         {
             var pos = PickRandom(["ST", "ST", "LW", "RW"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, shirtNumbers[shirtIndex++], startDate, leagueRank));
+            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
         }
 
+        AssignSquadNumbers(players);
         return players;
+    }
+
+    private static readonly int[] GoalkeeperNumbers = [1, 13, 21];
+
+    // The best players take the lowest numbers. Keepers wear 1, 13 and 21 (then 22 upwards);
+    // outfield players fill the rest from 2 upwards.
+    private static void AssignSquadNumbers(List<GeneratedPlayer> squad)
+    {
+        var keeperNumbers = GoalkeeperNumbers.Concat(Enumerable.Range(22, 78)).GetEnumerator();
+        foreach (var keeper in squad.Where(p => p.ClubPosition == "GK").OrderByDescending(p => p.Rating))
+        {
+            keeperNumbers.MoveNext();
+            keeper.ShirtNumber = keeperNumbers.Current;
+        }
+
+        var taken = squad.Where(p => p.ShirtNumber.HasValue).Select(p => p.ShirtNumber!.Value).ToHashSet();
+        var outfieldNumbers = Enumerable.Range(1, 99)
+            .Where(n => !taken.Contains(n) && !GoalkeeperNumbers.Contains(n))
+            .GetEnumerator();
+        foreach (var player in squad.Where(p => p.ClubPosition != "GK").OrderByDescending(p => p.Rating))
+        {
+            outfieldNumbers.MoveNext();
+            player.ShirtNumber = outfieldNumbers.Current;
+        }
     }
 
     // Academy graduates: 16 or 17 years old, rated below the senior squad, on a 2-3 year first contract.
@@ -90,13 +112,13 @@ public class PlayerGenerator
         return GeneratePlayerWithPosition(position, null, null, null, DateOnly.Parse(referenceDate));
     }
 
-    private GeneratedPlayer GeneratePlayerForClub(string clubName, string position, int shirtNumber, string startDate, int leagueRank = 1)
+    private GeneratedPlayer GeneratePlayerForClub(string clubName, string position, string startDate, int leagueRank = 1)
     {
         var contractYears = _random.Next(1, 5);
         var startDateOnly = DateOnly.Parse(startDate);
         var expiryDate = new DateOnly(startDateOnly.Year + contractYears, 6, 30);
 
-        var player = GeneratePlayerWithPosition(position, clubName, shirtNumber, startDate, startDateOnly, leagueRank);
+        var player = GeneratePlayerWithPosition(position, clubName, null, startDate, startDateOnly, leagueRank);
         player.Contract = new GeneratedContract
         {
             ClubID = 0,

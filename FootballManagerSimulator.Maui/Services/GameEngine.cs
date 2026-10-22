@@ -594,19 +594,8 @@ public class GameEngine(
             ExpiryDate = expiryDate
         };
 
-        var takenNumbers = State.Players
-            .Where(p => p.Contract != null && p.Contract.ClubId == MyClub.Id && p.ShirtNumber.HasValue)
-            .Select(p => p.ShirtNumber!.Value)
-            .ToHashSet();
-        var gkNumbers = new HashSet<int> { 1, 12, 13, 21 };
-        var isGk = player.Position == "GK";
-        var candidates = Enumerable.Range(1, 99)
-            .Where(n => !takenNumbers.Contains(n))
-            .Where(n => isGk ? gkNumbers.Contains(n) : !gkNumbers.Contains(n))
-            .ToList();
-        if (candidates.Count == 0)
-            candidates = Enumerable.Range(1, 99).Where(n => !takenNumbers.Contains(n)).ToList();
-        player.ShirtNumber = candidates[0];
+        player.ShirtNumber = null; // already contracted to us, so their old number mustn't count as taken
+        player.ShirtNumber = ShirtNumberRules.NextAvailable(State.Players, MyClub.Id, player.Position);
 
         MyClub.TacticSlots
             .First(p => p.TacticSlotType == Enums.TacticSlotType.RES && p.PlayerId == null)

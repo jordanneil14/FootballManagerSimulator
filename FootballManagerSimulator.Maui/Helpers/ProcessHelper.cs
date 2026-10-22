@@ -262,7 +262,7 @@ public class ProcessHelper(
             {
                 var player = MapToPlayerModel(gp, club);
                 player.Id = nextId++;
-                player.ShirtNumber = GetAvailableYouthShirtNumber(club.Id);
+                player.ShirtNumber = ShirtNumberRules.NextAvailable(State.Players, club.Id, player.Position);
                 State.Players.Add(player);
 
                 var reserveSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
@@ -280,17 +280,6 @@ public class ProcessHelper(
                 "Head of Youth Development",
                 "Youth Intake",
                 $"The following players have been promoted from the academy:\n\t{string.Join("\n\t", myIntake.Select(p => $"{p.Name} ({p.PreferredPosition}, {p.Rating})"))}");
-    }
-
-    // Academy players take the first free squad number from 30 upwards.
-    private int GetAvailableYouthShirtNumber(int clubId)
-    {
-        var takenNumbers = State.Players
-            .Where(p => p.Contract != null && p.Contract.ClubId == clubId && p.ShirtNumber.HasValue)
-            .Select(p => p.ShirtNumber!.Value)
-            .ToHashSet();
-
-        return Enumerable.Range(30, 70).Concat(Enumerable.Range(1, 29)).FirstOrDefault(n => !takenNumbers.Contains(n));
     }
 
     private void TopUpSquads()
@@ -321,10 +310,12 @@ public class ProcessHelper(
             var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
             var generated = generator.GenerateSquad(club.Name, playersNeeded, startDate, leagueRank);
 
-            foreach (var gp in generated)
+            // Generated numbers only avoid each other, so number the newcomers around the existing squad, best first.
+            foreach (var gp in generated.OrderByDescending(p => p.Rating))
             {
                 var player = MapToPlayerModel(gp, club);
                 player.Id = nextId++;
+                player.ShirtNumber = ShirtNumberRules.NextAvailable(State.Players, club.Id, player.Position);
                 State.Players.Add(player);
             }
         }
