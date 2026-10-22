@@ -174,6 +174,31 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
+    public void SaveAndLoadBeforeSeasonEnd_StillPromotesAndRelegates()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var state = engine.State;
+        PlayUntil(engine, new DateOnly(2027, 6, 29));
+
+        Assert.Equal("Game saved successfully.", engine.SaveGame("endofseason"));
+        engine.StartNewGame();
+        Assert.Null(engine.LoadGame("endofseason.fms"));
+
+        var division1 = (LeagueModel)state.Competitions.Single(c => c.Id == 1);
+        var division2 = (LeagueModel)state.Competitions.Single(c => c.Id == 2);
+        var relegated = division1.GenerateLeagueTable().TakeLast(3).Select(p => p.Club.Id).ToList();
+        var promoted = division2.GenerateLeagueTable().Take(2).Select(p => p.Club.Id).ToList();
+        promoted.Add(division2.Fixtures.Single(f => f.FixtureType == FixtureType.PlayoffFinal).ClubWon!.Id);
+
+        PlayUntil(engine, new DateOnly(2027, 6, 30));
+
+        Assert.All(relegated, id => Assert.Equal(2, state.Clubs.Single(c => c.Id == id).LeagueId));
+        Assert.All(promoted, id => Assert.Equal(1, state.Clubs.Single(c => c.Id == id).LeagueId));
+        var newDivision1 = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == 1);
+        Assert.All(promoted, id => Assert.Contains(newDivision1.Clubs, c => c.Id == id));
+    }
+
+    [Fact]
     public void RequestHigherTransferBudget_PaysOutAfterTwoDaysAndCannotBeSpammed()
     {
         var engine = _host.StartNewGame(clubId: 9);

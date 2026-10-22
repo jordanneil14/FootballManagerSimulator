@@ -96,6 +96,9 @@ public class ProcessHelper(
 
         var leaguesByCountry = leagues.GroupBy(p => p.CountryId);
 
+        // After a save/load, league and fixture clubs are copies of State.Clubs, so update by Id.
+        var clubsById = State.Clubs.ToDictionary(p => p.Id);
+
         foreach (var countryLeagues in leaguesByCountry)
         {
             var orderedLeagues = countryLeagues.OrderBy(p => p.Rank).ToList();
@@ -123,7 +126,7 @@ public class ProcessHelper(
                         promoted.Add(playoffWinner);
 
                     foreach (var club in promoted)
-                        club.LeagueId = leagueAbove.Id;
+                        clubsById[club.Id].LeagueId = leagueAbove.Id;
                 }
 
                 if (i < orderedLeagues.Count - 1)
@@ -136,7 +139,7 @@ public class ProcessHelper(
                         .ToList();
 
                     foreach (var club in relegated)
-                        club.LeagueId = leagueBelow.Id;
+                        clubsById[club.Id].LeagueId = leagueBelow.Id;
                 }
             }
         }
