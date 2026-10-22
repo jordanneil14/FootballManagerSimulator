@@ -42,8 +42,8 @@ public class FullGameTests : IDisposable
     {
         foreach (var pending in engine.State.Notifications.Where(n => n.RequiresAction).ToList())
         {
-            if (pending.JobOfferClubId != null)
-                pending.RequiresAction = false; // stay at the club so the test's assumptions hold
+            if (pending.JobOfferClubId != null || pending.IsBoardWarning)
+                pending.RequiresAction = false; // decline offers to stay at the club; acknowledge warnings
             else
                 engine.RejectBid(pending);
         }

@@ -1,0 +1,46 @@
+@inject GameEngine Engine
+@inject IJobOfferHelper JobOffers
+
+@if (Notification.IsBoardWarning)
+{
+    <div class="page-actions" style="@Style">
+        <button class="btn btn-primary" @onclick="Acknowledge">👍 Understood</button>
+    </div>
+}
+else if (Notification.JobOfferClubId != null)
+{
+    <div class="page-actions" style="@Style">
+        <button class="btn btn-primary" @onclick="AcceptJob">✅ Accept Job</button>
+        <button class="btn btn-danger" @onclick="DeclineJob">❌ Decline</button>
+    </div>
+}
+else
+{
+    <div class="page-actions" style="@Style">
+        <button class="btn btn-primary" @onclick="() => Engine.AcceptBid(Notification)">✅ Accept</button>
+        <button class="btn btn-danger" @onclick="() => Engine.RejectBid(Notification)">❌ Reject</button>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public NotificationModel Notification { get; set; } = default!;
+    [Parameter] public string? Style { get; set; }
+
+    private void Acknowledge()
+    {
+        Notification.RequiresAction = false;
+        Engine.NotifyChanged();
+    }
+
+    private void AcceptJob()
+    {
+        JobOffers.AcceptJobOffer(Notification);
+        Engine.NotifyChanged();
+    }
+
+    private void DeclineJob()
+    {
+        JobOffers.DeclineJobOffer(Notification);
+        Engine.NotifyChanged();
+    }
+}

@@ -13,6 +13,11 @@ public static class BoardConfidenceRules
     public const int StableFrom = 30;
     public const int UnderPressureFrom = 15;
 
+    // AI clubs sack their manager below this and stay without one for a short spell.
+    public const int SackedBelow = 10;
+    public const int VacancyMinDays = 7;
+    public const int VacancyMaxDays = 14;
+
     public static int Apply(int confidence, int change) => Math.Clamp(confidence + change, Min, Max);
 
     public static string Label(int confidence) => confidence switch

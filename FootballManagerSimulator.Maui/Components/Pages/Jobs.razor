@@ -1,0 +1,94 @@
+@page "/jobs"
+@layout GameLayout
+@inject GameEngine Engine
+@inject IJobOfferHelper JobOffers
+@inject NavigationManager Nav
+
+<PageTitle>Jobs</PageTitle>
+
+<div class="page-head"><div><h1>Jobs</h1><div class="subtitle">Clubs looking for a manager, and clubs to watch</div></div></div>
+
+@{
+    var vacancies = JobOffers.Vacancies().ToList();
+    var underThreat = JobOffers.ManagersUnderThreat().ToList();
+}
+
+<div class="panel">
+    <h2>💼 Vacancies <span class="panel-title-sub">@vacancies.Count</span></h2>
+    @if (!vacancies.Any())
+    {
+        <p class="muted">No clubs are looking for a manager right now. Clubs sack their manager when job security falls below @BoardConfidenceRules.SackedBelow.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Club</th><th>League</th><th>Appointing by</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var club in vacancies)
+                    {
+                        <tr>
+                            <td><strong>@club.Name</strong></td>
+                            <td class="muted">@LeagueName(club.LeagueId)</td>
+                            <td class="muted">@club.VacantUntil?.ToString("ddd dd MMM")</td>
+                            <td class="num"><button class="btn btn-primary" @onclick="() => _pendingClub = club">Join</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="panel">
+    <h2>🔥 Managers Under Threat <span class="panel-title-sub">@underThreat.Count</span></h2>
+    @if (!underThreat.Any())
+    {
+        <p class="muted">No managers are under threat right now.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Club</th><th>League</th><th class="num">Job security</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var club in underThreat)
+                    {
+                        <tr>
+                            <td><strong>@club.Name</strong></td>
+                            <td class="muted">@LeagueName(club.LeagueId)</td>
+                            <td class="num" style="color:var(--warn)">@club.JobSecurity / 100</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<ConfirmModal Visible="_pendingClub != null"
+              Title="@($"Join {_pendingClub?.Name}?")"
+              Message="@($"You will leave {Engine.MyClub.Name} and take charge of {_pendingClub?.Name}. Board confidence starts again at {BoardConfidenceRules.Starting}/100.")"
+              OnConfirm="ConfirmJoin"
+              OnCancel="() => _pendingClub = null" />
+
+@code {
+    private ClubModel? _pendingClub;
+
+    private string LeagueName(int leagueId) =>
+        Engine.State.Competitions.FirstOrDefault(p => p.Id == leagueId)?.Name ?? "";
+
+    private void ConfirmJoin()
+    {
+        if (_pendingClub == null) return;
+        var joined = JobOffers.JoinClub(_pendingClub.Id);
+        _pendingClub = null;
+        Engine.NotifyChanged();
+        if (joined)
+            Nav.NavigateTo("/game");
+    }
+}

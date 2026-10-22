@@ -238,6 +238,81 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void FinaliseMatch_UpdatesBothClubsJobSecurityButNotForFriendlies()
+    {
+        var (friendly, friendlyComp) = NewFixture(CompetitionType.Friendly);
+        friendly.GoalsHome = 1;
+        friendly.GoalsAway = 0;
+        _simulator.FinaliseMatch(friendly, friendlyComp);
+        Assert.Equal((50, 50), (Home.JobSecurity, Away.JobSecurity));
+
+        var (league, leagueComp) = NewFixture(CompetitionType.League);
+        league.GoalsHome = 2;
+        league.GoalsAway = 0;
+        _simulator.FinaliseMatch(league, leagueComp);
+        _simulator.FinaliseMatch(league, leagueComp);
+
+        Assert.Equal((53, 47), (Home.JobSecurity, Away.JobSecurity));
+    }
+
+    [Fact]
+    public void FinaliseMatch_AiClubDroppingBelowTenSacksItsManagerAndGoesVacant()
+    {
+        Away.JobSecurity = 12;
+
+        for (var i = 0; i < 2; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.League); // my club (3) is not playing
+            fixture.GoalsHome = 1;
+            fixture.GoalsAway = 0;
+            _simulator.FinaliseMatch(fixture, competition);
+        }
+
+        Assert.Equal(6, Away.JobSecurity); // not reset while the job is vacant
+        Assert.InRange(Away.VacantUntil!.Value.DayNumber - _state.Date.DayNumber,
+            BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays);
+        var news = Assert.Single(_state.Notifications); // sacked once, not again while vacant
+        Assert.Equal($"{Away.Name} sack their manager", news.Subject);
+        Assert.False(news.RequiresAction);
+    }
+
+    [Fact]
+    public void FinaliseMatch_MyClubReachingZeroIsNotTreatedAsAnAiSacking()
+    {
+        _state.MyClubId = Away.Id;
+        Away.JobSecurity = 3;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Equal(0, Away.JobSecurity);
+        Assert.Null(Away.VacantUntil);
+        Assert.DoesNotContain(_state.Notifications, n => n.Subject.EndsWith("sack their manager"));
+    }
+
+    [Fact]
+    public void FinaliseMatch_DroppingIntoAtRiskSendsOneBlockingWarning()
+    {
+        _state.MyClubId = Home.Id;
+        _state.BoardConfidence = BoardConfidenceRules.UnderPressureFrom + 1;
+
+        for (var i = 0; i < 2; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.League);
+            fixture.GoalsHome = 0;
+            fixture.GoalsAway = 1;
+            _simulator.FinaliseMatch(fixture, competition);
+        }
+
+        var warning = Assert.Single(_state.Notifications);
+        Assert.True(warning.IsBoardWarning);
+        Assert.True(warning.RequiresAction);
+        Assert.Equal("At risk", BoardConfidenceRules.Label(_state.BoardConfidence));
+    }
+
+    [Fact]
     public void FinaliseMatch_FriendliesAndOtherClubsMatchesLeaveBoardConfidence()
     {
         var (otherClubs, otherComp) = NewFixture(CompetitionType.League); // my club is 3, not playing

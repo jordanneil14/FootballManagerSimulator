@@ -41,10 +41,7 @@ else
                         <div class="notif-msg">@notification.Message</div>
                         @if (notification.RequiresAction)
                         {
-                            <div class="page-actions" style="margin-top:.75rem">
-                                <button class="btn btn-primary" @onclick="() => Engine.AcceptBid(notification)">✅ Accept</button>
-                                <button class="btn btn-danger" @onclick="() => Engine.RejectBid(notification)">❌ Reject</button>
-                            </div>
+                            <NotificationActions Notification="notification" Style="margin-top:.75rem" />
                         }
                     </div>
                 }

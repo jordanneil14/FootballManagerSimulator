@@ -51,6 +51,8 @@ public class ProcessHelper(
             return;
         }
 
+        JobOfferHelper.ProcessVacancies();
+
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
         {
             TransferListHelper.UpdateTransferList();

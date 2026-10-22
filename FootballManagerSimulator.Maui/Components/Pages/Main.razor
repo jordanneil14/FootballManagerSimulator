@@ -3,7 +3,6 @@
 @inject GameEngine Engine
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
-@inject IJobOfferHelper JobOffers
 
 <PageTitle>Hub</PageTitle>
 
@@ -51,19 +50,9 @@
             <div class="notif-msg">@latest.Message</div>
         </div>
         <div class="divider"></div>
-        @if (latest.RequiresAction && latest.JobOfferClubId != null)
+        @if (latest.RequiresAction)
         {
-            <div class="page-actions">
-                <button class="btn btn-primary" @onclick="() => AcceptJob(latest)">✅ Accept Job</button>
-                <button class="btn btn-danger" @onclick="() => DeclineJob(latest)">❌ Decline</button>
-            </div>
-        }
-        else if (latest.RequiresAction)
-        {
-            <div class="page-actions">
-                <button class="btn btn-primary" @onclick="() => AcceptBid(latest)">✅ Accept</button>
-                <button class="btn btn-danger" @onclick="() => RejectBid(latest)">❌ Reject</button>
-            </div>
+            <NotificationActions Notification="latest" />
         }
         else
         {
@@ -143,22 +132,6 @@
     private void OpenNotifications() => Nav.NavigateTo("/notifications");
 
     private void NextNotification() => Engine.MarkLatestNotificationRead();
-
-    private void AcceptBid(NotificationModel notification) => Engine.AcceptBid(notification);
-
-    private void RejectBid(NotificationModel notification) => Engine.RejectBid(notification);
-
-    private void AcceptJob(NotificationModel notification)
-    {
-        JobOffers.AcceptJobOffer(notification);
-        Engine.NotifyChanged();
-    }
-
-    private void DeclineJob(NotificationModel notification)
-    {
-        JobOffers.DeclineJobOffer(notification);
-        Engine.NotifyChanged();
-    }
 
     private SettingsModel Settings => SettingsOptions.Value;
 

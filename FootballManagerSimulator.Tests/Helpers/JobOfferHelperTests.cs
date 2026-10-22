@@ -94,6 +94,58 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void VacanciesAndManagersUnderThreat_AreSeparateLists()
+    {
+        _state.Clubs.Single(p => p.Id == 1).JobSecurity = 14;
+        _state.Clubs.Single(p => p.Id == 2).JobSecurity = 15;
+        _state.Clubs.Single(p => p.Id == 3).JobSecurity = 0; // mine
+        var vacant = _state.Clubs.Single(p => p.Id == 6);
+        vacant.JobSecurity = 3;
+        vacant.VacantUntil = _state.Date.AddDays(7);
+
+        Assert.Equal([6], _helper.Vacancies().Select(p => p.Id));
+        Assert.Equal([1], _helper.ManagersUnderThreat().Select(p => p.Id));
+    }
+
+    [Fact]
+    public void ProcessVacancies_AppointsAReplacementOnceTheVacancyEnds()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 6);
+        club.JobSecurity = 4;
+        club.VacantUntil = _state.Date.AddDays(1);
+
+        _helper.ProcessVacancies();
+        Assert.NotNull(club.VacantUntil);
+
+        _state.Date = _state.Date.AddDays(1);
+        _helper.ProcessVacancies();
+
+        Assert.Null(club.VacantUntil);
+        Assert.Equal(BoardConfidenceRules.Starting, club.JobSecurity);
+        Assert.Contains(_state.Notifications, n => n.Subject == $"{club.Name} appoint a new manager");
+    }
+
+    [Fact]
+    public void JoinClub_SwitchesClubAndBothClubsStartAfresh()
+    {
+        _state.BoardConfidence = 20;
+        var oldClub = _state.Clubs.Single(p => p.Id == 3);
+        var newClub = _state.Clubs.Single(p => p.Id == 5);
+        oldClub.JobSecurity = 20;
+        newClub.JobSecurity = 4;
+        newClub.VacantUntil = _state.Date.AddDays(10);
+
+        Assert.True(_helper.JoinClub(5));
+        Assert.Null(newClub.VacantUntil);
+
+        Assert.Equal(5, _state.MyClubId);
+        Assert.Equal(BoardConfidenceRules.Starting, _state.BoardConfidence);
+        Assert.Equal((50, 50), (oldClub.JobSecurity, newClub.JobSecurity));
+        Assert.Contains(_state.Notifications, n => n.Subject == $"Welcome to {newClub.Name}");
+        Assert.False(_helper.JoinClub(5)); // already there
+    }
+
+    [Fact]
     public void DeclineJobOffer_KeepsMeWhereIAm()
     {
         _state.BoardConfidence = 90;

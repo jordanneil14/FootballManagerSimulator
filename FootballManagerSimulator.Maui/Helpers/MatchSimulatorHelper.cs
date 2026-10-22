@@ -280,16 +280,58 @@ public class MatchSimulatorHelper(
         if (competition.Type == CompetitionType.Friendly)
             return;
 
+        // Fixture clubs can be copies after a save/load, so update the canonical State.Clubs entries.
+        foreach (var clubId in new[] { fixture.HomeClub.Id, fixture.AwayClub.Id })
+        {
+            var club = State.Clubs.FirstOrDefault(p => p.Id == clubId);
+            if (club == null)
+                continue;
+
+            club.JobSecurity = BoardConfidenceRules.Apply(club.JobSecurity, ResultChange(fixture, clubId));
+
+            if (club.Id != State.MyClubId && club.VacantUntil == null && club.JobSecurity < BoardConfidenceRules.SackedBelow)
+                SackManager(club);
+        }
+
         var myClubId = State.MyClubId;
         if (myClubId == null || (fixture.HomeClub.Id != myClubId && fixture.AwayClub.Id != myClubId))
             return;
 
-        var change = fixture.ClubWon == null ? BoardConfidenceRules.Draw
-            : fixture.ClubWon.Id == myClubId ? BoardConfidenceRules.Win
-            : BoardConfidenceRules.Loss;
+        var before = State.BoardConfidence;
+        State.BoardConfidence = BoardConfidenceRules.Apply(before, ResultChange(fixture, myClubId.Value));
 
-        State.BoardConfidence = BoardConfidenceRules.Apply(State.BoardConfidence, change);
+        if (before >= BoardConfidenceRules.UnderPressureFrom && State.BoardConfidence < BoardConfidenceRules.UnderPressureFrom)
+        {
+            State.Notifications.Add(new NotificationModel
+            {
+                Date = State.Date,
+                Recipient = "Chairman",
+                Subject = "Your job is at risk",
+                Message = $"Results have not been good enough. The board's confidence in you has fallen to {State.BoardConfidence}/100 and your position is now at risk. Things need to improve quickly.",
+                RequiresAction = true,
+                IsBoardWarning = true
+            });
+        }
     }
+
+    private void SackManager(ClubModel club)
+    {
+        club.VacantUntil = State.Date.AddDays(
+            RandomNumberHelper.Next(BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays + 1));
+
+        State.Notifications.Add(new NotificationModel
+        {
+            Date = State.Date,
+            Recipient = "Press Officer",
+            Subject = $"{club.Name} sack their manager",
+            Message = $"After a terrible run of results, {club.Name} have sacked their manager. They expect to appoint a replacement by {club.VacantUntil:d MMMM yyyy}. The job is listed on the Jobs screen until then."
+        });
+    }
+
+    private static int ResultChange(FixtureModel fixture, int clubId) =>
+        fixture.ClubWon == null ? BoardConfidenceRules.Draw
+        : fixture.ClubWon.Id == clubId ? BoardConfidenceRules.Win
+        : BoardConfidenceRules.Loss;
 
     public void PreGenerateMatch(FixtureModel fixture)
     {
