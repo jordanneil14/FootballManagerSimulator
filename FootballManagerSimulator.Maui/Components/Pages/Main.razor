@@ -15,6 +15,21 @@
     </div>
 </div>
 
+@if (_error != null)
+{
+    <div class="feedback"><div class="feedback-item warn" style="white-space:pre-wrap;font-size:.8rem">@_error</div></div>
+}
+
+@if (Engine.State.UserFeedbackUpdates.Any())
+{
+    <div class="feedback">
+        @foreach (var update in Engine.State.UserFeedbackUpdates)
+        {
+            <div class="feedback-item">@update</div>
+        }
+    </div>
+}
+
 <div class="panel">
     <h2>📨 Inbox <span class="panel-title-sub">@Engine.UnreadNotificationCount unread</span></h2>
     @{
@@ -48,21 +63,6 @@
         }
     }
 </div>
-
-@if (_error != null)
-{
-    <div class="feedback"><div class="feedback-item warn" style="white-space:pre-wrap;font-size:.8rem">@_error</div></div>
-}
-
-@if (Engine.State.UserFeedbackUpdates.Any())
-{
-    <div class="feedback">
-        @foreach (var update in Engine.State.UserFeedbackUpdates)
-        {
-            <div class="feedback-item">@update</div>
-        }
-    </div>
-}
 
 <div class="stat-row">
     <div class="stat-pair">
