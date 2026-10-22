@@ -54,6 +54,9 @@ public class TransferListHelper(
 
     public void SignFreeAgentByPlayerId(int playerId, int contractYears)
     {
+        if (State.Players.First(p => p.Id == playerId).IsRetiring(State.Date))
+            return;
+
         var club = State.Clubs.First(p => p.Id == State.MyClubId);
 
         var expiryDate = GetEndOfCurrentSeasonDate().AddYears(contractYears - 1);
@@ -128,7 +131,7 @@ public class TransferListHelper(
         {
             var clubIds = league.Clubs.Select(p => p.Id);
             var players = State.Players.Where(p => p.Contract != null && clubIds.Contains(p.Contract.ClubId) && p.Contract.ClubId != State.MyClubId
-                && !IsPlayerTransferListed(p.Id));
+                && !IsPlayerTransferListed(p.Id) && !p.IsRetiring(State.Date));
             var randomPlayers = players.OrderBy(p => RandomNumberHelper.Next()).Take(20);
 
             var transferListItems = randomPlayers.Select(p =>
@@ -225,6 +228,10 @@ public class TransferListHelper(
     private int? FindSuitableClub(int playerId, int currentClubId, int price)
     {
         var player = State.Players.First(p => p.Id == playerId);
+
+        // No club will move for a player who is about to retire.
+        if (player.IsRetiring(State.Date))
+            return null;
 
         var groupedPlayers = State.Players
             .Where(p => p.Contract != null)

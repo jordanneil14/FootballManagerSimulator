@@ -87,6 +87,25 @@ public class PlayerHelperTests
         Assert.False(_helper.DoesPlayerPlaysForClub(2, 3));
     }
 
+    [Theory]
+    [InlineData("03/15/1990", 2026, 3, 14, 35)]
+    [InlineData("03/15/1990", 2026, 3, 15, 36)]
+    [InlineData("02/29/2004", 2026, 2, 27, 21)]
+    [InlineData("not a date", 2026, 1, 1, 0)]
+    public void GetAge_IsWorkedOutFromTheBirthDate(string birthDate, int y, int m, int d, int expected)
+    {
+        var player = new PlayerModel { BirthDate = birthDate };
+        Assert.Equal(expected, player.GetAge(new DateOnly(y, m, d)));
+    }
+
+    [Fact]
+    public void IsRetiring_FromTheirThirtyFifthBirthday()
+    {
+        var player = new PlayerModel { BirthDate = "07/01/1991" };
+        Assert.False(player.IsRetiring(new DateOnly(2026, 6, 30)));
+        Assert.True(player.IsRetiring(new DateOnly(2026, 7, 1)));
+    }
+
     [Fact]
     public void ScoringProbability_IsFinishingTimesShotPowerTimesWeightedPositioning()
     {

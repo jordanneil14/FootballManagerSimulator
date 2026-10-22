@@ -158,6 +158,12 @@ public class FullGameTests : IDisposable
         Assert.All(newDivision1.Fixtures, f => Assert.False(f.Concluded));
         Assert.All(state.Clubs, c => Assert.InRange(state.Players.Count(p => p.Contract?.ClubId == c.Id), 25, 40));
         Assert.DoesNotContain(state.Players, p => p.SuspensionMatches > 0);
+
+        // Out-of-contract players aged 35+ have left the game, and no lineup still points at them.
+        Assert.DoesNotContain(state.Players, p => p.Contract == null && p.IsRetiring(state.Date));
+        var playerIds = state.Players.Select(p => p.Id).ToHashSet();
+        Assert.All(state.Clubs.SelectMany(c => c.TacticSlots), s => Assert.True(s.PlayerId == null || playerIds.Contains(s.PlayerId.Value)));
+
         Assert.NotEqual(division1, state.Clubs.Where(c => c.LeagueId == 1).Select(c => c.Id).ToHashSet());
         Assert.NotEqual(division2, state.Clubs.Where(c => c.LeagueId == 2).Select(c => c.Id).ToHashSet());
     }

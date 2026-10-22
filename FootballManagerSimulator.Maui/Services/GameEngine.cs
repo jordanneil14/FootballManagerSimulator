@@ -83,6 +83,14 @@ public class GameEngine(
             return;
         }
 
+        if (IsPlayerRetiring(player))
+        {
+            notification.RequiresAction = false;
+            notification.Message = $"The bid for {player.Name} has fallen through because he is retiring and will not sign a new contract.";
+            NotifyChanged();
+            return;
+        }
+
         var oldSlot = MyClub.TacticSlots.FirstOrDefault(p => p.PlayerId == notification.BidPlayerId);
         if (oldSlot != null) oldSlot.PlayerId = null;
 
@@ -439,6 +447,7 @@ public class GameEngine(
 
         var item = transferListHelper.GetTransferListItemByPlayerId(playerId);
         if (item == null) return "This player is not on the transfer list.";
+        if (RetirementRefusal(playerId) is { } refusal) return refusal;
         if (item.AskingPrice > MyClub.TransferBudget) return "Insufficient funds to purchase this player.";
 
         transferListHelper.TransferContractedPlayerByPlayerIdAndClubId(item.PlayerId, MyClub.Id);
@@ -470,8 +479,21 @@ public class GameEngine(
     public TransferListItemModel? GetTransferListItem(int playerId) =>
         transferListHelper.GetTransferListItemByPlayerId(playerId);
 
+    public bool IsPlayerRetiring(PlayerModel player) => player.IsRetiring(State.Date);
+
+    // Players at or past the retirement age won't sign a new deal.
+    private string? RetirementRefusal(int playerId)
+    {
+        var player = playerHelper.GetPlayerById(playerId);
+        return player != null && IsPlayerRetiring(player)
+            ? $"{player.Name} is retiring and will not sign a new contract."
+            : null;
+    }
+
     public string SignFreeAgent(int playerId, int contractYears)
     {
+        if (RetirementRefusal(playerId) is { } refusal) return refusal;
+
         transferListHelper.SignFreeAgentByPlayerId(playerId, contractYears);
         var player = playerHelper.GetPlayerById(playerId);
         return player == null ? "Player signed." : $"{player.Name} has been signed.";
@@ -482,6 +504,9 @@ public class GameEngine(
         var player = playerHelper.GetPlayerById(playerId);
         if (player == null)
             return new BidResultModel { Message = "Player not found." };
+
+        if (RetirementRefusal(playerId) is { } refusal)
+            return new BidResultModel { Message = refusal };
 
         if (!IsTransferWindowOpen)
             return new BidResultModel { Message = "The transfer window is currently closed." };
@@ -522,6 +547,7 @@ public class GameEngine(
     {
         var player = playerHelper.GetPlayerById(playerId);
         if (player?.Contract == null) return "Player not found.";
+        if (RetirementRefusal(playerId) is { } refusal) return refusal;
 
         var sellingClubId = player.Contract.ClubId;
         var sellingClub = clubHelper.GetClubById(sellingClubId);

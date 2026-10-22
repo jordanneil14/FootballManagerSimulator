@@ -14,11 +14,11 @@ public class PlayerGenerator
         _random = new Random(seed);
     }
 
-    public List<GeneratedPlayer> GeneratePlayers(int count)
+    public List<GeneratedPlayer> GeneratePlayers(int count, string referenceDate)
     {
         var players = new List<GeneratedPlayer>(count);
         for (int i = 0; i < count; i++)
-            players.Add(GeneratePlayer());
+            players.Add(GeneratePlayer(referenceDate));
         return players;
     }
 
@@ -55,10 +55,10 @@ public class PlayerGenerator
         return players;
     }
 
-    public GeneratedPlayer GeneratePlayer()
+    public GeneratedPlayer GeneratePlayer(string referenceDate)
     {
         var position = PickRandom(NameData.Positions);
-        return GeneratePlayerWithPosition(position, null, null, null);
+        return GeneratePlayerWithPosition(position, null, null, null, DateOnly.Parse(referenceDate));
     }
 
     private GeneratedPlayer GeneratePlayerForClub(string clubName, string position, int shirtNumber, string startDate, int leagueRank = 1)
@@ -67,7 +67,7 @@ public class PlayerGenerator
         var startDateOnly = DateOnly.Parse(startDate);
         var expiryDate = new DateOnly(startDateOnly.Year + contractYears, 6, 30);
 
-        var player = GeneratePlayerWithPosition(position, clubName, shirtNumber, startDate, leagueRank);
+        var player = GeneratePlayerWithPosition(position, clubName, shirtNumber, startDate, startDateOnly, leagueRank);
         player.Contract = new GeneratedContract
         {
             ClubID = 0,
@@ -79,12 +79,12 @@ public class PlayerGenerator
         return player;
     }
 
-    private GeneratedPlayer GeneratePlayerWithPosition(string position, string? clubName, int? shirtNumber, string? clubJoining, int leagueRank = 1)
+    private GeneratedPlayer GeneratePlayerWithPosition(string position, string? clubName, int? shirtNumber, string? clubJoining, DateOnly referenceDate, int leagueRank = 1)
     {
         var nationality = PickWeightedNationality();
         var (firstName, lastName) = GenerateName(nationality);
         var age = GenerateAge();
-        var birthDate = GenerateBirthDate(age);
+        var birthDate = GenerateBirthDate(age, referenceDate);
         var rating = GenerateRating(leagueRank);
         var (height, weight) = GeneratePhysicals(position);
         var preferredFoot = _random.Next(100) < 70 ? "Right" : "Left";
@@ -527,12 +527,11 @@ public class PlayerGenerator
         };
     }
 
-    private string GenerateBirthDate(int age)
+    // Picks a birth date that makes the player exactly `age` years old on the reference date.
+    private string GenerateBirthDate(int age, DateOnly referenceDate)
     {
-        var year = DateTime.Now.Year - age;
-        var month = _random.Next(1, 13);
-        var day = _random.Next(1, 29);
-        return $"{month:D2}/{day:D2}/{year}";
+        var birthDate = referenceDate.AddYears(-age).AddDays(-_random.Next(0, 365));
+        return birthDate.ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private (string Height, string Weight) GeneratePhysicals(string position)

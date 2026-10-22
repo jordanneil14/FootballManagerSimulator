@@ -17,6 +17,7 @@ else
 {
     var club = player.Contract == null ? "Free Agent" : Engine.GetClub(player.Contract.ClubId)?.Name ?? "Free Agent";
     var playsForMe = Engine.PlayerPlaysForMyClub(player.Id);
+    var retiring = Engine.IsPlayerRetiring(player);
 
     <div class="page-head">
         <div>
@@ -32,11 +33,15 @@ else
             {
                 <a class="btn btn-primary" href="@($"/transfers/player/{player.Id}")">Transfer Options</a>
             }
+            else if (retiring)
+            {
+                <span class="tag">Retiring</span>
+            }
             else if (player.Contract == null)
             {
                 <button class="btn btn-primary" @onclick="() => _showSignModal = true">Sign Free Agent</button>
             }
-            else if (!playsForMe)
+            else
             {
                 <button class="btn btn-primary" @onclick="OpenBidModal">Buy Player</button>
             }
@@ -48,9 +53,14 @@ else
         <div class="feedback"><div class="feedback-item">This player is transfer listed for @(Engine.GetTransferListItem(player.Id)?.AskingPriceFriendly).</div></div>
     }
 
+    @if (retiring)
+    {
+        <div class="feedback"><div class="feedback-item warn">@player.Name will not sign a new contract and will retire @(player.Contract == null ? "at the end of the season" : "when his contract expires").</div></div>
+    }
+
     <div class="stat-row">
         <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
-        <div class="stat"><div class="label">Age</div><div class="value">@player.Age</div></div>
+        <div class="stat"><div class="label">Age</div><div class="value">@player.GetAge(Engine.State.Date)</div></div>
     </div>
 
     <div class="stat-row">

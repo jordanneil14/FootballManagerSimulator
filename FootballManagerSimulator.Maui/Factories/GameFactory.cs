@@ -136,7 +136,7 @@ public class GameFactory(
         }
 
         var freeAgentCount = random.Next(80, 121);
-        var freeAgents = generator.GeneratePlayers(freeAgentCount);
+        var freeAgents = generator.GeneratePlayers(freeAgentCount, startDate);
         foreach (var gp in freeAgents)
         {
             allPlayers.Add(MapToPlayerModel(gp, null));
@@ -211,7 +211,6 @@ public class GameFactory(
             Weight = gp.Weight,
             PreferredFoot = gp.PreferredFoot,
             BirthDate = gp.BirthDate,
-            Age = gp.Age,
             PreferredPosition = gp.PreferredPosition,
             WorkRate = gp.WorkRate,
             Weakfoot = gp.Weakfoot,

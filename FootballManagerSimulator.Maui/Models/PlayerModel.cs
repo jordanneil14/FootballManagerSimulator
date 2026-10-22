@@ -1,4 +1,5 @@
-﻿using FootballManagerSimulator.Maui.Interfaces;
+﻿using System.Globalization;
+using FootballManagerSimulator.Maui.Interfaces;
 
 namespace FootballManagerSimulator.Maui.Models;
 
@@ -23,8 +24,23 @@ public class PlayerModel : IPerson
     public string Height { get; set; } = "";
     public string Weight { get; set; } = "";
     public string PreferredFoot { get; set; } = "";
+    public const int RetirementAge = 35;
+
+    // Stored as MM/dd/yyyy by the player generator
     public string BirthDate { get; set; } = "";
-    public int Age { get; set; }
+
+    public int GetAge(DateOnly onDate)
+    {
+        if (!DateOnly.TryParseExact(BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var birthDate))
+            return 0;
+
+        var age = onDate.Year - birthDate.Year;
+        if (onDate < birthDate.AddYears(age)) age--;
+        return age;
+    }
+
+    // A retiring player will not sign a new contract and leaves the game once their current one expires.
+    public bool IsRetiring(DateOnly onDate) => GetAge(onDate) >= RetirementAge;
     public string PreferredPosition { get; set; } = "";
     public string WorkRate { get; set; } = "";
     public int Weakfoot { get; set; }

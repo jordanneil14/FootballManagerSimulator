@@ -191,11 +191,46 @@ public class ProcessHelper(
             .Where(p => p.Contract != null && DateOnly.Parse($"{State.Date.Year}-06-30") >= p.Contract.ExpiryDate)
             .ToList();
 
+        var myRetirees = expiredPlayers
+            .Where(p => p.Contract!.ClubId == State.MyClubId && p.IsRetiring(State.Date))
+            .Select(p => p.Name)
+            .ToList();
+
         foreach (var player in expiredPlayers)
         {
             player.Contract = null;
             TransferListHelper.RemovePlayerFromTransferList(player.Id);
         }
+
+        RetirePlayers();
+
+        if (myRetirees.Count > 0)
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Press Officer",
+                "Retirements",
+                $"The following players have retired following the expiry of their contracts:\n\t{string.Join("\n\t", myRetirees)}");
+    }
+
+    // Out-of-contract players at or past the retirement age won't sign again, so they leave the game.
+    private void RetirePlayers()
+    {
+        var retiredIds = State.Players
+            .Where(p => p.Contract == null && p.IsRetiring(State.Date))
+            .Select(p => p.Id)
+            .ToHashSet();
+
+        if (retiredIds.Count == 0)
+            return;
+
+        foreach (var slot in State.Clubs.SelectMany(p => p.TacticSlots))
+        {
+            if (slot.PlayerId is { } playerId && retiredIds.Contains(playerId))
+                slot.PlayerId = null;
+        }
+
+        State.TransferListItems.RemoveAll(p => retiredIds.Contains(p.PlayerId));
+        State.Players.RemoveAll(p => retiredIds.Contains(p.Id));
     }
 
     private void TopUpSquads()
@@ -250,7 +285,6 @@ public class ProcessHelper(
             Weight = gp.Weight,
             PreferredFoot = gp.PreferredFoot,
             BirthDate = gp.BirthDate,
-            Age = gp.Age,
             PreferredPosition = gp.PreferredPosition,
             WorkRate = gp.WorkRate,
             Weakfoot = gp.Weakfoot,

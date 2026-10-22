@@ -435,6 +435,25 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void RetiringPlayers_RefuseEveryNewContract()
+    {
+        // Turned 35 in January 2026, so retiring by July 2026.
+        var target = PlayerAt(2);
+        target.BirthDate = "01/15/1991";
+        var freeAgent = TestData.Player(5000, clubId: null);
+        freeAgent.BirthDate = "01/15/1991";
+        _state.Players.Add(freeAgent);
+        _transfers.AddPlayerToTransferList(target.Id, 100);
+
+        Assert.Contains("retiring", _engine.SignFreeAgent(freeAgent.Id, 2));
+        Assert.Null(freeAgent.Contract);
+        Assert.Contains("retiring", _engine.SubmitBid(target.Id, MyClub.TransferBudget).Message);
+        Assert.Contains("retiring", _engine.BuyTransferListedPlayer(target.Id));
+        Assert.Contains("retiring", _engine.CompletePurchase(target.Id, 100, 2));
+        Assert.Equal(2, target.Contract!.ClubId);
+    }
+
+    [Fact]
     public void ListPlayerForTransfer_OnlyWhileTheWindowIsOpen()
     {
         var mine = PlayerAt(1);
