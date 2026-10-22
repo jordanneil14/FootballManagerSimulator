@@ -13,4 +13,5 @@ public interface IJobOfferHelper
     void ProcessVacancies();
     bool JoinClub(int clubId);
     void SackUser();
+    void ResignUser();
 }

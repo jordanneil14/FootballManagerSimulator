@@ -196,6 +196,23 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void ResignUser_LeavesMeWithoutAClub()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 3);
+        _state.ManagerHistory.StartJob(club, new DateOnly(2026, 7, 1));
+        var upgrade = new AcademyUpgradeEvent(_state, _notifications, _state.Date.AddMonths(1), false);
+        _state.Events.Add(upgrade);
+
+        _helper.ResignUser();
+
+        Assert.Null(_state.MyClubId);
+        Assert.Equal(_state.Date, Assert.Single(_state.ManagerHistory.Jobs).EndDate);
+        Assert.True(upgrade.IsCompleted);
+        Assert.Contains(_state.Notifications, n => n.Subject == $"Resignation from {club.Name}");
+        Assert.DoesNotContain(_helper.Vacancies(), p => p.Id == 3);
+    }
+
+    [Fact]
     public void JoinClub_WorksWhileUnemployed()
     {
         _state.ManagerHistory.StartJob(_state.Clubs.Single(p => p.Id == 3), new DateOnly(2026, 7, 1));

@@ -1,6 +1,8 @@
 @page "/board"
 @layout GameLayout
 @inject GameEngine Engine
+@inject IJobOfferHelper JobOffers
+@inject NavigationManager Nav
 
 <PageTitle>Board</PageTitle>
 
@@ -114,11 +116,35 @@
             <button class="btn btn-primary" @onclick="UpgradeAcademy" disabled="@(upgradeCost > Engine.MyClub.TransferBudget)">Upgrade Academy</button>
         }
     </div>
+    <div class="panel">
+        <h2>🚪 Resign</h2>
+        <p>Step down as manager of <strong>@Engine.MyClub.Name</strong>. You will be out of work until you take another job.</p>
+        <button class="btn btn-danger" @onclick="() => _confirmResign = true">Resign</button>
+    </div>
 </div>
+
+<ConfirmModal Visible="_confirmResign"
+              Title="@($"Resign from {Engine.MyClub.Name}?")"
+              Message="You will leave the club immediately. Any pending board requests and upgrades will be cancelled."
+              OnConfirm="Resign"
+              OnCancel="() => _confirmResign = false" />
 
 @code {
     private string? _message;
     private void RequestBudget() => _message = Engine.RequestHigherTransferBudget();
     private void RequestStadium() => _message = Engine.RequestStadiumExpansion();
     private void UpgradeAcademy() => _message = Engine.UpgradeAcademy();
+
+    private bool _confirmResign;
+
+    // After resigning there is no club to draw; the layout takes over until we've navigated away.
+    protected override bool ShouldRender() => !Engine.IsUnemployed;
+
+    private void Resign()
+    {
+        _confirmResign = false;
+        JobOffers.ResignUser();
+        Engine.NotifyChanged();
+        Nav.NavigateTo("/game");
+    }
 }

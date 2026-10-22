@@ -127,7 +127,17 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
 
     // The board has run out of patience. The club appoints a replacement straight away, so it never
     // shows up as a vacancy you could walk back into.
-    public void SackUser()
+    public void SackUser() =>
+        BecomeUnemployed(club => (
+            $"Sacked by {club.Name}",
+            $"Results have not been good enough and the board has lost confidence in you. You have been relieved of your duties as manager of {club.Name}. Vacant jobs are listed on the Jobs screen."));
+
+    public void ResignUser() =>
+        BecomeUnemployed(club => (
+            $"Resignation from {club.Name}",
+            $"The board has accepted your resignation as manager of {club.Name} and thanks you for your service. Vacant jobs are listed on the Jobs screen."));
+
+    private void BecomeUnemployed(Func<ClubModel, (string Subject, string Message)> notification)
     {
         var club = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
         if (club == null)
@@ -138,11 +148,8 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         State.BoardConfidence = BoardConfidenceRules.Starting;
         LeaveClub(club);
 
-        NotificationFactory.AddNotification(
-            State.Date,
-            $"{club.Name} Chairman",
-            $"Sacked by {club.Name}",
-            $"Results have not been good enough and the board has lost confidence in you. You have been relieved of your duties as manager of {club.Name}. Vacant jobs are listed on the Jobs screen.");
+        var (subject, message) = notification(club);
+        NotificationFactory.AddNotification(State.Date, $"{club.Name} Chairman", subject, message);
     }
 
     private void LeaveClub(ClubModel oldClub)
