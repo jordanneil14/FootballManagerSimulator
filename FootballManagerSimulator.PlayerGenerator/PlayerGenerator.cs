@@ -132,6 +132,11 @@ public class PlayerGenerator
             var age = _random.Next(16, 18);
             var rating = Math.Max(35, GenerateRating(leagueRank) - _random.Next(10, 21) + academyBonus);
 
+            // A 90+ graduate only comes through one time in five; the rest are knocked down 5 into the high 80s.
+            var isGenerationalTalent = _random.Next(5) == 0;
+            if (rating >= 90 && !isGenerationalTalent)
+                rating -= 5;
+
             var player = GeneratePlayerWithPosition(position, clubName, null, startDate, startDateOnly, leagueRank, age, rating);
             player.Contract = new GeneratedContract
             {

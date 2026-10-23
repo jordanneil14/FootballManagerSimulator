@@ -12,9 +12,12 @@ public class PlayerGeneratorTests
         var elite = new PlayerGenerator.PlayerGenerator(42).GenerateYouthIntake("Club", 50, "2027-03-01", 1, academyRating: 10);
 
         // Academy 10 is 9 points above academy 1, worth 2 rating each, unless the poor player hit the floor of 35.
+        // An elite graduate who reached 90+ may also have been knocked down 5.
         Assert.All(poor.Zip(elite), pair =>
         {
-            if (pair.First.Rating > 35)
+            if (pair.First.Rating > 35 && pair.First.Rating + 18 >= 90)
+                Assert.Contains(pair.Second.Rating, new[] { pair.First.Rating + 18, pair.First.Rating + 13 });
+            else if (pair.First.Rating > 35)
                 Assert.Equal(pair.First.Rating + 18, pair.Second.Rating);
             else
                 Assert.InRange(pair.Second.Rating, 35, 53);
