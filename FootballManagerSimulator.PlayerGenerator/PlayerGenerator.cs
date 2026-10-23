@@ -109,7 +109,21 @@ public class PlayerGenerator
     public GeneratedPlayer GeneratePlayer(string referenceDate)
     {
         var position = PickRandom(NameData.Positions);
-        return GeneratePlayerWithPosition(position, null, null, null, DateOnly.Parse(referenceDate));
+        return GeneratePlayerWithPosition(position, null, null, null, DateOnly.Parse(referenceDate), PickFreeAgentLeagueRank());
+    }
+
+    // Free agents are mostly lower-league quality, with the occasional top-flight player.
+    private int PickFreeAgentLeagueRank()
+    {
+        var roll = _random.Next(100);
+        return roll switch
+        {
+            < 10 => 1,
+            < 30 => 2,
+            < 60 => 3,
+            < 85 => 4,
+            _ => 5
+        };
     }
 
     private GeneratedPlayer GeneratePlayerForClub(string clubName, string position, string startDate, int leagueRank = 1)
