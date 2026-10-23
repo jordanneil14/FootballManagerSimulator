@@ -28,7 +28,7 @@ public class EnglishCommunityShieldProvider(
     public ICompetition CreateCompetition(CompetitionModel competition)
     {
         var clubIds = competition.DrawSettings.First().IntroducedClubIds;
-        var clubs = State.Clubs.Where(p => clubIds.Contains(p.Id)).ToList();
+        var clubs = clubIds.Select(id => State.Clubs.First(p => p.Id == id)).ToList();
 
         var premierLeague = State.Competitions.First(p => p.Id == 1);
         var firstLeagueFixtureDate = premierLeague.Fixtures.Min(f => f.Date);

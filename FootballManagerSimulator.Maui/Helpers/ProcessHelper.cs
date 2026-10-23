@@ -395,8 +395,46 @@ public class ProcessHelper(
             player.SuspensionMatches = 0;
     }
 
+    // Last season's top-flight champions face the cup winners; a double winner faces the league runners-up.
+    private List<int>? ShieldQualifierIds()
+    {
+        var shield = Settings.Competitions.FirstOrDefault(p => p.Type == CompetitionType.EnglishCommunityShield.ToString());
+        if (shield == null)
+            return null;
+
+        var leagueId = Settings.Competitions.FirstOrDefault(p => p.IsLeague && p.CountryId == shield.CountryId && p.Rank == 1)?.Id;
+        var cupId = Settings.Competitions.FirstOrDefault(p => p.Type == CompetitionType.Cup.ToString() && p.CountryId == shield.CountryId)?.Id;
+
+        var league = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == leagueId);
+        var table = league?.GenerateLeagueTable().Select(p => p.Club.Id).ToList();
+        if (table == null || table.Count < 2)
+            return null;
+
+        var cup = State.Competitions.FirstOrDefault(p => p.Id == cupId);
+        var finalRound = cup?.DrawSettings.Count > 0 ? cup.DrawSettings.Max(p => p.Round) : (int?)null;
+        var cupWinnerId = cup?.Fixtures
+            .Where(p => p.Round == finalRound && p.Concluded && p.ClubWon != null)
+            .Select(p => (int?)p.ClubWon!.Id)
+            .FirstOrDefault();
+
+        var champions = table[0];
+        var opponent = cupWinnerId is { } winner && winner != champions ? winner : table[1];
+        return [champions, opponent];
+    }
+
+    private void ApplyShieldQualifiers(List<int> clubIds)
+    {
+        var shield = State.Competitions.FirstOrDefault(p => p.Type == CompetitionType.EnglishCommunityShield);
+        if (shield == null)
+            return;
+
+        shield.Clubs = clubIds.Select(id => State.Clubs.First(p => p.Id == id)).ToList();
+        shield.DrawSettings.First().IntroducedClubIds = clubIds;
+    }
+
     private void RecreateCompetitions()
     {
+        var shieldClubIds = ShieldQualifierIds();
         State.Competitions.Clear();
         State.Events.Clear();
 
@@ -409,6 +447,9 @@ public class ProcessHelper(
 
             State.Competitions.Add(newCompetition);
         }
+
+        if (shieldClubIds != null)
+            ApplyShieldQualifiers(shieldClubIds);
 
         foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague).Cast<LeagueModel>())
         {

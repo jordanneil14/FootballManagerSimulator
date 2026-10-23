@@ -98,6 +98,8 @@ public class FullGameTests : IDisposable
         // Cup draws, the shield draw and the playoff events are all scheduled up front.
         Assert.Equal(7, state.Events.OfType<EnglishLeagueCupFixtureDrawEvent>().Count());
         Assert.Single(state.Events.OfType<EnglishCommunityShieldFixtureDrawEvent>());
+        Assert.Equal(["Manchester Blue", "North London Reds"],
+            state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
         Assert.Equal(3, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count());
         Assert.Single(state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>());
 
@@ -298,6 +300,28 @@ public class FullGameTests : IDisposable
         Assert.All(promoted, id => Assert.Equal(1, state.Clubs.Single(c => c.Id == id).LeagueId));
         var newDivision1 = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == 1);
         Assert.All(promoted, id => Assert.Contains(newDivision1.Clubs, c => c.Id == id));
+    }
+
+    [Fact]
+    public void NextSeasonsShield_IsLeagueChampionsAgainstCupWinners()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var state = engine.State;
+        PlayUntil(engine, new DateOnly(2027, 6, 29));
+
+        var table = ((LeagueModel)state.Competitions.Single(c => c.Id == 1)).GenerateLeagueTable().Select(p => p.Club.Id).ToList();
+        var cup = state.Competitions.Single(c => c.Id == 8);
+        var cupWinner = cup.Fixtures.Single(f => f.Round == cup.DrawSettings.Max(d => d.Round)).ClubWon!.Id;
+        int[] expected = [table[0], cupWinner == table[0] ? table[1] : cupWinner];
+
+        PlayUntil(engine, new DateOnly(2027, 6, 30));
+
+        var shield = state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield);
+        Assert.Equal(expected, shield.Clubs.Select(c => c.Id));
+
+        PlayUntil(engine, shield.DrawSettings.Single().FixtureDate.AddDays(-1));
+        var fixture = Assert.Single(shield.Fixtures);
+        Assert.Equal(expected, new[] { fixture.HomeClub.Id, fixture.AwayClub.Id });
     }
 
     [Fact]
