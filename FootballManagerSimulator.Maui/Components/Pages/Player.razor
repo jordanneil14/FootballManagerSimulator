@@ -18,6 +18,7 @@ else
     var club = player.Contract == null ? "Free Agent" : Engine.GetClub(player.Contract.ClubId)?.Name ?? "Free Agent";
     var playsForMe = Engine.PlayerPlaysForMyClub(player.Id);
     var retiring = Engine.IsPlayerRetiring(player);
+    var levelRefusal = player.Contract == null && !Engine.IsUnemployed && !retiring ? Engine.FreeAgentLevelRefusal(player) : null;
 
     <div class="page-head">
         <div>
@@ -41,6 +42,10 @@ else
             {
                 <span class="tag">Retiring</span>
             }
+            else if (levelRefusal != null)
+            {
+                <span class="tag">Won't sign</span>
+            }
             else if (player.Contract == null)
             {
                 <button class="btn btn-primary" @onclick="() => _showSignModal = true">Sign Free Agent</button>
@@ -60,6 +65,11 @@ else
     @if (retiring)
     {
         <div class="feedback"><div class="feedback-item warn">@player.Name will not sign a new contract and will retire @(player.Contract == null ? "at the end of the season" : "when his contract expires").</div></div>
+    }
+
+    @if (levelRefusal != null)
+    {
+        <div class="feedback"><div class="feedback-item warn">@levelRefusal</div></div>
     }
 
     <div class="stat-row">

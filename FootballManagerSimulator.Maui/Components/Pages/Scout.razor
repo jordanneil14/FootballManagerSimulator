@@ -51,7 +51,13 @@
                     <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
                     <td><strong>@player.Name</strong></td>
                     <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
-                    <td>@(player.Contract?.ClubName ?? "Free Agent")</td>
+                    <td>
+                        @(player.Contract?.ClubName ?? "Free Agent")
+                        @if (player.Contract == null && Engine.FreeAgentLevelRefusal(player) != null)
+                        {
+                            <span class="muted" style="font-size:.8rem"> · won't sign</span>
+                        }
+                    </td>
                     <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
                 </tr>
             }

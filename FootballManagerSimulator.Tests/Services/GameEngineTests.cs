@@ -464,6 +464,32 @@ public class GameEngineTests : IDisposable
         Assert.Equal(2, target.Contract!.ClubId);
     }
 
+    [Theory]
+    [InlineData(-30, true)]
+    [InlineData(-6, true)]
+    [InlineData(0, true)]
+    [InlineData(5, true)]
+    [InlineData(6, false)]
+    public void SignFreeAgent_RefusesPlayersMoreThan5AboveMySquadAverage(int offset, bool signs)
+    {
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 70);
+        var freeAgent = TestData.Player(5000, clubId: null);
+        freeAgent.Rating = 70 + offset;
+        _state.Players.Add(freeAgent);
+
+        var message = _engine.SignFreeAgent(freeAgent.Id, 2);
+
+        if (signs)
+        {
+            Assert.Equal(MyClub.Id, freeAgent.Contract?.ClubId);
+        }
+        else
+        {
+            Assert.Contains("turned down", message);
+            Assert.Null(freeAgent.Contract);
+        }
+    }
+
     [Fact]
     public void AcceptBid_FallsThroughOnceMyPlayerIsRetiring()
     {

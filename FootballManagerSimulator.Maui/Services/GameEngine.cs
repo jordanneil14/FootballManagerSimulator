@@ -516,9 +516,28 @@ public class GameEngine(
         return $"{player.Name} has signed a new contract until {expiryDate:dd MMM yyyy}.";
     }
 
+    public const int FreeAgentRatingRange = 5;
+
+    public double? MySquadAverageRating()
+    {
+        if (CurrentClub is not { } club) return null;
+        var ratings = State.Players.Where(p => p.Contract?.ClubId == club.Id).Select(p => p.Rating).ToList();
+        return ratings.Count == 0 ? null : ratings.Average();
+    }
+
+    // Free agents won't drop to a club well below their level; weaker players will always join.
+    public string? FreeAgentLevelRefusal(PlayerModel player)
+    {
+        if (MySquadAverageRating() is not { } average || player.Rating - average <= FreeAgentRatingRange)
+            return null;
+
+        return $"{player.Name} doesn't think your squad is at his level and has turned down the move.";
+    }
+
     public string SignFreeAgent(int playerId, int contractYears)
     {
         if (RetirementRefusal(playerId) is { } refusal) return refusal;
+        if (playerHelper.GetPlayerById(playerId) is { } candidate && FreeAgentLevelRefusal(candidate) is { } levelRefusal) return levelRefusal;
 
         transferListHelper.SignFreeAgentByPlayerId(playerId, contractYears);
         var player = playerHelper.GetPlayerById(playerId);
