@@ -77,7 +77,7 @@ else
             <div class="label">Position</div>
             <div class="value" style="color:@PositionColour">@PositionText</div>
         </div>
-        <div class="stat">
+        <div class="stat" style="cursor:pointer" @onclick='() => Nav.NavigateTo($"/club/{Engine.MyClub.Id}")'>
             <div class="label">Squad Size</div>
             <div class="value">@Engine.State.Players.Count(p => p.Contract != null && p.Contract.ClubId == Engine.MyClub.Id)</div>
         </div>
