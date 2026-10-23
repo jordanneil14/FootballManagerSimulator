@@ -25,6 +25,12 @@ public static class BoardConfidenceRules
     public const int StartingVacanciesMin = 2;
     public const int StartingVacanciesMax = 4;
 
+    // AI clubs open a new game with varied job security, and a few managers already under threat.
+    public const int StartingAiSecurityMin = 25;
+    public const int StartingAiSecurityMax = 85;
+    public const int StartingUnderThreatMin = 2;
+    public const int StartingUnderThreatMax = 4;
+
     public static int Apply(int confidence, int change) => Math.Clamp(confidence + change, Min, Max);
 
     public static string Label(int confidence) => confidence switch

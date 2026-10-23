@@ -119,6 +119,20 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
+    public void NewGame_OpensWithVariedJobSecurityAndAFewManagersUnderThreat()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var aiClubs = engine.State.Clubs.Where(c => c.Id != 9 && c.VacantUntil == null).ToList();
+        var underThreat = aiClubs.Where(c => c.JobSecurity < BoardConfidenceRules.UnderPressureFrom).ToList();
+
+        Assert.InRange(underThreat.Count, BoardConfidenceRules.StartingUnderThreatMin, BoardConfidenceRules.StartingUnderThreatMax);
+        Assert.All(underThreat, c => Assert.True(c.JobSecurity >= BoardConfidenceRules.SackedBelow));
+        Assert.All(aiClubs.Except(underThreat), c => Assert.InRange(c.JobSecurity,
+            BoardConfidenceRules.StartingAiSecurityMin, BoardConfidenceRules.StartingAiSecurityMax));
+        Assert.True(aiClubs.Select(c => c.JobSecurity).Distinct().Count() > 5);
+    }
+
+    [Fact]
     public void LosingTheBoardsConfidence_GetsMeSackedAndTheGameCarriesOnUntilIFindAJob()
     {
         var engine = _host.StartNewGame(clubId: 9);

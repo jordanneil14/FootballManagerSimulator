@@ -48,6 +48,7 @@ public class GameFactory(
 		State.ManagerHistory.StartJob(State.Clubs.First(p => p.Id == State.MyClubId), State.Date);
 
 		CreateStartingVacancies();
+		SeedAiJobSecurity();
 
 		State.Weather = WeatherHelper.GetTodaysWeather();
 
@@ -97,6 +98,20 @@ public class GameFactory(
         foreach (var club in clubs)
             club.VacantUntil = State.Date.AddDays(
                 RandomNumberHelper.Next(BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays + 1));
+    }
+
+    private void SeedAiJobSecurity()
+    {
+        var aiClubs = State.Clubs
+            .Where(p => p.Id != State.MyClubId && p.VacantUntil == null)
+            .ToList();
+
+        foreach (var club in aiClubs)
+            club.JobSecurity = RandomNumberHelper.Next(BoardConfidenceRules.StartingAiSecurityMin, BoardConfidenceRules.StartingAiSecurityMax + 1);
+
+        var count = RandomNumberHelper.Next(BoardConfidenceRules.StartingUnderThreatMin, BoardConfidenceRules.StartingUnderThreatMax + 1);
+        foreach (var club in aiClubs.OrderBy(_ => RandomNumberHelper.Next()).Take(count))
+            club.JobSecurity = RandomNumberHelper.Next(BoardConfidenceRules.SackedBelow, BoardConfidenceRules.UnderPressureFrom);
     }
 
     public void IntitialiseGameState()
