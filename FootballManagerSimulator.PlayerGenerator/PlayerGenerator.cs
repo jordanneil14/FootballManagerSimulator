@@ -698,7 +698,7 @@ public class PlayerGenerator
             var secondary = position switch
             {
                 "GK" => "GK",
-                "CB" => PickRandom(["CDM", "LCB", "RCB"]),
+                "CB" => PickRandom(["CDM", "LB", "RB"]),
                 "LB" => PickRandom(["LM", "LW"]),
                 "RB" => PickRandom(["RM", "RW"]),
                 "CDM" => PickRandom(["CM", "CB"]),
