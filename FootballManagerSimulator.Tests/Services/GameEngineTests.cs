@@ -165,6 +165,24 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void AcceptBid_GivesThePlayerAFreeNumberAtTheBuyingClub()
+    {
+        var player = PlayerAt(1);
+        var buyer = _state.Clubs[1];
+        player.ShirtNumber = 9;
+        PlayerAt(2).ShirtNumber = 9; // the buyers already have a number 9
+        var bid = new NotificationModel { RequiresAction = true, BidPlayerId = player.Id, BidAmount = 1_000, BiddingClubId = buyer.Id };
+
+        _engine.AcceptBid(bid);
+
+        var teammatesNumbers = _state.Players
+            .Where(p => p.Contract?.ClubId == buyer.Id && p.Id != player.Id)
+            .Select(p => p.ShirtNumber);
+        Assert.NotNull(player.ShirtNumber);
+        Assert.DoesNotContain(player.ShirtNumber, teammatesNumbers);
+    }
+
+    [Fact]
     public void AcceptBid_ForAPlayerWhoAlreadyLeftIsVoid()
     {
         var player = PlayerAt(2);

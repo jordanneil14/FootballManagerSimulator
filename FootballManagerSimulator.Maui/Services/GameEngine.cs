@@ -104,6 +104,9 @@ public class GameEngine(
             ExpiryDate = new DateOnly(State.Date.Month < 7 ? State.Date.Year : State.Date.Year + 1, 6, 30).AddYears(1)
         };
 
+        player.ShirtNumber = null; // now contracted to the buyers, so their old number mustn't count as taken
+        player.ShirtNumber = ShirtNumberRules.NextAvailable(State.Players, biddingClub.Id, player.Position);
+
         if (transferListHelper.IsPlayerTransferListed(notification.BidPlayerId.Value))
             transferListHelper.RemovePlayerFromTransferList(notification.BidPlayerId.Value);
 
