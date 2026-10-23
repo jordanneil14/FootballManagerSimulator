@@ -11,7 +11,7 @@ public class TacticHelper(
     private readonly IState State = state;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
 
-    public static readonly string[] Formations = ["4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "3-4-3", "3-4-1-2", "5-2-1-2", "5-4-1", "5-3-2"];
+    public static readonly string[] Formations = ["4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "4-2-3-1", "4-2-2-2", "4-4-1-1", "3-4-3", "3-4-1-2", "3-5-2", "5-2-1-2", "5-4-1", "5-3-2"];
 
     public void ResetTacticForClub(ClubModel club)
     {
@@ -349,6 +349,90 @@ public class TacticHelper(
                         PlayerId = null,
                         TacticSlotType = TacticSlotType.SUB
                     }
+                ],
+            "4-2-3-1" =>
+                [
+                    new TacticSlotModel { Id = 1, PlayerId = null, TacticSlotType = TacticSlotType.GK },
+                    new TacticSlotModel { Id = 2, PlayerId = null, TacticSlotType = TacticSlotType.RB },
+                    new TacticSlotModel { Id = 3, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 4, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 5, PlayerId = null, TacticSlotType = TacticSlotType.LB },
+                    new TacticSlotModel { Id = 6, PlayerId = null, TacticSlotType = TacticSlotType.CDM },
+                    new TacticSlotModel { Id = 7, PlayerId = null, TacticSlotType = TacticSlotType.CDM },
+                    new TacticSlotModel { Id = 8, PlayerId = null, TacticSlotType = TacticSlotType.RM },
+                    new TacticSlotModel { Id = 9, PlayerId = null, TacticSlotType = TacticSlotType.CAM },
+                    new TacticSlotModel { Id = 10, PlayerId = null, TacticSlotType = TacticSlotType.LM },
+                    new TacticSlotModel { Id = 11, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 12, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 13, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 14, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 15, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 16, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 17, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 18, PlayerId = null, TacticSlotType = TacticSlotType.SUB }
+                ],
+            "4-2-2-2" =>
+                [
+                    new TacticSlotModel { Id = 1, PlayerId = null, TacticSlotType = TacticSlotType.GK },
+                    new TacticSlotModel { Id = 2, PlayerId = null, TacticSlotType = TacticSlotType.RB },
+                    new TacticSlotModel { Id = 3, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 4, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 5, PlayerId = null, TacticSlotType = TacticSlotType.LB },
+                    new TacticSlotModel { Id = 6, PlayerId = null, TacticSlotType = TacticSlotType.CDM },
+                    new TacticSlotModel { Id = 7, PlayerId = null, TacticSlotType = TacticSlotType.CDM },
+                    new TacticSlotModel { Id = 8, PlayerId = null, TacticSlotType = TacticSlotType.RW },
+                    new TacticSlotModel { Id = 9, PlayerId = null, TacticSlotType = TacticSlotType.LW },
+                    new TacticSlotModel { Id = 10, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 11, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 12, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 13, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 14, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 15, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 16, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 17, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 18, PlayerId = null, TacticSlotType = TacticSlotType.SUB }
+                ],
+            "4-4-1-1" =>
+                [
+                    new TacticSlotModel { Id = 1, PlayerId = null, TacticSlotType = TacticSlotType.GK },
+                    new TacticSlotModel { Id = 2, PlayerId = null, TacticSlotType = TacticSlotType.RB },
+                    new TacticSlotModel { Id = 3, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 4, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 5, PlayerId = null, TacticSlotType = TacticSlotType.LB },
+                    new TacticSlotModel { Id = 6, PlayerId = null, TacticSlotType = TacticSlotType.RM },
+                    new TacticSlotModel { Id = 7, PlayerId = null, TacticSlotType = TacticSlotType.CM },
+                    new TacticSlotModel { Id = 8, PlayerId = null, TacticSlotType = TacticSlotType.CM },
+                    new TacticSlotModel { Id = 9, PlayerId = null, TacticSlotType = TacticSlotType.LM },
+                    new TacticSlotModel { Id = 10, PlayerId = null, TacticSlotType = TacticSlotType.CAM },
+                    new TacticSlotModel { Id = 11, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 12, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 13, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 14, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 15, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 16, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 17, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 18, PlayerId = null, TacticSlotType = TacticSlotType.SUB }
+                ],
+            "3-5-2" =>
+                [
+                    new TacticSlotModel { Id = 1, PlayerId = null, TacticSlotType = TacticSlotType.GK },
+                    new TacticSlotModel { Id = 2, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 3, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 4, PlayerId = null, TacticSlotType = TacticSlotType.CB },
+                    new TacticSlotModel { Id = 5, PlayerId = null, TacticSlotType = TacticSlotType.RM },
+                    new TacticSlotModel { Id = 6, PlayerId = null, TacticSlotType = TacticSlotType.CM },
+                    new TacticSlotModel { Id = 7, PlayerId = null, TacticSlotType = TacticSlotType.CM },
+                    new TacticSlotModel { Id = 8, PlayerId = null, TacticSlotType = TacticSlotType.CM },
+                    new TacticSlotModel { Id = 9, PlayerId = null, TacticSlotType = TacticSlotType.LM },
+                    new TacticSlotModel { Id = 10, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 11, PlayerId = null, TacticSlotType = TacticSlotType.ST },
+                    new TacticSlotModel { Id = 12, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 13, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 14, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 15, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 16, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 17, PlayerId = null, TacticSlotType = TacticSlotType.SUB },
+                    new TacticSlotModel { Id = 18, PlayerId = null, TacticSlotType = TacticSlotType.SUB }
                 ],
             "3-4-3" =>
                 [

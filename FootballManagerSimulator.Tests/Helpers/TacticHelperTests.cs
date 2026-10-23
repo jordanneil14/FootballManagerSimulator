@@ -16,7 +16,7 @@ public class TacticHelperTests
     private static bool IsStarter(TacticSlotModel s) => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES);
 
     public static TheoryData<string> Formations =>
-        ["4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "3-4-3", "3-4-1-2", "5-2-1-2", "5-4-1", "5-3-2", "unknown"];
+        ["4-4-2", "4-3-3", "4-5-1", "4-1-2-1-2", "4-2-3-1", "4-2-2-2", "4-4-1-1", "3-4-3", "3-4-1-2", "3-5-2", "5-2-1-2", "5-4-1", "5-3-2", "unknown"];
 
     [Theory]
     [MemberData(nameof(Formations))]
@@ -37,6 +37,10 @@ public class TacticHelperTests
 
     [Theory]
     [InlineData("4-3-3", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.RW, TacticSlotType.ST, TacticSlotType.LW })]
+    [InlineData("4-2-3-1", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CDM, TacticSlotType.CDM, TacticSlotType.RM, TacticSlotType.CAM, TacticSlotType.LM, TacticSlotType.ST })]
+    [InlineData("4-2-2-2", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CDM, TacticSlotType.CDM, TacticSlotType.RW, TacticSlotType.LW, TacticSlotType.ST, TacticSlotType.ST })]
+    [InlineData("4-4-1-1", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.RM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.LM, TacticSlotType.CAM, TacticSlotType.ST })]
+    [InlineData("3-5-2", new[] { TacticSlotType.GK, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.RM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.LM, TacticSlotType.ST, TacticSlotType.ST })]
     [InlineData("5-3-2", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.ST, TacticSlotType.ST })]
     [InlineData("anything else", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.RM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.LM, TacticSlotType.ST, TacticSlotType.ST })]
     public void ResetTacticForClub_UsesFormationShape(string formation, TacticSlotType[] expected)
