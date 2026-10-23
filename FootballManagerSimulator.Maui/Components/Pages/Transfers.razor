@@ -64,6 +64,10 @@
             x.Player!.Name.ToLower().Contains(term) ||
             (x.Player.Contract?.ClubName ?? "").ToLower().Contains(term)).ToList();
     }
+
+    var pageCount = Math.Max(1, (int)Math.Ceiling(items.Count / (double)PageSize));
+    _page = Math.Clamp(_page, 1, pageCount);
+    var pageItems = items.Skip((_page - 1) * PageSize).Take(PageSize).ToList();
 }
 
 @if (!items.Any())
@@ -78,7 +82,7 @@ else
                     <tr><th>Pos</th><th>Name</th><th>Club</th><th class="num">Rating</th><th class="num">Value</th><th class="num">Asking Price</th><th></th></tr>
                 </thead>
                 <tbody>
-                    @foreach (var x in items)
+                    @foreach (var x in pageItems)
                     {
                         var player = x.Player!;
                         var item = x.Item;
@@ -98,6 +102,12 @@ else
                 </tbody>
             </table>
         </div>
+
+    <div class="pager">
+        <button class="btn" @onclick="() => _page--" disabled="@(_page <= 1)">← Prev</button>
+        <span>Page @_page / @pageCount</span>
+        <button class="btn" @onclick="() => _page++" disabled="@(_page >= pageCount)">Next →</button>
+    </div>
 }
 
 @if (_showBuyModal && _buyPlayerId != null)
@@ -132,10 +142,13 @@ else
     private int _contractYears = 2;
     private bool _filtersOpen = true;
     private string _search = "";
+    private int _page = 1;
+    private const int PageSize = 20;
 
     private void OnSearch(ChangeEventArgs e)
     {
         _search = e.Value?.ToString() ?? "";
+        _page = 1;
     }
 
     private void OpenBuyModal(int playerId)
