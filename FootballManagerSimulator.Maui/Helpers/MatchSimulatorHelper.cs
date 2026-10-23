@@ -59,11 +59,12 @@ public class MatchSimulatorHelper(
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
-        while (fixture.Minute <= 90)
+        // Goals after minute 120 would be read as shootout goals, so stop at the end of extra time.
+        while (fixture.Minute <= 120)
         {
-            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
-            if (!isGoal) continue;
+            if (fixture.Minute > 120) break;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
 
             CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }

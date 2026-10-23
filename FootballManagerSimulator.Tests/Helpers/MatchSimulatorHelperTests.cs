@@ -86,6 +86,33 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void ConcludeFixture_ExtraTimeRunsTheFullThirtyMinutes()
+    {
+        var extraTimeMatches = 0;
+        var lateGoals = 0;
+
+        for (var i = 0; i < 400; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.Cup);
+            _simulator.ConcludeFixture(fixture, competition);
+
+            if (fixture.Minute != 120)
+                continue;
+
+            var goals = fixture.HomeScorers.Concat(fixture.AwayScorers).ToList();
+            Assert.All(goals, g => Assert.InRange(g.Minute, 1, 120));
+            extraTimeMatches++;
+            if (goals.Any(g => g.Minute > 100))
+                lateGoals++;
+        }
+
+        // Extra time used to stop after a single step (minute 99 at most). Over the full 30 minutes,
+        // roughly half of all extra times have a goal after minute 100.
+        Assert.True(extraTimeMatches > 0);
+        Assert.True(lateGoals > extraTimeMatches * 0.2, $"{lateGoals} of {extraTimeMatches} extra times had a goal after minute 100");
+    }
+
+    [Fact]
     public void ProcessMatch_AdvancesHalfByHalf()
     {
         var (fixture, competition) = NewFixture(CompetitionType.League);
