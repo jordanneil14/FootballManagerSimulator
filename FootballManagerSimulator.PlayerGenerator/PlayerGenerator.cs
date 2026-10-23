@@ -553,7 +553,7 @@ public class PlayerGenerator
                 < 96 => _random.Next(73, 78),
                 _ => _random.Next(78, 82)
             },
-            _ => roll switch
+            4 => roll switch
             {
                 < 10 => _random.Next(40, 48),
                 < 30 => _random.Next(48, 55),
@@ -561,6 +561,15 @@ public class PlayerGenerator
                 < 85 => _random.Next(62, 68),
                 < 97 => _random.Next(68, 73),
                 _ => _random.Next(73, 77)
+            },
+            _ => roll switch
+            {
+                < 12 => _random.Next(35, 43),
+                < 35 => _random.Next(43, 50),
+                < 65 => _random.Next(50, 56),
+                < 88 => _random.Next(56, 62),
+                < 98 => _random.Next(62, 67),
+                _ => _random.Next(67, 71)
             }
         };
     }
