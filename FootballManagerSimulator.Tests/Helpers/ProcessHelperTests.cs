@@ -1,6 +1,8 @@
+using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.Tests.Support;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FootballManagerSimulator.Tests.Helpers;
 
@@ -93,6 +95,19 @@ public class ProcessHelperTests : IDisposable
         AdvanceTo(new DateOnly(2027, 6, 30));
 
         Assert.DoesNotContain(State.Notifications, n => n.Subject == "Retirements");
+    }
+
+    [Fact]
+    public void EndOfSeason_KeepsAnAcademyUpgradeAlreadyPaidForSoItStillCompletes()
+    {
+        var completion = new DateOnly(2027, 8, 15);
+        State.Events.Add(ActivatorUtilities.CreateInstance<AcademyUpgradeEvent>(_host.Services, completion, false));
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+        Assert.Single(State.Events.OfType<AcademyUpgradeEvent>(), e => !e.IsCompleted);
+
+        AdvanceTo(completion);
+        Assert.Equal(6, State.Clubs[0].AcademyRating);
     }
 
     // ----- Youth intake -------------------------------------------------------------------

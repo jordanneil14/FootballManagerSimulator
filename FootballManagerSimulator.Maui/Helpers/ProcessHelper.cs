@@ -438,7 +438,11 @@ public class ProcessHelper(
     {
         var shieldClubIds = ShieldQualifierIds();
         State.Competitions.Clear();
-        State.Events.Clear();
+
+        // Only last season's competition events go; club projects already paid for (and past
+        // requests, which set the cooldown on asking again) carry over into the new season.
+        State.Events.RemoveAll(p => p is not (IncreaseTransferBudgetRequestEvent or StadiumExpansionRequestEvent
+            or StadiumExpansionEvent or AcademyUpgradeEvent));
 
         foreach (var competition in Settings.Competitions.OrderByDescending(p => p.Type == "Cup"))
         {
