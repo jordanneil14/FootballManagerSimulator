@@ -651,17 +651,22 @@ public class TacticHelper(
 
         foreach (var emptySlot in emptySlots)
         {
+            var isGkSlot = emptySlot.TacticSlotType == TacticSlotType.GK;
             var selectedPlayer = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value));
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value))
+                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId!.Value) })
+                .Where(p => p.Player != null && (isGkSlot ? p.Player.PreferredPosition == "GK" : p.Player.PreferredPosition != "GK"))
+                .OrderByDescending(p => p.Player!.Rating)
+                .FirstOrDefault();
             if (selectedPlayer == null) continue;
 
             State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
                 .First(p => p.Id == emptySlot.Id)
-                .PlayerId = selectedPlayer.PlayerId;
+                .PlayerId = selectedPlayer.Slot.PlayerId;
 
             State.Clubs.First(p => p.Id == clubId)
                 .TacticSlots

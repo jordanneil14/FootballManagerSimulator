@@ -158,7 +158,21 @@ public class TacticHelperTests
 
         _helper.FillEmptyTacticSlotsByClubId(Club.Id);
 
+        var outfieldCount = _state.Players.Count(p => p.PreferredPosition != "GK");
         Assert.Equal(5, Club.TacticSlots.Count(s => s.PlayerId != null));
-        Assert.Equal(5, Club.TacticSlots.Where(IsStarter).Count(s => s.PlayerId != null));
+        Assert.Equal(outfieldCount + 1, Club.TacticSlots.Where(IsStarter).Count(s => s.PlayerId != null));
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_NeverPutsGoalkeeperInOutfieldSlot()
+    {
+        _state.Players.RemoveAll(p => p.PreferredPosition == "ST");
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        var gkIds = _state.Players.Where(p => p.PreferredPosition == "GK").Select(p => p.Id).ToHashSet();
+        var outfieldSlots = Club.TacticSlots.Where(s => IsStarter(s) && s.TacticSlotType != TacticSlotType.GK && s.PlayerId != null);
+        Assert.All(outfieldSlots, s => Assert.DoesNotContain(s.PlayerId!.Value, gkIds));
     }
 }
