@@ -26,32 +26,73 @@ public class PlayerGenerator
     {
         var players = new List<GeneratedPlayer>(squadSize);
 
-        int gkCount = Math.Max(2, squadSize / 11);
-        int defCount = (int)Math.Ceiling(squadSize * 0.32);
-        int midCount = (int)Math.Ceiling(squadSize * 0.32);
-        int fwdCount = squadSize - gkCount - defCount - midCount;
+        var (gkCount, defCount, midCount, fwdCount) = SquadShape(squadSize);
 
         for (int i = 0; i < gkCount; i++)
             players.Add(GeneratePlayerForClub(clubName, "GK", startDate, leagueRank));
         for (int i = 0; i < defCount; i++)
-        {
-            var pos = PickRandom(["CB", "CB", "CB", "LB", "RB", "LB", "RB"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
-        }
+            players.Add(GeneratePlayerForClub(clubName, PickRandom(DefenderPositions), startDate, leagueRank));
         for (int i = 0; i < midCount; i++)
-        {
-            var pos = PickRandom(["CDM", "CM", "CM", "CAM", "LM", "RM"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
-        }
+            players.Add(GeneratePlayerForClub(clubName, PickRandom(MidfielderPositions), startDate, leagueRank));
         for (int i = 0; i < fwdCount; i++)
-        {
-            var pos = PickRandom(["ST", "ST", "LW", "RW"]);
-            players.Add(GeneratePlayerForClub(clubName, pos, startDate, leagueRank));
-        }
+            players.Add(GeneratePlayerForClub(clubName, PickRandom(ForwardPositions), startDate, leagueRank));
 
         AssignSquadNumbers(players);
         return players;
     }
+
+    // Tops up an existing squad with exactly `count` players, each one going to whichever area
+    // (GK, defence, midfield, attack) is furthest below its share of the finished squad.
+    // Shirt numbers are left unset, since only the caller knows which numbers the squad already uses.
+    public List<GeneratedPlayer> GenerateTopUp(string clubName, int count, IEnumerable<string> existingPositions, string startDate, int leagueRank = 1)
+    {
+        var have = new int[4];
+        foreach (var position in existingPositions)
+            have[PositionGroup(position)]++;
+
+        var (gk, def, mid, fwd) = SquadShape(have.Sum() + count);
+        int[] target = [gk, def, mid, fwd];
+
+        var players = new List<GeneratedPlayer>(count);
+        for (int i = 0; i < count; i++)
+        {
+            var group = Enumerable.Range(0, 4).MaxBy(g => target[g] - have[g]);
+            have[group]++;
+
+            var position = group switch
+            {
+                0 => "GK",
+                1 => PickRandom(DefenderPositions),
+                2 => PickRandom(MidfielderPositions),
+                _ => PickRandom(ForwardPositions)
+            };
+            players.Add(GeneratePlayerForClub(clubName, position, startDate, leagueRank));
+        }
+
+        return players;
+    }
+
+    private static readonly string[] DefenderPositions = ["CB", "CB", "CB", "LB", "RB", "LB", "RB"];
+    private static readonly string[] MidfielderPositions = ["CDM", "CM", "CM", "CAM", "LM", "RM"];
+    private static readonly string[] ForwardPositions = ["ST", "ST", "LW", "RW"];
+
+    // How many keepers, defenders, midfielders and forwards a squad of this size should have.
+    private static (int Gk, int Def, int Mid, int Fwd) SquadShape(int squadSize)
+    {
+        int gk = Math.Max(2, squadSize / 11);
+        int def = (int)Math.Ceiling(squadSize * 0.32);
+        int mid = (int)Math.Ceiling(squadSize * 0.32);
+        return (gk, def, mid, squadSize - gk - def - mid);
+    }
+
+    // 0 = GK, 1 = defender, 2 = midfielder, 3 = forward.
+    private static int PositionGroup(string position) => position switch
+    {
+        "GK" => 0,
+        "CB" or "LCB" or "RCB" or "LB" or "RB" or "LWB" or "RWB" => 1,
+        "CDM" or "LDM" or "RDM" or "CM" or "LCM" or "RCM" or "CAM" or "LAM" or "RAM" or "LM" or "RM" => 2,
+        _ => 3
+    };
 
     private static readonly int[] GoalkeeperNumbers = [1, 13, 21];
 

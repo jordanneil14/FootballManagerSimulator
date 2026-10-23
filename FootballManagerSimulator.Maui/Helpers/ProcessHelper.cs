@@ -295,20 +295,22 @@ public class ProcessHelper(
 
         foreach (var club in State.Clubs)
         {
-            var contractedCount = State.Players
-                .Count(p => p.Contract != null && p.Contract.ClubId == club.Id);
+            var contractedPositions = State.Players
+                .Where(p => p.Contract != null && p.Contract.ClubId == club.Id)
+                .Select(p => p.Position)
+                .ToList();
 
-            if (contractedCount >= 25)
+            if (contractedPositions.Count >= 25)
                 continue;
 
             var targetSize = random.Next(25, 31);
-            var playersNeeded = targetSize - contractedCount;
+            var playersNeeded = targetSize - contractedPositions.Count;
 
             if (playersNeeded <= 0)
                 continue;
 
             var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
-            var generated = generator.GenerateSquad(club.Name, playersNeeded, startDate, leagueRank);
+            var generated = generator.GenerateTopUp(club.Name, playersNeeded, contractedPositions, startDate, leagueRank);
 
             // Generated numbers only avoid each other, so number the newcomers around the existing squad, best first.
             foreach (var gp in generated.OrderByDescending(p => p.Rating))

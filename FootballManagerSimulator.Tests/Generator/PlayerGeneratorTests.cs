@@ -36,6 +36,46 @@ public class PlayerGeneratorTests
         Assert.Equal(expectedOutfield, outfield.Select(p => p.ShirtNumber));
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void GenerateTopUp_GeneratesExactlyTheNumberNeeded(int count)
+    {
+        var existing = Enumerable.Repeat("CM", 24);
+
+        var players = new PlayerGenerator.PlayerGenerator(5).GenerateTopUp("Club", count, existing, "2026-07-01", 1);
+
+        Assert.Equal(count, players.Count);
+    }
+
+    [Fact]
+    public void GenerateTopUp_FillsThePositionsTheSquadIsShortOf()
+    {
+        // A 25-man squad wants 2 keepers and 7 forwards; this one has keepers but has lost two strikers.
+        var existing = new[] { "GK", "GK" }
+            .Concat(Enumerable.Repeat("CB", 8))
+            .Concat(Enumerable.Repeat("CM", 8))
+            .Concat(Enumerable.Repeat("ST", 5));
+
+        var players = new PlayerGenerator.PlayerGenerator(5).GenerateTopUp("Club", 2, existing, "2026-07-01", 1);
+
+        Assert.All(players, p => Assert.Contains(p.ClubPosition, new[] { "ST", "LW", "RW" }));
+    }
+
+    [Fact]
+    public void GenerateTopUp_ReplacesAMissingKeeper()
+    {
+        var existing = new[] { "GK" }
+            .Concat(Enumerable.Repeat("CB", 8))
+            .Concat(Enumerable.Repeat("CM", 8))
+            .Concat(Enumerable.Repeat("ST", 7));
+
+        var players = new PlayerGenerator.PlayerGenerator(5).GenerateTopUp("Club", 1, existing, "2026-07-01", 1);
+
+        Assert.Equal("GK", Assert.Single(players).ClubPosition);
+    }
+
     [Fact]
     public void GenerateYouthIntake_PlayersAreSixteenOrSeventeenAndNeverBelowTheFloor()
     {
