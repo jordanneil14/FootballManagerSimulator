@@ -3,6 +3,7 @@
 @inject GameEngine Engine
 @inject IJobOfferHelper JobOffers
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Jobs</PageTitle>
 
@@ -30,7 +31,7 @@
                     @foreach (var club in vacancies)
                     {
                         <tr>
-                            <td><strong>@club.Name</strong></td>
+                            <td><a href="/club/@club.Id"><strong>@club.Name</strong></a></td>
                             <td class="muted">@LeagueName(club.LeagueId)</td>
                             <td class="muted">@club.VacantUntil?.ToString("ddd dd MMM")</td>
                             <td class="num"><button class="btn btn-primary" @onclick="() => _pendingClub = club">Join</button></td>
@@ -59,7 +60,7 @@
                     @foreach (var club in underThreat)
                     {
                         <tr>
-                            <td><strong>@club.Name</strong></td>
+                            <td><a href="/club/@club.Id"><strong>@club.Name</strong></a></td>
                             <td class="muted">@LeagueName(club.LeagueId)</td>
                             <td class="num" style="color:var(--warn)">@club.JobSecurity / 100</td>
                         </tr>
@@ -79,8 +80,13 @@
 @code {
     private ClubModel? _pendingClub;
 
-    private string LeagueName(int leagueId) =>
-        Engine.State.Competitions.FirstOrDefault(p => p.Id == leagueId)?.Name ?? "";
+    private string LeagueName(int leagueId)
+    {
+        var name = Engine.State.Competitions.FirstOrDefault(p => p.Id == leagueId)?.Name ?? "";
+        var countryId = SettingsOptions.Value.Competitions.FirstOrDefault(p => p.Id == leagueId)?.CountryId;
+        var country = SettingsOptions.Value.Countries.FirstOrDefault(c => c.Id == countryId)?.Name;
+        return string.IsNullOrEmpty(country) ? name : $"{country} - {name}";
+    }
 
     private void ConfirmJoin()
     {
