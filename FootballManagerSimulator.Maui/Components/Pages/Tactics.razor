@@ -18,6 +18,17 @@
     var starters = slots.Take(11).ToList();
     var subs = slots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
     var reserves = slots.Where(s => s.TacticSlotType == TacticSlotType.RES && s.PlayerId != null).ToList();
+    var suspendedPicked = starters.Concat(subs)
+        .Select(s => s.PlayerId.HasValue ? Engine.GetPlayer(s.PlayerId.Value) : null)
+        .Where(p => p is { SuspensionMatches: > 0 })
+        .ToList();
+}
+
+@if (suspendedPicked.Any())
+{
+    <div class="panel sus-warning">
+        🟥 Suspended: <strong>@string.Join(", ", suspendedPicked.Select(p => p!.Name))</strong>. Move them to the reserves; you can't kick off with a suspended player in the starting XI or subs.
+    </div>
 }
 
 <div class="panel">
@@ -39,9 +50,10 @@
             var (x, y) = PitchPosition(starters, i);
             var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
             var idx = slots.IndexOf(slot);
-            <div class="pitch-player" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)">
+            <div class="pitch-player @(player is { SuspensionMatches: > 0 } ? "suspended" : "")" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)"
+                 title="@(player is { SuspensionMatches: > 0 } ? $"Suspended for {player.SuspensionMatches} more match(es)" : null)">
                 <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
-                <div class="pname">@(player?.Name ?? "—")</div>
+                <div class="pname">@(player is { SuspensionMatches: > 0 } ? "🟥 " : "")@(player?.Name ?? "—")</div>
             </div>
         }
     </div>
@@ -66,9 +78,16 @@
         var slots = Engine.MyClub.TacticSlots;
         var idx = slots.IndexOf(slot);
         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-        return @<tr class="clickable @(_selected == idx ? "highlight" : "")" @onclick="() => OnSlotClick(idx)">
+        var suspended = player is { SuspensionMatches: > 0 };
+        return @<tr class="clickable @(_selected == idx ? "highlight" : "") @(suspended ? "suspended" : "")" @onclick="() => OnSlotClick(idx)">
             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-            <td>@(player?.Name ?? "— empty —")</td>
+            <td>
+                <span class="pname-text">@(player?.Name ?? "— empty —")</span>
+                @if (suspended)
+                {
+                    <span class="sus-chip" title="Suspended for @player!.SuspensionMatches more match(es)">SUS @player.SuspensionMatches</span>
+                }
+            </td>
             <td class="num" style="width:50px">@(player != null ? player.PreferredPosition : "")</td>
             <td class="num" style="width:50px">@(player != null ? player.Rating.ToString() : "")</td>
         </tr>;

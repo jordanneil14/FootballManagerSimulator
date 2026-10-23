@@ -249,6 +249,17 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void StartMatch_RejectsASuspendedSubstitute()
+    {
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        var sub = MyClub.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null).PlayerId!.Value;
+        _state.Players.First(p => p.Id == sub).SuspensionMatches = 1;
+
+        Assert.Contains("suspended", _engine.StartMatch());
+    }
+
+    [Fact]
     public void StartMatch_PreGeneratesMyMatchAndSimulatesTheRest()
     {
         var mine = AddFixtureToday(MyClub, _state.Clubs[1]);

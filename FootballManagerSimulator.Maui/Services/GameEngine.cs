@@ -256,12 +256,12 @@ public class GameEngine(
         if (unfilledStarters)
             return "Unable to start game. Your team has not been fully selected.";
 
-        var suspendedStarter = MyClub.TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES && p.PlayerId != null)
+        var suspendedInSquad = MyClub.TacticSlots
+            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.PlayerId != null)
             .Any(p => IsPlayerSuspended(p.PlayerId!.Value));
 
-        if (suspendedStarter)
-            return "Unable to start game. You have a suspended player in your starting lineup.";
+        if (suspendedInSquad)
+            return "Unable to start game. You have a suspended player in your starting lineup or substitutes.";
 
         var myFixture = MyFixtureToday();
 
