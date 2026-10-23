@@ -97,9 +97,9 @@ public class MatchSimulatorHelper(
 
         while (fixture.Minute <= 45)
         {
-            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 11);
-            if (!isGoal) continue;
+            if (fixture.Minute > 45) break;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
 
             CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }
@@ -143,9 +143,9 @@ public class MatchSimulatorHelper(
 
         while (fixture.Minute <= 90)
         {
-            var isGoal = RandomNumberHelper.Next(1, 8) == 3;
             fixture.Minute += RandomNumberHelper.Next(1, 10);
-            if (!isGoal) continue;
+            if (fixture.Minute > 90) break;
+            if (RandomNumberHelper.Next(1, 8) != 3) continue;
 
             CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
         }

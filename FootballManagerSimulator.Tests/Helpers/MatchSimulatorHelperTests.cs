@@ -61,6 +61,7 @@ public class MatchSimulatorHelperTests
             Assert.Equal(90, fixture.Minute);
             Assert.Equal(fixture.HomeScorers.Count, fixture.GoalsHome);
             Assert.Equal(fixture.AwayScorers.Count, fixture.GoalsAway);
+            Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers), g => Assert.InRange(g.Minute, 1, 90));
             var expectedWinner = fixture.GoalsHome > fixture.GoalsAway ? Home : fixture.GoalsAway > fixture.GoalsHome ? Away : null;
             Assert.Same(expectedWinner, fixture.ClubWon);
             Assert.All(fixture.HomeScorers, g => Assert.Contains(g.PlayerId, StarterIds(Home)));
@@ -120,7 +121,7 @@ public class MatchSimulatorHelperTests
         _simulator.ProcessMatch(fixture, competition);
         Assert.Equal(45, fixture.Minute);
         Assert.False(fixture.Concluded);
-        Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers), g => Assert.InRange(g.Minute, 1, 55));
+        Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers), g => Assert.InRange(g.Minute, 1, 45));
 
         _simulator.ProcessMatch(fixture, competition);
         Assert.Equal(90, fixture.Minute);
