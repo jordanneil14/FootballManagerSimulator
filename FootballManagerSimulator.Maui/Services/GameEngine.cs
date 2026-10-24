@@ -78,6 +78,7 @@ public class GameEngine(
         if (player?.Contract == null || player.Contract.ClubId != MyClub.Id || biddingClub == null)
         {
             notification.RequiresAction = false;
+            notification.Response = "⚠️ Bid no longer valid";
             notification.Message = $"The bid for {player?.Name ?? "this player"} is no longer valid because he is no longer at your club.";
             NotifyChanged();
             return;
@@ -86,6 +87,7 @@ public class GameEngine(
         if (IsPlayerRetiring(player))
         {
             notification.RequiresAction = false;
+            notification.Response = "⚠️ Bid fell through";
             notification.Message = $"The bid for {player.Name} has fallen through because he is retiring and will not sign a new contract.";
             NotifyChanged();
             return;
@@ -111,6 +113,7 @@ public class GameEngine(
             transferListHelper.RemovePlayerFromTransferList(notification.BidPlayerId.Value);
 
         notification.RequiresAction = false;
+        notification.Response = "✅ Bid accepted";
         notification.Message = $"You accepted {biddingClub.Name}'s bid of £{notification.BidAmount.Value:n0} for {player.Name}. The fee has been added to your transfer budget.";
 
         NotifyChanged();
@@ -124,6 +127,7 @@ public class GameEngine(
         var biddingClub = GetClub(notification.BiddingClubId.Value);
 
         notification.RequiresAction = false;
+        notification.Response = "❌ Bid rejected";
         notification.Message = $"You rejected {biddingClub?.Name}'s bid of £{notification.BidAmount ?? 0:n0} for {player?.Name}.";
 
         NotifyChanged();

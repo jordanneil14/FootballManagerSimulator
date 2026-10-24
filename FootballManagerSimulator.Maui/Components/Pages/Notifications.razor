@@ -39,7 +39,7 @@ else
                         </div>
                         <div class="notif-subject">@notification.Subject</div>
                         <div class="notif-msg">@notification.Message</div>
-                        @if (notification.RequiresAction)
+                        @if (notification.RequiresAction || notification.Response != null)
                         {
                             <NotificationActions Notification="notification" Style="margin-top:.75rem" />
                         }

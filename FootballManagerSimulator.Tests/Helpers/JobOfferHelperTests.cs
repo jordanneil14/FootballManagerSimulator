@@ -157,6 +157,7 @@ public class JobOfferHelperTests
         Assert.Equal(3, _state.MyClubId);
         Assert.Equal(90, _state.BoardConfidence);
         Assert.False(offer.RequiresAction);
+        Assert.Equal("❌ Job declined", offer.Response);
     }
 
     [Fact]

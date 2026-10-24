@@ -1,7 +1,14 @@
 @inject GameEngine Engine
 @inject IJobOfferHelper JobOffers
 
-@if (Notification.IsBoardWarning)
+@if (!Notification.RequiresAction)
+{
+    @if (Notification.Response != null)
+    {
+        <div class="notif-response" style="@Style">@Notification.Response</div>
+    }
+}
+else if (Notification.IsBoardWarning)
 {
     <div class="page-actions" style="@Style">
         <button class="btn btn-primary" @onclick="Acknowledge">👍 Understood</button>
@@ -29,6 +36,7 @@ else
     private void Acknowledge()
     {
         Notification.RequiresAction = false;
+        Notification.Response = "👍 Understood";
         Engine.NotifyChanged();
     }
 

@@ -56,6 +56,10 @@
         }
         else
         {
+            @if (latest.Response != null)
+            {
+                <NotificationActions Notification="latest" Style="margin-bottom:.75rem" />
+            }
             <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
         }
     }

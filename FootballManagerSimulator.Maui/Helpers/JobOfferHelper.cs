@@ -95,7 +95,14 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         notification.RequiresAction = false;
 
         if (JoinClub(notification.JobOfferClubId.Value))
+        {
+            notification.Response = "✅ Job accepted";
             notification.Message = $"You accepted the job at {State.Clubs.First(p => p.Id == State.MyClubId).Name} and left {oldClubName}.";
+        }
+        else
+        {
+            notification.Response = "⚠️ Job no longer available";
+        }
     }
 
     // Works whether you are leaving a club or out of work.
@@ -164,6 +171,7 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         foreach (var pending in State.Notifications.Where(p => p.RequiresAction))
         {
             pending.RequiresAction = false;
+            pending.Response = "⚠️ No longer relevant";
             pending.Message += $"\n\nNo longer relevant: you have left {oldClub.Name}.";
         }
     }
@@ -175,6 +183,7 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
 
         var club = State.Clubs.FirstOrDefault(p => p.Id == notification.JobOfferClubId);
         notification.RequiresAction = false;
+        notification.Response = "❌ Job declined";
         notification.Message = $"You turned down the job at {club?.Name ?? "the club"}.";
     }
 }

@@ -156,6 +156,7 @@ public class GameEngineTests : IDisposable
         _engine.AcceptBid(bid);
 
         Assert.False(bid.RequiresAction);
+        Assert.Equal("✅ Bid accepted", bid.Response);
         Assert.Equal(buyer.Id, player.Contract!.ClubId);
         Assert.Equal(new DateOnly(2028, 6, 30), player.Contract.ExpiryDate);
         Assert.Equal(myBudget + 3_000_000, MyClub.TransferBudget);
@@ -206,6 +207,7 @@ public class GameEngineTests : IDisposable
         _engine.RejectBid(bid);
 
         Assert.False(bid.RequiresAction);
+        Assert.Equal("❌ Bid rejected", bid.Response);
         Assert.Contains("rejected", bid.Message);
         Assert.Equal(1, player.Contract!.ClubId);
     }

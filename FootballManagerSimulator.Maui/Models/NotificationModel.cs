@@ -8,6 +8,8 @@ public class NotificationModel
     public string Subject { get; set; } = "";
     public string Message { get; set; } = "";
     public bool RequiresAction { get; set; }
+    // Shown in place of the action buttons once the notification has been answered.
+    public string? Response { get; set; }
     public int? BidPlayerId { get; set; }
     public int? BidAmount { get; set; }
     public int? BiddingClubId { get; set; }
