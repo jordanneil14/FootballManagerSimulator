@@ -524,4 +524,21 @@ public class MatchSimulatorHelperTests
         Assert.All(Home.TacticSlots, s => Assert.Null(s.PlayerId));
         Assert.All(StarterIds(Away), id => Assert.NotNull(id));
     }
+
+    [Fact]
+    public void PrepareMatch_DropsASuspendedStarterEvenWhenTheFixtureHoldsACopyOfTheClub()
+    {
+        _state.MyClubId = Home.Id;
+        var suspendedId = Away.TacticSlots[9].PlayerId!.Value;
+        _state.Players.First(p => p.Id == suspendedId).SuspensionMatches = 1;
+
+        // After a save/load the fixture's clubs are separate objects from State.Clubs.
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        fixture.AwayClub = new ClubModel { Id = Away.Id, Name = Away.Name, Formation = Away.Formation };
+
+        _simulator.PrepareMatch(fixture);
+
+        Assert.DoesNotContain(suspendedId, StarterIds(Away));
+        Assert.All(StarterIds(Away), id => Assert.NotNull(id));
+    }
 }

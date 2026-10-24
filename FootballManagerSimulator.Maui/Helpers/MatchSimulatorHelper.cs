@@ -569,16 +569,14 @@ public class MatchSimulatorHelper(
 
     public void PrepareMatch(FixtureModel fixture)
     {
-        if (fixture.HomeClub.Id != State.MyClubId)
+        // Fixture clubs can be copies after a save/load, so pick the canonical State.Clubs entries.
+        foreach (var clubId in new[] { fixture.HomeClub.Id, fixture.AwayClub.Id })
         {
-            TacticHelper.ResetTacticForClub(fixture.HomeClub);
-            TacticHelper.FillEmptyTacticSlotsByClubId(fixture.HomeClub.Id);
-        }
+            if (clubId == State.MyClubId)
+                continue;
 
-        if (fixture.AwayClub.Id != State.MyClubId)
-        {
-            TacticHelper.ResetTacticForClub(fixture.AwayClub);
-            TacticHelper.FillEmptyTacticSlotsByClubId(fixture.AwayClub.Id);
+            TacticHelper.ResetTacticForClub(ClubHelper.GetClubById(clubId));
+            TacticHelper.FillEmptyTacticSlotsByClubId(clubId);
         }
     }
 }
