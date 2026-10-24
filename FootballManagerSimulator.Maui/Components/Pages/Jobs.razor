@@ -54,7 +54,7 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>Club</th><th>League</th><th class="num">Job security</th></tr>
+                    <tr><th>Club</th><th>League</th><th>Job security</th></tr>
                 </thead>
                 <tbody>
                     @foreach (var club in underThreat)
@@ -62,7 +62,7 @@
                         <tr>
                             <td><a href="/club/@club.Id"><strong>@club.Name</strong></a></td>
                             <td class="muted">@LeagueName(club.LeagueId)</td>
-                            <td class="num" style="color:var(--warn)">@club.JobSecurity / 100</td>
+                            <td style="color:var(--warn)">@BoardConfidenceRules.Label(club.JobSecurity)</td>
                         </tr>
                     }
                 </tbody>
