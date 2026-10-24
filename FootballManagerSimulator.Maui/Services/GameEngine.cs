@@ -177,7 +177,10 @@ public class GameEngine(
         State.ScreenStack.Clear();
         State.BoardConfidence = BoardConfidenceRules.Starting;
         State.ManagerHistory = new ManagerHistoryModel();
+        State.CareerId = NewCareerId();
     }
+
+    private static string NewCareerId() => Guid.NewGuid().ToString("N");
 
     // ---------------------------------------------------------------------------------
     // Day advancement
@@ -193,6 +196,9 @@ public class GameEngine(
         try
         {
             processHelper.Process();
+            // Saves are large, so quiet days only autosave once a week; match days save at full time.
+            if (State.Date.DayOfWeek == AutosaveDay)
+                AutoSave();
             return AdvanceResult.Advanced;
         }
         catch (ProcessException)
@@ -330,6 +336,7 @@ public class GameEngine(
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded))
                 MatchSimulator.ProcessMatch(fixture, competition);
 
+        AutoSave();
         NotifyChanged();
     }
 
@@ -695,18 +702,67 @@ public class GameEngine(
 
     public string SaveDirectory => AppStorage.SaveDirectory;
 
+    public const string AutosavePrefix = "autosave-";
+    public const DayOfWeek AutosaveDay = DayOfWeek.Monday;
+
+    public string AutosaveFileName => $"{AutosavePrefix}{State.CareerId}.fms";
+
+    // Engines are scoped, but they all share the one State, so saves and loads take a shared lock.
+    private static readonly object SaveLock = new();
+
     public string SaveGame(string fileName)
     {
         try
         {
-            var stateAsJson = JsonConvert.SerializeObject(State, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
-            File.WriteAllText(Path.Combine(SaveDirectory, $"{fileName}.fms"), stateAsJson);
+            lock (SaveLock)
+                WriteSave(Path.Combine(SaveDirectory, $"{fileName}.fms"));
             return "Game saved successfully.";
         }
         catch (Exception)
         {
             return "Unable to save game.";
         }
+    }
+
+    /// <summary>
+    /// Writes the career to its own autosave slot. Only runs between match days, since a match in
+    /// progress is partly held by the Match page. Never throws; a failure is reported as feedback.
+    /// </summary>
+    public bool AutoSave()
+    {
+        if (!State.AutoSaveEnabled || !GameInProgress || HasOutstandingFixturesToday())
+            return false;
+
+        // Skip rather than wait if a load or another save is running, e.g. the app stopping mid-load.
+        if (!Monitor.TryEnter(SaveLock))
+            return false;
+
+        try
+        {
+            if (string.IsNullOrEmpty(State.CareerId))
+                State.CareerId = NewCareerId();
+
+            WriteSave(Path.Combine(SaveDirectory, AutosaveFileName));
+            return true;
+        }
+        catch (Exception)
+        {
+            State.UserFeedbackUpdates.Add("Autosave failed. Your last save is unchanged.");
+            return false;
+        }
+        finally
+        {
+            Monitor.Exit(SaveLock);
+        }
+    }
+
+    // Writes beside the target and then swaps it in, so a crash mid-write never corrupts an existing save.
+    private void WriteSave(string path)
+    {
+        var tempPath = path + ".tmp";
+        using (var writer = new StreamWriter(tempPath))
+            SaveSerializer.Create().Serialize(writer, State);
+        File.Move(tempPath, path, overwrite: true);
     }
 
     public IEnumerable<LoadGamePreviewModel> ListSaves()
@@ -732,7 +788,8 @@ public class GameEngine(
                     FileName = file.Name,
                     ClubName = clubName,
                     ManagerName = managerName,
-                    SaveDate = file.LastWriteTime
+                    SaveDate = file.LastWriteTime,
+                    IsAutosave = file.Name.StartsWith(AutosavePrefix)
                 });
             }
             catch (Exception)
@@ -748,7 +805,7 @@ public class GameEngine(
     private static (StateModel State, JArray? EventsJson) ReadSave(string path)
     {
         using var reader = new JsonTextReader(new StreamReader(path));
-        var serializer = JsonSerializer.Create(new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto });
+        var serializer = SaveSerializer.Create();
         var state = new StateModel();
         JArray? eventsJson = null;
 
@@ -846,7 +903,32 @@ public class GameEngine(
         }
     }
 
+    // Competitions and fixtures are saved holding club references; point them back at the real clubs.
+    private void RelinkClubs()
+    {
+        var clubsById = State.Clubs.ToDictionary(p => p.Id);
+        ClubModel Real(ClubModel club) => clubsById.GetValueOrDefault(club.Id, club);
+
+        foreach (var competition in State.Competitions)
+        {
+            competition.Clubs = competition.Clubs.Select(Real).ToList();
+            foreach (var fixture in competition.Fixtures)
+            {
+                fixture.HomeClub = Real(fixture.HomeClub);
+                fixture.AwayClub = Real(fixture.AwayClub);
+                if (fixture.ClubWon != null)
+                    fixture.ClubWon = Real(fixture.ClubWon);
+            }
+        }
+    }
+
     public string? LoadGame(string fileName)
+    {
+        lock (SaveLock)
+            return LoadGameLocked(fileName);
+    }
+
+    private string? LoadGameLocked(string fileName)
     {
         try
         {
@@ -865,6 +947,12 @@ public class GameEngine(
             State.TransferListItems = deserialised.TransferListItems;
             State.BoardConfidence = deserialised.BoardConfidence;
             State.ManagerHistory = deserialised.ManagerHistory;
+            State.MatchSpeedMs = deserialised.MatchSpeedMs;
+            State.AutoSaveEnabled = deserialised.AutoSaveEnabled;
+            // Saves from before autosave existed get their own slot from here on.
+            State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;
+
+            RelinkClubs();
 
             // Saves from before the manager history existed start the record from today.
             var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);

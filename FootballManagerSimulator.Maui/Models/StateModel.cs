@@ -21,6 +21,8 @@ public class StateModel : IState
     public List<TransferListItemModel> TransferListItems { get; set; } = new List<TransferListItemModel>();
     public List<IEvent> Events { get; set; } = [];
     public int MatchSpeedMs { get; set; } = 1000;
+    public bool AutoSaveEnabled { get; set; } = true;
+    public string CareerId { get; set; } = "";
     public int BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
     public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();
 }

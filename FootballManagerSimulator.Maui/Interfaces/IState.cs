@@ -20,6 +20,9 @@ public interface IState
     int? MyClubId { get; set; }
     List<IEvent> Events { get; set; }
     int MatchSpeedMs { get; set; }
+    bool AutoSaveEnabled { get; set; }
+    // Ties a career's autosave slot to it across saves and loads.
+    string CareerId { get; set; }
     int BoardConfidence { get; set; }
     ManagerHistoryModel ManagerHistory { get; set; }
 }

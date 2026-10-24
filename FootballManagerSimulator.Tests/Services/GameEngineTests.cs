@@ -601,4 +601,148 @@ public class GameEngineTests : IDisposable
     [Fact]
     public void LoadGame_ReportsAMissingFile() =>
         Assert.NotNull(_engine.LoadGame("does-not-exist.fms"));
+
+    [Fact]
+    public void LoadGame_ReadsOlderSavesThatHoldFullClubCopiesInFixtures()
+    {
+        var league = TestData.League(1, _state.Clubs);
+        _state.Competitions.Add(league);
+        league.Fixtures.Add(new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], ClubWon = MyClub, Concluded = true, GoalsHome = 2, GoalsAway = 1 });
+
+        // The old format: every club serialized in full wherever it appears.
+        var oldJson = Newtonsoft.Json.JsonConvert.SerializeObject(_state,
+            new Newtonsoft.Json.JsonSerializerSettings { TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto });
+        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "old.fms"), oldJson);
+
+        Assert.Null(_engine.LoadGame("old.fms"));
+
+        var fixture = Assert.Single(_state.Competitions.Single().Fixtures);
+        Assert.Same(_state.Clubs[0], fixture.HomeClub);
+        Assert.Same(_state.Clubs[1], fixture.AwayClub);
+        Assert.Same(_state.Clubs[0], fixture.ClubWon);
+        Assert.Equal(_state.Clubs, _state.Competitions.Single().Clubs);
+        Assert.Equal(MyClub.TacticSlots.Count, fixture.HomeClub.TacticSlots.Count);
+    }
+
+    [Fact]
+    public void LoadGame_RestoresTheCareerIdAndSettings()
+    {
+        _state.CareerId = "career1";
+        _state.MatchSpeedMs = 250;
+        _state.AutoSaveEnabled = false;
+        _engine.SaveGame("settings");
+        (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled) = ("other", 1000, true);
+
+        Assert.Null(_engine.LoadGame("settings.fms"));
+
+        Assert.Equal(("career1", 250, false), (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled));
+    }
+
+    [Fact]
+    public void LoadGame_GivesSavesFromBeforeAutosaveTheirOwnCareerId()
+    {
+        _state.CareerId = "";
+        _engine.SaveGame("before-autosave");
+
+        Assert.Null(_engine.LoadGame("before-autosave.fms"));
+
+        Assert.NotEmpty(_state.CareerId);
+    }
+
+    [Fact]
+    public void StartNewGame_StartsANewCareer()
+    {
+        _state.CareerId = "old-career";
+
+        _engine.StartNewGame();
+
+        Assert.NotEmpty(_state.CareerId);
+        Assert.NotEqual("old-career", _state.CareerId);
+    }
+
+    // ----- Autosave -----------------------------------------------------------------------
+
+    private string AutosavePath => Path.Combine(_storage.SaveDirectory, _engine.AutosaveFileName);
+
+    [Fact]
+    public void Advance_AutosavesTheCareerToItsOwnSlotOnMondays()
+    {
+        _state.CareerId = "career1";
+        _state.Date = new DateOnly(2026, 7, 21); // a Tuesday; the mocked day processing leaves the date alone
+        _engine.Advance();
+        Assert.False(File.Exists(AutosavePath));
+
+        _state.Date = new DateOnly(2026, 7, 27);
+        _engine.Advance();
+
+        var save = Assert.Single(_engine.ListSaves());
+        Assert.Equal("autosave-career1.fms", save.FileName);
+        Assert.True(save.IsAutosave);
+        Assert.Empty(Directory.GetFiles(_storage.SaveDirectory, "*.tmp"));
+    }
+
+    [Fact]
+    public void Advance_DoesNotAutosaveWhenItCannotMoveOn()
+    {
+        Assert.Equal(GameEngine.AutosaveDay, _state.Date.DayOfWeek);
+
+        _process.Setup(p => p.Process()).Throws(new ProcessException(ScreenType.Fixture));
+        _engine.Advance();
+
+        _process.Reset();
+        _state.Notifications.Add(new NotificationModel { Date = _state.Date, RequiresAction = true });
+        _engine.Advance();
+
+        Assert.False(File.Exists(AutosavePath));
+    }
+
+    [Fact]
+    public void CompleteRemainingFixtures_AutosavesOnceTheMatchDayIsOver()
+    {
+        Assert.True(_engine.AutoSave()); // nothing to play today
+        File.Delete(AutosavePath);
+
+        var league = TestData.League(1, _state.Clubs);
+        _state.Competitions.Add(league);
+        var fixture = new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], Date = _state.Date };
+        league.Fixtures.Add(fixture);
+
+        // Mid-match: the user's fixture is still being played.
+        Assert.False(_engine.AutoSave());
+
+        fixture.Concluded = true;
+        _engine.CompleteRemainingFixtures();
+        Assert.True(File.Exists(AutosavePath));
+    }
+
+    [Fact]
+    public void AutoSave_IsSkippedWhenTurnedOffOrWithNoGame()
+    {
+        _state.AutoSaveEnabled = false;
+        Assert.False(_engine.AutoSave());
+
+        _state.AutoSaveEnabled = true;
+        _state.MyClubId = null; // a game still being set up, with no job history
+        Assert.False(_engine.AutoSave());
+
+        Assert.Empty(Directory.GetFiles(_storage.SaveDirectory));
+    }
+
+    [Fact]
+    public void AutoSave_FailingPartWayLeavesThePreviousAutosaveIntact()
+    {
+        _state.ManagerName = "Before";
+        Assert.True(_engine.AutoSave());
+
+        // Block the temporary file so the next write fails before the swap.
+        Directory.CreateDirectory(AutosavePath + ".tmp");
+        _state.ManagerName = "After";
+
+        Assert.False(_engine.AutoSave());
+        Assert.Contains(_state.UserFeedbackUpdates, m => m.StartsWith("Autosave failed"));
+
+        Directory.Delete(AutosavePath + ".tmp");
+        Assert.Null(_engine.LoadGame(_engine.AutosaveFileName));
+        Assert.Equal("Before", _state.ManagerName);
+    }
 }

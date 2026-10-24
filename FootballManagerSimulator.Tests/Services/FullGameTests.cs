@@ -272,9 +272,44 @@ public class FullGameTests : IDisposable
         });
         Assert.Contains(state.Competitions, c => c is LeagueModel); // polymorphic competitions survive
 
+        // Fixtures and competitions point at the real clubs again, not copies.
+        var clubs = state.Clubs.ToHashSet();
+        Assert.All(state.Competitions.SelectMany(c => c.Clubs), c => Assert.Contains(c, clubs));
+        Assert.All(state.Competitions.SelectMany(c => c.Fixtures), f =>
+        {
+            Assert.Contains(f.HomeClub, clubs);
+            Assert.Contains(f.AwayClub, clubs);
+            Assert.True(f.ClubWon == null || clubs.Contains(f.ClubWon));
+        });
+
+        // Only the club list holds full clubs, so the lineups appear once per club.
+        var json = File.ReadAllText(Path.Combine(_host.Storage.SaveDirectory, "midseason.fms"));
+        Assert.Equal(state.Clubs.Count, System.Text.RegularExpressions.Regex.Matches(json, "\"TacticSlots\"").Count);
+
         // The loaded game carries on: the next cup draw still fires.
         PlayUntil(engine, new DateOnly(2026, 9, 5));
         Assert.Contains(state.Competitions.OfType<CupModel>().Single(c => c.Type == CompetitionType.Cup).Fixtures, f => f.Round == 2);
+    }
+
+    [Fact]
+    public void Autosave_KeepsUpWithTheCareerAndLoadsBackToTheSameDay()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var state = engine.State;
+        PlayUntil(engine, new DateOnly(2026, 8, 20)); // through match days as well as quiet ones
+
+        // The hooks have been saving along the way.
+        var save = Assert.Single(engine.ListSaves());
+        Assert.True(save.IsAutosave);
+        Assert.Equal(engine.MyClub.Name, save.ClubName);
+
+        Assert.True(engine.AutoSave());
+        var (date, clubId, budget) = (state.Date, state.MyClubId, engine.MyClub.TransferBudget);
+        engine.StartNewGame();
+        Assert.Null(engine.LoadGame(save.FileName));
+
+        Assert.Equal((date, clubId, budget), (state.Date, state.MyClubId, engine.MyClub.TransferBudget));
+        Assert.Equal(save.FileName, engine.AutosaveFileName); // carries on in the same slot
     }
 
     [Fact]

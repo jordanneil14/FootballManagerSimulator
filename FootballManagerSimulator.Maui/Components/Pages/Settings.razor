@@ -21,7 +21,22 @@
     </div>
 </div>
 
+<div class="panel">
+    <h2>Saving</h2>
+    <div class="field" style="margin-bottom:1rem">
+        <label class="label">Autosave</label>
+        <select class="input" style="width:240px" value="@(Engine.State.AutoSaveEnabled ? "on" : "off")" @onchange="OnAutoSaveChanged">
+            <option value="on">On</option>
+            <option value="off">Off</option>
+        </select>
+        <div class="muted" style="font-size:.8rem;margin-top:.25rem">Saves this career to its own slot every Monday, after each of your matches, and when the app is closed.</div>
+    </div>
+</div>
+
 @code {
+    private void OnAutoSaveChanged(ChangeEventArgs e) =>
+        Engine.State.AutoSaveEnabled = e.Value?.ToString() == "on";
+
     private void OnSpeedChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out var ms))

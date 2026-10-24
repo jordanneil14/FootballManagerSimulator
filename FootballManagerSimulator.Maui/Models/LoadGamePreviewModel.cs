@@ -6,4 +6,5 @@ public class LoadGamePreviewModel
     public string FileName { get; set; } = "";
     public string ClubName { get; set; } = "";
     public string ManagerName { get; set; } = "";
+    public bool IsAutosave { get; set; }
 }
