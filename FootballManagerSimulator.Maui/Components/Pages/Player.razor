@@ -238,7 +238,7 @@ else
     {
         var player = Engine.GetPlayer(Id);
         if (player == null) return;
-        _bidAmount = Engine.GetTransferValue(player);
+        _bidAmount = Engine.GetTransferListItem(player.Id)?.AskingPrice ?? Engine.GetTransferValue(player);
         _bidResponse = null;
         _bidResult = null;
         _showBidModal = true;

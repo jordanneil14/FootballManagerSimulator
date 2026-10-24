@@ -574,9 +574,10 @@ public class GameEngine(
             return new BidResultModel { Message = "Insufficient transfer budget." };
 
         var transferValue = playerHelper.GetTransferValue(player);
-        var isTransferListed = transferListHelper.IsPlayerTransferListed(playerId);
-        var minimumAcceptable = isTransferListed ? (int)(transferValue * 0.9) : (int)(transferValue * 1.3);
-        var counterAmount = isTransferListed ? (int)(transferValue * 1.0) : (int)(transferValue * 1.3);
+        // A listed player's club holds out for its asking price; otherwise it wants a premium on his value.
+        var askingPrice = transferListHelper.GetTransferListItemByPlayerId(playerId)?.AskingPrice;
+        var minimumAcceptable = askingPrice ?? (int)(transferValue * 1.3);
+        var counterAmount = minimumAcceptable;
 
         if (bidAmount >= minimumAcceptable)
         {
@@ -587,7 +588,7 @@ public class GameEngine(
             };
         }
 
-        if (bidAmount >= transferValue * 0.5)
+        if (bidAmount >= (askingPrice ?? transferValue) * 0.5)
         {
             return new BidResultModel
             {

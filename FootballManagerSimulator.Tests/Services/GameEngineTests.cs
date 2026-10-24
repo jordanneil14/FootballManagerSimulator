@@ -384,16 +384,17 @@ public class GameEngineTests : IDisposable
     // ----- Bids & purchases -------------------------------------------------------------
 
     [Fact]
-    public void SubmitBid_ForAListedPlayerIsAcceptedAtNinetyPercentOfValue()
+    public void SubmitBid_ForAListedPlayerNeedsAtLeastTheAskingPrice()
     {
         var target = PlayerAt(2);
-        var value = _players.GetTransferValue(target);
-        _transfers.AddPlayerToTransferList(target.Id, value);
+        var askingPrice = (int)(_players.GetTransferValue(target) * 1.5);
+        _transfers.AddPlayerToTransferList(target.Id, askingPrice);
 
-        Assert.True(_engine.SubmitBid(target.Id, (int)(value * 0.9)).Accepted);
-        var counter = _engine.SubmitBid(target.Id, (int)(value * 0.6));
+        Assert.True(_engine.SubmitBid(target.Id, askingPrice).Accepted);
+        var counter = _engine.SubmitBid(target.Id, askingPrice - 1);
         Assert.False(counter.Accepted);
-        Assert.Equal(value, counter.CounterOffer);
+        Assert.Equal(askingPrice, counter.CounterOffer);
+        Assert.Contains("outright", _engine.SubmitBid(target.Id, (int)(askingPrice * 0.4)).Message);
     }
 
     [Fact]
