@@ -24,13 +24,6 @@
         .ToList();
 }
 
-@if (suspendedPicked.Any())
-{
-    <div class="panel sus-warning">
-        🟥 Suspended: <strong>@string.Join(", ", suspendedPicked.Select(p => p!.Name))</strong>. Move them to the reserves; you can't kick off with a suspended player in the starting XI or subs.
-    </div>
-}
-
 <div class="panel">
     <h2>Formation</h2>
     <div class="page-actions">
