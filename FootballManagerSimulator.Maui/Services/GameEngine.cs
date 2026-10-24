@@ -171,6 +171,7 @@ public class GameEngine(
     private void ResetGame()
     {
         State.MyClubId = null;
+        State.MatchInProgress = false;
         State.Clubs.Clear();
         State.Players.Clear();
         State.Competitions.Clear();
@@ -277,6 +278,7 @@ public class GameEngine(
             return "Unable to start game. You have a suspended player in your starting lineup or substitutes.";
 
         var myFixture = MyFixtureToday();
+        State.MatchInProgress = true;
 
         foreach (var competition in State.Competitions)
         {
@@ -340,6 +342,7 @@ public class GameEngine(
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date && !p.Concluded))
                 MatchSimulator.ProcessMatch(fixture, competition);
 
+        State.MatchInProgress = false;
         AutoSave();
         NotifyChanged();
     }
@@ -715,10 +718,10 @@ public class GameEngine(
     // Engines are scoped, but they all share the one State, so saves and loads take a shared lock.
     private static readonly object SaveLock = new();
 
-    public const string SaveBlockedDuringMatchMessage = "You can't save during a match. Finish today's matches first.";
+    public const string SaveBlockedDuringMatchMessage = "You can't save during a match. Finish the match first.";
 
-    // A match in progress is partly held by the Match page, so only save between match days.
-    public bool CanSave => !HasOutstandingFixturesToday();
+    // A match in progress is partly held by the Match page, so no saving from kick-off until the day's results are in.
+    public bool CanSave => !State.MatchInProgress;
 
     public string SaveGame(string fileName)
     {
@@ -738,7 +741,7 @@ public class GameEngine(
     }
 
     /// <summary>
-    /// Writes the career to its own autosave slot. Only runs between match days, since a match in
+    /// Writes the career to its own autosave slot. Never runs during a match, since a match in
     /// progress is partly held by the Match page. Never throws; a failure is reported as feedback.
     /// </summary>
     public bool AutoSave()
@@ -962,6 +965,7 @@ public class GameEngine(
             State.ManagerHistory = deserialised.ManagerHistory;
             State.MatchSpeedMs = deserialised.MatchSpeedMs;
             State.AutoSaveEnabled = deserialised.AutoSaveEnabled;
+            State.MatchInProgress = false;
             // Saves from before autosave existed get their own slot from here on.
             State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;
 

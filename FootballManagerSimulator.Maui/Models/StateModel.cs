@@ -22,6 +22,9 @@ public class StateModel : IState
     public List<IEvent> Events { get; set; } = [];
     public int MatchSpeedMs { get; set; } = 1000;
     public bool AutoSaveEnabled { get; set; } = true;
+    // From kick-off until the day's results are in; never saved, since saves are blocked meanwhile.
+    [Newtonsoft.Json.JsonIgnore]
+    public bool MatchInProgress { get; set; }
     public string CareerId { get; set; } = "";
     public int BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
     public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();

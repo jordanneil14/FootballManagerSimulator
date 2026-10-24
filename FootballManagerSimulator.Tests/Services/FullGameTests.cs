@@ -12,6 +12,7 @@ namespace FootballManagerSimulator.Tests.Services;
 /// End-to-end tests over the real DI composition (GameServices.Register) and the real bundled
 /// settings.json, driving the game the way the Razor pages do.
 /// </summary>
+[Collection(SaveFilesCollection.Name)]
 public class FullGameTests : IDisposable
 {
     private readonly GameHost _host = new();
@@ -155,9 +156,7 @@ public class FullGameTests : IDisposable
         Assert.All(state.Competitions.SelectMany(c => c.Fixtures).Where(f => f.Date < state.Date), f => Assert.True(f.Concluded));
         Assert.Contains("Out of work", engine.NextMatchCaption());
 
-        // Still unemployed after a save and load (saving waits until today's fixtures are played).
-        if (engine.HasOutstandingFixturesToday())
-            PlayToday(engine);
+        // Still unemployed after a save and load.
         Assert.Equal("Game saved successfully.", engine.SaveGame("unemployed"));
         engine.StartNewGame();
         Assert.Null(engine.LoadGame("unemployed.fms"));

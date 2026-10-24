@@ -21,6 +21,7 @@ public interface IState
     List<IEvent> Events { get; set; }
     int MatchSpeedMs { get; set; }
     bool AutoSaveEnabled { get; set; }
+    bool MatchInProgress { get; set; }
     // Ties a career's autosave slot to it across saves and loads.
     string CareerId { get; set; }
     int BoardConfidence { get; set; }

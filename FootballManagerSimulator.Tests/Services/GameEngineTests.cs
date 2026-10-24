@@ -13,6 +13,7 @@ namespace FootballManagerSimulator.Tests.Services;
 /// GameEngine with the simulation collaborators mocked (process, match, game factory) and the
 /// cheap state helpers real, so the tests focus on the engine's own flow and transfer rules.
 /// </summary>
+[Collection(SaveFilesCollection.Name)]
 public class GameEngineTests : IDisposable
 {
     private readonly StateModel _state = TestData.StateWithClubs(3, new DateOnly(2026, 7, 20), myClubId: 1);
@@ -593,18 +594,22 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
-    public void SaveGame_IsRefusedWhileAMatchIsInProgress()
+    public void SaveGame_IsRefusedOnlyFromKickOffUntilTheDaysResultsAreIn()
     {
-        var league = TestData.League(1, _state.Clubs);
-        _state.Competitions.Add(league);
-        var fixture = new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], Date = _state.Date };
-        league.Fixtures.Add(fixture);
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+
+        // A match day before kick-off can still be saved.
+        Assert.True(_engine.CanSave);
+        Assert.Equal("Game saved successfully.", _engine.SaveGame("before-kick-off"));
+
+        Assert.Null(_engine.StartMatch());
 
         Assert.False(_engine.CanSave);
         Assert.Equal(GameEngine.SaveBlockedDuringMatchMessage, _engine.SaveGame("mid-match"));
-        Assert.Empty(_engine.ListSaves());
+        Assert.DoesNotContain(_engine.ListSaves(), s => s.FileName == "mid-match.fms");
 
-        fixture.Concluded = true;
+        _engine.CompleteRemainingFixtures();
 
         Assert.True(_engine.CanSave);
         Assert.Equal("Game saved successfully.", _engine.SaveGame("after-match"));
@@ -723,15 +728,13 @@ public class GameEngineTests : IDisposable
         Assert.True(_engine.AutoSave()); // nothing to play today
         File.Delete(AutosavePath);
 
-        var league = TestData.League(1, _state.Clubs);
-        _state.Competitions.Add(league);
-        var fixture = new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], Date = _state.Date };
-        league.Fixtures.Add(fixture);
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        Assert.Null(_engine.StartMatch());
 
         // Mid-match: the user's fixture is still being played.
         Assert.False(_engine.AutoSave());
 
-        fixture.Concluded = true;
         _engine.CompleteRemainingFixtures();
         Assert.True(File.Exists(AutosavePath));
     }
