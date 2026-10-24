@@ -48,18 +48,17 @@
             </div>
             <div class="notif-subject">@latest.Subject</div>
             <div class="notif-msg">@latest.Message</div>
-        </div>
-        <div class="divider"></div>
-        @if (latest.RequiresAction)
-        {
-            <NotificationActions Notification="latest" />
-        }
-        else
-        {
-            @if (latest.Response != null)
+            @if (latest.RequiresAction || latest.Response != null)
             {
-                <NotificationActions Notification="latest" Style="margin-bottom:.75rem" />
+                @* Keep button clicks from also opening the Notifications page. *@
+                <div @onclick:stopPropagation="true">
+                    <NotificationActions Notification="latest" Style="margin-top:.75rem" />
+                </div>
             }
+        </div>
+        @if (!latest.RequiresAction)
+        {
+            <div class="divider"></div>
             <button class="btn" @onclick="NextNotification">Mark as read &amp; next →</button>
         }
     }

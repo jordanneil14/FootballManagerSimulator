@@ -1,4 +1,5 @@
 ﻿using FootballManagerSimulator.Maui.Interfaces;
+using FootballManagerSimulator.Maui.Models;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -10,17 +11,20 @@ public class IncreaseTransferBudgetRequestEvent(
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
-    private const int INCREASED_AMOUNT = 10000000;
 
     public override void Execute()
     {
-        State.Clubs.First(p => p.Id == State.MyClubId).TransferBudget += INCREASED_AMOUNT;
+        var myClub = State.Clubs.First(p => p.Id == State.MyClubId);
+        var leagueRank = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == myClub.LeagueId)?.Rank;
+        var amount = TransferBudgetRequestRules.AmountForLeagueRank(leagueRank);
+
+        myClub.TransferBudget += amount;
 
         NotificationFactory.AddNotification(
             State.Date,
             "Chairman",
             "Transfer Budget Request",
-            $"The chairman has responded to your transfer budget request and has granted you an extra £{INCREASED_AMOUNT:n0} to spend");
+            $"The chairman has responded to your transfer budget request and has granted you an extra £{amount:n0} to spend");
 
     }
 

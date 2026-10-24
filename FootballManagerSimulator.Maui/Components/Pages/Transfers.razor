@@ -9,6 +9,11 @@
     <div><h1>Transfer List</h1><div class="subtitle">Players available to buy</div></div>
 </div>
 
+@if (_message != null)
+{
+    <div class="feedback"><div class="feedback-item @(_isError ? "warn" : "")">@_message</div></div>
+}
+
 <div class="stat-row">
     <div class="stat"><div class="label">Funds Available</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
 </div>
@@ -28,11 +33,6 @@
         </div>
     </div>
 </div>
-
-@if (_message != null)
-{
-    <div class="feedback"><div class="feedback-item @(_isError ? "warn" : "")">@_message</div></div>
-}
 
 <div class="panel">
     <h2 class="clickable" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" @onclick="() => _filtersOpen = !_filtersOpen">

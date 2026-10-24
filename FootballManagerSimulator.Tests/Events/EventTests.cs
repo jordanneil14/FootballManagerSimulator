@@ -74,13 +74,24 @@ public class ClubRequestEventTests : IDisposable
     private T Create<T>(DateOnly triggerDate) where T : IEvent =>
         ActivatorUtilities.CreateInstance<T>(_host.Services, triggerDate, false);
 
-    [Fact]
-    public void IncreaseTransferBudgetRequest_AddsTenMillionAndNotifies()
+    [Theory]
+    [InlineData(1, 10_000_000)]
+    [InlineData(2, 2_500_000)]
+    [InlineData(3, 1_000_000)]
+    [InlineData(4, 150_000)]
+    [InlineData(5, 50_000)]
+    public void IncreaseTransferBudgetRequest_GrantsAnAmountForTheLeagueRankAndNotifies(int rank, int amount)
     {
+        var league = TestData.League(1, [_myClub]);
+        league.Rank = rank;
+        _host.State.Competitions.Add(league);
+
         Create<IncreaseTransferBudgetRequestEvent>(_host.State.Date).Execute();
 
-        Assert.Equal(15_000_000, _myClub.TransferBudget);
-        Assert.Equal("Transfer Budget Request", Assert.Single(_host.State.Notifications).Subject);
+        Assert.Equal(5_000_000 + amount, _myClub.TransferBudget);
+        var notification = Assert.Single(_host.State.Notifications);
+        Assert.Equal("Transfer Budget Request", notification.Subject);
+        Assert.Contains($"£{amount:n0}", notification.Message);
     }
 
     [Fact]

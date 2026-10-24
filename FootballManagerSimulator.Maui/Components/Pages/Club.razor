@@ -2,6 +2,7 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Club</PageTitle>
 
@@ -20,8 +21,8 @@ else
 
     <div class="page-head">
         <div>
-            <h1>@club.Name @if (isMine) { <span class="tag green">Your Club</span> }</h1>
-            <div class="subtitle">🏟️ @club.Stadium</div>
+            <h1>@Ui.CountryFlag(CountryName(club.LeagueId)) @club.Name @if (isMine) { <span class="tag green">Your Club</span> }</h1>
+            <div class="subtitle">🏟️ @club.Stadium · 🏆 @LeagueName(club.LeagueId)</div>
         </div>
     </div>
 
@@ -89,4 +90,17 @@ else
 
 @code {
     [Parameter] public int Id { get; set; }
+
+    private string? CountryName(int leagueId)
+    {
+        var countryId = SettingsOptions.Value.Competitions.FirstOrDefault(p => p.Id == leagueId)?.CountryId;
+        return SettingsOptions.Value.Countries.FirstOrDefault(c => c.Id == countryId)?.Name;
+    }
+
+    private string LeagueName(int leagueId)
+    {
+        var name = Engine.State.Competitions.FirstOrDefault(p => p.Id == leagueId)?.Name ?? "";
+        var country = CountryName(leagueId);
+        return string.IsNullOrEmpty(country) ? name : $"{country} - {name}";
+    }
 }

@@ -32,12 +32,12 @@ else
         <div class="teams">
             <div class="team-row">
                 <span class="crest" style="@CrestStyle(fixture.HomeClub.Colour)">🛡️</span>
-                <div class="team-name" style="flex:1">@fixture.HomeClub.Name</div>
+                <a class="team-name" style="flex:1" href="/club/@fixture.HomeClub.Id">@fixture.HomeClub.Name</a>
                 <div class="score">0</div>
             </div>
             <div class="team-row">
                 <span class="crest" style="@CrestStyle(fixture.AwayClub.Colour)">🛡️</span>
-                <div class="team-name" style="flex:1">@fixture.AwayClub.Name</div>
+                <a class="team-name" style="flex:1" href="/club/@fixture.AwayClub.Id">@fixture.AwayClub.Name</a>
                 <div class="score">0</div>
             </div>
         </div>

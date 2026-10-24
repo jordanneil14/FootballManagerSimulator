@@ -5,6 +5,19 @@ public static class Ui
 {
     public static string Money(int amount) => $"£{amount:n0}";
 
+    private static readonly Dictionary<string, string> CountryFlags = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["England"] = "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+        ["Spain"] = "🇪🇸",
+        ["Germany"] = "🇩🇪",
+        ["Italy"] = "🇮🇹",
+        ["France"] = "🇫🇷",
+        ["Portugal"] = "🇵🇹",
+    };
+
+    public static string CountryFlag(string? countryName) =>
+        countryName != null && CountryFlags.TryGetValue(countryName, out var flag) ? flag : "🏳️";
+
     private static readonly string[] PositionOrder =
     {
         "GK",

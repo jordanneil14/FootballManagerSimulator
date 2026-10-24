@@ -110,7 +110,6 @@
 
     private List<PlayerModel> BuildPlayerList()
     {
-        // Filtered before the free-agent cap below, so hiding refusals doesn't shrink the list.
         var freeAgents = Engine.State.Players
             .Where(p => p.Contract == null && (!_onlyWillSign || Engine.FreeAgentLevelRefusal(p) == null))
             .OrderByDescending(p => p.Rating);
@@ -126,7 +125,7 @@
                 .Where(p => p.Contract != null)
                 .OrderBy(p => p.Contract!.ClubName)
                 .ThenByDescending(p => p.Rating)
-                .Concat(freeAgents.Take(100))
+                .Concat(freeAgents)
         };
 
         if (!string.IsNullOrWhiteSpace(_search))
