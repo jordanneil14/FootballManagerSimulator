@@ -7,15 +7,16 @@
 
 <div class="page-head"><div><h1>Save Game</h1></div></div>
 
+@if (!Engine.CanSave)
+{
+    <div class="feedback"><div class="feedback-item">@GameEngine.SaveBlockedDuringMatchMessage</div></div>
+}
+else if (_message != null)
+{
+    <div class="feedback"><div class="feedback-item">@_message</div></div>
+}
+
 <div class="panel" style="max-width:520px">
-    @if (!Engine.CanSave)
-    {
-        <div class="feedback"><div class="feedback-item">@GameEngine.SaveBlockedDuringMatchMessage</div></div>
-    }
-    else if (_message != null)
-    {
-        <div class="feedback"><div class="feedback-item">@_message</div></div>
-    }
     <EditForm Model="this" OnValidSubmit="DoSave">
         <div class="field">
             <label>File name</label>
