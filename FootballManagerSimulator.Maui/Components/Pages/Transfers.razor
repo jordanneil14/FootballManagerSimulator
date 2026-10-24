@@ -45,6 +45,13 @@
                 <label>Name or Club</label>
                 <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
             </div>
+            <div class="field">
+                <label>&nbsp;</label>
+                <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+                    <input type="checkbox" checked="@_onlyAffordable" @onchange="OnOnlyAffordableChanged" />
+                    Only players within budget
+                </label>
+            </div>
         </div>
     }
 </div>
@@ -52,6 +59,7 @@
 @{
     var items = Engine.State.TransferListItems
         .Where(t => Engine.GetPlayer(t.PlayerId)?.Contract?.ClubId != Engine.MyClub.Id)
+        .Where(t => !_onlyAffordable || t.AskingPrice <= Engine.MyClub.TransferBudget)
         .Select(t => new { Item = t, Player = Engine.GetPlayer(t.PlayerId) })
         .Where(x => x.Player != null)
         .OrderByDescending(x => x.Player!.Rating)
@@ -142,12 +150,19 @@ else
     private int _contractYears = 2;
     private bool _filtersOpen = true;
     private string _search = "";
+    private bool _onlyAffordable = true;
     private int _page = 1;
     private const int PageSize = 20;
 
     private void OnSearch(ChangeEventArgs e)
     {
         _search = e.Value?.ToString() ?? "";
+        _page = 1;
+    }
+
+    private void OnOnlyAffordableChanged(ChangeEventArgs e)
+    {
+        _onlyAffordable = e.Value is true;
         _page = 1;
     }
 
