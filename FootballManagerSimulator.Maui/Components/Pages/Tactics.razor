@@ -78,7 +78,7 @@
                 <span class="pname-text">@(player?.Name ?? "— empty —")</span>
                 @if (suspended)
                 {
-                    <span class="sus-chip" title="Suspended for @player!.SuspensionMatches more match(es)">SUS @player.SuspensionMatches</span>
+                    <span class="sus-chip" title="Suspended for @player!.SuspensionMatches more match(es)">🟥 @player.SuspensionMatches</span>
                 }
             </td>
             <td class="num" style="width:50px">@(player != null ? player.PreferredPosition : "")</td>
