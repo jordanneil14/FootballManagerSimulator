@@ -590,6 +590,24 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void SaveGame_IsRefusedWhileAMatchIsInProgress()
+    {
+        var league = TestData.League(1, _state.Clubs);
+        _state.Competitions.Add(league);
+        var fixture = new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], Date = _state.Date };
+        league.Fixtures.Add(fixture);
+
+        Assert.False(_engine.CanSave);
+        Assert.Equal(GameEngine.SaveBlockedDuringMatchMessage, _engine.SaveGame("mid-match"));
+        Assert.Empty(_engine.ListSaves());
+
+        fixture.Concluded = true;
+
+        Assert.True(_engine.CanSave);
+        Assert.Equal("Game saved successfully.", _engine.SaveGame("after-match"));
+    }
+
+    [Fact]
     public void ListSaves_SkipsCorruptFiles()
     {
         File.WriteAllText(Path.Combine(_storage.SaveDirectory, "broken.fms"), "{ not json");

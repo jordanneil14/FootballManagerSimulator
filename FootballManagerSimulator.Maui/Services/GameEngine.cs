@@ -710,8 +710,16 @@ public class GameEngine(
     // Engines are scoped, but they all share the one State, so saves and loads take a shared lock.
     private static readonly object SaveLock = new();
 
+    public const string SaveBlockedDuringMatchMessage = "You can't save during a match. Finish today's matches first.";
+
+    // A match in progress is partly held by the Match page, so only save between match days.
+    public bool CanSave => !HasOutstandingFixturesToday();
+
     public string SaveGame(string fileName)
     {
+        if (!CanSave)
+            return SaveBlockedDuringMatchMessage;
+
         try
         {
             lock (SaveLock)
@@ -730,7 +738,7 @@ public class GameEngine(
     /// </summary>
     public bool AutoSave()
     {
-        if (!State.AutoSaveEnabled || !GameInProgress || HasOutstandingFixturesToday())
+        if (!State.AutoSaveEnabled || !GameInProgress || !CanSave)
             return false;
 
         // Skip rather than wait if a load or another save is running, e.g. the app stopping mid-load.

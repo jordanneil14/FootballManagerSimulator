@@ -155,7 +155,9 @@ public class FullGameTests : IDisposable
         Assert.All(state.Competitions.SelectMany(c => c.Fixtures).Where(f => f.Date < state.Date), f => Assert.True(f.Concluded));
         Assert.Contains("Out of work", engine.NextMatchCaption());
 
-        // Still unemployed after a save and load.
+        // Still unemployed after a save and load (saving waits until today's fixtures are played).
+        if (engine.HasOutstandingFixturesToday())
+            PlayToday(engine);
         Assert.Equal("Game saved successfully.", engine.SaveGame("unemployed"));
         engine.StartNewGame();
         Assert.Null(engine.LoadGame("unemployed.fms"));

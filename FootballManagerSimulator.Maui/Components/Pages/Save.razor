@@ -8,7 +8,11 @@
 <div class="page-head"><div><h1>Save Game</h1></div></div>
 
 <div class="panel" style="max-width:520px">
-    @if (_message != null)
+    @if (!Engine.CanSave)
+    {
+        <div class="feedback"><div class="feedback-item">@GameEngine.SaveBlockedDuringMatchMessage</div></div>
+    }
+    else if (_message != null)
     {
         <div class="feedback"><div class="feedback-item">@_message</div></div>
     }
@@ -18,7 +22,7 @@
             <InputText class="input" @bind-Value="_fileName" placeholder="e.g. my-career" />
         </div>
         <div class="inline-form">
-            <button class="btn btn-primary" type="submit" disabled="@string.IsNullOrWhiteSpace(_fileName)">💾 Save</button>
+            <button class="btn btn-primary" type="submit" disabled="@(!Engine.CanSave || string.IsNullOrWhiteSpace(_fileName))">💾 Save</button>
         </div>
     </EditForm>
 </div>
