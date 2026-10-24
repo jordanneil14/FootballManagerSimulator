@@ -28,6 +28,13 @@
                     <option value="FreeAgent">Free Agents</option>
                 </select>
             </div>
+            <div class="field">
+                <label>&nbsp;</label>
+                <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+                    <input type="checkbox" checked="@_onlyWillSign" @onchange="OnOnlyWillSignChanged" />
+                    Only players who will sign
+                </label>
+            </div>
         </div>
     }
 </div>
@@ -80,6 +87,7 @@
     private int _page = 1;
     private string _search = "";
     private string _contractFilter = "All";
+    private bool _onlyWillSign = true;
     private const int PageSize = 20;
 
     private void OnSearch(ChangeEventArgs e)
@@ -94,25 +102,31 @@
         _page = 1;
     }
 
+    private void OnOnlyWillSignChanged(ChangeEventArgs e)
+    {
+        _onlyWillSign = e.Value is true;
+        _page = 1;
+    }
+
     private List<PlayerModel> BuildPlayerList()
     {
+        // Filtered before the free-agent cap below, so hiding refusals doesn't shrink the list.
+        var freeAgents = Engine.State.Players
+            .Where(p => p.Contract == null && (!_onlyWillSign || Engine.FreeAgentLevelRefusal(p) == null))
+            .OrderByDescending(p => p.Rating);
+
         IEnumerable<PlayerModel> players = _contractFilter switch
         {
             "Contracted" => Engine.State.Players
                 .Where(p => p.Contract != null)
                 .OrderBy(p => p.Contract!.ClubName)
                 .ThenByDescending(p => p.Rating),
-            "FreeAgent" => Engine.State.Players
-                .Where(p => p.Contract == null)
-                .OrderByDescending(p => p.Rating),
+            "FreeAgent" => freeAgents,
             _ => Engine.State.Players
                 .Where(p => p.Contract != null)
                 .OrderBy(p => p.Contract!.ClubName)
                 .ThenByDescending(p => p.Rating)
-                .Concat(Engine.State.Players
-                    .Where(p => p.Contract == null)
-                    .OrderByDescending(p => p.Rating)
-                    .Take(100))
+                .Concat(freeAgents.Take(100))
         };
 
         if (!string.IsNullOrWhiteSpace(_search))

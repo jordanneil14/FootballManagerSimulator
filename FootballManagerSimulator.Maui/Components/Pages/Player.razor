@@ -67,11 +67,6 @@ else
         <div class="feedback"><div class="feedback-item warn">@player.Name will not sign a new contract and will retire @(player.Contract == null ? "at the end of the season" : "when his contract expires").</div></div>
     }
 
-    @if (levelRefusal != null)
-    {
-        <div class="feedback"><div class="feedback-item warn">@levelRefusal</div></div>
-    }
-
     <div class="stat-row">
         <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
         <div class="stat"><div class="label">Age</div><div class="value">@player.GetAge(Engine.State.Date)</div></div>
