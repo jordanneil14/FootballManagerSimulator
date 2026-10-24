@@ -188,7 +188,7 @@ public class TransferListHelper(
 
     private void ProcessAITransferListBids()
     {
-        var randomNoOfTransfers = RandomNumberHelper.Next(3);
+        var randomNoOfTransfers = RandomNumberHelper.Next(8);
         for (int i = 0; i < randomNoOfTransfers; i++)
         {
             if (State.TransferListItems.Count == 0) return;

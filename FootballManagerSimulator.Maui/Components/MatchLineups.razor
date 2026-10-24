@@ -3,11 +3,11 @@
 <div class="lineups">
     <div class="lineup home">
         @if (ShowTeamNames) { <h3>@Fixture.HomeClub.Name</h3> }
-        @RenderSide(Engine.GetClub(Fixture.HomeClub.Id)?.TacticSlots, Fixture.HomeScorers, false)
+        @RenderSide(Engine.GetClub(Fixture.HomeClub.Id)?.TacticSlots, Fixture.HomeScorers, Fixture.HomeCards, false)
     </div>
     <div class="lineup away">
         @if (ShowTeamNames) { <h3>@Fixture.AwayClub.Name</h3> }
-        @RenderSide(Engine.GetClub(Fixture.AwayClub.Id)?.TacticSlots, Fixture.AwayScorers, true)
+        @RenderSide(Engine.GetClub(Fixture.AwayClub.Id)?.TacticSlots, Fixture.AwayScorers, Fixture.AwayCards, true)
     </div>
 </div>
 
@@ -18,7 +18,7 @@
     [Parameter] public bool ShowTeamNames { get; set; } = true;
     [Parameter] public int? LiveMinute { get; set; }
 
-    private RenderFragment RenderSide(List<TacticSlotModel>? slots, List<GoalModel> scorers, bool away) => builder =>
+    private RenderFragment RenderSide(List<TacticSlotModel>? slots, List<GoalModel> scorers, List<CardModel> cards, bool away) => builder =>
     {
         if (slots == null) return;
         var seq = 0;
@@ -63,6 +63,19 @@
                     builder.AddContent(seq++, ShowMinutes
                         ? "⚽ " + string.Join(", ", goalList.Select(s => $"{s.Minute}'"))
                         : string.Join(" ", goalList.Select(_ => "⚽")));
+                    builder.CloseElement();
+                }
+
+                var cardList = cards
+                    .Where(c => c.PlayerId == player.Id && (!LiveMinute.HasValue || c.Minute <= LiveMinute.Value))
+                    .OrderBy(c => c.Minute)
+                    .ToList();
+                if (cardList.Any())
+                {
+                    builder.OpenElement(seq++, "span");
+                    builder.AddAttribute(seq++, "class", "scorer");
+                    builder.AddContent(seq++, string.Join(" ", cardList.Select(c =>
+                        (c.IsRed ? "🟥" : "🟨") + (ShowMinutes ? $" {c.Minute}'" : ""))));
                     builder.CloseElement();
                 }
             }
