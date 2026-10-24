@@ -491,7 +491,24 @@ public class MatchSimulatorHelperTests
             var awayAggregate = secondLeg.GoalsAway + secondLeg.FirstLegGoalsHome;
             if (secondLeg.Minute < 120) // decided without penalties
                 Assert.NotEqual(homeAggregate, awayAggregate);
+            Assert.Equal(homeAggregate > awayAggregate ? Home : Away, secondLeg.ClubWon);
         }
+    }
+
+    [Theory]
+    [InlineData(1, 0, false)] // won the second leg but lost 1-3 on aggregate
+    [InlineData(4, 0, true)]  // overturned the first-leg deficit
+    [InlineData(3, 1, false)] // 3-3 on aggregate, the away side's shootout goal settles it
+    public void FinaliseMatch_PlayoffSecondLegWinnerIsTheAggregateWinner(int homeGoals, int awayGoals, bool homeGoesThrough)
+    {
+        var (secondLeg, competition) = NewFixture(CompetitionType.EnglishFootballLeague, FixtureType.PlayoffSecondLeg);
+        competition.Fixtures.Add(new FixtureModel { HomeClub = Away, AwayClub = Home, GoalsHome = 3, GoalsAway = 0, Concluded = true, FixtureType = FixtureType.Playoff });
+        secondLeg.GoalsHome = homeGoals;
+        secondLeg.GoalsAway = awayGoals;
+
+        _simulator.FinaliseMatch(secondLeg, competition);
+
+        Assert.Equal(homeGoesThrough ? Home : Away, secondLeg.ClubWon);
     }
 
     [Fact]

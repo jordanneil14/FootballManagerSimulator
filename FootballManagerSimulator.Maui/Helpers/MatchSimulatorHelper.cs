@@ -264,9 +264,20 @@ public class MatchSimulatorHelper(
         var wasConcluded = fixture.Concluded;
         fixture.Concluded = true;
 
-        if (fixture.GoalsHome > fixture.GoalsAway)
+        var homeGoals = fixture.GoalsHome ?? 0;
+        var awayGoals = fixture.GoalsAway ?? 0;
+
+        // A second leg goes to whoever leads on aggregate, not whoever won on the night.
+        if (fixture.FixtureType == FixtureType.PlayoffSecondLeg)
+        {
+            PopulateFirstLegScores(fixture, competition);
+            homeGoals += fixture.FirstLegGoalsAway ?? 0;
+            awayGoals += fixture.FirstLegGoalsHome ?? 0;
+        }
+
+        if (homeGoals > awayGoals)
             fixture.ClubWon = fixture.HomeClub;
-        else if (fixture.GoalsAway > fixture.GoalsHome)
+        else if (awayGoals > homeGoals)
             fixture.ClubWon = fixture.AwayClub;
         else
             fixture.ClubWon = null;
