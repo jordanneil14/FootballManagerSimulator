@@ -2594,6 +2594,168 @@
       "LeagueId": 17,
       "Colour": "Green/White",
       "StadiumSize": 8000
+    },
+    {
+      "ID": 292,
+      "Name": "Eindhoven Reds",
+      "TransferBudget": 25000000,
+      "Stadium": "Philips Park Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 35000
+    },
+    {
+      "ID": 293,
+      "Name": "Amsterdam Lancers",
+      "TransferBudget": 25000000,
+      "Stadium": "Bijlmer Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 55500
+    },
+    {
+      "ID": 294,
+      "Name": "Rotterdam Reds",
+      "TransferBudget": 20000000,
+      "Stadium": "De Kuip Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 47500
+    },
+    {
+      "ID": 295,
+      "Name": "Alkmaar Reds",
+      "TransferBudget": 12000000,
+      "Stadium": "Alkmaarderhout Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 19500
+    },
+    {
+      "ID": 296,
+      "Name": "Enschede Reds",
+      "TransferBudget": 9000000,
+      "Stadium": "Grolsch Veste Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 30200
+    },
+    {
+      "ID": 297,
+      "Name": "Utrecht Reds",
+      "TransferBudget": 7000000,
+      "Stadium": "Galgenwaard Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 23700
+    },
+    {
+      "ID": 298,
+      "Name": "Nijmegen Reds",
+      "TransferBudget": 4000000,
+      "Stadium": "Goffert Fields",
+      "LeagueId": 18,
+      "Colour": "Red/Green",
+      "StadiumSize": 12500
+    },
+    {
+      "ID": 299,
+      "Name": "Deventer Eagles",
+      "TransferBudget": 3000000,
+      "Stadium": "Adelaarshorst Fields",
+      "LeagueId": 18,
+      "Colour": "Red/Yellow",
+      "StadiumSize": 10400
+    },
+    {
+      "ID": 300,
+      "Name": "Friesland Blues",
+      "TransferBudget": 4500000,
+      "Stadium": "Abe Lenstra Fields",
+      "LeagueId": 18,
+      "Colour": "Blue/White",
+      "StadiumSize": 27200
+    },
+    {
+      "ID": 301,
+      "Name": "Spangen Reds",
+      "TransferBudget": 3000000,
+      "Stadium": "Het Kasteel Fields",
+      "LeagueId": 18,
+      "Colour": "Red/White",
+      "StadiumSize": 11000
+    },
+    {
+      "ID": 302,
+      "Name": "Sittard Yellows",
+      "TransferBudget": 3000000,
+      "Stadium": "Wolfstraat Fields",
+      "LeagueId": 18,
+      "Colour": "Yellow/Green",
+      "StadiumSize": 12500
+    },
+    {
+      "ID": 303,
+      "Name": "Zwolle Blues",
+      "TransferBudget": 3000000,
+      "Stadium": "Hoogeland Fields",
+      "LeagueId": 18,
+      "Colour": "Blue/White",
+      "StadiumSize": 14000
+    },
+    {
+      "ID": 304,
+      "Name": "Groningen Greens",
+      "TransferBudget": 4500000,
+      "Stadium": "Euroborg Fields",
+      "LeagueId": 18,
+      "Colour": "Green/White",
+      "StadiumSize": 22500
+    },
+    {
+      "ID": 305,
+      "Name": "Almelo Blacks",
+      "TransferBudget": 2500000,
+      "Stadium": "Polman Fields",
+      "LeagueId": 18,
+      "Colour": "Black/White",
+      "StadiumSize": 12100
+    },
+    {
+      "ID": 306,
+      "Name": "Breda Yellows",
+      "TransferBudget": 2500000,
+      "Stadium": "Rat Verlegh Fields",
+      "LeagueId": 18,
+      "Colour": "Yellow/Black",
+      "StadiumSize": 19000
+    },
+    {
+      "ID": 307,
+      "Name": "Kralingen Reds",
+      "TransferBudget": 1500000,
+      "Stadium": "Woudestein Fields",
+      "LeagueId": 18,
+      "Colour": "Red/Black",
+      "StadiumSize": 4500
+    },
+    {
+      "ID": 308,
+      "Name": "Velsen Whites",
+      "TransferBudget": 1200000,
+      "Stadium": "Buitenhout Fields",
+      "LeagueId": 18,
+      "Colour": "White/Red",
+      "StadiumSize": 5000
+    },
+    {
+      "ID": 309,
+      "Name": "Volendam Oranges",
+      "TransferBudget": 1200000,
+      "Stadium": "Kras Fields",
+      "LeagueId": 18,
+      "Colour": "Orange/Black",
+      "StadiumSize": 7400
     }
   ],
   "Countries": [
@@ -2628,6 +2790,10 @@
     {
       "Id": 8,
       "Name": "Belgium"
+    },
+    {
+      "Id": 9,
+      "Name": "Netherlands"
     }
   ],
   "Competitions": [
@@ -2863,6 +3029,20 @@
       "Name": "Division 1",
       "LeagueTable": {
         "Places": 16,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 2
+      }
+    },
+    {
+      "Id": 18,
+      "CountryId": 9,
+      "Rank": 1,
+      "IsLeague": true,
+      "Type": "League",
+      "Name": "Division 1",
+      "LeagueTable": {
+        "Places": 18,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
         "RelegationPlaces": 2
