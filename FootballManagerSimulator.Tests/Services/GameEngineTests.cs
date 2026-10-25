@@ -643,6 +643,35 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void DeleteSave_RemovesOnlyThatSave()
+    {
+        _engine.SaveGame("keep");
+        _engine.SaveGame("remove");
+
+        Assert.Null(_engine.DeleteSave("remove.fms"));
+
+        Assert.Equal(["keep.fms"], _engine.ListSaves().Select(s => s.FileName));
+        Assert.NotNull(_engine.DeleteSave("remove.fms")); // already gone
+    }
+
+    [Theory]
+    [InlineData("..\\outside.fms")]
+    [InlineData("../outside.fms")]
+    [InlineData("notes.txt")]
+    public void DeleteSave_RefusesAnythingButASaveInTheSavesFolder(string fileName)
+    {
+        var outside = Path.Combine(Path.GetDirectoryName(_storage.SaveDirectory)!, "outside.fms");
+        File.WriteAllText(outside, "{}");
+        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "notes.txt"), "");
+
+        Assert.NotNull(_engine.DeleteSave(fileName));
+
+        Assert.True(File.Exists(outside));
+        Assert.True(File.Exists(Path.Combine(_storage.SaveDirectory, "notes.txt")));
+        File.Delete(outside);
+    }
+
+    [Fact]
     public void LoadGame_ReportsAMissingFile() =>
         Assert.NotNull(_engine.LoadGame("does-not-exist.fms"));
 

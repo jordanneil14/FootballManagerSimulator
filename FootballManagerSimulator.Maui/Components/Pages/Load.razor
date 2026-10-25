@@ -25,7 +25,7 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>Name</th><th>Club</th><th>Manager Name</th><th>Last Saved</th><th></th></tr>
+                    <tr><th>Name</th><th>Club</th><th>Manager Name</th><th>Last Saved</th><th></th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach (var save in _saves)
@@ -44,6 +44,10 @@
                             <td>@save.ClubName</td>
                             <td>@save.ManagerName</td>
                             <td class="muted">@save.SaveDate.ToString("dd MMM yyyy HH:mm")</td>
+                            <td class="num">
+                                <button class="btn btn-danger" style="padding:.3rem .7rem;font-size:.82rem"
+                                        @onclick="() => _pendingDelete = save" @onclick:stopPropagation>Delete</button>
+                            </td>
                             <td class="num">→</td>
                         </tr>
                     }
@@ -54,10 +58,32 @@
 
 </div>
 
+<ConfirmModal Visible="_pendingDelete != null"
+              Title="@($"Delete {SaveName(_pendingDelete)}?")"
+              Message="@($"This will permanently delete the save for {_pendingDelete?.ClubName} ({_pendingDelete?.ManagerName}). This cannot be undone.")"
+              ConfirmText="Delete"
+              ConfirmClass="btn-danger"
+              OnConfirm="DeleteSave"
+              OnCancel="() => _pendingDelete = null" />
+
 @code {
     private List<LoadGamePreviewModel>? _saves;
     private string? _error;
     private bool _busy;
+    private LoadGamePreviewModel? _pendingDelete;
+
+    private static string SaveName(LoadGamePreviewModel? save) =>
+        save == null ? "" : save.IsAutosave ? "Autosave" : save.FileName.Replace(".fms", "");
+
+    private async Task DeleteSave()
+    {
+        var save = _pendingDelete;
+        _pendingDelete = null;
+        if (save == null || _busy) return;
+
+        _error = await Task.Run(() => Engine.DeleteSave(save.FileName));
+        _saves = await Task.Run(() => Engine.ListSaves().ToList());
+    }
 
     // File work runs off the UI thread so the WebView can keep animating the throbber.
     protected override async Task OnInitializedAsync() =>

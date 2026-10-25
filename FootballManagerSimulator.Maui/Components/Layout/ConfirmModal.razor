@@ -6,7 +6,7 @@
             <p>@Message</p>
             <div class="modal-actions">
                 <button class="btn" @onclick="Cancel">Cancel</button>
-                <button class="btn btn-primary" @onclick="Confirm">Confirm</button>
+                <button class="btn @ConfirmClass" @onclick="Confirm">@ConfirmText</button>
             </div>
         </div>
     </div>
@@ -16,6 +16,8 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public string Title { get; set; } = "Are you sure?";
     [Parameter] public string Message { get; set; } = "Any unsaved progress will be lost.";
+    [Parameter] public string ConfirmText { get; set; } = "Confirm";
+    [Parameter] public string ConfirmClass { get; set; } = "btn-primary";
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
 

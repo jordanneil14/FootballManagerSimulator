@@ -832,6 +832,29 @@ public class GameEngine(
         return games.OrderByDescending(p => p.SaveDate);
     }
 
+    // Permanently removes a save from the saves folder. Returns an error message, or null on success.
+    public string? DeleteSave(string fileName)
+    {
+        if (Path.GetFileName(fileName) != fileName || Path.GetExtension(fileName) != ".fms")
+            return "That save could not be found.";
+
+        var path = Path.Combine(SaveDirectory, fileName);
+        try
+        {
+            lock (SaveLock)
+            {
+                if (!File.Exists(path))
+                    return "That save could not be found.";
+                File.Delete(path);
+            }
+            return null;
+        }
+        catch (Exception)
+        {
+            return "Unable to delete the save.";
+        }
+    }
+
     // Single streaming pass; Events stay as JSON because they need DI to be constructed.
     private static (StateModel State, JArray? EventsJson) ReadSave(string path)
     {
