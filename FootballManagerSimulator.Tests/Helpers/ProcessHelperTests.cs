@@ -44,6 +44,51 @@ public class ProcessHelperTests : IDisposable
     private PlayerModel PlayerAt(int clubId, int index = 0) =>
         State.Players.Where(p => p.Contract?.ClubId == clubId).ElementAt(index);
 
+    // ----- Expiring contracts ------------------------------------------------------------
+
+    [Theory]
+    [InlineData(2026, 12, 30, "6 months")]
+    [InlineData(2027, 3, 30, "3 months")]
+    public void ExpiringContracts_ListsMyPlayersWhoseContractsEndThisSeason(int y, int m, int d, string when)
+    {
+        var expiring = PlayerAt(1, 0);
+        var retiring = PlayerAt(1, 1);
+        var staying = PlayerAt(1, 2);
+        var otherClubs = PlayerAt(2, 0);
+        foreach (var p in new[] { expiring, retiring, otherClubs })
+            p.Contract!.ExpiryDate = new DateOnly(2027, 6, 30);
+        retiring.BirthDate = Aged37;
+
+        AdvanceTo(new DateOnly(y, m, d));
+
+        var notification = Assert.Single(State.Notifications, n => n.Subject == "Expiring Contracts");
+        Assert.Contains($"expire in {when}, on 30 June 2027", notification.Message);
+        Assert.Contains($"{expiring.Name} (", notification.Message);
+        Assert.Contains($"{retiring.Name} ({retiring.PreferredPosition}, {retiring.Rating}) - retiring", notification.Message);
+        Assert.DoesNotContain(staying.Name + " (", notification.Message);
+        Assert.DoesNotContain(otherClubs.Name + " (", notification.Message);
+    }
+
+    [Theory]
+    [InlineData(2026, 12, 29)]
+    [InlineData(2027, 3, 31)]
+    public void ExpiringContracts_SaysNothingOnOtherDays(int y, int m, int d)
+    {
+        PlayerAt(1).Contract!.ExpiryDate = new DateOnly(2027, 6, 30);
+
+        AdvanceTo(new DateOnly(y, m, d));
+
+        Assert.DoesNotContain(State.Notifications, n => n.Subject == "Expiring Contracts");
+    }
+
+    [Fact]
+    public void ExpiringContracts_SaysNothingWhenNoneOfMyContractsAreEnding()
+    {
+        AdvanceTo(new DateOnly(2026, 12, 30));
+
+        Assert.DoesNotContain(State.Notifications, n => n.Subject == "Expiring Contracts");
+    }
+
     // ----- Transfer window ---------------------------------------------------------------
 
     [Theory]

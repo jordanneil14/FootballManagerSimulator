@@ -60,6 +60,10 @@ public class ProcessHelper(
         if (State.Date.Month == 3 && State.Date.Day == 1)
             ProcessYouthIntake();
 
+        // Six and three months before contracts run out at the end of the season.
+        if (State.Date.Day == 30 && (State.Date.Month == 12 || State.Date.Month == 3))
+            AnnounceExpiringContracts();
+
         JobOfferHelper.ProcessVacancies();
 
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
@@ -83,6 +87,31 @@ public class ProcessHelper(
         }
 
         EventManager.ExecuteEvents();
+    }
+
+    private void AnnounceExpiringContracts()
+    {
+        if (State.MyClubId == null)
+            return;
+
+        var seasonEnd = new DateOnly(State.Date.Month > 6 ? State.Date.Year + 1 : State.Date.Year, 6, 30);
+        var expiring = State.Players
+            .Where(p => p.Contract?.ClubId == State.MyClubId && p.Contract.ExpiryDate <= seasonEnd)
+            .OrderByDescending(p => p.Rating)
+            .ToList();
+
+        if (expiring.Count == 0)
+            return;
+
+        var months = State.Date.Month == 12 ? 6 : 3;
+        var lines = expiring.Select(p =>
+            $"{p.Name} ({p.PreferredPosition}, {p.Rating}){(p.IsRetiring(seasonEnd) ? " - retiring" : "")}");
+
+        NotificationFactory.AddNotification(
+            State.Date,
+            "Assistant Manager",
+            "Expiring Contracts",
+            $"These players' contracts expire in {months} months, on {seasonEnd:d MMMM yyyy}. Offer new contracts from their player pages or they will leave the club. Players who are retiring will not sign again:\n\t{string.Join("\n\t", lines)}");
     }
 
     // The window dates are fixed, so compare today with yesterday rather than scheduling an event.
