@@ -3092,6 +3092,7 @@
       "Id": 10,
       "CountryId": 5,
       "Rank": 1,
+      "IsLeague": true,
       "Type": "League",
       "Name": "Division 1",
       "LeagueTable": {
@@ -3105,6 +3106,7 @@
       "Id": 11,
       "CountryId": 6,
       "Rank": 1,
+      "IsLeague": true,
       "Type": "League",
       "Name": "Division 1",
       "LeagueTable": {

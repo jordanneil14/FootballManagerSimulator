@@ -30,15 +30,16 @@
         <div class="brand"><h1>Select a League</h1><p>Choose the division you want to manage in.</p></div>
         <div class="table-wrap">
             <table class="data">
-                <thead>
-                    <tr><th>League</th></tr>
-                </thead>
                 <tbody>
-                    @foreach (var league in Settings.Competitions.Where(p => p.IsLeague).OrderBy(p => p.Rank))
+                    @foreach (var country in Settings.Competitions.Where(p => p.IsLeague).GroupBy(p => p.CountryId).OrderBy(g => g.Key))
                     {
-                        <tr class="clickable" @onclick="() => PickLeague(league.Id)">
-                            <td><strong>@CountryFlag(league.CountryId) @league.Name</strong></td>
-                        </tr>
+                        <tr><th>@CountryFlag(country.Key) @CountryName(country.Key)</th></tr>
+                        @foreach (var league in country.OrderBy(p => p.Rank).ThenBy(p => p.Id))
+                        {
+                            <tr class="clickable" @onclick="() => PickLeague(league.Id)">
+                                <td><strong>@league.Name</strong></td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
