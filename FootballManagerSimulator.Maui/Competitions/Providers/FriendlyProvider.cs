@@ -28,10 +28,18 @@ public class FriendlyProvider(
             DrawSettings = competition.DrawSettings.Select(p => new DrawSettingsModel
             {
                 Round = p.Round,
-                FixtureDate = new DateOnly(currentYear, p.FixtureDate.Month, p.FixtureDate.Day)
+                FixtureDate = SaturdayOnOrBefore(new DateOnly(currentYear, p.FixtureDate.Month, p.FixtureDate.Day))
             }).ToList()
         };
 
         return friendy;
+    }
+
+    // The configured dates are Saturdays in their own year; in later years the same day of
+    // the month falls on another weekday, so step back to that week's Saturday.
+    private static DateOnly SaturdayOnOrBefore(DateOnly date)
+    {
+        var daysSinceSaturday = ((int)date.DayOfWeek - (int)DayOfWeek.Saturday + 7) % 7;
+        return date.AddDays(-daysSinceSaturday);
     }
 }

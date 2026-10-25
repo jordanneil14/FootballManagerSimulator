@@ -289,7 +289,39 @@ public class CompetitionProviderTests : IDisposable
             DrawSettings = [new CompetitionModel.DrawSettingsModel { Round = 1, FixtureDate = new DateOnly(2026, 7, 11) }]
         });
 
-        Assert.Equal(new DateOnly(2031, 7, 11), friendly.DrawSettings.Single().FixtureDate);
+        // 11 July 2031 is a Friday, so the friendly moves back to Saturday 5 July.
+        Assert.Equal(new DateOnly(2031, 7, 5), friendly.DrawSettings.Single().FixtureDate);
         Assert.Equal(_host.State.Clubs.Count, friendly.Clubs.Count);
+    }
+
+    [Theory]
+    [InlineData(2026)]
+    [InlineData(2027)]
+    [InlineData(2028)]
+    [InlineData(2029)]
+    [InlineData(2030)]
+    [InlineData(2031)]
+    [InlineData(2032)]
+    public void FriendlyProvider_PlaysEveryRoundOnASaturdayAWeekApartInJuly(int year)
+    {
+        _host.State.Date = new DateOnly(year, 6, 30); // season set-up day
+        var provider = ActivatorUtilities.CreateInstance<FriendlyProvider>(_host.Services);
+
+        var friendly = provider.CreateCompetition(new CompetitionModel
+        {
+            Id = 9,
+            DrawSettings =
+            [
+                new CompetitionModel.DrawSettingsModel { Round = 1, FixtureDate = new DateOnly(2026, 7, 11) },
+                new CompetitionModel.DrawSettingsModel { Round = 2, FixtureDate = new DateOnly(2026, 7, 18) },
+                new CompetitionModel.DrawSettingsModel { Round = 3, FixtureDate = new DateOnly(2026, 7, 25) }
+            ]
+        });
+
+        var dates = friendly.DrawSettings.Select(d => d.FixtureDate).ToList();
+        Assert.All(dates, d => Assert.Equal(DayOfWeek.Saturday, d.DayOfWeek));
+        Assert.All(dates, d => Assert.True(d > _host.State.Date && d.Month == 7));
+        Assert.Equal(dates[0].AddDays(7), dates[1]);
+        Assert.Equal(dates[1].AddDays(7), dates[2]);
     }
 }
