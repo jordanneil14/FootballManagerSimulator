@@ -107,6 +107,10 @@ else
         {
             <div class="feedback"><div class="feedback-item warn">Pause the game to make changes</div></div>
         }
+        else if (_swapError != null)
+        {
+            <div class="feedback"><div class="feedback-item warn">@_swapError</div></div>
+        }
 
         <div class="panel" style="@(!_isPaused ? "opacity:.5;pointer-events:none" : "")">
             <h2>Formation</h2>
@@ -143,7 +147,13 @@ else
                 </tbody>
             </table>
 
-            <h3 style="margin-top:1rem">Substitutions</h3>
+            <h3 style="margin-top:1rem">
+                Substitutions
+                @if (SubstitutionsLimited)
+                {
+                    <span class="muted" style="font-weight:normal">(@Engine.SubstitutionsMade(_fixture) / @GameEngine.MaxSubstitutions used)</span>
+                }
+            </h3>
             <table class="data">
                 <tbody>
                     @for (var i = 0; i < subs.Count; i++)
@@ -275,6 +285,9 @@ else
     private int _revealedHomeCards;
     private int _revealedAwayCards;
     private int? _selectedSlot;
+    private string? _swapError;
+
+    private bool SubstitutionsLimited => _competition?.Type != CompetitionType.Friendly;
 
     protected override void OnInitialized()
     {
@@ -610,11 +623,12 @@ else
     private void OnSlotClick(int index)
     {
         if (!_isPaused) return;
-        if (_selectedSlot == null) { _selectedSlot = index; return; }
+        if (_selectedSlot == null) { _selectedSlot = index; _swapError = null; return; }
         if (_selectedSlot == index) { _selectedSlot = null; return; }
-        Engine.SwapTacticSlots(_selectedSlot.Value, index);
+        _swapError = Engine.MatchSwap(_fixture!, _competition, _selectedSlot.Value, index, _currentMinute);
         _selectedSlot = null;
-        OnLineupChanged();
+        if (_swapError == null)
+            OnLineupChanged();
     }
 
     private void OnLineupChanged()

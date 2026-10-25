@@ -341,6 +341,83 @@ public class GameEngineTests : IDisposable
         Assert.Equal((second, first), (MyClub.TacticSlots[0].PlayerId, MyClub.TacticSlots[5].PlayerId));
     }
 
+    // ----- In-match substitutions ---------------------------------------------------------
+
+    private (FixtureModel Fixture, List<int> Pitch, List<int> Bench) LiveMatch()
+    {
+        _engine.AutoPickTeam();
+        var slots = MyClub.TacticSlots;
+        var pitch = slots.Select((s, i) => (s, i)).Where(t => t.s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES)).Select(t => t.i).ToList();
+        var bench = slots.Select((s, i) => (s, i)).Where(t => t.s.TacticSlotType == TacticSlotType.SUB && t.s.PlayerId != null).Select(t => t.i).ToList();
+        return (new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1] }, pitch, bench);
+    }
+
+    private static readonly LeagueModel League = new() { Type = CompetitionType.League };
+
+    [Fact]
+    public void MatchSwap_AllowsFiveSubstitutionsInACompetitiveMatchButNotASixth()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        Assert.True(bench.Count > GameEngine.MaxSubstitutions);
+
+        for (var i = 0; i < GameEngine.MaxSubstitutions; i++)
+            Assert.Null(_engine.MatchSwap(fixture, League, pitch[i + 1], bench[i], 60));
+        var unused = MyClub.TacticSlots[bench[5]].PlayerId;
+
+        Assert.Contains("all 5 substitutions", _engine.MatchSwap(fixture, League, pitch[7], bench[5], 70));
+
+        Assert.Equal(GameEngine.MaxSubstitutions, _engine.SubstitutionsMade(fixture));
+        Assert.Equal(unused, MyClub.TacticSlots[bench[5]].PlayerId); // the sixth swap was not made
+    }
+
+    [Fact]
+    public void MatchSwap_APlayerTakenOffCannotComeBackOn()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 30));
+
+        // The player taken off now sits in the bench slot; bring him on for someone else later.
+        var error = _engine.MatchSwap(fixture, League, pitch[2], bench[0], 50);
+
+        Assert.Contains("cannot come back on", error);
+        Assert.Equal(1, _engine.SubstitutionsMade(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_SwappingTheSamePairBackAtTheSameMinuteUndoesTheSubstitution()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var starter = MyClub.TacticSlots[pitch[1]].PlayerId;
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 30));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 30));
+
+        Assert.Equal(starter, MyClub.TacticSlots[pitch[1]].PlayerId);
+        Assert.Equal(0, _engine.SubstitutionsMade(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_MovingPlayersAroundThePitchIsNotASubstitution()
+    {
+        var (fixture, pitch, _) = LiveMatch();
+
+        for (var i = 0; i < 8; i++)
+            Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], pitch[2], 40));
+
+        Assert.Equal(0, _engine.SubstitutionsMade(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_FriendliesHaveNoSubstitutionLimit()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var friendly = new FriendlyModel();
+
+        for (var i = 0; i < bench.Count; i++)
+            Assert.Null(_engine.MatchSwap(fixture, friendly, pitch[i + 1], bench[i], 60));
+        Assert.Null(_engine.MatchSwap(fixture, friendly, pitch[1], bench[0], 70)); // and players can return
+    }
+
     [Fact]
     public void ChangeFormation_KeepsPlayersInTheSameSlotOrder()
     {
