@@ -29,7 +29,7 @@
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.5</ApplicationDisplayVersion>
-        <ApplicationVersion>7</ApplicationVersion>
+        <ApplicationVersion>8</ApplicationVersion>
 
         <!-- Partial trimming keeps our assemblies intact so reflection-based DI
              (NetCore.AutoRegisterDi) and Newtonsoft.Json TypeNameHandling work at runtime. -->
