@@ -206,6 +206,10 @@ public class TransferListHelper(
 
             var isMyPlayer = randomPlayer.ClubId == State.MyClubId;
 
+            var bidChance = TransferListRules.BidChance(randomPlayer.AskingPrice, PlayerHelper.GetTransferValue(listedPlayer));
+            if (RandomNumberHelper.NextDouble() >= bidChance)
+                continue;
+
             var suitableClub = FindSuitableClub(randomPlayer.PlayerId, randomPlayer.ClubId, randomPlayer.AskingPrice);
             if (suitableClub == null)
                 continue;

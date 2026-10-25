@@ -252,4 +252,22 @@ public class TransferListHelperTests
         Assert.Equal(1, mine.Contract!.ClubId); // my player is never sold without my say-so
         Assert.NotEqual(1, bid.BiddingClubId);
     }
+
+    [Fact]
+    public void ProcessAITransfers_RarelyBidsForPlayersListedFarAboveTheirValue()
+    {
+        var mine = _state.Players.Where(p => p.Contract?.ClubId == 1).Take(2).ToList();
+        var (fair, overpriced) = (mine[0], mine[1]);
+        _state.Clubs.First(c => c.Id == 2).TransferBudget = int.MaxValue;
+        _helper.AddPlayerToTransferList(fair.Id, _playerHelper.GetTransferValue(fair));
+        _helper.AddPlayerToTransferList(overpriced.Id, _playerHelper.GetTransferValue(overpriced) * 5);
+
+        for (var i = 0; i < 400; i++)
+            _helper.ProcessAITransfers();
+
+        var fairBids = _state.Notifications.Count(n => n.BidPlayerId == fair.Id);
+        var overpricedBids = _state.Notifications.Count(n => n.BidPlayerId == overpriced.Id);
+        Assert.True(fairBids > 100, $"fair bids: {fairBids}");
+        Assert.True(overpricedBids * 10 < fairBids, $"fair {fairBids}, overpriced {overpricedBids}");
+    }
 }
