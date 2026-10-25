@@ -620,7 +620,9 @@ else
             .OrderBy(t => SideOrder(t.s.TacticSlotType)).ToList();
         var posInLine = sameLine.FindIndex(t => t.i == index);
         var count = sameLine.Count;
-        var spread = count >= 4 ? 70.0 : count == 3 ? 50.0 : 30.0;
+        // A pair of wide players (e.g. LW/RW with no CAM) keeps the wider spread.
+        var widePair = count == 2 && sameLine.All(t => SideOrder(t.s.TacticSlotType) != 1);
+        var spread = count >= 4 ? 70.0 : count == 3 || widePair ? 50.0 : 30.0;
         var x = count == 1 ? 50.0 : (50.0 - spread / 2) + posInLine * (spread / (count - 1));
         var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
         return (x, y);
@@ -639,7 +641,7 @@ else
         TacticSlotType.RB or TacticSlotType.LB or TacticSlotType.CB => 1,
         TacticSlotType.CDM => 2,
         TacticSlotType.RM or TacticSlotType.LM or TacticSlotType.CM => 3,
-        TacticSlotType.CAM => 4,
+        TacticSlotType.CAM or TacticSlotType.LW or TacticSlotType.RW => 4,
         _ => 5
     };
 
