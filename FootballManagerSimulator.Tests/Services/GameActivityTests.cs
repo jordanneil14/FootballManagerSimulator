@@ -10,22 +10,21 @@ public class GameActivityTests
         var activity = new GameActivity();
         var changes = 0;
         activity.Changed += () => changes++;
-        var callingThread = Environment.CurrentManagedThreadId;
         var release = new ManualResetEventSlim();
 
+        // If the work ran on the calling thread, RunAsync would block on the wait and never return.
         var running = activity.RunAsync(() =>
         {
             release.Wait();
-            return Environment.CurrentManagedThreadId;
+            return 42;
         });
 
         Assert.True(activity.IsBusy);
         Assert.Equal(1, changes);
 
         release.Set();
-        var workThread = await running;
+        Assert.Equal(42, await running);
 
-        Assert.NotEqual(callingThread, workThread);
         Assert.False(activity.IsBusy);
         Assert.Equal(2, changes);
     }

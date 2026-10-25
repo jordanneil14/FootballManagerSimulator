@@ -201,6 +201,8 @@ public class GameEngine(
         try
         {
             processHelper.Process();
+            // A new day has started, so yesterday's match is over however the user left it.
+            State.MatchInProgress = false;
             // Saves are large, so quiet days only autosave once a week; match days save at full time.
             if (State.Date.DayOfWeek == AutosaveDay)
                 AutoSave();
@@ -814,8 +816,10 @@ public class GameEngine(
 
     public const string SaveBlockedDuringMatchMessage = "You can't save during a match. Finish the match first.";
 
-    // A match in progress is partly held by the Match page, so no saving from kick-off until the day's results are in.
-    public bool CanSave => !State.MatchInProgress;
+    // A match in progress is partly held by the Match page, so no saving from kick-off until it has
+    // finished. Checked against today's fixture too, so a flag left behind (e.g. leaving the finished
+    // match without pressing Continue) can never block saving afterwards.
+    public bool CanSave => !(State.MatchInProgress && MyFixtureToday() is { Concluded: false });
 
     public string SaveGame(string fileName)
     {

@@ -711,6 +711,32 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void SaveGame_IsAllowedOnceMyMatchHasFinished_EvenWithoutPressingContinue()
+    {
+        var fixture = AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        Assert.Null(_engine.StartMatch());
+
+        fixture.Concluded = true; // full time, then left the match another way than Continue
+
+        Assert.True(_engine.CanSave);
+        Assert.Equal("Game saved successfully.", _engine.SaveGame("after-leaving"));
+    }
+
+    [Fact]
+    public void Advance_ClearsAMatchInProgressFlagLeftFromThePreviousDay()
+    {
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        Assert.Null(_engine.StartMatch());
+
+        _engine.Advance();
+
+        Assert.False(_state.MatchInProgress);
+        Assert.True(_engine.CanSave);
+    }
+
+    [Fact]
     public void ListSaves_SkipsCorruptFiles()
     {
         File.WriteAllText(Path.Combine(_storage.SaveDirectory, "broken.fms"), "{ not json");
