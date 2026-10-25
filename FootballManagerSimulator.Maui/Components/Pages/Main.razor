@@ -1,6 +1,7 @@
 @page "/game"
 @layout GameLayout
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
@@ -125,13 +126,17 @@ else
 @code {
     private string? _error;
 
-    private void Advance()
+    // Runs in the background; the page holds its last render until the day has been processed.
+    protected override bool ShouldRender() => !Activity.IsBusy;
+
+    private async Task Advance()
     {
+        if (Activity.IsBusy) return;
         _error = null;
         Engine.State.UserFeedbackUpdates.Clear();
         try
         {
-            var result = Engine.Advance();
+            var result = await Activity.RunAsync(Engine.Advance);
             if (result == GameEngine.AdvanceResult.MustPlayFixtures)
                 Nav.NavigateTo("/today");
             else if (result == GameEngine.AdvanceResult.BlockedByNotification)

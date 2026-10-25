@@ -1,8 +1,19 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 
-@if (!Engine.GameInProgress)
+@{
+    // Game work may be changing the state on another thread, so reuse what was last shown.
+    if (!Activity.IsBusy)
+    {
+        _gameInProgress = Engine.GameInProgress;
+        _unemployed = Engine.IsUnemployed;
+    }
+}
+
+@if (!_gameInProgress)
 {
     <div class="empty-state">
         <h1>No game in progress</h1>
@@ -17,7 +28,7 @@ else
         <div class="game-body">
             <SideNav />
             <section class="game-content">
-                @if (Engine.IsUnemployed && IsClubOnlyPage)
+                @if (_unemployed && IsClubOnlyPage)
                 {
                     <div class="empty-state">
                         <h1>You are not managing a club</h1>
@@ -34,9 +45,21 @@ else
     </div>
 }
 
+@if (Activity.IsBusy)
+{
+    <div class="busy-overlay"><div class="throbber"></div></div>
+}
+
 @code {
     // Pages that only make sense while you have a club, e.g. reached via the back button after being sacked.
     private static readonly string[] ClubOnlyPages = ["tactics", "transfers", "board", "prematch", "match", "fulltime"];
+
+    private bool _gameInProgress;
+    private bool _unemployed;
+
+    protected override void OnInitialized() => Activity.Changed += OnActivityChanged;
+    public void Dispose() => Activity.Changed -= OnActivityChanged;
+    private void OnActivityChanged() => InvokeAsync(StateHasChanged);
 
     private bool IsClubOnlyPage
     {

@@ -34,6 +34,7 @@ public static class GameServices
         services.AddSingleton<IState, StateModel>();
         services.AddSingleton<IGameCreator, GameCreatorModel>();
         services.AddSingleton<IEventManager, EventManager>();
+        services.AddSingleton<GameActivity>();
 
         // Orchestration layer that replaces the old console screen HandleInput logic.
         services.AddScoped<GameEngine>();

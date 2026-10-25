@@ -1,5 +1,6 @@
 @page "/new"
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
@@ -75,7 +76,14 @@
         </dl>
         <div class="divider"></div>
         <div class="menu-actions">
-            <button class="btn btn-primary btn-lg btn-block" @onclick="StartCareer">Start Career</button>
+            @if (_starting)
+            {
+                <div class="throbber-wrap"><div class="throbber"></div></div>
+            }
+            else
+            {
+                <button class="btn btn-primary btn-lg btn-block" @onclick="StartCareer">Start Career</button>
+            }
         </div>
     }
 </div>
@@ -136,10 +144,20 @@
     private void PickClub(int clubId) =>
         Nav.NavigateTo($"/new?step=3&league={_leagueId}&club={clubId}");
 
-    private void StartCareer()
+    private bool _starting;
+
+    // Building the world runs in the background; the page holds the throbber until it is done.
+    protected override bool ShouldRender() => !Activity.IsBusy;
+
+    private async Task StartCareer()
     {
-        if (_summaryClub == null) return;
-        Engine.SelectClub(_summaryClub.Id);
+        if (_summaryClub == null || _starting) return;
+        _starting = true;
+        StateHasChanged();
+        await Task.Delay(50); // let the throbber paint first
+
+        var clubId = _summaryClub.Id;
+        await Activity.RunAsync(() => Engine.SelectClub(clubId));
         Nav.NavigateTo("/game");
     }
 

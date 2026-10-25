@@ -1,0 +1,42 @@
+using FootballManagerSimulator.Maui.Services;
+
+namespace FootballManagerSimulator.Tests.Services;
+
+public class GameActivityTests
+{
+    [Fact]
+    public async Task RunAsync_IsBusyOffTheCallingThreadUntilTheWorkFinishes()
+    {
+        var activity = new GameActivity();
+        var changes = 0;
+        activity.Changed += () => changes++;
+        var callingThread = Environment.CurrentManagedThreadId;
+        var release = new ManualResetEventSlim();
+
+        var running = activity.RunAsync(() =>
+        {
+            release.Wait();
+            return Environment.CurrentManagedThreadId;
+        });
+
+        Assert.True(activity.IsBusy);
+        Assert.Equal(1, changes);
+
+        release.Set();
+        var workThread = await running;
+
+        Assert.NotEqual(callingThread, workThread);
+        Assert.False(activity.IsBusy);
+        Assert.Equal(2, changes);
+    }
+
+    [Fact]
+    public async Task RunAsync_ClearsBusyAndPassesOnTheErrorWhenTheWorkFails()
+    {
+        var activity = new GameActivity();
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => activity.RunAsync(() => throw new InvalidOperationException()));
+
+        Assert.False(activity.IsBusy);
+    }
+}

@@ -32,6 +32,7 @@
     <Compile Include="$(GameSourceDir)Models\**\*.cs" Link="Game\Models\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="$(GameSourceDir)Services\GameEngine.cs" Link="Game\Services\GameEngine.cs" />
     <Compile Include="$(GameSourceDir)Services\GameServices.cs" Link="Game\Services\GameServices.cs" />
+    <Compile Include="$(GameSourceDir)Services\GameActivity.cs" Link="Game\Services\GameActivity.cs" />
     <Compile Include="$(GameSourceDir)Services\SaveSerializer.cs" Link="Game\Services\SaveSerializer.cs" />
     <Compile Include="$(GameSourceDir)Services\Ui.cs" Link="Game\Services\Ui.cs" />
   </ItemGroup>

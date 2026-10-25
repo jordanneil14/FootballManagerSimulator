@@ -1,6 +1,7 @@
 @page "/prematch"
 @layout GameLayout
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
@@ -65,9 +66,13 @@ else
         return country != null ? $"{country.Name} - {competition.Name}" : competition.Name;
     }
 
-    private void Start()
+    // Starting the match simulates the day's other fixtures, so it runs in the background.
+    protected override bool ShouldRender() => !Activity.IsBusy;
+
+    private async Task Start()
     {
-        _error = Engine.StartMatch();
+        if (Activity.IsBusy) return;
+        _error = await Activity.RunAsync(Engine.StartMatch);
         if (_error == null)
             Nav.NavigateTo("/match");
     }

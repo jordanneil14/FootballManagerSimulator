@@ -1,6 +1,7 @@
 @page "/today"
 @layout GameLayout
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
@@ -106,11 +107,15 @@ else
         Nav.NavigateTo("/match");
     }
 
-    private void Advance()
+    // Runs in the background; the page holds its last render until the fixtures are done.
+    protected override bool ShouldRender() => !Activity.IsBusy;
+
+    private async Task Advance()
     {
+        if (Activity.IsBusy) return;
         try
         {
-            var result = Engine.AdvanceTodaysFixtures();
+            var result = await Activity.RunAsync(Engine.AdvanceTodaysFixtures);
             Nav.NavigateTo(result == GameEngine.TodaysFixturesResult.PreMatch ? "/prematch" : "/results");
         }
         catch (Exception ex)

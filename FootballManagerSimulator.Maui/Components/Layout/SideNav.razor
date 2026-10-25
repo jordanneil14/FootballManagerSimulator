@@ -1,4 +1,5 @@
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 @implements IDisposable
 
@@ -38,9 +39,22 @@
 @code {
     private bool _showQuitModal;
 
-    protected override void OnInitialized() => Engine.Changed += OnChanged;
-    public void Dispose() => Engine.Changed -= OnChanged;
+    protected override void OnInitialized()
+    {
+        Engine.Changed += OnChanged;
+        Activity.Changed += OnChanged;
+    }
+
+    public void Dispose()
+    {
+        Engine.Changed -= OnChanged;
+        Activity.Changed -= OnChanged;
+    }
+
     private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    // Background game work may be changing the state; redraw once it has finished.
+    protected override bool ShouldRender() => !Activity.IsBusy;
 
     private void ShowQuitModal() => _showQuitModal = true;
     private void HideQuitModal() => _showQuitModal = false;

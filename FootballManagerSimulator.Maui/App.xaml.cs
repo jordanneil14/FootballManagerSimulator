@@ -25,7 +25,18 @@ public partial class App : Application
 		if (services == null) return;
 
 		// The engine is scoped to the Blazor view; a fresh scope still shares the singleton game state.
-		using var scope = services.CreateScope();
-		scope.ServiceProvider.GetRequiredService<GameEngine>().AutoSave();
+		// Saving on the UI thread could take long enough for Android to report the app as not
+		// responding, so it runs in the background; the overlay holds the game if it is reopened mid-save.
+		// Skipped while other game work is running: the state is mid-change and would save half-updated.
+		var activity = services.GetRequiredService<GameActivity>();
+		if (activity.IsBusy) return;
+
+		var scope = services.CreateScope();
+		var engine = scope.ServiceProvider.GetRequiredService<GameEngine>();
+		_ = activity.RunAsync(() =>
+		{
+			try { engine.AutoSave(); }
+			finally { scope.Dispose(); }
+		});
 	}
 }

@@ -1,6 +1,7 @@
 @page "/save"
 @layout GameLayout
 @inject GameEngine Engine
+@inject GameActivity Activity
 @inject NavigationManager Nav
 
 <PageTitle>Save Game</PageTitle>
@@ -35,9 +36,13 @@ else if (_message != null)
     protected override void OnInitialized() =>
         _fileName = $"{Engine.CurrentClub?.Name ?? Engine.State.ManagerName}".Replace(" ", "-").ToLower();
 
-    private void DoSave()
+    // Saves are large, so writing one runs in the background.
+    protected override bool ShouldRender() => !Activity.IsBusy;
+
+    private async Task DoSave()
     {
-        if (string.IsNullOrWhiteSpace(_fileName)) return;
-        _message = Engine.SaveGame(_fileName.Trim());
+        if (string.IsNullOrWhiteSpace(_fileName) || Activity.IsBusy) return;
+        var fileName = _fileName.Trim();
+        _message = await Activity.RunAsync(() => Engine.SaveGame(fileName));
     }
 }
