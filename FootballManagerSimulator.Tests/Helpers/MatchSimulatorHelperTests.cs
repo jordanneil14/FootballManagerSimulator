@@ -541,4 +541,17 @@ public class MatchSimulatorHelperTests
         Assert.DoesNotContain(suspendedId, StarterIds(Away));
         Assert.All(StarterIds(Away), id => Assert.NotNull(id));
     }
+
+    [Fact]
+    public void PositionScoringWeight_FavoursStrikersAndBarelyCountsTheKeeper()
+    {
+        var outfield = Enum.GetValues<TacticSlotType>()
+            .Where(t => t is not (TacticSlotType.ST or TacticSlotType.LS or TacticSlotType.LF
+                or TacticSlotType.GK or TacticSlotType.SUB or TacticSlotType.RES));
+
+        Assert.All(outfield, t => Assert.True(
+            MatchSimulatorHelper.PositionScoringWeight(TacticSlotType.ST) > MatchSimulatorHelper.PositionScoringWeight(t)));
+        Assert.True(MatchSimulatorHelper.PositionScoringWeight(TacticSlotType.GK)
+            < MatchSimulatorHelper.PositionScoringWeight(TacticSlotType.CB));
+    }
 }

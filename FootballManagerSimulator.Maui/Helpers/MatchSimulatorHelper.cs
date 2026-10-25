@@ -116,7 +116,7 @@ public class MatchSimulatorHelper(
             if (slot.PlayerId is not { } playerId || PlayerHelper.GetPlayerById(playerId) is not { } player)
                 continue;
 
-            cumulative += player.ScoringProbability;
+            cumulative += player.ScoringProbability * PositionScoringWeight(slot.TacticSlotType);
             playerRatingModels.Add(new PlayerRatingModel
             {
                 PlayerId = playerId,
@@ -133,6 +133,20 @@ public class MatchSimulatorHelper(
             .First(p => randomNumber < p.Rating)
             .PlayerId;
     }
+
+    // Scales a player's scoring stats by where they are playing, so a lone striker
+    // scores roughly a third of the team's goals rather than competing evenly with midfield.
+    internal static double PositionScoringWeight(TacticSlotType slotType) => slotType switch
+    {
+        TacticSlotType.ST or TacticSlotType.LS or TacticSlotType.LF => 1.6,
+        TacticSlotType.CAM or TacticSlotType.LW or TacticSlotType.RW => 1.0,
+        TacticSlotType.LM or TacticSlotType.RM => 0.8,
+        TacticSlotType.CM => 0.7,
+        TacticSlotType.CDM or TacticSlotType.LB or TacticSlotType.RB => 0.6,
+        TacticSlotType.CB => 0.8, // set-piece headers
+        TacticSlotType.GK => 0.1,
+        _ => 1.0
+    };
 
     private void SimulateSecondHalf(FixtureModel fixture, ICompetition competition)
     {
