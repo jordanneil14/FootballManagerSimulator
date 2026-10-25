@@ -2,6 +2,7 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
+@inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Pre-Match</PageTitle>
 
@@ -16,7 +17,7 @@
 else
 {
     <div class="page-head">
-        <div><h1>Team Selection</h1><div class="subtitle">@Engine.State.DateFriendly</div></div>
+        <div><h1>Team Selection</h1><div class="subtitle">@CompetitionHeading(fixture)</div></div>
         <div class="page-actions">
             <a class="btn" href="/tactics">♟️ Tactics</a>
             <button class="btn btn-primary btn-lg" @onclick="Start">▶ Start Match</button>
@@ -52,6 +53,17 @@ else
 
 @code {
     private string? _error;
+
+    private string CompetitionHeading(FixtureModel fixture)
+    {
+        var competition = Engine.State.Competitions.FirstOrDefault(p => p.Fixtures.Contains(fixture));
+        if (competition == null) return Engine.State.DateFriendly;
+        var settings = SettingsOptions.Value;
+        var config = settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
+        if (config == null || config.CountryId == 0) return competition.Name;
+        var country = settings.Countries.FirstOrDefault(p => p.Id == config.CountryId);
+        return country != null ? $"{country.Name} - {competition.Name}" : competition.Name;
+    }
 
     private void Start()
     {
