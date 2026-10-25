@@ -48,5 +48,6 @@ public static class GameServices
         services.AddScoped<EnglishFootballLeagueService>();
         services.AddScoped<EnglishCommunityShieldService>();
         services.AddScoped<EnglishNationalLeagueService>();
+        services.AddScoped<ScottishPremiershipService>();
     }
 }

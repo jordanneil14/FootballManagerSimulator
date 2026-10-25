@@ -2342,6 +2342,114 @@
       "LeagueId": 15,
       "Colour": "White/Black",
       "StadiumSize": 4100
+    },
+    {
+      "ID": 264,
+      "Name": "Glasgow Hoops",
+      "TransferBudget": 30000000,
+      "Stadium": "Parkhead Fields",
+      "LeagueId": 16,
+      "Colour": "Green/White",
+      "StadiumSize": 60400
+    },
+    {
+      "ID": 265,
+      "Name": "Glasgow Blues",
+      "TransferBudget": 26000000,
+      "Stadium": "Ibrox Fields",
+      "LeagueId": 16,
+      "Colour": "Blue/White",
+      "StadiumSize": 50800
+    },
+    {
+      "ID": 266,
+      "Name": "Granite City Reds",
+      "TransferBudget": 5000000,
+      "Stadium": "Pittodrie Fields",
+      "LeagueId": 16,
+      "Colour": "Red",
+      "StadiumSize": 20800
+    },
+    {
+      "ID": 267,
+      "Name": "Edinburgh Maroons",
+      "TransferBudget": 5500000,
+      "Stadium": "Tynecastle Fields",
+      "LeagueId": 16,
+      "Colour": "Maroon/White",
+      "StadiumSize": 19800
+    },
+    {
+      "ID": 268,
+      "Name": "Leith Greens",
+      "TransferBudget": 4500000,
+      "Stadium": "Easter Road Fields",
+      "LeagueId": 16,
+      "Colour": "Green/White",
+      "StadiumSize": 20400
+    },
+    {
+      "ID": 269,
+      "Name": "Tayside Tangerines",
+      "TransferBudget": 2500000,
+      "Stadium": "Tannadice Fields",
+      "LeagueId": 16,
+      "Colour": "Tangerine/Black",
+      "StadiumSize": 14200
+    },
+    {
+      "ID": 270,
+      "Name": "Tayside Navy",
+      "TransferBudget": 2000000,
+      "Stadium": "Dens Park Fields",
+      "LeagueId": 16,
+      "Colour": "Navy/White",
+      "StadiumSize": 11500
+    },
+    {
+      "ID": 271,
+      "Name": "Lanarkshire Ambers",
+      "TransferBudget": 2000000,
+      "Stadium": "Fir Park Fields",
+      "LeagueId": 16,
+      "Colour": "Amber/Claret",
+      "StadiumSize": 13700
+    },
+    {
+      "ID": 272,
+      "Name": "Ayrshire Blues",
+      "TransferBudget": 2000000,
+      "Stadium": "Rugby Park Fields",
+      "LeagueId": 16,
+      "Colour": "Blue/White",
+      "StadiumSize": 15000
+    },
+    {
+      "ID": 273,
+      "Name": "Paisley Saints",
+      "TransferBudget": 1800000,
+      "Stadium": "Love Street Fields",
+      "LeagueId": 16,
+      "Colour": "Black/White",
+      "StadiumSize": 8000
+    },
+    {
+      "ID": 274,
+      "Name": "Forth Valley Bairns",
+      "TransferBudget": 1500000,
+      "Stadium": "Westfield Fields",
+      "LeagueId": 16,
+      "Colour": "Navy/White",
+      "StadiumSize": 7900
+    },
+    {
+      "ID": 275,
+      "Name": "West Lothian Ambers",
+      "TransferBudget": 1500000,
+      "Stadium": "Almondvale Fields",
+      "LeagueId": 16,
+      "Colour": "Amber/Black",
+      "StadiumSize": 9700
     }
   ],
   "Countries": [
@@ -2368,6 +2476,10 @@
     {
       "Id": 6,
       "Name": "Portugal"
+    },
+    {
+      "Id": 7,
+      "Name": "Scotland"
     }
   ],
   "Competitions": [
@@ -2578,6 +2690,20 @@
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 6,
         "RelegationPlaces": 0
+      }
+    },
+    {
+      "Id": 16,
+      "CountryId": 7,
+      "Rank": 1,
+      "IsLeague": true,
+      "Type": "ScottishPremiership",
+      "Name": "Division 1",
+      "LeagueTable": {
+        "Places": 12,
+        "AutomaticPromotionPlaces": 0,
+        "PlayoffPlaces": 6,
+        "RelegationPlaces": 6
       }
     }
   ]

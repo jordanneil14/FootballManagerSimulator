@@ -21,12 +21,17 @@ public class LeagueModel : ICompetition
 	public int PlayoffPlaces { get; set; }
 	public int RelegationPlaces { get; set; }
 
+	// Once a split league divides, the clubs in its top half. They stay above the rest whatever the points.
+	public List<int> TopSplitClubIds { get; set; } = [];
+
 	public bool IsLeague => true;
 
-	// Matches the leagues that get a play-off event scheduled when the season is created.
+	// Matches the leagues whose season continues past the fixtures known when it is created:
+	// those with a play-off event, and the split league, whose final round is drawn later.
 	public bool HasPlayoffs =>
 		(Type == CompetitionType.EnglishFootballLeague && PlayoffPlaces > 0)
-		|| (Type == CompetitionType.EnglishNationalLeague && PlayoffPlaces >= 6);
+		|| (Type == CompetitionType.EnglishNationalLeague && PlayoffPlaces >= 6)
+		|| Type == CompetitionType.ScottishPremiership;
 
 	// The clubs that go up, assuming there is a league above: the automatic places plus the play-off winner.
 	public List<ClubModel> PromotedClubs()
@@ -79,7 +84,8 @@ public class LeagueModel : ICompetition
         }
 
         return table
-            .OrderByDescending(p => p.Points)
+            .OrderBy(p => TopSplitClubIds.Count > 0 && !TopSplitClubIds.Contains(p.Club.Id))
+            .ThenByDescending(p => p.Points)
             .ThenByDescending(p => p.GoalsScored - p.GoalsConceded)
             .ThenByDescending(p => p.GoalsScored)
             .ThenBy(p => p.Club.Name);

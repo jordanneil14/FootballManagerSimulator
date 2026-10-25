@@ -92,8 +92,10 @@ public class FullGameTests : IDisposable
 
         foreach (var league in engine.Leagues)
         {
+            // The split league meets three times before splitting; its last round is drawn later.
             var clubs = league.Clubs.Count;
-            Assert.Equal(clubs * (clubs - 1), league.Fixtures.Count);
+            var meetings = league.Type == CompetitionType.ScottishPremiership ? 3 : 2;
+            Assert.Equal(clubs * (clubs - 1) / 2 * meetings, league.Fixtures.Count);
         }
 
         // Cup draws, the shield draw and the playoff events are all scheduled up front.
@@ -103,6 +105,7 @@ public class FullGameTests : IDisposable
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
         Assert.Equal(3, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count());
         Assert.Equal(3, state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>().Count());
+        Assert.Single(state.Events.OfType<ScottishPremiershipSplitEvent>());
 
         Assert.Contains(state.Notifications, n => n.Subject.StartsWith("Welcome to "));
         Assert.NotEmpty(state.TransferListItems);
@@ -196,6 +199,10 @@ public class FullGameTests : IDisposable
         var cup = (CupModel)state.Competitions.Single(c => c.Type == CompetitionType.Cup);
         Assert.Single(cup.Fixtures, f => f.Round == 7);
         Assert.NotNull(cup.Fixtures.Single(f => f.Round == 7).ClubWon);
+        var scotland = (LeagueModel)state.Competitions.Single(c => c.Id == 16);
+        Assert.Equal(198 + 30, scotland.Fixtures.Count);
+        Assert.Equal(6, scotland.TopSplitClubIds.Count);
+        Assert.Single(state.Notifications, n => n.Subject == "Division 1 Split");
         Assert.Single(state.Competitions.Single(c => c.Id == 2).Fixtures, f => f.FixtureType == FixtureType.PlayoffFinal);
         finalDivision1 = (LeagueModel)state.Competitions.Single(c => c.Id == 1);
         finalDivision2 = (LeagueModel)state.Competitions.Single(c => c.Id == 2);

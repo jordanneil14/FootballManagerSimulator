@@ -8,5 +8,6 @@ public enum CompetitionType
     EnglishPremierLeague = 3,
     EnglishFootballLeague = 4,
     EnglishCommunityShield = 5,
-    EnglishNationalLeague = 6
+    EnglishNationalLeague = 6,
+    ScottishPremiership = 7
 }
