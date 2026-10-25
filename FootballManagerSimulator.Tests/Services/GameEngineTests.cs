@@ -513,6 +513,24 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void MySquadAverageRating_CountsOnlyMyBest20Players()
+    {
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 40);
+        for (var id = 6000; id < 6000 + GameEngine.SquadAverageBestPlayers; id++)
+        {
+            var player = TestData.Player(id, clubId: MyClub.Id);
+            player.Rating = 70;
+            _state.Players.Add(player);
+        }
+
+        Assert.Equal(70, _engine.MySquadAverageRating());
+
+        var freeAgent = TestData.Player(5000, clubId: null);
+        freeAgent.Rating = 75;
+        Assert.Null(_engine.FreeAgentLevelRefusal(freeAgent));
+    }
+
+    [Fact]
     public void AcceptBid_FallsThroughOnceMyPlayerIsRetiring()
     {
         var mine = PlayerAt(1);

@@ -534,11 +534,18 @@ public class GameEngine(
     }
 
     public const int FreeAgentRatingRange = 5;
+    public const int SquadAverageBestPlayers = 20;
 
+    // Judged on the best players only, so a big squad padded with youngsters and reserves isn't held against you.
     public double? MySquadAverageRating()
     {
         if (CurrentClub is not { } club) return null;
-        var ratings = State.Players.Where(p => p.Contract?.ClubId == club.Id).Select(p => p.Rating).ToList();
+        var ratings = State.Players
+            .Where(p => p.Contract?.ClubId == club.Id)
+            .Select(p => p.Rating)
+            .OrderByDescending(r => r)
+            .Take(SquadAverageBestPlayers)
+            .ToList();
         return ratings.Count == 0 ? null : ratings.Average();
     }
 
