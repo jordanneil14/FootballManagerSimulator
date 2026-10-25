@@ -66,7 +66,9 @@ else
         {
             var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
             var liveMinute = matchInProgress ? (myFixture?.Minute ?? 0) : 0;
-            var showLive = matchInProgress && !f.Concluded;
+            // The other fixtures are simulated in full when my match kicks off, so show every
+            // score as it stood at my match's current minute rather than the final result.
+            var showLive = matchInProgress;
             var liveHome = showLive ? f.HomeScorers.Count(g => g.Minute <= liveMinute) : 0;
             var liveAway = showLive ? f.AwayScorers.Count(g => g.Minute <= liveMinute) : 0;
             <div class="fixture-row @(mine ? "mine" : "")">
