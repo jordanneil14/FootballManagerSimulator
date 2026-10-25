@@ -432,16 +432,7 @@ public class GameEngine(
     // Transfer window
     // ---------------------------------------------------------------------------------
 
-    public bool IsTransferWindowOpen
-    {
-        get
-        {
-            var month = State.Date.Month;
-            var day = State.Date.Day;
-            return (month >= 6 && month <= 8 && !(month == 6 && day < 15))
-                || (month == 1);
-        }
-    }
+    public bool IsTransferWindowOpen => TransferWindowRules.IsOpen(State.Date);
 
     public string TransferWindowStatus => IsTransferWindowOpen ? "Open" : "Closed";
 

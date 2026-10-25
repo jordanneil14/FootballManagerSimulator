@@ -49,6 +49,8 @@ public class ProcessHelper(
         if (State.MyClubId != null && State.BoardConfidence < BoardConfidenceRules.UserSackedBelow)
             JobOfferHelper.SackUser();
 
+        AnnounceTransferWindowChange();
+
         if (State.Date.Month == 6 && State.Date.Day == 30)
         {
             ProcessEndOfSeason();
@@ -66,10 +68,7 @@ public class ProcessHelper(
             JobOfferHelper.ProcessJobOffers();
         }
 
-        var m = State.Date.Month;
-        var d = State.Date.Day;
-        var windowOpen = (m >= 6 && m <= 8 && !(m == 6 && d < 15)) || m == 1;
-        if (windowOpen)
+        if (TransferWindowRules.IsOpen(State.Date))
             TransferListHelper.ProcessAITransfers();
 
         foreach (var comp in State.Competitions.Where(p => p.Year == State.Date.Year || p.Year == State.Date.Year - 1))
@@ -84,6 +83,27 @@ public class ProcessHelper(
         }
 
         EventManager.ExecuteEvents();
+    }
+
+    // The window dates are fixed, so compare today with yesterday rather than scheduling an event.
+    private void AnnounceTransferWindowChange()
+    {
+        var isOpen = TransferWindowRules.IsOpen(State.Date);
+        if (isOpen == TransferWindowRules.IsOpen(State.Date.AddDays(-1)))
+            return;
+
+        if (isOpen)
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Chairman",
+                "Transfer Window Open",
+                $"The transfer window is now open and closes on {TransferWindowRules.ClosesOn(State.Date):d MMMM yyyy}.");
+        else
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Chairman",
+                "Transfer Window Closed",
+                $"The transfer window has closed. It reopens on {TransferWindowRules.NextOpening(State.Date):d MMMM yyyy}.");
     }
 
     private void ProcessEndOfSeason()
