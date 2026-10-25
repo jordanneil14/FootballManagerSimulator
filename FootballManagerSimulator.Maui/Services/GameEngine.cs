@@ -666,13 +666,30 @@ public class GameEngine(
         return "Transfer budget request has been submitted.";
     }
 
-    public string RequestStadiumExpansion()
+    public StadiumExpansionEvent? StadiumExpansionInProgress =>
+        State.Events.OfType<StadiumExpansionEvent>().FirstOrDefault(e => !e.IsCompleted);
+
+    public int? NextStadiumExpansionCost =>
+        MyClub.StadiumSize >= StadiumRules.MaxCapacity ? null : StadiumRules.UpgradeCost(MyClub.StadiumSize);
+
+    // Paid for out of the transfer budget up front; the new capacity applies once the work finishes.
+    public string ExpandStadium()
     {
-        var request = ActivatorUtilities.CreateInstance<StadiumExpansionRequestEvent>(serviceProvider, State.Date.AddDays(2), false);
-        var (success, errorMessage) = request.ValidateAdd();
+        if (NextStadiumExpansionCost is not { } cost)
+            return $"Your stadium is already at the maximum capacity of {StadiumRules.MaxCapacity:n0}.";
+
+        if (cost > MyClub.TransferBudget)
+            return $"The board cannot fund this. Expanding the stadium costs {Ui.Money(cost)}.";
+
+        var completionDate = State.Date.AddMonths(StadiumRules.UpgradeMonths);
+        var expansion = ActivatorUtilities.CreateInstance<StadiumExpansionEvent>(serviceProvider, completionDate, false);
+        var (success, errorMessage) = expansion.ValidateAdd();
         if (!success) return errorMessage;
-        State.Events.Add(request);
-        return "Stadium expansion request has been submitted.";
+
+        State.Events.Add(expansion);
+        MyClub.TransferBudget -= cost;
+        NotifyChanged();
+        return $"The board has approved the stadium expansion for {Ui.Money(cost)}. Work will finish on {completionDate:dd MMM yyyy}.";
     }
 
     public AcademyUpgradeEvent? AcademyUpgradeInProgress =>

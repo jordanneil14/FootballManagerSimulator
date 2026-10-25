@@ -165,7 +165,7 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
 
         // Requests made at the old club would otherwise pay out to (or rebuild) whichever club you manage next.
         foreach (var @event in State.Events.Where(p => !p.IsCompleted
-            && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionRequestEvent or StadiumExpansionEvent or AcademyUpgradeEvent))
+            && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionEvent or AcademyUpgradeEvent))
             @event.IsCompleted = true;
 
         foreach (var pending in State.Notifications.Where(p => p.RequiresAction))

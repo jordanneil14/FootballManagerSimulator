@@ -38,16 +38,6 @@
 </div>
 
 @{
-    var expansionEvent = Engine.State.Events
-        .OfType<FootballManagerSimulator.Maui.Events.StadiumExpansionEvent>()
-        .FirstOrDefault(e => !e.IsCompleted);
-
-    var requestPending = Engine.State.Events
-        .OfType<FootballManagerSimulator.Maui.Events.StadiumExpansionRequestEvent>()
-        .Any(e => !e.IsCompleted);
-
-    var expansionInProgress = expansionEvent != null || requestPending;
-
     var budgetRequestPending = Engine.State.Events
         .OfType<FootballManagerSimulator.Maui.Events.IncreaseTransferBudgetRequestEvent>()
         .Any(e => !e.IsCompleted);
@@ -68,14 +58,18 @@
     </div>
     <div class="panel">
         <h2>🏟️ Stadium Expansion</h2>
+        @{
+            var expansionEvent = Engine.StadiumExpansionInProgress;
+            var expansionCost = Engine.NextStadiumExpansionCost;
+        }
         @if (expansionEvent != null)
         {
-            var totalDays = (double)(expansionEvent.TriggerDate.DayNumber - expansionEvent.TriggerDate.AddMonths(-3).DayNumber);
-            var elapsed = (double)(Engine.State.Date.DayNumber - expansionEvent.TriggerDate.AddMonths(-3).DayNumber);
-            var progress = Math.Clamp(elapsed / totalDays, 0, 1);
+            var startDate = expansionEvent.TriggerDate.AddMonths(-StadiumRules.UpgradeMonths);
+            var totalDays = (double)(expansionEvent.TriggerDate.DayNumber - startDate.DayNumber);
+            var progress = Math.Clamp((Engine.State.Date.DayNumber - startDate.DayNumber) / totalDays, 0, 1);
             var daysRemaining = expansionEvent.TriggerDate.DayNumber - Engine.State.Date.DayNumber;
 
-            <p>Stadium expansion is underway at <strong>@Engine.MyClub.Stadium</strong>.</p>
+            <p><strong>@Engine.MyClub.Stadium</strong> is being expanded to <strong>@((Engine.MyClub.StadiumSize + StadiumRules.SeatsAdded(Engine.MyClub.StadiumSize)).ToString("n0"))</strong> seats.</p>
             <div class="progress-bar">
                 <div class="progress-bar-fill" style="width:@((int)(progress * 100))%"></div>
             </div>
@@ -84,14 +78,15 @@
                 · Completion: @expansionEvent.TriggerDate.ToString("dd MMM yyyy")
             </p>
         }
-        else if (requestPending)
+        else if (expansionCost == null)
         {
-            <p>Your stadium expansion request is being reviewed by the board.</p>
+            <p><strong>@Engine.MyClub.Stadium</strong> is at the maximum capacity of <strong>@StadiumRules.MaxCapacity.ToString("n0")</strong>.</p>
         }
         else
         {
-            <p>Ask the board to invest in expanding <strong>@Engine.MyClub.Stadium</strong> to grow matchday revenue.</p>
-            <button class="btn btn-primary" @onclick="RequestStadium">Request Stadium Expansion</button>
+            <p>A bigger stadium grows matchday revenue. <strong>@Engine.MyClub.Stadium</strong> holds <strong>@Engine.MyClub.StadiumSize.ToString("n0")</strong>.</p>
+            <p style="font-size:.82rem">Adding @StadiumRules.SeatsAdded(Engine.MyClub.StadiumSize).ToString("n0") seats costs <strong>@Ui.Money(expansionCost.Value)</strong> from the transfer budget and takes @StadiumRules.UpgradeMonths months.</p>
+            <button class="btn btn-primary" @onclick="ExpandStadium" disabled="@(expansionCost > Engine.MyClub.TransferBudget)">Expand Stadium</button>
         }
     </div>
     <div class="panel">
@@ -143,7 +138,7 @@
 @code {
     private string? _message;
     private void RequestBudget() => _message = Engine.RequestHigherTransferBudget();
-    private void RequestStadium() => _message = Engine.RequestStadiumExpansion();
+    private void ExpandStadium() => _message = Engine.ExpandStadium();
     private void UpgradeAcademy() => _message = Engine.UpgradeAcademy();
 
     private bool _confirmResign;

@@ -115,26 +115,30 @@ public class ClubRequestEventTests : IDisposable
     }
 
     [Fact]
-    public void StadiumExpansionRequest_WhenAffordableChargesTwoMillionAndSchedulesTheBuild()
+    public void ExpandStadium_ChargesTheBudgetAndSchedulesTheWork()
     {
-        Create<StadiumExpansionRequestEvent>(_host.State.Date).Execute();
+        _myClub.StadiumSize = 20_000;
 
-        Assert.Equal(3_000_000, _myClub.TransferBudget);
+        Assert.Contains("approved", _host.Engine.ExpandStadium());
+
+        Assert.Equal(5_000_000 - StadiumRules.UpgradeCost(20_000), _myClub.TransferBudget);
         var build = Assert.Single(_host.State.Events.OfType<StadiumExpansionEvent>());
-        Assert.Equal(_host.State.Date.AddMonths(3), build.TriggerDate);
-        Assert.Contains("accepted", Assert.Single(_host.State.Notifications).Message);
+        Assert.Equal(_host.State.Date.AddMonths(StadiumRules.UpgradeMonths), build.TriggerDate);
+        Assert.Equal(20_000, _myClub.StadiumSize); // not until the work is done
+        Assert.Contains("already underway", _host.Engine.ExpandStadium());
     }
 
     [Fact]
-    public void StadiumExpansionRequest_WhenUnaffordableIsRejected()
+    public void ExpandStadium_IsRefusedWhenUnaffordableOrAtTheMaximum()
     {
-        _myClub.TransferBudget = 1_000_000;
+        _myClub.StadiumSize = 80_000;
+        Assert.Contains("cannot fund", _host.Engine.ExpandStadium());
 
-        Create<StadiumExpansionRequestEvent>(_host.State.Date).Execute();
+        _myClub.StadiumSize = StadiumRules.MaxCapacity;
+        Assert.Contains("maximum", _host.Engine.ExpandStadium());
 
-        Assert.Equal(1_000_000, _myClub.TransferBudget);
+        Assert.Equal(5_000_000, _myClub.TransferBudget);
         Assert.Empty(_host.State.Events);
-        Assert.Contains("rejected", Assert.Single(_host.State.Notifications).Message);
     }
 
     [Fact]
@@ -183,5 +187,16 @@ public class ClubRequestEventTests : IDisposable
         Create<StadiumExpansionEvent>(_host.State.Date).Execute();
 
         Assert.Equal(12_345 + (int)(12_345 * 0.2), _myClub.StadiumSize);
+        Assert.Equal("Stadium Expansion", Assert.Single(_host.State.Notifications).Subject);
+    }
+
+    [Fact]
+    public void StadiumExpansion_StopsAtTheMaximumCapacity()
+    {
+        _myClub.StadiumSize = StadiumRules.MaxCapacity - 1_000;
+
+        Create<StadiumExpansionEvent>(_host.State.Date).Execute();
+
+        Assert.Equal(StadiumRules.MaxCapacity, _myClub.StadiumSize);
     }
 }
