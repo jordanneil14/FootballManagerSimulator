@@ -102,7 +102,7 @@ public class FullGameTests : IDisposable
         Assert.Equal(["Manchester Blue", "North London Reds"],
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
         Assert.Equal(3, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count());
-        Assert.Single(state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>());
+        Assert.Equal(3, state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>().Count());
 
         Assert.Contains(state.Notifications, n => n.Subject.StartsWith("Welcome to "));
         Assert.NotEmpty(state.TransferListItems);
@@ -202,9 +202,12 @@ public class FullGameTests : IDisposable
         var relegated = finalDivision1.GenerateLeagueTable().TakeLast(3).Select(p => p.Club.Id).ToList();
         var promoted = finalDivision2.GenerateLeagueTable().Take(2).Select(p => p.Club.Id).ToList();
         promoted.Add(finalDivision2.Fixtures.Single(f => f.FixtureType == FixtureType.PlayoffFinal).ClubWon!.Id);
+        var relegatedFromDivision5 = ((LeagueModel)state.Competitions.Single(c => c.Id == 13)).RelegatedClubs().Select(p => p.Id).ToList();
+        var promotedFromDivision6 = state.Competitions.OfType<LeagueModel>().Where(l => l.Rank == 6).SelectMany(l => l.PromotedClubs()).Select(p => p.Id).ToList();
+        Assert.Equal(4, promotedFromDivision6.Count);
 
         // The day after each competition's final match, its outcome has been announced.
-        foreach (var division in new[] { "Division 1", "Division 2", "Division 3", "Division 4", "Division 5" })
+        foreach (var division in new[] { "Division 1", "Division 2", "Division 3", "Division 4", "Division 5", "Division 6 North", "Division 6 South" })
             Assert.Single(state.Notifications, n => n.Subject == $"England - {division} Promotion & Relegation");
         var division2Review = state.Notifications.Single(n => n.Subject == "England - Division 2 Promotion & Relegation");
         Assert.All(promoted, id => Assert.Contains(state.Clubs.Single(c => c.Id == id).Name, division2Review.Message));
@@ -223,6 +226,14 @@ public class FullGameTests : IDisposable
         Assert.All(promoted, id => Assert.Equal(1, state.Clubs.Single(c => c.Id == id).LeagueId));
         Assert.Equal(20, state.Clubs.Count(c => c.LeagueId == 1));
         Assert.Equal(24, state.Clubs.Count(c => c.LeagueId == 2));
+
+        // Division 5's relegated clubs are split evenly between the two regional Division 6 leagues.
+        Assert.Equal(2, relegatedFromDivision5.Count(id => state.Clubs.Single(c => c.Id == id).LeagueId == 14));
+        Assert.Equal(2, relegatedFromDivision5.Count(id => state.Clubs.Single(c => c.Id == id).LeagueId == 15));
+        Assert.All(promotedFromDivision6, id => Assert.Equal(13, state.Clubs.Single(c => c.Id == id).LeagueId));
+        Assert.Equal(24, state.Clubs.Count(c => c.LeagueId == 13));
+        Assert.Equal(24, state.Clubs.Count(c => c.LeagueId == 14));
+        Assert.Equal(24, state.Clubs.Count(c => c.LeagueId == 15));
         Assert.Contains(state.Notifications, n => n.Subject == "New Season");
 
         // The new season's competitions are built from the updated divisions.

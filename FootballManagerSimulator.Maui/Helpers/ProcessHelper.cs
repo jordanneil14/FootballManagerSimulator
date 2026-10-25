@@ -223,30 +223,40 @@ public class ProcessHelper(
 
         foreach (var countryLeagues in leaguesByCountry)
         {
-            var orderedLeagues = countryLeagues.OrderBy(p => p.Rank).ToList();
+            // A tier can hold several parallel leagues (e.g. Division 6 North and South).
+            var tiers = countryLeagues
+                .GroupBy(p => p.Rank)
+                .OrderBy(p => p.Key)
+                .Select(p => p.OrderBy(l => l.Id).ToList())
+                .ToList();
 
-            for (var i = 0; i < orderedLeagues.Count; i++)
+            for (var i = 0; i < tiers.Count; i++)
             {
-                var league = orderedLeagues[i];
-
-                if (i > 0)
+                foreach (var league in tiers[i])
                 {
-                    var leagueAbove = orderedLeagues[i - 1];
+                    if (i > 0)
+                    {
+                        var leagueAbove = tiers[i - 1][0];
 
-                    foreach (var club in league.PromotedClubs())
-                        clubsById[club.Id].LeagueId = leagueAbove.Id;
-                }
+                        foreach (var club in league.PromotedClubs())
+                            clubsById[club.Id].LeagueId = leagueAbove.Id;
+                    }
 
-                if (i < orderedLeagues.Count - 1)
-                {
-                    var leagueBelow = orderedLeagues[i + 1];
-
-                    foreach (var club in league.RelegatedClubs())
-                        clubsById[club.Id].LeagueId = leagueBelow.Id;
+                    if (i < tiers.Count - 1)
+                    {
+                        foreach (var (club, leagueBelow) in SplitAcrossLeagues(league.RelegatedClubs(), tiers[i + 1]))
+                            clubsById[club.Id].LeagueId = leagueBelow.Id;
+                    }
                 }
             }
         }
     }
+
+    // Shuffles the clubs and deals them out in turn, so each league gets an even share.
+    private static IEnumerable<(ClubModel club, LeagueModel league)> SplitAcrossLeagues(List<ClubModel> clubs, List<LeagueModel> leagues) =>
+        clubs
+            .OrderBy(_ => RandomNumberHelper.Next())
+            .Select((club, index) => (club, leagues[index % leagues.Count]));
 
     private void ExpireContracts()
     {

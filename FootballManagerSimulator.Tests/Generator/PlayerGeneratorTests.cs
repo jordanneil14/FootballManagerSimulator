@@ -27,6 +27,17 @@ public class PlayerGeneratorTests
     }
 
     [Fact]
+    public void GenerateSquad_SixthTierSquadsAreWeakerThanFifthTier()
+    {
+        // Same seed, so both squads roll identical numbers and differ only by the rating band.
+        var fifth = new PlayerGenerator.PlayerGenerator(11).GenerateSquad("Club", 30, "2026-07-01", 5);
+        var sixth = new PlayerGenerator.PlayerGenerator(11).GenerateSquad("Club", 30, "2026-07-01", 6);
+
+        Assert.True(sixth.Average(p => p.Rating) < fifth.Average(p => p.Rating) - 3);
+        Assert.All(sixth, p => Assert.InRange(p.Rating, 30, 65));
+    }
+
+    [Fact]
     public void GenerateSquad_GivesEachLinesBestPlayersItsReservedNumbersAndTheRestUnreservedOnes()
     {
         var squad = new PlayerGenerator.PlayerGenerator(3).GenerateSquad("Club", 28, "2026-07-01", 1);
