@@ -64,6 +64,9 @@ public class ProcessHelper(
         if (State.Date.Day == 30 && (State.Date.Month == 12 || State.Date.Month == 3))
             AnnounceExpiringContracts();
 
+        if (State.Date.Month == ContractRenewalRules.RenewalMonth && State.Date.Day == ContractRenewalRules.RenewalDay)
+            RenewAIContracts();
+
         JobOfferHelper.ProcessVacancies();
 
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
@@ -87,6 +90,29 @@ public class ProcessHelper(
         }
 
         EventManager.ExecuteEvents();
+    }
+
+    // AI clubs re-sign most of the players whose contracts end this season; the rest leave
+    // as free agents on 30 June. The user's club is left alone, since renewals are their call.
+    private void RenewAIContracts()
+    {
+        var seasonEnd = new DateOnly(State.Date.Year, 6, 30);
+        var squads = State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId != State.MyClubId)
+            .GroupBy(p => p.Contract!.ClubId);
+
+        foreach (var squad in squads)
+        {
+            var squadAverage = squad.Average(p => p.Rating);
+            foreach (var player in squad.Where(p => p.Contract!.ExpiryDate <= seasonEnd))
+            {
+                if (RandomNumberHelper.NextDouble() >= ContractRenewalRules.RenewalChance(player, squadAverage, seasonEnd))
+                    continue;
+
+                var years = ContractRenewalRules.RenewalYears(player.GetAge(seasonEnd));
+                player.Contract!.ExpiryDate = seasonEnd.AddYears(years);
+            }
+        }
     }
 
     private void AnnounceExpiringContracts()

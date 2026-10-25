@@ -89,6 +89,40 @@ public class ProcessHelperTests : IDisposable
         Assert.DoesNotContain(State.Notifications, n => n.Subject == "Expiring Contracts");
     }
 
+    // ----- AI contract renewals ----------------------------------------------------------
+
+    [Fact]
+    public void AIRenewals_ReSignSomeAIPlayersOn30MarchButNeverTouchMine()
+    {
+        var seasonEnd = new DateOnly(2027, 6, 30);
+        foreach (var player in State.Players)
+            player.Contract!.ExpiryDate = seasonEnd;
+        var retiring = PlayerAt(2, 0);
+        retiring.BirthDate = Aged37;
+
+        AdvanceTo(new DateOnly(2027, 3, 30));
+
+        var mine = State.Players.Where(p => p.Contract!.ClubId == 1);
+        var ai = State.Players.Where(p => p.Contract!.ClubId != 1).ToList();
+        Assert.All(mine, p => Assert.Equal(seasonEnd, p.Contract!.ExpiryDate));
+        Assert.Equal(seasonEnd, retiring.Contract!.ExpiryDate);
+        Assert.All(ai, p => Assert.Contains(p.Contract!.ExpiryDate, Enumerable.Range(0, 5).Select(y => seasonEnd.AddYears(y))));
+        Assert.Contains(ai, p => p.Contract!.ExpiryDate > seasonEnd);
+        Assert.Contains(ai, p => p.Contract!.ExpiryDate == seasonEnd && p != retiring);
+    }
+
+    [Fact]
+    public void AIRenewals_LeaveContractsThatRunBeyondThisSeasonAlone()
+    {
+        var later = new DateOnly(2029, 6, 30);
+        foreach (var player in State.Players)
+            player.Contract!.ExpiryDate = later;
+
+        AdvanceTo(new DateOnly(2027, 3, 30));
+
+        Assert.All(State.Players, p => Assert.Equal(later, p.Contract!.ExpiryDate));
+    }
+
     // ----- Transfer window ---------------------------------------------------------------
 
     [Theory]
