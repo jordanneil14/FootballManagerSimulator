@@ -669,6 +669,21 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void SaveGame_LeavesOutTheScreenStack_AndOlderSavesThatHaveOneStillLoad()
+    {
+        _state.ScreenStack.Push(new ScreenModel { Type = default });
+        _engine.SaveGame("screens");
+        Assert.DoesNotContain("ScreenStack", File.ReadAllText(Path.Combine(_storage.SaveDirectory, "screens.fms")));
+
+        // Older saves wrote the stack out; release builds could not read it back.
+        var oldJson = Newtonsoft.Json.JsonConvert.SerializeObject(new { _state.Date, _state.ManagerName, ScreenStack = new[] { new ScreenModel() } });
+        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "old-screens.fms"), oldJson);
+
+        Assert.Null(_engine.LoadGame("old-screens.fms"));
+        Assert.Empty(_state.ScreenStack);
+    }
+
+    [Fact]
     public void LoadGame_RestoresTheCareerIdAndSettings()
     {
         _state.CareerId = "career1";

@@ -966,7 +966,7 @@ public class GameEngine(
             var (deserialised, eventsJson) = ReadSave(Path.Combine(SaveDirectory, fileName));
 
             State.Weather = deserialised.Weather;
-            State.ScreenStack = deserialised.ScreenStack;
+            State.ScreenStack.Clear();
             State.Notifications = deserialised.Notifications;
             State.ManagerName = deserialised.ManagerName;
             State.Clubs = deserialised.Clubs;
