@@ -7,12 +7,16 @@ namespace FootballManagerSimulator.Maui.Events;
 public class EnglishFootballLeaguePlayoffFinalEvent(
     IState state,
     INotificationFactory notificationFactory,
+    IEventManager eventManager,
+    IServiceProvider serviceProvider,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly IEventManager EventManager = eventManager;
+    private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
 
     public override void Execute()
@@ -63,6 +67,7 @@ public class EnglishFootballLeaguePlayoffFinalEvent(
         };
 
         competition.Fixtures.Add(final);
+        CompetitionEndEvent.Schedule(EventManager, ServiceProvider, final.Date, CompetitionId);
 
         var message = $"The {competition.Name} playoff final has been set:\n" +
             $"{final.HomeClub.Name} v {final.AwayClub.Name}\n" +

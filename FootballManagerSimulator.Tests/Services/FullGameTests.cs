@@ -202,6 +202,15 @@ public class FullGameTests : IDisposable
         var relegated = finalDivision1.GenerateLeagueTable().TakeLast(3).Select(p => p.Club.Id).ToList();
         var promoted = finalDivision2.GenerateLeagueTable().Take(2).Select(p => p.Club.Id).ToList();
         promoted.Add(finalDivision2.Fixtures.Single(f => f.FixtureType == FixtureType.PlayoffFinal).ClubWon!.Id);
+
+        // The day after each competition's final match, its outcome has been announced.
+        foreach (var division in new[] { "Division 1", "Division 2", "Division 3", "Division 4", "Division 5" })
+            Assert.Single(state.Notifications, n => n.Subject == $"England - {division} Promotion & Relegation");
+        var division2Review = state.Notifications.Single(n => n.Subject == "England - Division 2 Promotion & Relegation");
+        Assert.All(promoted, id => Assert.Contains(state.Clubs.Single(c => c.Id == id).Name, division2Review.Message));
+        Assert.Single(state.Notifications, n => n.Subject == $"{cup.Name} Winners" && n.Message.StartsWith(cup.Fixtures.Single(f => f.Round == 7).ClubWon!.Name));
+        Assert.Single(state.Notifications, n => n.Subject.EndsWith("Shield Winners"));
+
         var budgetsBefore = state.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June

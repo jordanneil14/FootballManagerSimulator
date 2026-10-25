@@ -153,26 +153,12 @@ public class ProcessHelper(
             for (var i = 0; i < orderedLeagues.Count; i++)
             {
                 var league = orderedLeagues[i];
-                var table = league.GenerateLeagueTable().ToList();
 
                 if (i > 0)
                 {
                     var leagueAbove = orderedLeagues[i - 1];
 
-                    var promoted = table
-                        .Take(league.AutomaticPromotionPlaces)
-                        .Select(p => p.Club)
-                        .ToList();
-
-                    var playoffWinner = league.Fixtures
-                        .Where(p => p.FixtureType == FixtureType.PlayoffFinal && p.Concluded)
-                        .Select(p => p.ClubWon)
-                        .FirstOrDefault();
-
-                    if (playoffWinner != null)
-                        promoted.Add(playoffWinner);
-
-                    foreach (var club in promoted)
+                    foreach (var club in league.PromotedClubs())
                         clubsById[club.Id].LeagueId = leagueAbove.Id;
                 }
 
@@ -180,12 +166,7 @@ public class ProcessHelper(
                 {
                     var leagueBelow = orderedLeagues[i + 1];
 
-                    var relegated = table
-                        .TakeLast(league.RelegationPlaces)
-                        .Select(p => p.Club)
-                        .ToList();
-
-                    foreach (var club in relegated)
+                    foreach (var club in league.RelegatedClubs())
                         clubsById[club.Id].LeagueId = leagueBelow.Id;
                 }
             }
@@ -488,6 +469,8 @@ public class ProcessHelper(
                 ServiceProvider, triggerDate, false, league.Id);
             EventManager.ValidateAndAddEvent(playoffEvent);
         }
+
+        CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
 
         foreach (var competition in State.Competitions.Where(p => p.Type == CompetitionType.Friendly))
         {

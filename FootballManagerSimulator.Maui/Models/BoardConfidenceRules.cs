@@ -8,6 +8,7 @@ public static class BoardConfidenceRules
     public const int Win = 3;
     public const int Draw = 0;
     public const int Loss = -3;
+    public const int Promotion = 10;
 
     public const int SecureFrom = 75;
     public const int StableFrom = 30;

@@ -23,6 +23,36 @@ public class LeagueModel : ICompetition
 
 	public bool IsLeague => true;
 
+	// Matches the leagues that get a play-off event scheduled when the season is created.
+	public bool HasPlayoffs =>
+		(Type == CompetitionType.EnglishFootballLeague && PlayoffPlaces > 0)
+		|| (Type == CompetitionType.EnglishNationalLeague && PlayoffPlaces >= 6);
+
+	// The clubs that go up, assuming there is a league above: the automatic places plus the play-off winner.
+	public List<ClubModel> PromotedClubs()
+	{
+		var promoted = GenerateLeagueTable()
+			.Take(AutomaticPromotionPlaces)
+			.Select(p => p.Club)
+			.ToList();
+
+		var playoffWinner = Fixtures
+			.Where(p => p.FixtureType == FixtureType.PlayoffFinal && p.Concluded)
+			.Select(p => p.ClubWon)
+			.FirstOrDefault();
+
+		if (playoffWinner != null)
+			promoted.Add(playoffWinner);
+
+		return promoted;
+	}
+
+	// The clubs that go down, assuming there is a league below.
+	public List<ClubModel> RelegatedClubs() => GenerateLeagueTable()
+		.TakeLast(RelegationPlaces)
+		.Select(p => p.Club)
+		.ToList();
+
 	public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {
         var table = new List<LeaguePositionModel>();

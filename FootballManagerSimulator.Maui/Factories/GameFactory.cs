@@ -210,6 +210,8 @@ public class GameFactory(
                 ServiceProvider, triggerDate, false, league.Id);
             EventManager.ValidateAndAddEvent(playoffEvent);
         }
+
+        CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
     }
 
     private static PlayerModel MapToPlayerModel(GeneratedPlayer gp, ClubModel? club)
