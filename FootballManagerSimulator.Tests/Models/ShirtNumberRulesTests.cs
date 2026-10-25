@@ -8,21 +8,45 @@ public class ShirtNumberRulesTests
     [InlineData(new int[0], 1)]
     [InlineData(new[] { 1 }, 13)]
     [InlineData(new[] { 1, 13 }, 21)]
-    [InlineData(new[] { 1, 13, 21, 22 }, 23)]
+    [InlineData(new[] { 1, 13, 21 }, 12)]
     [InlineData(new[] { 13 }, 1)]
-    public void Goalkeepers_Take1Then13Then21ThenFrom22(int[] taken, int expected)
+    public void Goalkeepers_Take1Then13Then21ThenTheLowestUnreservedNumber(int[] taken, int expected)
     {
         Assert.Equal(expected, ShirtNumberRules.NextAvailable(taken, "GK"));
     }
 
     [Theory]
-    [InlineData(new int[0], 2)]
-    [InlineData(new[] { 2, 3, 5 }, 4)]
-    [InlineData(new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, 14)]
-    [InlineData(new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20 }, 22)]
-    public void OutfieldPlayers_TakeTheLowestFreeNumberSkippingKeepersNumbers(int[] taken, int expected)
+    [InlineData("CB", new int[0], 2)]
+    [InlineData("LB", new[] { 2 }, 3)]
+    [InlineData("RB", new[] { 2, 3 }, 5)]
+    [InlineData("CB", new[] { 2, 3, 5 }, 6)]
+    [InlineData("CDM", new int[0], 4)]
+    [InlineData("CM", new[] { 4 }, 7)]
+    [InlineData("LM", new[] { 4, 7 }, 8)]
+    [InlineData("CAM", new[] { 4, 7, 8 }, 11)]
+    [InlineData("ST", new int[0], 9)]
+    [InlineData("LW", new[] { 9 }, 10)]
+    public void OutfieldPlayers_TakeTheNumbersReservedForTheirLineFirst(string position, int[] taken, int expected)
     {
-        Assert.Equal(expected, ShirtNumberRules.NextAvailable(taken, "CM"));
+        Assert.Equal(expected, ShirtNumberRules.NextAvailable(taken, position));
+    }
+
+    [Theory]
+    [InlineData("CB", new[] { 2, 3, 5, 6 }, 12)]
+    [InlineData("CM", new[] { 4, 7, 8, 11, 12 }, 14)]
+    [InlineData("ST", new[] { 9, 10, 12, 14, 15, 16, 17, 18, 19, 20 }, 22)]
+    public void OnceTheirLinesNumbersAreGone_PlayersTakeTheLowestUnreservedNumber(string position, int[] taken, int expected)
+    {
+        // Other lines' free reserved numbers (e.g. 4 or 9 for a defender) stay untouched.
+        Assert.Equal(expected, ShirtNumberRules.NextAvailable(taken, position));
+    }
+
+    [Fact]
+    public void ReservedNumbersAreOnlyBorrowedWhenEveryOtherNumberIsTaken()
+    {
+        var taken = Enumerable.Range(1, 99).Where(n => n != 9).ToList();
+
+        Assert.Equal(9, ShirtNumberRules.NextAvailable(taken, "CB"));
     }
 
     [Fact]
@@ -30,11 +54,11 @@ public class ShirtNumberRulesTests
     {
         var players = new List<PlayerModel>
         {
-            new() { ShirtNumber = 2, Contract = new PlayerModel.ContractModel { ClubId = 1 } },
-            new() { ShirtNumber = 3, Contract = new PlayerModel.ContractModel { ClubId = 2 } },
-            new() { ShirtNumber = 4 } // free agent
+            new() { ShirtNumber = 9, Contract = new PlayerModel.ContractModel { ClubId = 1 } },
+            new() { ShirtNumber = 10, Contract = new PlayerModel.ContractModel { ClubId = 2 } },
+            new() { ShirtNumber = 11 } // free agent
         };
 
-        Assert.Equal(3, ShirtNumberRules.NextAvailable(players, clubId: 1, "ST"));
+        Assert.Equal(10, ShirtNumberRules.NextAvailable(players, clubId: 1, "ST"));
     }
 }

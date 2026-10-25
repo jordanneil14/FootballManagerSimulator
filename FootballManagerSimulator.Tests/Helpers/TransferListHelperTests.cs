@@ -83,7 +83,7 @@ public class TransferListHelperTests
         _helper.TransferContractedPlayerByPlayerIdAndClubId(outfielder.Id, 3);
         _helper.TransferContractedPlayerByPlayerIdAndClubId(keeper.Id, 3);
 
-        Assert.Equal(12, outfielder.ShirtNumber); // lowest free outfield number
+        Assert.Equal(12, outfielder.ShirtNumber); // his line's numbers are taken, so the lowest unreserved one
         Assert.Equal(1, keeper.ShirtNumber);
     }
 

@@ -94,27 +94,40 @@ public class PlayerGenerator
         _ => 3
     };
 
-    private static readonly int[] GoalkeeperNumbers = [1, 13, 21];
+    // Kept in step with ShirtNumberRules in the game, which this project cannot reference.
+    private static readonly int[][] ReservedNumbers =
+    [
+        [1, 13, 21],    // goalkeepers
+        [2, 3, 5, 6],   // defenders
+        [4, 7, 8, 11],  // midfielders
+        [9, 10]         // attackers
+    ];
 
-    // The best players take the lowest numbers. Keepers wear 1, 13 and 21 (then 22 upwards);
-    // outfield players fill the rest from 2 upwards.
+    // The best players in each line take that line's reserved numbers (keepers 1, 13, 21; defenders
+    // 2, 3, 5, 6; midfielders 4, 7, 8, 11; attackers 9, 10). Everyone else, best first, takes the
+    // lowest number nobody keeps: 12, 14-20, then 22 upwards.
     private static void AssignSquadNumbers(List<GeneratedPlayer> squad)
     {
-        var keeperNumbers = GoalkeeperNumbers.Concat(Enumerable.Range(22, 78)).GetEnumerator();
-        foreach (var keeper in squad.Where(p => p.ClubPosition == "GK").OrderByDescending(p => p.Rating))
+        var overflow = new List<GeneratedPlayer>();
+        foreach (var line in squad.GroupBy(p => PositionGroup(p.ClubPosition)))
         {
-            keeperNumbers.MoveNext();
-            keeper.ShirtNumber = keeperNumbers.Current;
+            var numbers = ReservedNumbers[line.Key];
+            var players = line.OrderByDescending(p => p.Rating).ToList();
+            for (var i = 0; i < players.Count; i++)
+            {
+                if (i < numbers.Length)
+                    players[i].ShirtNumber = numbers[i];
+                else
+                    overflow.Add(players[i]);
+            }
         }
 
-        var taken = squad.Where(p => p.ShirtNumber.HasValue).Select(p => p.ShirtNumber!.Value).ToHashSet();
-        var outfieldNumbers = Enumerable.Range(1, 99)
-            .Where(n => !taken.Contains(n) && !GoalkeeperNumbers.Contains(n))
-            .GetEnumerator();
-        foreach (var player in squad.Where(p => p.ClubPosition != "GK").OrderByDescending(p => p.Rating))
+        var reserved = ReservedNumbers.SelectMany(n => n).ToHashSet();
+        var unreserved = Enumerable.Range(1, 99).Where(n => !reserved.Contains(n)).GetEnumerator();
+        foreach (var player in overflow.OrderByDescending(p => p.Rating))
         {
-            outfieldNumbers.MoveNext();
-            player.ShirtNumber = outfieldNumbers.Current;
+            unreserved.MoveNext();
+            player.ShirtNumber = unreserved.Current;
         }
     }
 

@@ -241,9 +241,11 @@ public class ProcessHelperTests : IDisposable
         Assert.All(State.Clubs, c => Assert.InRange(intake.Count(p => p.Contract!.ClubId == c.Id), 2, 4));
         Assert.All(intake, p => Assert.Contains(p.Contract!.ExpiryDate, new[] { new DateOnly(2029, 6, 30), new DateOnly(2030, 6, 30) }));
 
-        // Keepers take the free number 1; the first outfield youngster fills the gap at 7.
-        if (mine.Any(p => p.Position != "GK"))
-            Assert.Contains(mine, p => p.ShirtNumber == 7);
+        // 7 is a midfielder's number, so a midfield youngster fills the gap and nobody else takes it.
+        bool IsMidfielder(PlayerModel p) => ShirtNumberRules.ReservedNumbersFor(p.Position) == ShirtNumberRules.MidfielderNumbers;
+        if (mine.Any(IsMidfielder))
+            Assert.Contains(mine, p => p.ShirtNumber == 7 && IsMidfielder(p));
+        Assert.DoesNotContain(mine, p => p.ShirtNumber == 7 && !IsMidfielder(p));
         Assert.All(State.Clubs, c =>
         {
             var numbers = State.Players.Where(p => p.Contract?.ClubId == c.Id).Select(p => p.ShirtNumber).ToList();

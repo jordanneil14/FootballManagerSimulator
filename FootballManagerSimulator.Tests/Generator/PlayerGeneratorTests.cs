@@ -1,3 +1,4 @@
+using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.PlayerGenerator;
 
 namespace FootballManagerSimulator.Tests.Generator;
@@ -26,17 +27,22 @@ public class PlayerGeneratorTests
     }
 
     [Fact]
-    public void GenerateSquad_NumbersKeepers1_13_21AndFillsOutfieldFromTwoBestFirst()
+    public void GenerateSquad_GivesEachLinesBestPlayersItsReservedNumbersAndTheRestUnreservedOnes()
     {
         var squad = new PlayerGenerator.PlayerGenerator(3).GenerateSquad("Club", 28, "2026-07-01", 1);
-        var keepers = squad.Where(p => p.ClubPosition == "GK").OrderByDescending(p => p.Rating).ToList();
-        var outfield = squad.Where(p => p.ClubPosition != "GK").OrderByDescending(p => p.Rating).ToList();
-
-        Assert.Equal(new int?[] { 1, 13 }, keepers.Take(2).Select(p => p.ShirtNumber));
         Assert.Equal(squad.Count, squad.Select(p => p.ShirtNumber).Distinct().Count());
 
-        var expectedOutfield = Enumerable.Range(2, 99).Where(n => n != 13 && n != 21).Take(outfield.Count).Select(n => (int?)n);
-        Assert.Equal(expectedOutfield, outfield.Select(p => p.ShirtNumber));
+        foreach (var line in squad.GroupBy(p => ShirtNumberRules.ReservedNumbersFor(p.ClubPosition)))
+        {
+            var best = line.OrderByDescending(p => p.Rating).Take(line.Key.Length).Select(p => p.ShirtNumber!.Value);
+            Assert.Equal(line.Key.Take(line.Count()), best);
+        }
+
+        var reserved = ShirtNumberRules.GoalkeeperNumbers.Concat(ShirtNumberRules.DefenderNumbers)
+            .Concat(ShirtNumberRules.MidfielderNumbers).Concat(ShirtNumberRules.AttackerNumbers).ToHashSet();
+        var others = squad.Where(p => !reserved.Contains(p.ShirtNumber!.Value)).OrderByDescending(p => p.Rating).ToList();
+        var expected = Enumerable.Range(1, 99).Where(n => !reserved.Contains(n)).Take(others.Count).Select(n => (int?)n);
+        Assert.Equal(expected, others.Select(p => p.ShirtNumber));
     }
 
     [Theory]
