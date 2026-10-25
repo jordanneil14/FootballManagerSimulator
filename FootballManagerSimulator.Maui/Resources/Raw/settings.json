@@ -2450,6 +2450,150 @@
       "LeagueId": 16,
       "Colour": "Amber/Black",
       "StadiumSize": 9700
+    },
+    {
+      "ID": 276,
+      "Name": "Bruges Blues",
+      "TransferBudget": 20000000,
+      "Stadium": "Jan Breydel Fields",
+      "LeagueId": 17,
+      "Colour": "Blue/Black",
+      "StadiumSize": 29000
+    },
+    {
+      "ID": 277,
+      "Name": "Brussels Purples",
+      "TransferBudget": 16000000,
+      "Stadium": "Astrid Park Fields",
+      "LeagueId": 17,
+      "Colour": "Purple/White",
+      "StadiumSize": 22500
+    },
+    {
+      "ID": 278,
+      "Name": "Limburg Blues",
+      "TransferBudget": 12000000,
+      "Stadium": "Waterschei Fields",
+      "LeagueId": 17,
+      "Colour": "Blue/White",
+      "StadiumSize": 23700
+    },
+    {
+      "ID": 279,
+      "Name": "Ghent Buffaloes",
+      "TransferBudget": 10000000,
+      "Stadium": "Artevelde Fields",
+      "LeagueId": 17,
+      "Colour": "Blue/White",
+      "StadiumSize": 20000
+    },
+    {
+      "ID": 280,
+      "Name": "Antwerp Reds",
+      "TransferBudget": 10000000,
+      "Stadium": "Bosuil Fields",
+      "LeagueId": 17,
+      "Colour": "Red/White",
+      "StadiumSize": 16100
+    },
+    {
+      "ID": 281,
+      "Name": "Brussels Golds",
+      "TransferBudget": 8000000,
+      "Stadium": "Joseph Marien Fields",
+      "LeagueId": 17,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 9400
+    },
+    {
+      "ID": 282,
+      "Name": "Liege Reds",
+      "TransferBudget": 6000000,
+      "Stadium": "Sclessin Fields",
+      "LeagueId": 17,
+      "Colour": "Red/White",
+      "StadiumSize": 27600
+    },
+    {
+      "ID": 283,
+      "Name": "Bruges Greens",
+      "TransferBudget": 3000000,
+      "Stadium": "Olympia Park Fields",
+      "LeagueId": 17,
+      "Colour": "Green/Black",
+      "StadiumSize": 29000
+    },
+    {
+      "ID": 284,
+      "Name": "Mechelen Yellows",
+      "TransferBudget": 3000000,
+      "Stadium": "Achter de Kazerne Fields",
+      "LeagueId": 17,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 16700
+    },
+    {
+      "ID": 285,
+      "Name": "Charleroi Zebras",
+      "TransferBudget": 3000000,
+      "Stadium": "Mambourg Fields",
+      "LeagueId": 17,
+      "Colour": "Black/White",
+      "StadiumSize": 14000
+    },
+    {
+      "ID": 286,
+      "Name": "Kempen Yellows",
+      "TransferBudget": 2500000,
+      "Stadium": "Kuipje Fields",
+      "LeagueId": 17,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 8000
+    },
+    {
+      "ID": 287,
+      "Name": "Leuven Reds",
+      "TransferBudget": 2500000,
+      "Stadium": "Den Dreef Fields",
+      "LeagueId": 17,
+      "Colour": "Red/White",
+      "StadiumSize": 10000
+    },
+    {
+      "ID": 288,
+      "Name": "Haspengouw Canaries",
+      "TransferBudget": 2000000,
+      "Stadium": "Stayen Fields",
+      "LeagueId": 17,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 14600
+    },
+    {
+      "ID": 289,
+      "Name": "Waregem Reds",
+      "TransferBudget": 1800000,
+      "Stadium": "Regenboog Fields",
+      "LeagueId": 17,
+      "Colour": "Red/Green",
+      "StadiumSize": 12500
+    },
+    {
+      "ID": 290,
+      "Name": "Dender Reds",
+      "TransferBudget": 1500000,
+      "Stadium": "Van Roy Fields",
+      "LeagueId": 17,
+      "Colour": "Red/White",
+      "StadiumSize": 6400
+    },
+    {
+      "ID": 291,
+      "Name": "Hainaut Greens",
+      "TransferBudget": 1200000,
+      "Stadium": "Tivoli Fields",
+      "LeagueId": 17,
+      "Colour": "Green/White",
+      "StadiumSize": 8000
     }
   ],
   "Countries": [
@@ -2480,6 +2624,10 @@
     {
       "Id": 7,
       "Name": "Scotland"
+    },
+    {
+      "Id": 8,
+      "Name": "Belgium"
     }
   ],
   "Competitions": [
@@ -2704,6 +2852,20 @@
         "AutomaticPromotionPlaces": 0,
         "PlayoffPlaces": 6,
         "RelegationPlaces": 6
+      }
+    },
+    {
+      "Id": 17,
+      "CountryId": 8,
+      "Rank": 1,
+      "IsLeague": true,
+      "Type": "League",
+      "Name": "Division 1",
+      "LeagueTable": {
+        "Places": 16,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 2
       }
     }
   ]
