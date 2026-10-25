@@ -51,16 +51,18 @@
         }
     </div>
 
-    <table class="data" style="margin-top:1.4rem">
-        <tbody>
-            @foreach (var slot in starters)
-            {
-                @SlotRow(slot)
-            }
-            @foreach (var slot in subs) { @SlotRow(slot) }
-            @foreach (var slot in reserves) { @SlotRow(slot) }
-        </tbody>
-    </table>
+    <div class="table-wrap" style="margin-top:1.4rem">
+        <table class="data">
+            <tbody>
+                @foreach (var slot in starters)
+                {
+                    @SlotRow(slot)
+                }
+                @foreach (var slot in subs) { @SlotRow(slot) }
+                @foreach (var slot in reserves) { @SlotRow(slot) }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code {
