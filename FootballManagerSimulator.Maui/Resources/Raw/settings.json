@@ -2756,6 +2756,168 @@
       "LeagueId": 18,
       "Colour": "Orange/Black",
       "StadiumSize": 7400
+    },
+    {
+      "ID": 310,
+      "Name": "Istanbul Lions",
+      "TransferBudget": 25000000,
+      "Stadium": "Seyrantepe Fields",
+      "LeagueId": 19,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 52200
+    },
+    {
+      "ID": 311,
+      "Name": "Istanbul Canaries",
+      "TransferBudget": 24000000,
+      "Stadium": "Kadikoy Fields",
+      "LeagueId": 19,
+      "Colour": "Yellow/Navy",
+      "StadiumSize": 47800
+    },
+    {
+      "ID": 312,
+      "Name": "Istanbul Eagles",
+      "TransferBudget": 18000000,
+      "Stadium": "Dolmabahce Fields",
+      "LeagueId": 19,
+      "Colour": "Black/White",
+      "StadiumSize": 42600
+    },
+    {
+      "ID": 313,
+      "Name": "Black Sea Storm",
+      "TransferBudget": 10000000,
+      "Stadium": "Akyazi Fields",
+      "LeagueId": 19,
+      "Colour": "Claret/Blue",
+      "StadiumSize": 40700
+    },
+    {
+      "ID": 314,
+      "Name": "Istanbul Owls",
+      "TransferBudget": 6000000,
+      "Stadium": "Basaksehir Fields",
+      "LeagueId": 19,
+      "Colour": "Orange/Navy",
+      "StadiumSize": 17300
+    },
+    {
+      "ID": 315,
+      "Name": "Samsun Reds",
+      "TransferBudget": 4000000,
+      "Stadium": "Tekkekoy Fields",
+      "LeagueId": 19,
+      "Colour": "Red/White",
+      "StadiumSize": 33900
+    },
+    {
+      "ID": 316,
+      "Name": "Izmir Goztepe",
+      "TransferBudget": 3500000,
+      "Stadium": "Gursel Aksel Fields",
+      "LeagueId": 19,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 19700
+    },
+    {
+      "ID": 317,
+      "Name": "Golden Horn Purples",
+      "TransferBudget": 3000000,
+      "Stadium": "Eyup Fields",
+      "LeagueId": 19,
+      "Colour": "Purple/Yellow",
+      "StadiumSize": 3000
+    },
+    {
+      "ID": 318,
+      "Name": "Bosphorus Navy",
+      "TransferBudget": 3000000,
+      "Stadium": "Kasimpasa Fields",
+      "LeagueId": 19,
+      "Colour": "Navy/White",
+      "StadiumSize": 14200
+    },
+    {
+      "ID": 319,
+      "Name": "Riviera Reds",
+      "TransferBudget": 3000000,
+      "Stadium": "Corendon Fields",
+      "LeagueId": 19,
+      "Colour": "Red/White",
+      "StadiumSize": 32500
+    },
+    {
+      "ID": 320,
+      "Name": "Anatolian Greens",
+      "TransferBudget": 3000000,
+      "Stadium": "Meram Fields",
+      "LeagueId": 19,
+      "Colour": "Green/White",
+      "StadiumSize": 42000
+    },
+    {
+      "ID": 321,
+      "Name": "Alanya Oranges",
+      "TransferBudget": 2500000,
+      "Stadium": "Oba Fields",
+      "LeagueId": 19,
+      "Colour": "Orange/Green",
+      "StadiumSize": 10100
+    },
+    {
+      "ID": 322,
+      "Name": "Gaziantep Reds",
+      "TransferBudget": 2500000,
+      "Stadium": "Kalyon Fields",
+      "LeagueId": 19,
+      "Colour": "Red/Black",
+      "StadiumSize": 33500
+    },
+    {
+      "ID": 323,
+      "Name": "Rize Tea Greens",
+      "TransferBudget": 2500000,
+      "Stadium": "Caykur Fields",
+      "LeagueId": 19,
+      "Colour": "Green/Blue",
+      "StadiumSize": 15300
+    },
+    {
+      "ID": 324,
+      "Name": "Kayseri Yellows",
+      "TransferBudget": 2000000,
+      "Stadium": "Erciyes Fields",
+      "LeagueId": 19,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 32800
+    },
+    {
+      "ID": 325,
+      "Name": "Kocaeli Greens",
+      "TransferBudget": 2000000,
+      "Stadium": "Izmit Fields",
+      "LeagueId": 19,
+      "Colour": "Green/Black",
+      "StadiumSize": 33400
+    },
+    {
+      "ID": 326,
+      "Name": "Ankara Poppies",
+      "TransferBudget": 2000000,
+      "Stadium": "Eryaman Fields",
+      "LeagueId": 19,
+      "Colour": "Red/Black",
+      "StadiumSize": 20000
+    },
+    {
+      "ID": 327,
+      "Name": "Fatih Reds",
+      "TransferBudget": 1800000,
+      "Stadium": "Karagumruk Fields",
+      "LeagueId": 19,
+      "Colour": "Red/Black",
+      "StadiumSize": 5000
     }
   ],
   "Countries": [
@@ -2794,6 +2956,10 @@
     {
       "Id": 9,
       "Name": "Netherlands"
+    },
+    {
+      "Id": 10,
+      "Name": "Turkey"
     }
   ],
   "Competitions": [
@@ -3046,6 +3212,20 @@
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
         "RelegationPlaces": 2
+      }
+    },
+    {
+      "Id": 19,
+      "CountryId": 10,
+      "Rank": 1,
+      "IsLeague": true,
+      "Type": "League",
+      "Name": "Division 1",
+      "LeagueTable": {
+        "Places": 18,
+        "AutomaticPromotionPlaces": 1,
+        "PlayoffPlaces": 0,
+        "RelegationPlaces": 3
       }
     }
   ]

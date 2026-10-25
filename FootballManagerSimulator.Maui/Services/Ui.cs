@@ -16,6 +16,7 @@ public static class Ui
         ["Scotland"] = "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
         ["Belgium"] = "🇧🇪",
         ["Netherlands"] = "🇳🇱",
+        ["Turkey"] = "🇹🇷",
     };
 
     public static string CountryFlag(string? countryName) =>
