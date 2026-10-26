@@ -52,6 +52,13 @@
                     Only players within budget
                 </label>
             </div>
+            <div class="field">
+                <label>&nbsp;</label>
+                <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+                    <input type="checkbox" checked="@_onlyWillSign" @onchange="OnOnlyWillSignChanged" />
+                    Only players who will sign
+                </label>
+            </div>
         </div>
     }
 </div>
@@ -62,6 +69,7 @@
         .Where(t => !_onlyAffordable || t.AskingPrice <= Engine.MyClub.TransferBudget)
         .Select(t => new { Item = t, Player = Engine.GetPlayer(t.PlayerId) })
         .Where(x => x.Player != null)
+        .Where(x => !_onlyWillSign || Engine.SigningLevelRefusal(x.Player!) == null)
         .OrderByDescending(x => x.Player!.Rating)
         .ToList();
 
@@ -94,6 +102,7 @@ else
                     {
                         var player = x.Player!;
                         var item = x.Item;
+                        var wontSign = Engine.SigningLevelRefusal(player) != null;
                         var affordable = item.AskingPrice <= Engine.MyClub.TransferBudget && Engine.IsTransferWindowOpen;
                         <tr>
                             <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
@@ -103,7 +112,14 @@ else
                             <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
                             <td class="num">@item.AskingPriceFriendly</td>
                             <td class="num">
-                                <button class="btn btn-primary" disabled="@(!affordable)" @onclick="() => OpenBuyModal(item.PlayerId)">Buy</button>
+                                @if (wontSign)
+                                {
+                                    <span class="tag">Won't sign</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" disabled="@(!affordable)" @onclick="() => OpenBuyModal(item.PlayerId)">Buy</button>
+                                }
                             </td>
                         </tr>
                     }
@@ -151,6 +167,7 @@ else
     private bool _filtersOpen = true;
     private string _search = "";
     private bool _onlyAffordable = true;
+    private bool _onlyWillSign = true;
     private int _page = 1;
     private const int PageSize = 20;
 
@@ -163,6 +180,12 @@ else
     private void OnOnlyAffordableChanged(ChangeEventArgs e)
     {
         _onlyAffordable = e.Value is true;
+        _page = 1;
+    }
+
+    private void OnOnlyWillSignChanged(ChangeEventArgs e)
+    {
+        _onlyWillSign = e.Value is true;
         _page = 1;
     }
 

@@ -18,7 +18,7 @@ else
     var club = player.Contract == null ? "Free Agent" : Engine.GetClub(player.Contract.ClubId)?.Name ?? "Free Agent";
     var playsForMe = Engine.PlayerPlaysForMyClub(player.Id);
     var retiring = Engine.IsPlayerRetiring(player);
-    var levelRefusal = player.Contract == null && !Engine.IsUnemployed && !retiring ? Engine.FreeAgentLevelRefusal(player) : null;
+    var levelRefusal = !playsForMe && !Engine.IsUnemployed && !retiring ? Engine.SigningLevelRefusal(player) : null;
 
     <div class="page-head">
         <div>

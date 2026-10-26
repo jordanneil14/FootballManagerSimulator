@@ -604,7 +604,45 @@ public class GameEngineTests : IDisposable
 
         var freeAgent = TestData.Player(5000, clubId: null);
         freeAgent.Rating = 75;
-        Assert.Null(_engine.FreeAgentLevelRefusal(freeAgent));
+        Assert.Null(_engine.SigningLevelRefusal(freeAgent));
+    }
+
+    [Theory]
+    [InlineData(-30, true)]
+    [InlineData(5, true)]
+    [InlineData(6, false)]
+    public void BuyTransferListedPlayer_RefusesPlayersMoreThan5AboveMySquadAverage(int offset, bool signs)
+    {
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 70);
+        var target = PlayerAt(2);
+        target.Rating = 70 + offset;
+        _transfers.AddPlayerToTransferList(target.Id, 100);
+
+        var message = _engine.BuyTransferListedPlayer(target.Id);
+
+        if (signs)
+        {
+            Assert.Equal(MyClub.Id, target.Contract!.ClubId);
+        }
+        else
+        {
+            Assert.Contains("turned down", message);
+            Assert.Equal(2, target.Contract!.ClubId);
+            Assert.Contains("turned down", _engine.SubmitBid(target.Id, 100).Message);
+            Assert.Contains("turned down", _engine.CompletePurchase(target.Id, 100, 2));
+            Assert.Equal(2, target.Contract.ClubId);
+        }
+    }
+
+    [Fact]
+    public void SigningLevelRefusal_IgnoresUnlistedContractedPlayers()
+    {
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 50);
+        var target = PlayerAt(2);
+        target.Rating = 90;
+
+        Assert.Null(_engine.SigningLevelRefusal(target));
+        Assert.DoesNotContain("turned down", _engine.SubmitBid(target.Id, 100).Message);
     }
 
     [Fact]

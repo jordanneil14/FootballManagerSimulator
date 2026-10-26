@@ -544,6 +544,7 @@ public class GameEngine(
         var item = transferListHelper.GetTransferListItemByPlayerId(playerId);
         if (item == null) return "This player is not on the transfer list.";
         if (RetirementRefusal(playerId) is { } refusal) return refusal;
+        if (SigningLevelRefusal(playerId) is { } levelRefusal) return levelRefusal;
         if (item.AskingPrice > MyClub.TransferBudget) return "Insufficient funds to purchase this player.";
 
         transferListHelper.TransferContractedPlayerByPlayerIdAndClubId(item.PlayerId, MyClub.Id);
@@ -605,7 +606,7 @@ public class GameEngine(
         return $"{player.Name} has signed a new contract until {expiryDate:dd MMM yyyy}.";
     }
 
-    public const int FreeAgentRatingRange = 5;
+    public const int SigningRatingRange = 5;
     public const int SquadAverageBestPlayers = 20;
 
     // Judged on the best players only, so a big squad padded with youngsters and reserves isn't held against you.
@@ -621,19 +622,25 @@ public class GameEngine(
         return ratings.Count == 0 ? null : ratings.Average();
     }
 
-    // Free agents won't drop to a club well below their level; weaker players will always join.
-    public string? FreeAgentLevelRefusal(PlayerModel player)
+    // Free agents and transfer-listed players won't drop to a club well below their level;
+    // weaker players will always join. Other contracted players aren't affected.
+    public string? SigningLevelRefusal(PlayerModel player)
     {
-        if (MySquadAverageRating() is not { } average || player.Rating - average <= FreeAgentRatingRange)
+        var appliesToPlayer = player.Contract == null
+            || (player.Contract.ClubId != State.MyClubId && transferListHelper.IsPlayerTransferListed(player.Id));
+        if (!appliesToPlayer || MySquadAverageRating() is not { } average || player.Rating - average <= SigningRatingRange)
             return null;
 
         return $"{player.Name} doesn't think your squad is at his level and has turned down the move.";
     }
 
+    private string? SigningLevelRefusal(int playerId) =>
+        playerHelper.GetPlayerById(playerId) is { } player ? SigningLevelRefusal(player) : null;
+
     public string SignFreeAgent(int playerId, int contractYears)
     {
         if (RetirementRefusal(playerId) is { } refusal) return refusal;
-        if (playerHelper.GetPlayerById(playerId) is { } candidate && FreeAgentLevelRefusal(candidate) is { } levelRefusal) return levelRefusal;
+        if (SigningLevelRefusal(playerId) is { } levelRefusal) return levelRefusal;
 
         transferListHelper.SignFreeAgentByPlayerId(playerId, contractYears);
         var player = playerHelper.GetPlayerById(playerId);
@@ -648,6 +655,9 @@ public class GameEngine(
 
         if (RetirementRefusal(playerId) is { } refusal)
             return new BidResultModel { Message = refusal };
+
+        if (SigningLevelRefusal(player) is { } levelRefusal)
+            return new BidResultModel { Message = levelRefusal };
 
         if (!IsTransferWindowOpen)
             return new BidResultModel { Message = "The transfer window is currently closed." };
@@ -690,6 +700,7 @@ public class GameEngine(
         var player = playerHelper.GetPlayerById(playerId);
         if (player?.Contract == null) return "Player not found.";
         if (RetirementRefusal(playerId) is { } refusal) return refusal;
+        if (SigningLevelRefusal(player) is { } levelRefusal) return levelRefusal;
 
         var sellingClubId = player.Contract.ClubId;
         var sellingClub = clubHelper.GetClubById(sellingClubId);

@@ -60,7 +60,7 @@
                     <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
                     <td>
                         @(player.Contract?.ClubName ?? "Free Agent")
-                        @if (player.Contract == null && Engine.FreeAgentLevelRefusal(player) != null)
+                        @if (Engine.SigningLevelRefusal(player) != null)
                         {
                             <span class="muted" style="font-size:.8rem"> · won't sign</span>
                         }
@@ -111,18 +111,19 @@
     private List<PlayerModel> BuildPlayerList()
     {
         var freeAgents = Engine.State.Players
-            .Where(p => p.Contract == null && (!_onlyWillSign || Engine.FreeAgentLevelRefusal(p) == null))
+            .Where(p => p.Contract == null && (!_onlyWillSign || Engine.SigningLevelRefusal(p) == null))
             .OrderByDescending(p => p.Rating);
+
+        var contracted = Engine.State.Players
+            .Where(p => p.Contract != null && (!_onlyWillSign || Engine.SigningLevelRefusal(p) == null));
 
         IEnumerable<PlayerModel> players = _contractFilter switch
         {
-            "Contracted" => Engine.State.Players
-                .Where(p => p.Contract != null)
+            "Contracted" => contracted
                 .OrderBy(p => p.Contract!.ClubName)
                 .ThenByDescending(p => p.Rating),
             "FreeAgent" => freeAgents,
-            _ => Engine.State.Players
-                .Where(p => p.Contract != null)
+            _ => contracted
                 .OrderBy(p => p.Contract!.ClubName)
                 .ThenByDescending(p => p.Rating)
                 .Concat(freeAgents)
