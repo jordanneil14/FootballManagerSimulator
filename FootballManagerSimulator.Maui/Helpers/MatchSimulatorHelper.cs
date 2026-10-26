@@ -45,7 +45,7 @@ public class MatchSimulatorHelper(
     private void SimulatePenalties(FixtureModel fixture)
     {
         var (homeRating, awayRating) = GetRatingsAtMinute(fixture, 121);
-        if (RandomNumberHelper.Next(0, homeRating + awayRating) < homeRating)
+        if (HomeWinsChance(homeRating, awayRating))
             fixture.GoalsHome += 1;
         else
             fixture.GoalsAway += 1;
@@ -468,30 +468,37 @@ public class MatchSimulatorHelper(
         secondLeg.FirstLegGoalsAway = firstLeg.GoalsAway;
     }
 
-    private (int homeRating, int awayRating) GetAdjustedRatings(FixtureModel fixture)
+    // Raising ratings to this power widens the gap between strong and weak sides, so upsets
+    // stay possible but rare. Applied before the multipliers below so those keep their stated strength.
+    internal const double RatingGapExponent = 3;
+
+    private (double homeRating, double awayRating) GetAdjustedRatings(FixtureModel fixture)
     {
-        var homeRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.HomeClub.Id);
-        var awayRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id);
+        var homeRating = Math.Pow(ClubHelper.GetStartingElevenSumRatingForClub(fixture.HomeClub.Id), RatingGapExponent);
+        var awayRating = Math.Pow(ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id), RatingGapExponent);
 
         if (fixture.HomeClub.Id == State.MyClubId)
-            homeRating = (int)(homeRating * 1.1);
+            homeRating *= 1.1;
         else if (fixture.AwayClub.Id == State.MyClubId)
-            awayRating = (int)(awayRating * 1.1);
+            awayRating *= 1.1;
 
-        awayRating = (int)(awayRating * .8);
+        awayRating *= .8;
 
         return (homeRating, awayRating);
     }
 
     // Each player sent off before the given minute costs the team 20% of its rating.
-    private (int homeRating, int awayRating) GetRatingsAtMinute(FixtureModel fixture, int minute)
+    private (double homeRating, double awayRating) GetRatingsAtMinute(FixtureModel fixture, int minute)
     {
         var (homeRating, awayRating) = GetAdjustedRatings(fixture);
         var homeReds = GetSentOffPlayerIds(fixture.HomeCards, minute).Count;
         var awayReds = GetSentOffPlayerIds(fixture.AwayCards, minute).Count;
 
-        return ((int)(homeRating * Math.Pow(0.8, homeReds)), (int)(awayRating * Math.Pow(0.8, awayReds)));
+        return (homeRating * Math.Pow(0.8, homeReds), awayRating * Math.Pow(0.8, awayReds));
     }
+
+    private static bool HomeWinsChance(double homeRating, double awayRating) =>
+        RandomNumberHelper.NextDouble() * (homeRating + awayRating) < homeRating;
 
     private static HashSet<int> GetSentOffPlayerIds(IEnumerable<CardModel> cards, int minute)
     {
@@ -507,7 +514,7 @@ public class MatchSimulatorHelper(
         var awayFilled = awaySlots.Where(s => s.PlayerId != null).ToList();
 
         var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
-        var isHome = RandomNumberHelper.Next(0, homeRating + awayRating) < homeRating;
+        var isHome = HomeWinsChance(homeRating, awayRating);
 
         if (isHome && !homeFilled.Any()) isHome = false;
         else if (!isHome && !awayFilled.Any()) isHome = true;
