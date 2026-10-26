@@ -474,9 +474,9 @@ public class MatchSimulatorHelper(
         var awayRating = ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id);
 
         if (fixture.HomeClub.Id == State.MyClubId)
-            homeRating = (int)(homeRating * 1.125);
+            homeRating = (int)(homeRating * 1.1);
         else if (fixture.AwayClub.Id == State.MyClubId)
-            awayRating = (int)(awayRating * 1.125);
+            awayRating = (int)(awayRating * 1.1);
 
         awayRating = (int)(awayRating * .8);
 
