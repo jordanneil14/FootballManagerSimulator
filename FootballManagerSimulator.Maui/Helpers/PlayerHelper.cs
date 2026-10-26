@@ -60,22 +60,22 @@ public class PlayerHelper(IState state) : IPlayerHelper
 
         return player.Rating switch
         {
-            < 50 => player.Rating * 750,
-            < 53 => player.Rating * 1050,
-            < 56 => player.Rating * 1500,
-            < 59 => player.Rating * 2625,
-            < 62 => player.Rating * 4125,
-            < 65 => player.Rating * 5250,
-            < 68 => player.Rating * 7500,
-            < 71 => player.Rating * 12000,
-            < 74 => player.Rating * 18000,
-            < 77 => player.Rating * 30000,
-            < 80 => player.Rating * 75000,
-            < 83 => player.Rating * 202500,
-            < 86 => player.Rating * 337500,
-            < 89 => player.Rating * 525000,
-            < 92 => player.Rating * 862500,
-            _ => player.Rating * 1125000,
+            < 50 => player.Rating * 500,
+            < 53 => player.Rating * 700,
+            < 56 => player.Rating * 1000,
+            < 59 => player.Rating * 1750,
+            < 62 => player.Rating * 2750,
+            < 65 => player.Rating * 3500,
+            < 68 => player.Rating * 5000,
+            < 71 => player.Rating * 8000,
+            < 74 => player.Rating * 12000,
+            < 77 => player.Rating * 20000,
+            < 80 => player.Rating * 50000,
+            < 83 => player.Rating * 135000,
+            < 86 => player.Rating * 225000,
+            < 89 => player.Rating * 350000,
+            < 92 => player.Rating * 575000,
+            _ => player.Rating * 750000,
         };
     }
 }

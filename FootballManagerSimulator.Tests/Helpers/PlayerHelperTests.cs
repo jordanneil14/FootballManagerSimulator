@@ -18,16 +18,16 @@ public class PlayerHelperTests
     }
 
     [Theory]
-    [InlineData(40, 40 * 750)]
-    [InlineData(49, 49 * 750)]
-    [InlineData(50, 50 * 1050)]
-    [InlineData(60, 60 * 4125)]
-    [InlineData(70, 70 * 12000)]
-    [InlineData(79, 79 * 75000)]
-    [InlineData(80, 80 * 202500)]
-    [InlineData(85, 85 * 337500)]
-    [InlineData(91, 91 * 862500)]
-    [InlineData(92, 92 * 1125000)]
+    [InlineData(40, 40 * 500)]
+    [InlineData(49, 49 * 500)]
+    [InlineData(50, 50 * 700)]
+    [InlineData(60, 60 * 2750)]
+    [InlineData(70, 70 * 8000)]
+    [InlineData(79, 79 * 50000)]
+    [InlineData(80, 80 * 135000)]
+    [InlineData(85, 85 * 225000)]
+    [InlineData(91, 91 * 575000)]
+    [InlineData(92, 92 * 750000)]
     public void GetTransferValue_UsesRatingBand(int rating, int expected)
     {
         Assert.Equal(expected, _helper.GetTransferValue(TestData.Player(1, clubId: 1, rating: rating)));
