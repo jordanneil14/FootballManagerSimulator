@@ -181,11 +181,12 @@ public class ProcessHelper(
             $"The new season has begun. The board has added £{myIncrease:n0} to your budget. Good luck!");
     }
 
-    // Each club receives its seasonal allocation (its starting budget from settings) on
-    // top of whatever it has left. Returns the amount given to the user's club.
+    // Each club receives its seasonal allocation for the league it is now in (see SeasonalBudgetRules)
+    // on top of whatever it has left. Returns the amount given to the user's club.
+    // Must run after promotion and relegation so clubs are paid for their new division.
     private int IncreaseTransferBudgets()
     {
-        var allocations = Settings.Clubs.ToDictionary(p => p.Id, p => p.TransferBudget);
+        var allocations = SeasonalBudgetRules.Budgets(State.Clubs, Settings.Competitions);
         var myIncrease = 0;
 
         foreach (var club in State.Clubs)

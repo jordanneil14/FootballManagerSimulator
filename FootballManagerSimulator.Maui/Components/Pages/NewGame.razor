@@ -72,7 +72,7 @@
             <dt>League</dt><dd>@LeagueName(_leagueId)</dd>
             <dt>Club</dt><dd>@_summaryClub.Name</dd>
             <dt>Stadium</dt><dd>@_summaryClub.Stadium</dd>
-            <dt>Budget</dt><dd>@Ui.Money(_summaryClub.TransferBudget)</dd>
+            <dt>Budget</dt><dd>@Ui.Money(Engine.State.Clubs.FirstOrDefault(p => p.Id == _summaryClub.Id)?.TransferBudget ?? 0)</dd>
             <dt>Key player</dt><dd>@KeyPlayer(_summaryClub.Id)</dd>
         </dl>
         <div class="divider"></div>

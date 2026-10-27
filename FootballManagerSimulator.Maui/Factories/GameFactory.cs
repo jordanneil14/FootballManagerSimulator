@@ -130,11 +130,15 @@ public class GameFactory(
             Name = p.Name,
             Stadium = p.Stadium,
             StadiumSize = p.StadiumSize,
-            TransferBudget = p.TransferBudget,
             WageBudget = p.WageBudget,
             LeagueId = p.LeagueId,
             Colour = p.Colour
         }).ToList();
+
+        // Same rule as the board's end-of-season allocation, so a new club starts with one season's budget.
+        var budgets = SeasonalBudgetRules.Budgets(State.Clubs, Settings.Competitions);
+        foreach (var club in State.Clubs)
+            club.TransferBudget = budgets.GetValueOrDefault(club.Id);
 
         var generator = new PlayerGenerator.PlayerGenerator();
         var startDate = Settings.General.StartDate;

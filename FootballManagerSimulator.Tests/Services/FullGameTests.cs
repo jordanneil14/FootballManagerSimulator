@@ -79,6 +79,16 @@ public class FullGameTests : IDisposable
         Assert.Contains(state.Players, p => p.Contract == null); // free agents exist
         Assert.All(state.Clubs, c => Assert.InRange(c.AcademyRating, AcademyRules.Min, AcademyRules.StartingMax));
 
+        // Starting budgets come from the seasonal budget rule, and every English division averages more than the one below.
+        Assert.Equal(SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions), state.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget));
+        var englishLeagues = _host.Settings.Competitions.Where(c => c.IsLeague && c.CountryId == 1).ToList();
+        var averageByRank = englishLeagues
+            .GroupBy(l => l.Rank)
+            .OrderBy(g => g.Key)
+            .Select(g => state.Clubs.Where(c => g.Any(l => l.Id == c.LeagueId)).Average(c => c.TransferBudget))
+            .ToList();
+        Assert.Equal(averageByRank.OrderByDescending(a => a), averageByRank);
+
         foreach (var club in state.Clubs)
         {
             var squad = state.Players.Count(p => p.Contract?.ClubId == club.Id);
@@ -225,9 +235,14 @@ public class FullGameTests : IDisposable
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
 
-        // Every club receives its seasonal budget allocation on top of what it had left.
-        var allocations = _host.Settings.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
+        // Every club receives its seasonal budget allocation for its new league on top of what it had left.
+        var allocations = SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions);
         Assert.All(state.Clubs, c => Assert.Equal(budgetsBefore[c.Id] + allocations[c.Id], c.TransferBudget));
+
+        // Promoted clubs are now paid as top-flight clubs, relegated clubs as second-tier ones.
+        var startingBudgets = SeasonalBudgetRules.Budgets(_host.Settings.Clubs, _host.Settings.Competitions);
+        Assert.All(promoted, id => Assert.True(allocations[id] > startingBudgets[id]));
+        Assert.All(relegated, id => Assert.True(allocations[id] < startingBudgets[id]));
 
         Assert.All(relegated, id => Assert.Equal(2, state.Clubs.Single(c => c.Id == id).LeagueId));
         Assert.All(promoted, id => Assert.Equal(1, state.Clubs.Single(c => c.Id == id).LeagueId));
