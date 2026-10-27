@@ -7,12 +7,10 @@ namespace FootballManagerSimulator.Maui.Helpers;
 public class ScoutHelper(
     IState state,
     IPlayerHelper playerHelper,
-    ITransferListHelper transferListHelper,
     INotificationFactory notificationFactory) : IScoutHelper
 {
     private readonly IState State = state;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
-    private readonly ITransferListHelper TransferListHelper = transferListHelper;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
 
     private ClubModel? MyClub => State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
@@ -54,16 +52,14 @@ public class ScoutHelper(
         return State.Players.Where(p => discovered.Contains(p.Id) && (p.Contract == null || p.Contract.ClubId != State.MyClubId));
     }
 
-    // Mirrors the signing rules in GameEngine: retiring players won't sign, and free agents and
-    // transfer-listed players won't drop to a squad well below their level.
+    // Mirrors the signing rules in GameEngine: retiring players won't sign, and nobody will
+    // drop to a squad well below their level.
     public bool WillSign(PlayerModel player)
     {
         if (player.IsRetiring(State.Date))
             return false;
 
-        var appliesToPlayer = player.Contract == null
-            || (player.Contract.ClubId != State.MyClubId && TransferListHelper.IsPlayerTransferListed(player.Id));
-        if (!appliesToPlayer || MyClub is not { } club)
+        if (player.Contract?.ClubId == State.MyClubId || MyClub is not { } club)
             return true;
 
         var ratings = State.Players

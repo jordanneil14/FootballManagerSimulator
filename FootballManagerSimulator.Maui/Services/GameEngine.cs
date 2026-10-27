@@ -624,12 +624,11 @@ public class GameEngine(
         return ratings.Count == 0 ? null : ratings.Average();
     }
 
-    // Free agents and transfer-listed players won't drop to a club well below their level;
-    // weaker players will always join. Other contracted players aren't affected.
+    // No player will drop to a club well below their level; weaker players will always join.
+    // Your own players are never refused, since they've already signed.
     public string? SigningLevelRefusal(PlayerModel player)
     {
-        var appliesToPlayer = player.Contract == null
-            || (player.Contract.ClubId != State.MyClubId && transferListHelper.IsPlayerTransferListed(player.Id));
+        var appliesToPlayer = player.Contract == null || player.Contract.ClubId != State.MyClubId;
         if (!appliesToPlayer || MySquadAverageRating() is not { } average || player.Rating - average <= SigningRatingRange)
             return null;
 

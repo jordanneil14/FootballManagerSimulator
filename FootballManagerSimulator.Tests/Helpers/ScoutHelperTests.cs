@@ -12,9 +12,7 @@ public class ScoutHelperTests
 
     public ScoutHelperTests()
     {
-        var players = new PlayerHelper(_state);
-        var transfers = new TransferListHelper(_state, players, new ClubHelper(_state), new RecordingNotifications());
-        _helper = new ScoutHelper(_state, players, transfers, new NotificationFactory(_state));
+        _helper = new ScoutHelper(_state, new PlayerHelper(_state), new NotificationFactory(_state));
     }
 
     private ClubModel MyClub => _state.Clubs[0];

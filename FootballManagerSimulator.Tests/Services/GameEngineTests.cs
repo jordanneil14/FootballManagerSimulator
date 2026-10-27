@@ -635,14 +635,26 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
-    public void SigningLevelRefusal_IgnoresUnlistedContractedPlayers()
+    public void SigningLevelRefusal_AppliesToUnlistedContractedPlayers()
     {
         _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 50);
         var target = PlayerAt(2);
         target.Rating = 90;
 
-        Assert.Null(_engine.SigningLevelRefusal(target));
-        Assert.DoesNotContain("turned down", _engine.SubmitBid(target.Id, 100).Message);
+        Assert.NotNull(_engine.SigningLevelRefusal(target));
+        Assert.Contains("turned down", _engine.SubmitBid(target.Id, 100).Message);
+        Assert.Contains("turned down", _engine.CompletePurchase(target.Id, 100, 2));
+        Assert.Equal(2, target.Contract!.ClubId);
+    }
+
+    [Fact]
+    public void SigningLevelRefusal_NeverAppliesToMyOwnPlayers()
+    {
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).ToList().ForEach(p => p.Rating = 50);
+        var mine = PlayerAt(1);
+        mine.Rating = 90;
+
+        Assert.Null(_engine.SigningLevelRefusal(mine));
     }
 
     [Fact]
