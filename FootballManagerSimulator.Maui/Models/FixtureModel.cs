@@ -24,4 +24,6 @@ public class FixtureModel : IFixture
     public FixtureType FixtureType { get; set; } = FixtureType.Base;
     public int? FirstLegGoalsHome { get; set; }
     public int? FirstLegGoalsAway { get; set; }
+    // Set once an English Cup tie's prize money has gone to both clubs, so it is never paid twice.
+    public bool PrizeMoneyPaid { get; set; }
 }

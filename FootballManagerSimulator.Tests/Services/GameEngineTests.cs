@@ -326,6 +326,101 @@ public class GameEngineTests : IDisposable
         Assert.Equal("Last match: Club 2 2 - 1 Club 1", _engine.NextMatchCaption());
     }
 
+    // ----- English Cup prize money -------------------------------------------------------
+
+    private CupModel AddEnglishCup()
+    {
+        var cup = TestData.LeagueCup(Enumerable.Range(0, 7).Select(i => _state.Date.AddDays(i * 14)).ToArray());
+        cup.Name = "English Cup";
+        _state.Competitions.Add(cup);
+        return cup;
+    }
+
+    private FixtureModel AddCupTieToday(CupModel cup, ClubModel winner, ClubModel loser, int round)
+    {
+        var tie = AddFixtureToday(winner, loser, cup);
+        (tie.Round, tie.GoalsHome, tie.GoalsAway, tie.Concluded, tie.ClubWon) = (round, 1, 0, true, winner);
+        return tie;
+    }
+
+    [Fact]
+    public void CupTies_PayBothClubsOnceTheDaysResultsAreIn_TheWinnerDouble()
+    {
+        var (winner, loser) = (_state.Clubs[1], _state.Clubs[2]);
+        var (winnerBudget, loserBudget) = (winner.TransferBudget, loser.TransferBudget);
+        AddCupTieToday(AddEnglishCup(), winner, loser, round: 3);
+
+        _engine.AdvanceTodaysFixtures();
+
+        Assert.Equal(winnerBudget + CupPrizeMoneyRules.ForWinner(3), winner.TransferBudget);
+        Assert.Equal(loserBudget + CupPrizeMoneyRules.ForLoser(3), loser.TransferBudget);
+        Assert.Equal(2 * CupPrizeMoneyRules.ForLoser(3), CupPrizeMoneyRules.ForWinner(3));
+        Assert.DoesNotContain(_state.Notifications, n => n.Subject.EndsWith("Prize Money")); // not my tie
+    }
+
+    [Fact]
+    public void CupTies_PayNothingWhileMyMatchIsBeingPlayed_ThenPayAtFullTime()
+    {
+        var cup = AddEnglishCup();
+        var opponent = _state.Clubs[1];
+        var budget = MyClub.TransferBudget;
+        var otherTie = AddCupTieToday(cup, _state.Clubs[2], TestData.Club(77), round: 7);
+        var mine = AddFixtureToday(MyClub, opponent, cup);
+        mine.Round = 7;
+        var otherWinnerBudget = _state.Clubs[2].TransferBudget;
+
+        _engine.Advance(); // my match isn't over, so nobody is paid yet
+        Assert.False(otherTie.PrizeMoneyPaid);
+        Assert.Equal(otherWinnerBudget, _state.Clubs[2].TransferBudget);
+
+        (mine.GoalsHome, mine.GoalsAway, mine.Concluded, mine.ClubWon) = (2, 1, true, MyClub);
+        _engine.CompleteRemainingFixtures();
+        _engine.CompleteRemainingFixtures(); // a second pass must not pay again
+
+        Assert.Equal(budget + CupPrizeMoneyRules.ForWinner(7), MyClub.TransferBudget);
+        Assert.Equal(otherWinnerBudget + CupPrizeMoneyRules.ForWinner(7), _state.Clubs[2].TransferBudget);
+        var notification = Assert.Single(_state.Notifications, n => n.Subject == "English Cup Prize Money");
+        Assert.Contains($"win over {opponent.Name} in the final of the English Cup", notification.Message);
+        Assert.Contains($"£{CupPrizeMoneyRules.ForWinner(7):n0}", notification.Message);
+    }
+
+    [Fact]
+    public void CupTies_TellMeWhatALossStillEarned()
+    {
+        AddCupTieToday(AddEnglishCup(), _state.Clubs[1], MyClub, round: 5);
+        var budget = MyClub.TransferBudget;
+
+        _engine.CompleteRemainingFixtures();
+
+        Assert.Equal(budget + CupPrizeMoneyRules.ForLoser(5), MyClub.TransferBudget);
+        Assert.Contains("defeat to Club 2 in the quarter-final", Assert.Single(_state.Notifications).Message);
+    }
+
+    [Fact]
+    public void CupTies_PayTheRealClubsAfterALoadNotTheFixtureCopies()
+    {
+        var copy = TestData.Club(2, budget: 0);
+        AddCupTieToday(AddEnglishCup(), copy, TestData.Club(3, budget: 0), round: 1);
+        var budget = _state.Clubs[1].TransferBudget;
+
+        _engine.CompleteRemainingFixtures();
+
+        Assert.Equal(budget + CupPrizeMoneyRules.ForWinner(1), _state.Clubs[1].TransferBudget);
+        Assert.Equal(0, copy.TransferBudget);
+    }
+
+    [Fact]
+    public void LeagueWins_EarnNoPrizeMoney()
+    {
+        var fixture = AddFixtureToday(_state.Clubs[1], _state.Clubs[2]);
+        (fixture.GoalsHome, fixture.GoalsAway, fixture.Concluded, fixture.ClubWon) = (1, 0, true, _state.Clubs[1]);
+        var budget = _state.Clubs[1].TransferBudget;
+
+        _engine.CompleteRemainingFixtures();
+
+        Assert.Equal(budget, _state.Clubs[1].TransferBudget);
+    }
+
     // ----- Tactics ----------------------------------------------------------------------
 
     [Fact]

@@ -202,6 +202,8 @@ public class GameEngine(
 
         try
         {
+            // Catches a match day left at the full-time screen, so its cup ties still pay before the date moves on.
+            PayCupPrizeMoney();
             processHelper.Process();
             // A new day has started, so yesterday's match is over however the user left it.
             State.MatchInProgress = false;
@@ -251,6 +253,7 @@ public class GameEngine(
             }
         }
 
+        PayCupPrizeMoney();
         NotifyChanged();
         return TodaysFixturesResult.Results;
     }
@@ -347,9 +350,59 @@ public class GameEngine(
                 MatchSimulator.ProcessMatch(fixture, competition);
 
         State.MatchInProgress = false;
+        PayCupPrizeMoney();
         AutoSave();
         NotifyChanged();
     }
+
+    // English Cup ties pay both clubs, the winner double, but only once every match today is over,
+    // so no money moves while the user's own game is still being played.
+    private void PayCupPrizeMoney()
+    {
+        if (HasOutstandingFixturesToday())
+            return;
+
+        foreach (var cup in State.Competitions.Where(p => p.Type == CompetitionType.Cup))
+        {
+            var finalRound = cup.DrawSettings.Count == 0 ? 0 : cup.DrawSettings.Max(p => p.Round);
+            var ties = cup.Fixtures.Where(p => p.Date == State.Date && p.Concluded && !p.PrizeMoneyPaid && p.ClubWon != null);
+
+            foreach (var tie in ties)
+            {
+                tie.PrizeMoneyPaid = true;
+
+                // Fixture clubs can be copies after a save/load, so pay the canonical State.Clubs entries.
+                var winnerId = tie.ClubWon!.Id;
+                var loserId = winnerId == tie.HomeClub.Id ? tie.AwayClub.Id : tie.HomeClub.Id;
+                var winner = State.Clubs.FirstOrDefault(p => p.Id == winnerId);
+                var loser = State.Clubs.FirstOrDefault(p => p.Id == loserId);
+                var winnings = CupPrizeMoneyRules.ForWinner(tie.Round);
+                var consolation = CupPrizeMoneyRules.ForLoser(tie.Round);
+
+                if (winner != null)
+                    winner.TransferBudget = (int)Math.Min((long)winner.TransferBudget + winnings, int.MaxValue);
+                if (loser != null)
+                    loser.TransferBudget = (int)Math.Min((long)loser.TransferBudget + consolation, int.MaxValue);
+
+                var stage = $"{CupPrizeMoneyRules.RoundName(tie.Round, finalRound)} of the {cup.Name}";
+                if (winnerId == State.MyClubId)
+                    AddCupPrizeMoneyNotification(cup.Name,
+                        $"Your win over {loser?.Name} in {stage} has earned £{winnings:n0} in prize money. It has been added to your budget.");
+                else if (loserId == State.MyClubId)
+                    AddCupPrizeMoneyNotification(cup.Name,
+                        $"Your defeat to {winner?.Name} in {stage} still earned £{consolation:n0} in prize money. It has been added to your budget.");
+            }
+        }
+    }
+
+    private void AddCupPrizeMoneyNotification(string cupName, string message) =>
+        State.Notifications.Add(new NotificationModel
+        {
+            Date = State.Date,
+            Recipient = "Chairman",
+            Subject = $"{cupName} Prize Money",
+            Message = message
+        });
 
     // ---------------------------------------------------------------------------------
     // Queries used by the UI
