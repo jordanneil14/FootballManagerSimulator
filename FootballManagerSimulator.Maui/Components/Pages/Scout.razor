@@ -235,9 +235,9 @@
 
     protected override void OnInitialized() => Scouts.EnsureDiscoveredPlayers();
 
+    // Players can have several positions ("CAM/CM"), so list each one on its own.
     private IEnumerable<string> Positions() => Engine.State.Players
-        .Select(p => p.PreferredPosition)
-        .Where(p => !string.IsNullOrEmpty(p))
+        .SelectMany(p => p.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         .Distinct()
         .OrderBy(p => p);
 

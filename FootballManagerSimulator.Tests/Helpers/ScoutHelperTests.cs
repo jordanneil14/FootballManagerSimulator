@@ -95,6 +95,16 @@ public class ScoutHelperTests
     }
 
     [Fact]
+    public void MatchesAssignment_FindsPlayersWithTheRoleAmongSeveralPositions()
+    {
+        var player = TestData.Player(5000, clubId: null, position: "CAM/CM");
+
+        Assert.True(_helper.MatchesAssignment(player, new ScoutAssignmentModel { Position = "CAM" }));
+        Assert.True(_helper.MatchesAssignment(player, new ScoutAssignmentModel { Position = "CM" }));
+        Assert.False(_helper.MatchesAssignment(player, new ScoutAssignmentModel { Position = "ST" }));
+    }
+
+    [Fact]
     public void ProcessScouts_RecommendsChangingTheAssignmentWhenNothingIsFound()
     {
         _helper.HireScout();

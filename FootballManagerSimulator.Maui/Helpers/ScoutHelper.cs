@@ -74,7 +74,8 @@ public class ScoutHelper(
 
     public bool MatchesAssignment(PlayerModel player, ScoutAssignmentModel assignment)
     {
-        if (!string.IsNullOrEmpty(assignment.Position) && player.PreferredPosition != assignment.Position)
+        if (!string.IsNullOrEmpty(assignment.Position)
+            && !player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Contains(assignment.Position))
             return false;
         if (assignment.FreeAgent is { } freeAgent && (player.Contract == null) != freeAgent)
             return false;
