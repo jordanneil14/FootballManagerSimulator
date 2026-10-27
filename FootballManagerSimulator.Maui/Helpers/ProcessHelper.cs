@@ -21,6 +21,7 @@ public class ProcessHelper(
     FriendlyService friendlyService,
     ITacticHelper tacticHelper,
     IJobOfferHelper jobOfferHelper,
+    IScoutHelper scoutHelper,
     IServiceProvider serviceProvider) : IProcessHelper
 {
     private readonly IState State = state;
@@ -33,6 +34,7 @@ public class ProcessHelper(
     private readonly FriendlyService FriendlyService = friendlyService;
     private readonly ITacticHelper TacticHelper = tacticHelper;
     private readonly IJobOfferHelper JobOfferHelper = jobOfferHelper;
+    private readonly IScoutHelper ScoutHelper = scoutHelper;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
 
     // Advances the simulation by one day. If the user's club (or any club) has an
@@ -50,6 +52,7 @@ public class ProcessHelper(
             JobOfferHelper.SackUser();
 
         AnnounceTransferWindowChange();
+        ScoutHelper.ProcessScouts();
 
         if (State.Date.Month == 6 && State.Date.Day == 30)
         {
@@ -175,7 +178,7 @@ public class ProcessHelper(
             State.Date,
             "Chairman",
             "New Season",
-            $"The new season has begun. The board has added £{myIncrease:n0} to your transfer budget. Good luck!");
+            $"The new season has begun. The board has added £{myIncrease:n0} to your budget. Good luck!");
     }
 
     // Each club receives its seasonal allocation (its starting budget from settings) on

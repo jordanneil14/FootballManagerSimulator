@@ -90,7 +90,7 @@ public class ClubRequestEventTests : IDisposable
 
         Assert.Equal(5_000_000 + amount, _myClub.TransferBudget);
         var notification = Assert.Single(_host.State.Notifications);
-        Assert.Equal("Transfer Budget Request", notification.Subject);
+        Assert.Equal("Budget Request", notification.Subject);
         Assert.Contains($"£{amount:n0}", notification.Message);
     }
 

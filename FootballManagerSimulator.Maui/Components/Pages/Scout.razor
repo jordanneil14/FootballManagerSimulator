@@ -1,13 +1,60 @@
 @page "/scout"
 @layout GameLayout
 @inject GameEngine Engine
+@inject IScoutHelper Scouts
 @inject NavigationManager Nav
 
 <PageTitle>Scout</PageTitle>
 
 <div class="page-head">
-    <div><h1>Scout</h1><div class="subtitle">Search every player in the game</div></div>
+    <div><h1>Scout</h1><div class="subtitle">Players your club has discovered</div></div>
 </div>
+
+@if (_message != null)
+{
+    <div class="feedback"><div class="feedback-item">@_message</div></div>
+}
+
+@if (!Engine.IsUnemployed)
+{
+    <div class="panel">
+        <h2 style="justify-content:space-between;flex-wrap:wrap">
+            <span>🕵️ Scouts <span class="panel-title-sub">@Engine.State.Scouts.Count / @ScoutRules.MaxScouts</span></span>
+            <button class="btn btn-primary" @onclick="HireScout"
+                    disabled="@(Engine.State.Scouts.Count >= ScoutRules.MaxScouts || Engine.MyClub.TransferBudget < ScoutRules.MonthlyWage)">
+                Hire Scout (@Ui.Money(ScoutRules.MonthlyWage)/month)
+            </button>
+        </h2>
+        <p style="font-size:.82rem">Each scout costs <strong>@Ui.Money(ScoutRules.MonthlyWage)</strong> per month from the budget and reports up to @ScoutRules.MaxPlayersPerReport new players every month.</p>
+        @if (Engine.State.Scouts.Count == 0)
+        {
+            <p class="muted">You haven't hired any scouts yet.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data">
+                    <thead>
+                        <tr><th>Name</th><th>Assignment</th><th>Next Report</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var scout in Engine.State.Scouts)
+                        {
+                            <tr class="clickable" @onclick="() => OpenAssignment(scout)">
+                                <td><strong>@scout.Name</strong></td>
+                                <td style="font-size:.82rem">@(scout.Assignment?.Describe() ?? "None - searching for any player")</td>
+                                <td>@scout.NextReportDate.ToString("dd MMM yyyy")</td>
+                                <td style="text-align:right;white-space:nowrap" @onclick:stopPropagation>
+                                    <button class="btn btn-danger" @onclick="() => _dismissScout = scout">Dismiss</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
 
 <div class="panel">
     <h2 class="clickable" style="cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center" @onclick="() => _filtersOpen = !_filtersOpen">
@@ -49,7 +96,7 @@
 <div class="table-wrap">
     <table class="data">
         <thead>
-            <tr><th>Pos</th><th>Name</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
+            <tr><th>Pos</th><th>Name</th><th class="num">Age</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
         </thead>
         <tbody>
             @foreach (var player in pagePlayers)
@@ -57,6 +104,7 @@
                 <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
                     <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
                     <td><strong>@player.Name</strong></td>
+                    <td class="num">@player.GetAge(Engine.State.Date)</td>
                     <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
                     <td>
                         @(player.Contract?.ClubName ?? "Free Agent")
@@ -70,7 +118,7 @@
             }
             @if (!pagePlayers.Any())
             {
-                <tr><td colspan="5" class="center muted">No players match your filters.</td></tr>
+                <tr><td colspan="6" class="center muted">No players match your filters.</td></tr>
             }
         </tbody>
     </table>
@@ -82,6 +130,83 @@
     <button class="btn" @onclick="() => _page++" disabled="@(_page >= pageCount)">Next →</button>
 </div>
 
+@if (_assignmentScout != null)
+{
+    <div class="modal-overlay" @onclick="CloseAssignment">
+        <div class="modal" style="max-width:480px;max-height:calc(100vh - 2rem);overflow-y:auto" @onclick:stopPropagation>
+            <h2>Assignment for @_assignmentScout.Name</h2>
+            <p style="margin-bottom:1rem">Tell your scout what kind of player to look for. Leave a field blank to ignore it.</p>
+            <div style="display:flex;flex-direction:column;gap:.8rem;margin-bottom:1rem">
+                <div class="field" style="margin:0">
+                    <label>Position</label>
+                    <select class="input" @bind="_form.Position">
+                        <option value="">Any</option>
+                        @foreach (var position in Positions())
+                        {
+                            <option value="@position">@position</option>
+                        }
+                    </select>
+                </div>
+                <div class="field" style="margin:0">
+                    <label>Free Agent</label>
+                    <select class="input" @bind="_form.ContractStatus">
+                        <option value="Any">Any</option>
+                        <option value="FreeAgent">Free agents only</option>
+                        <option value="Contracted">Contracted only</option>
+                    </select>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+                    <div class="field" style="margin:0;min-width:0">
+                        <label>Min Age</label>
+                        <input class="input" type="number" min="15" max="45" @bind="_form.MinAge" />
+                    </div>
+                    <div class="field" style="margin:0;min-width:0">
+                        <label>Max Age</label>
+                        <input class="input" type="number" min="15" max="45" @bind="_form.MaxAge" />
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem">
+                    <div class="field" style="margin:0;min-width:0">
+                        <label>Min Overall</label>
+                        <input class="input" type="number" min="1" max="99" @bind="_form.MinRating" />
+                    </div>
+                    <div class="field" style="margin:0;min-width:0">
+                        <label>Max Overall</label>
+                        <input class="input" type="number" min="1" max="99" @bind="_form.MaxRating" />
+                    </div>
+                </div>
+                <div class="field" style="margin:0">
+                    <label>Max Value (£)</label>
+                    <input class="input" type="number" min="0" step="100000" @bind="_form.MaxValue" />
+                </div>
+                <div class="field" style="margin:0">
+                    <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;text-transform:none;letter-spacing:0">
+                        <input type="checkbox" @bind="_form.OnlyWillSign" />
+                        Will sign
+                    </label>
+                </div>
+            </div>
+            @if (_formError != null)
+            {
+                <p style="color:var(--danger);margin-bottom:1rem">@_formError</p>
+            }
+            <div class="modal-actions" style="flex-wrap:wrap">
+                <button class="btn" @onclick="ClearAssignment" style="margin-right:auto">Clear</button>
+                <button class="btn" @onclick="CloseAssignment">Cancel</button>
+                <button class="btn btn-primary" @onclick="SaveAssignment">Save</button>
+            </div>
+        </div>
+    </div>
+}
+
+<ConfirmModal Visible="_dismissScout != null"
+              Title="@($"Dismiss {_dismissScout?.Name}?")"
+              Message="They will leave the club immediately and stop sending scouting reports."
+              ConfirmText="Dismiss"
+              ConfirmClass="btn-danger"
+              OnConfirm="DismissScout"
+              OnCancel="() => _dismissScout = null" />
+
 @code {
     private bool _filtersOpen = true;
     private int _page = 1;
@@ -89,6 +214,102 @@
     private string _contractFilter = "All";
     private bool _onlyWillSign = true;
     private const int PageSize = 20;
+
+    private string? _message;
+    private ScoutModel? _dismissScout;
+    private ScoutModel? _assignmentScout;
+    private AssignmentForm _form = new();
+    private string? _formError;
+
+    private class AssignmentForm
+    {
+        public string Position { get; set; } = "";
+        public string ContractStatus { get; set; } = "Any";
+        public int? MinAge { get; set; }
+        public int? MaxAge { get; set; }
+        public int? MinRating { get; set; }
+        public int? MaxRating { get; set; }
+        public int? MaxValue { get; set; }
+        public bool OnlyWillSign { get; set; } = true;
+    }
+
+    protected override void OnInitialized() => Scouts.EnsureDiscoveredPlayers();
+
+    private IEnumerable<string> Positions() => Engine.State.Players
+        .Select(p => p.PreferredPosition)
+        .Where(p => !string.IsNullOrEmpty(p))
+        .Distinct()
+        .OrderBy(p => p);
+
+    private void HireScout()
+    {
+        _message = Scouts.HireScout();
+        Engine.NotifyChanged();
+    }
+
+    private void DismissScout()
+    {
+        if (_dismissScout != null)
+            _message = Scouts.DismissScout(_dismissScout.Id);
+        _dismissScout = null;
+        Engine.NotifyChanged();
+    }
+
+    private void OpenAssignment(ScoutModel scout)
+    {
+        var a = scout.Assignment;
+        _form = a == null ? new AssignmentForm() : new AssignmentForm
+        {
+            Position = a.Position,
+            ContractStatus = a.FreeAgent switch { true => "FreeAgent", false => "Contracted", null => "Any" },
+            MinAge = a.MinAge,
+            MaxAge = a.MaxAge,
+            MinRating = a.MinRating,
+            MaxRating = a.MaxRating,
+            MaxValue = a.MaxValue,
+            OnlyWillSign = a.OnlyWillSign
+        };
+        _formError = null;
+        _assignmentScout = scout;
+    }
+
+    private void CloseAssignment() => _assignmentScout = null;
+
+    private void ClearAssignment()
+    {
+        if (_assignmentScout != null)
+            _message = Scouts.SetAssignment(_assignmentScout.Id, null);
+        _assignmentScout = null;
+    }
+
+    private void SaveAssignment()
+    {
+        if (_assignmentScout == null) return;
+
+        if (_form.MinAge > _form.MaxAge)
+        {
+            _formError = "Min age can't be above max age.";
+            return;
+        }
+        if (_form.MinRating > _form.MaxRating)
+        {
+            _formError = "Min overall can't be above max overall.";
+            return;
+        }
+
+        _message = Scouts.SetAssignment(_assignmentScout.Id, new ScoutAssignmentModel
+        {
+            Position = _form.Position,
+            FreeAgent = _form.ContractStatus switch { "FreeAgent" => true, "Contracted" => false, _ => null },
+            MinAge = _form.MinAge,
+            MaxAge = _form.MaxAge,
+            MinRating = _form.MinRating,
+            MaxRating = _form.MaxRating,
+            MaxValue = _form.MaxValue,
+            OnlyWillSign = _form.OnlyWillSign
+        });
+        _assignmentScout = null;
+    }
 
     private void OnSearch(ChangeEventArgs e)
     {
@@ -110,12 +331,16 @@
 
     private List<PlayerModel> BuildPlayerList()
     {
-        var freeAgents = Engine.State.Players
-            .Where(p => p.Contract == null && (!_onlyWillSign || Engine.SigningLevelRefusal(p) == null))
+        var discovered = Scouts.DiscoveredPlayers()
+            .Where(p => !_onlyWillSign || Engine.SigningLevelRefusal(p) == null)
+            .ToList();
+
+        var freeAgents = discovered
+            .Where(p => p.Contract == null)
             .OrderByDescending(p => p.Rating);
 
-        var contracted = Engine.State.Players
-            .Where(p => p.Contract != null && (!_onlyWillSign || Engine.SigningLevelRefusal(p) == null));
+        var contracted = discovered
+            .Where(p => p.Contract != null);
 
         IEnumerable<PlayerModel> players = _contractFilter switch
         {

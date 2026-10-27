@@ -14,7 +14,7 @@
 }
 
 <div class="grid grid-2">
-    <div class="stat"><div class="label">Transfer Budget</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
+    <div class="stat"><div class="label">Budget</div><div class="value accent">@Engine.MyClub.TransferBudgetFriendly</div></div>
     <div class="stat"><div class="label">Stadium Capacity</div><div class="value">@Engine.MyClub.StadiumSize.ToString("n0")</div></div>
     <div class="stat"><div class="label">Academy Rating</div><div class="value">@Engine.MyClub.AcademyRating / @AcademyRules.Max</div></div>
 </div>
@@ -45,15 +45,15 @@
 
 <div class="grid grid-2">
     <div class="panel">
-        <h2>💷 Transfer Budget</h2>
+        <h2>💷 Budget</h2>
         @if (budgetRequestPending)
         {
-            <p>Your transfer budget request is being reviewed by the board.</p>
+            <p>Your budget request is being reviewed by the board.</p>
         }
         else
         {
             <p>Request additional funds from the board. They will consider your request and respond within a couple of days.</p>
-            <button class="btn btn-primary" @onclick="RequestBudget">Request a Higher Transfer Budget</button>
+            <button class="btn btn-primary" @onclick="RequestBudget">Request a Higher Budget</button>
         }
     </div>
     <div class="panel">
@@ -85,7 +85,7 @@
         else
         {
             <p>A bigger stadium grows matchday revenue. <strong>@Engine.MyClub.Stadium</strong> holds <strong>@Engine.MyClub.StadiumSize.ToString("n0")</strong>.</p>
-            <p style="font-size:.82rem">Adding @StadiumRules.SeatsAdded(Engine.MyClub.StadiumSize).ToString("n0") seats costs <strong>@Ui.Money(expansionCost.Value)</strong> from the transfer budget and takes @StadiumRules.UpgradeMonths months.</p>
+            <p style="font-size:.82rem">Adding @StadiumRules.SeatsAdded(Engine.MyClub.StadiumSize).ToString("n0") seats costs <strong>@Ui.Money(expansionCost.Value)</strong> from the budget and takes @StadiumRules.UpgradeMonths months.</p>
             <button class="btn btn-primary" @onclick="ExpandStadium" disabled="@(expansionCost > Engine.MyClub.TransferBudget)">Expand Stadium</button>
         }
     </div>
@@ -118,7 +118,7 @@
         else
         {
             <p>A better academy produces better players in the youth intake on 1 March. Your academy is rated <strong>@Engine.MyClub.AcademyRating / @AcademyRules.Max</strong>.</p>
-            <p style="font-size:.82rem">Upgrading to @(Engine.MyClub.AcademyRating + 1) costs <strong>@Ui.Money(upgradeCost.Value)</strong> from the transfer budget and takes @AcademyRules.UpgradeMonths months.</p>
+            <p style="font-size:.82rem">Upgrading to @(Engine.MyClub.AcademyRating + 1) costs <strong>@Ui.Money(upgradeCost.Value)</strong> from the budget and takes @AcademyRules.UpgradeMonths months.</p>
             <button class="btn btn-primary" @onclick="UpgradeAcademy" disabled="@(upgradeCost > Engine.MyClub.TransferBudget)">Upgrade Academy</button>
         }
     </div>

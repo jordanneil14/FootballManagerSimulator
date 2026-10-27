@@ -5,13 +5,13 @@ namespace FootballManagerSimulator.Tests.Models;
 public class AcademyRulesTests
 {
     [Theory]
-    [InlineData(1, 4, 6)]
-    [InlineData(2, 3, 5)]
-    [InlineData(3, 2, 4)]
-    [InlineData(4, 1, 3)]
-    [InlineData(5, 1, 2)]
-    [InlineData(9, 1, 2)]
-    public void StartingRating_IsHigherInBetterLeaguesAndNeverAboveSix(int leagueRank, int min, int max)
+    [InlineData(1, 5, 7)]
+    [InlineData(2, 4, 6)]
+    [InlineData(3, 3, 5)]
+    [InlineData(4, 2, 4)]
+    [InlineData(5, 2, 3)]
+    [InlineData(9, 2, 3)]
+    public void StartingRating_IsHigherInBetterLeaguesAndNeverAboveSeven(int leagueRank, int min, int max)
     {
         var ratings = Enumerable.Range(0, 500).Select(_ => AcademyRules.StartingRating(leagueRank)).ToList();
 

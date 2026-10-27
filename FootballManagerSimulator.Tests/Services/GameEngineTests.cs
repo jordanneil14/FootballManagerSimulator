@@ -502,7 +502,7 @@ public class GameEngineTests : IDisposable
     {
         var target = PlayerAt(2);
         Assert.Equal("Player not found.", _engine.SubmitBid(12345, 1).Message);
-        Assert.Equal("Insufficient transfer budget.", _engine.SubmitBid(target.Id, MyClub.TransferBudget + 1).Message);
+        Assert.Equal("Insufficient budget.", _engine.SubmitBid(target.Id, MyClub.TransferBudget + 1).Message);
         _state.Date = new DateOnly(2026, 10, 1);
         Assert.Contains("closed", _engine.SubmitBid(target.Id, 1).Message);
     }

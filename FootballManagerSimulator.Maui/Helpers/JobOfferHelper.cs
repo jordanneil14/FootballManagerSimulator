@@ -127,7 +127,7 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             State.Date,
             "Chairman",
             $"Welcome to {newClub.Name}",
-            $"Everyone at {newClub.Name} wishes you a successful reign as manager. Your transfer budget is {newClub.TransferBudgetFriendly}.");
+            $"Everyone at {newClub.Name} wishes you a successful reign as manager. Your budget is {newClub.TransferBudgetFriendly}.");
 
         return true;
     }
@@ -167,6 +167,9 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         foreach (var @event in State.Events.Where(p => !p.IsCompleted
             && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionEvent or AcademyUpgradeEvent))
             @event.IsCompleted = true;
+
+        // Scouts are on the old club's payroll, so they stay behind.
+        State.Scouts.Clear();
 
         foreach (var pending in State.Notifications.Where(p => p.RequiresAction))
         {

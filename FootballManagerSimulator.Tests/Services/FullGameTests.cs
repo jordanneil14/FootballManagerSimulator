@@ -225,7 +225,7 @@ public class FullGameTests : IDisposable
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
 
-        // Every club receives its seasonal transfer budget allocation on top of what it had left.
+        // Every club receives its seasonal budget allocation on top of what it had left.
         var allocations = _host.Settings.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
         Assert.All(state.Clubs, c => Assert.Equal(budgetsBefore[c.Id] + allocations[c.Id], c.TransferBudget));
 
@@ -393,13 +393,13 @@ public class FullGameTests : IDisposable
         var engine = _host.StartNewGame(clubId: 9);
         var budget = engine.MyClub.TransferBudget;
 
-        Assert.Equal("Transfer budget request has been submitted.", engine.RequestHigherTransferBudget());
+        Assert.Equal("Budget request has been submitted.",engine.RequestHigherTransferBudget());
         Assert.Contains("3 months", engine.RequestHigherTransferBudget());
 
         PlayUntil(engine, engine.State.Date.AddDays(2));
 
         // Bids for my players are all rejected, so the grant is the only change to my budget.
         Assert.Equal(budget + 10_000_000, engine.MyClub.TransferBudget);
-        Assert.Contains(engine.State.Notifications, n => n.Subject == "Transfer Budget Request");
+        Assert.Contains(engine.State.Notifications, n => n.Subject == "Budget Request");
     }
 }

@@ -8,18 +8,18 @@ public static class AcademyRules
     public const int Max = 10;
 
     // No club starts above this; anything better has to be built.
-    public const int StartingMax = 6;
+    public const int StartingMax = 7;
 
     public const int UpgradeMonths = 3;
 
     // Clubs in higher leagues start with better academies.
     public static int StartingRating(int leagueRank) => leagueRank switch
     {
-        1 => RandomNumberHelper.Next(4, StartingMax + 1),
-        2 => RandomNumberHelper.Next(3, 6),
-        3 => RandomNumberHelper.Next(2, 5),
-        4 => RandomNumberHelper.Next(1, 4),
-        _ => RandomNumberHelper.Next(1, 3)
+        1 => RandomNumberHelper.Next(5, StartingMax + 1),
+        2 => RandomNumberHelper.Next(4, 7),
+        3 => RandomNumberHelper.Next(3, 6),
+        4 => RandomNumberHelper.Next(2, 5),
+        _ => RandomNumberHelper.Next(2, 4)
     };
 
     // What it costs to take the academy up to the given rating.

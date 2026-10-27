@@ -26,4 +26,7 @@ public interface IState
     string CareerId { get; set; }
     int BoardConfidence { get; set; }
     ManagerHistoryModel ManagerHistory { get; set; }
+    List<ScoutModel> Scouts { get; set; }
+    // Players shown on the Scout screen; scouts add to it every month.
+    List<int> DiscoveredPlayerIds { get; set; }
 }

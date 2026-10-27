@@ -23,8 +23,10 @@ public class GameFactory(
     FriendlyService friendlyService,
     IEventManager eventManager,
     IAppStorage appStorage,
+    IScoutHelper scoutHelper,
     IServiceProvider serviceProvider) : IGameFactory
 {
+    private readonly IScoutHelper ScoutHelper = scoutHelper;
     private readonly IAppStorage AppStorage = appStorage;
 
     private readonly SettingsModel Settings = settings.Value;
@@ -61,20 +63,24 @@ public class GameFactory(
 		NotificationFactory.AddNotification(
 			State.Date,
 			"Chairman",
-			"Transfer Budget",
-			$"Your transfer budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}");
+			"Budget",
+			$"Your budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}");
 
 		var freeAgents = State.Players
 			.Where(p => p.Contract == null)
 			.OrderByDescending(p => p.Rating)
-			.Select(p => p.Name)
-			.Take(4);
+			.Take(4)
+			.ToList();
+
+		// The free agents named below must be on the Scout page too.
+		ScoutHelper.SeedDiscoveredPlayers();
+		State.DiscoveredPlayerIds.AddRange(freeAgents.Select(p => p.Id).Except(State.DiscoveredPlayerIds).ToList());
 
 		NotificationFactory.AddNotification(
 			State.Date.AddDays(1),
 			"Scout",
 			"Players With Expired Contracts",
-			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents)}{Environment.NewLine}Free agents can be found on the Scout page");
+			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents.Select(p => p.Name))}{Environment.NewLine}Free agents can be found on the Scout page, where you can also hire scouts to find more players");
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{

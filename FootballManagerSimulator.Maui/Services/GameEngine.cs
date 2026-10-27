@@ -114,7 +114,7 @@ public class GameEngine(
 
         notification.RequiresAction = false;
         notification.Response = "✅ Bid accepted";
-        notification.Message = $"You accepted {biddingClub.Name}'s bid of £{notification.BidAmount.Value:n0} for {player.Name}. The fee has been added to your transfer budget.";
+        notification.Message = $"You accepted {biddingClub.Name}'s bid of £{notification.BidAmount.Value:n0} for {player.Name}. The fee has been added to your budget.";
 
         NotifyChanged();
     }
@@ -182,6 +182,8 @@ public class GameEngine(
         State.ScreenStack.Clear();
         State.BoardConfidence = BoardConfidenceRules.Starting;
         State.ManagerHistory = new ManagerHistoryModel();
+        State.Scouts.Clear();
+        State.DiscoveredPlayerIds.Clear();
         State.CareerId = NewCareerId();
     }
 
@@ -663,7 +665,7 @@ public class GameEngine(
             return new BidResultModel { Message = "The transfer window is currently closed." };
 
         if (bidAmount > MyClub.TransferBudget)
-            return new BidResultModel { Message = "Insufficient transfer budget." };
+            return new BidResultModel { Message = "Insufficient budget." };
 
         var transferValue = playerHelper.GetTransferValue(player);
         // A listed player's club holds out for its asking price; otherwise it wants a premium on his value.
@@ -746,7 +748,7 @@ public class GameEngine(
         var (success, errorMessage) = request.ValidateAdd();
         if (!success) return errorMessage;
         State.Events.Add(request);
-        return "Transfer budget request has been submitted.";
+        return "Budget request has been submitted.";
     }
 
     public StadiumExpansionEvent? StadiumExpansionInProgress =>
@@ -755,7 +757,7 @@ public class GameEngine(
     public int? NextStadiumExpansionCost =>
         MyClub.StadiumSize >= StadiumRules.MaxCapacity ? null : StadiumRules.UpgradeCost(MyClub.StadiumSize);
 
-    // Paid for out of the transfer budget up front; the new capacity applies once the work finishes.
+    // Paid for out of the budget up front; the new capacity applies once the work finishes.
     public string ExpandStadium()
     {
         if (NextStadiumExpansionCost is not { } cost)
@@ -781,7 +783,7 @@ public class GameEngine(
     public int? NextAcademyUpgradeCost =>
         MyClub.AcademyRating >= AcademyRules.Max ? null : AcademyRules.UpgradeCost(MyClub.AcademyRating + 1);
 
-    // Paid for out of the transfer budget up front; the new rating applies once the work finishes.
+    // Paid for out of the budget up front; the new rating applies once the work finishes.
     public string UpgradeAcademy()
     {
         if (NextAcademyUpgradeCost is not { } cost)
@@ -1095,6 +1097,8 @@ public class GameEngine(
             State.TransferListItems = deserialised.TransferListItems;
             State.BoardConfidence = deserialised.BoardConfidence;
             State.ManagerHistory = deserialised.ManagerHistory;
+            State.Scouts = deserialised.Scouts;
+            State.DiscoveredPlayerIds = deserialised.DiscoveredPlayerIds;
             State.MatchSpeedMs = deserialised.MatchSpeedMs;
             State.AutoSaveEnabled = deserialised.AutoSaveEnabled;
             State.MatchInProgress = false;
