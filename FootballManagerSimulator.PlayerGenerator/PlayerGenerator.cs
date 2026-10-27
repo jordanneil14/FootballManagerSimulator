@@ -53,23 +53,51 @@ public class PlayerGenerator
         var (gk, def, mid, fwd) = SquadShape(have.Sum() + count);
         int[] target = [gk, def, mid, fwd];
 
+        var missing = MissingPositions(existingPositions);
         var players = new List<GeneratedPlayer>(count);
         for (int i = 0; i < count; i++)
         {
             var group = Enumerable.Range(0, 4).MaxBy(g => target[g] - have[g]);
-            have[group]++;
+            string position;
 
-            var position = group switch
-            {
-                0 => "GK",
-                1 => PickRandom(DefenderPositions),
-                2 => PickRandom(MidfielderPositions),
-                _ => PickRandom(ForwardPositions)
-            };
+            // Positions nobody covers come first: within the line that's shortest, and from any
+            // line once the picks left would otherwise run out before every gap is filled.
+            if (missing.Count > 0 && count - i <= missing.Count)
+                position = missing.MaxBy(p => target[PositionGroup(p)] - have[PositionGroup(p)])!;
+            else if (missing.FirstOrDefault(p => PositionGroup(p) == group) is { } gap)
+                position = gap;
+            else
+                position = group switch
+                {
+                    0 => "GK",
+                    1 => PickRandom(DefenderPositions),
+                    2 => PickRandom(MidfielderPositions),
+                    _ => PickRandom(ForwardPositions)
+                };
+
+            missing.Remove(position);
+            have[PositionGroup(position)]++;
             players.Add(GeneratePlayerForClub(clubName, position, startDate, leagueRank));
         }
 
         return players;
+    }
+
+    // Every squad needs at least this many players in each position.
+    private static readonly (string Position, int Minimum)[] MinimumPerPosition =
+    [
+        ("GK", 2), ("CB", 2), ("LB", 1), ("RB", 1),
+        ("CDM", 1), ("CM", 1), ("CAM", 1), ("LM", 1), ("RM", 1),
+        ("ST", 1), ("LW", 1), ("RW", 1)
+    ];
+
+    // One entry per player the squad is short of, e.g. ["GK", "LB"] for a squad with one keeper and no left back.
+    public static List<string> MissingPositions(IEnumerable<string> existingPositions)
+    {
+        var counts = existingPositions.GroupBy(p => p).ToDictionary(g => g.Key, g => g.Count());
+        return MinimumPerPosition
+            .SelectMany(p => Enumerable.Repeat(p.Position, Math.Max(0, p.Minimum - counts.GetValueOrDefault(p.Position))))
+            .ToList();
     }
 
     private static readonly string[] DefenderPositions = ["CB", "CB", "CB", "LB", "RB", "LB", "RB"];

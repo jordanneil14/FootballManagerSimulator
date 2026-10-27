@@ -97,6 +97,32 @@ public class PlayerGeneratorTests
     }
 
     [Fact]
+    public void MissingPositions_ListsEachPlayerTheSquadIsShortOf()
+    {
+        var existing = new[] { "GK", "CB", "CB", "LB", "RB", "CDM", "CM", "CAM", "LM", "RM", "ST", "LW" };
+
+        Assert.Equal(["GK", "RW"], PlayerGenerator.PlayerGenerator.MissingPositions(existing));
+    }
+
+    [Fact]
+    public void GenerateTopUp_CoversEveryPositionTheSquadHasNobodyIn()
+    {
+        // Plenty of players, but no keepers, full backs, wide midfielders or wingers.
+        var existing = Enumerable.Repeat("CB", 8)
+            .Concat(Enumerable.Repeat("CM", 8))
+            .Concat(Enumerable.Repeat("CDM", 2))
+            .Concat(Enumerable.Repeat("CAM", 2))
+            .Concat(Enumerable.Repeat("ST", 5))
+            .ToList();
+        var missing = PlayerGenerator.PlayerGenerator.MissingPositions(existing);
+
+        var players = new PlayerGenerator.PlayerGenerator(5).GenerateTopUp("Club", missing.Count, existing, "2026-07-01", 1);
+
+        Assert.Equal(missing.OrderBy(p => p), players.Select(p => p.ClubPosition).OrderBy(p => p));
+        Assert.Empty(PlayerGenerator.PlayerGenerator.MissingPositions(existing.Concat(players.Select(p => p.ClubPosition))));
+    }
+
+    [Fact]
     public void GenerateYouthIntake_PlayersAreSixteenOrSeventeenAndNeverBelowTheFloor()
     {
         var intake = new PlayerGenerator.PlayerGenerator(7).GenerateYouthIntake("Club", 100, "2027-03-01", 5, academyRating: 1);

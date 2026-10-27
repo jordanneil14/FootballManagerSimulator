@@ -204,6 +204,23 @@ public class ProcessHelperTests : IDisposable
     }
 
     [Fact]
+    public void EndOfSeason_GivesAFullSquadWithNoKeepersTwoNewOnes()
+    {
+        var club = State.Clubs[1];
+        foreach (var keeper in State.Players.Where(p => p.Contract?.ClubId == club.Id && p.Position == "GK"))
+            keeper.Position = keeper.PreferredPosition = "CB";
+        for (var id = 9100; id < 9110; id++)
+            State.Players.Add(TestData.Player(id, club.Id, "CAM", clubName: club.Name));
+        Assert.True(State.Players.Count(p => p.Contract?.ClubId == club.Id) >= 25);
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        var squad = State.Players.Where(p => p.Contract?.ClubId == club.Id).Select(p => p.Position).ToList();
+        Assert.Equal(2, squad.Count(p => p == "GK"));
+        Assert.Empty(PlayerGenerator.PlayerGenerator.MissingPositions(squad));
+    }
+
+    [Fact]
     public void EndOfSeason_KeepsAnAcademyUpgradeAlreadyPaidForSoItStillCompletes()
     {
         var completion = new DateOnly(2027, 8, 15);

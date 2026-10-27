@@ -369,11 +369,10 @@ public class ProcessHelper(
                 .Select(p => p.Position)
                 .ToList();
 
-            if (contractedPositions.Count >= 25)
-                continue;
-
-            var targetSize = random.Next(25, 31);
-            var playersNeeded = targetSize - contractedPositions.Count;
+            // A full squad still gets cover for any position it has no one in (or only one keeper).
+            var missingCount = PlayerGenerator.PlayerGenerator.MissingPositions(contractedPositions).Count;
+            var targetSize = contractedPositions.Count >= 25 ? 0 : random.Next(25, 31);
+            var playersNeeded = Math.Max(targetSize - contractedPositions.Count, missingCount);
 
             if (playersNeeded <= 0)
                 continue;
