@@ -26,12 +26,12 @@
 
 <div class="panel">
     <h2>Formation</h2>
-    <div class="page-actions">
+    <select class="input" value="@Engine.MyClub.Formation" @onchange="e => ChangeFormation(e.Value?.ToString() ?? Engine.MyClub.Formation)">
         @foreach (var f in FootballManagerSimulator.Maui.Helpers.TacticHelper.Formations)
         {
-            <button class="btn @(Engine.MyClub.Formation == f ? "btn-primary" : "")" @onclick="() => ChangeFormation(f)">@f</button>
+            <option value="@f" selected="@(Engine.MyClub.Formation == f)">@f</option>
         }
-    </div>
+    </select>
 </div>
 
 <div class="panel">
