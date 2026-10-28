@@ -378,13 +378,14 @@ public class MatchSimulatorHelper(
         club.VacantUntil = State.Date.AddDays(
             RandomNumberHelper.Next(BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays + 1));
 
-        State.Notifications.Add(new NotificationModel
-        {
-            Date = State.Date,
-            Recipient = "Press Officer",
-            Subject = $"{club.Name} sack their manager",
-            Message = $"After a terrible run of results, {club.Name} have sacked their manager. They expect to appoint a replacement by {club.VacantUntil:d MMMM yyyy}. The job is listed on the Jobs screen until then."
-        });
+        if (State.ShowManagerNotifications)
+            State.Notifications.Add(new NotificationModel
+            {
+                Date = State.Date,
+                Recipient = "Press Officer",
+                Subject = $"{club.Name} sack their manager",
+                Message = $"After a terrible run of results, {club.Name} have sacked their manager. They expect to appoint a replacement by {club.VacantUntil:d MMMM yyyy}. The job is listed on the Jobs screen until then."
+            });
     }
 
     private static int ResultChange(FixtureModel fixture, int clubId) =>

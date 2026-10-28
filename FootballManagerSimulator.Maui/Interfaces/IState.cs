@@ -29,4 +29,6 @@ public interface IState
     List<ScoutModel> Scouts { get; set; }
     // Players shown on the Scout screen; scouts add to it every month.
     List<int> DiscoveredPlayerIds { get; set; }
+    bool ShowTransferNotifications { get; set; }
+    bool ShowManagerNotifications { get; set; }
 }
