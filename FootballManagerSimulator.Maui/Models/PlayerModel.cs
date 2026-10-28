@@ -80,6 +80,9 @@ public class PlayerModel : IPerson
     public int GKHandling { get; set; }
     public int GKReflexes { get; set; }
     public int SuspensionMatches { get; set; }
+    public DateOnly? InjuryEndDate { get; set; }
+    public string? InjuryDescription { get; set; }
+    public bool IsInjured(DateOnly onDate) => InjuryEndDate != null && InjuryEndDate > onDate;
     // Only players which are signed to a team will have a contract
     public ContractModel? Contract { get; set; }
     public class ContractModel

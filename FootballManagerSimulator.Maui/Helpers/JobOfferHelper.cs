@@ -78,11 +78,12 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             club.VacantUntil = null;
             club.JobSecurity = BoardConfidenceRules.Starting;
 
-            NotificationFactory.AddNotification(
-                State.Date,
-                "Press Officer",
-                $"{club.Name} appoint a new manager",
-                $"{club.Name} have appointed a new manager following the sacking of their previous one.");
+            if (State.ShowManagerNotifications)
+                NotificationFactory.AddNotification(
+                    State.Date,
+                    "Press Officer",
+                    $"{club.Name} appoint a new manager",
+                    $"{club.Name} have appointed a new manager following the sacking of their previous one.");
         }
     }
 

@@ -32,6 +32,9 @@ public class StateModel : IState
     public int BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
     public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();
     public List<ScoutModel> Scouts { get; set; } = new List<ScoutModel>();
+    public List<PhysioModel> Physios { get; set; } = new List<PhysioModel>();
     public List<int> DiscoveredPlayerIds { get; set; } = new List<int>();
+    public bool ShowTransferNotifications { get; set; } = true;
+    public bool ShowManagerNotifications { get; set; } = true;
 }
 

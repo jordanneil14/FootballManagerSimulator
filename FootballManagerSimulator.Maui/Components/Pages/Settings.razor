@@ -33,6 +33,24 @@
     </div>
 </div>
 
+<div class="panel">
+    <h2>Notifications</h2>
+    <div class="field" style="margin-bottom:1rem">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+            <input type="checkbox" checked="@Engine.State.ShowTransferNotifications" @onchange="e => Engine.State.ShowTransferNotifications = (bool)(e.Value ?? false)" />
+            Show transfer activity
+        </label>
+        <div class="muted" style="font-size:.8rem;margin-top:.25rem">Notifications when a player moves between other clubs. Your own club's transfer activity is always shown.</div>
+    </div>
+    <div class="field" style="margin-bottom:1rem">
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer">
+            <input type="checkbox" checked="@Engine.State.ShowManagerNotifications" @onchange="e => Engine.State.ShowManagerNotifications = (bool)(e.Value ?? false)" />
+            Show manager activity
+        </label>
+        <div class="muted" style="font-size:.8rem;margin-top:.25rem">Notifications when a manager is sacked or appointed at other clubs. Your own club's messages are always shown.</div>
+    </div>
+</div>
+
 @code {
     private void OnAutoSaveChanged(ChangeEventArgs e) =>
         Engine.State.AutoSaveEnabled = e.Value?.ToString() == "on";

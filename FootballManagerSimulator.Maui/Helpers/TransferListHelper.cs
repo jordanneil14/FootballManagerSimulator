@@ -178,11 +178,12 @@ public class TransferListHelper(
             var club = ClubHelper.GetClubById(suitable[RandomNumberHelper.Next(suitable.Count)].ClubId);
             SignFreeAgentForClub(player, club, RandomNumberHelper.Next(1, 4));
 
-            NotificationFactory.AddNotification(
-                State.Date,
-                "Press Officer",
-                $"{club.Name} sign {player.Name}",
-                $"{player.Name} has joined {club.Name} on a free transfer.");
+            if (State.ShowTransferNotifications)
+                NotificationFactory.AddNotification(
+                    State.Date,
+                    "Press Officer",
+                    $"{club.Name} sign {player.Name}",
+                    $"{player.Name} has joined {club.Name} on a free transfer.");
         }
     }
 
@@ -227,11 +228,12 @@ public class TransferListHelper(
             var previousClub = ClubHelper.GetClubById(randomPlayer.ClubId);
             var buyingClub = ClubHelper.GetClubById(suitableClub.Value);
 
-            NotificationFactory.AddNotification(
-                State.Date,
-                "Press Officer",
-                $"{buyingClub.Name} sign {listedPlayer.Name}",
-                $"{listedPlayer.Name} signs for {buyingClub.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
+            if (State.ShowTransferNotifications)
+                NotificationFactory.AddNotification(
+                    State.Date,
+                    "Press Officer",
+                    $"{buyingClub.Name} sign {listedPlayer.Name}",
+                    $"{listedPlayer.Name} signs for {buyingClub.Name} for {randomPlayer.AskingPriceFriendly} from {previousClub.Name}");
         }
     }
 

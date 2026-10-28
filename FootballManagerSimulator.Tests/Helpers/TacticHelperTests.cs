@@ -179,4 +179,36 @@ public class TacticHelperTests
         var outfieldSlots = Club.TacticSlots.Where(s => IsStarter(s) && s.TacticSlotType != TacticSlotType.GK && s.PlayerId != null);
         Assert.All(outfieldSlots, s => Assert.DoesNotContain(s.PlayerId!.Value, gkIds));
     }
+
+    [Fact]
+    public void FillEmptyTacticSlots_NeverSelectsInjuredPlayers()
+    {
+        var injured = new[] { "GK", "ST" }.Select(pos => _state.Players.First(p => p.PreferredPosition == pos)).ToList();
+        injured.ForEach(p =>
+        {
+            p.InjuryEndDate = _state.Date.AddDays(14);
+            p.InjuryDescription = "Hamstring injury";
+        });
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        var selected = Club.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.RES && s.PlayerId != null).Select(s => s.PlayerId);
+        Assert.DoesNotContain(selected, id => injured.Any(p => p.Id == id));
+        Assert.All(injured, p => Assert.Contains(Club.TacticSlots, s => s.TacticSlotType == TacticSlotType.RES && s.PlayerId == p.Id));
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_SelectsPlayersWhoseInjuryHasExpired()
+    {
+        var recovered = _state.Players.First(p => p.PreferredPosition == "GK");
+        recovered.InjuryEndDate = _state.Date.AddDays(-1);
+        recovered.InjuryDescription = "Minor knock";
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        var selected = Club.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.RES && s.PlayerId != null).Select(s => s.PlayerId!.Value);
+        Assert.Contains(recovered.Id, selected);
+    }
 }

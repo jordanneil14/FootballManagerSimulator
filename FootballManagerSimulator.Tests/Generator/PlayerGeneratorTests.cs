@@ -99,9 +99,27 @@ public class PlayerGeneratorTests
     [Fact]
     public void MissingPositions_ListsEachPlayerTheSquadIsShortOf()
     {
-        var existing = new[] { "GK", "CB", "CB", "LB", "RB", "CDM", "CM", "CAM", "LM", "RM", "ST", "LW" };
+        var existing = new[] { "GK", "CB", "CB", "CB", "CB", "LB", "LB", "RB", "RB", "CDM", "CM", "CM", "CM", "CM", "CAM", "LM", "RM", "ST", "ST", "LW" };
 
         Assert.Equal(["GK", "RW"], PlayerGenerator.PlayerGenerator.MissingPositions(existing));
+    }
+
+    [Theory]
+    [InlineData("CB", 4)]
+    [InlineData("LB", 2)]
+    [InlineData("RB", 2)]
+    [InlineData("CM", 4)]
+    [InlineData("ST", 2)]
+    [InlineData("GK", 2)]
+    public void MissingPositions_RequiresTheUpdatedMinimums(string position, int minimum)
+    {
+        var existing = Enumerable.Repeat(position, minimum - 1).ToList();
+        var missing = PlayerGenerator.PlayerGenerator.MissingPositions(existing);
+        Assert.Contains(position, missing);
+
+        existing.Add(position);
+        missing = PlayerGenerator.PlayerGenerator.MissingPositions(existing);
+        Assert.DoesNotContain(position, missing);
     }
 
     [Fact]

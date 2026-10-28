@@ -37,7 +37,7 @@ else
                 <button class="btn btn-primary btn-lg" @onclick="TogglePause">
                     @(_isPaused ? "Resume ▶" : "Pause ⏸")
                 </button>
-                <button class="btn btn-lg" @onclick="SkipToStoppage" title="@SkipCaption()" aria-label="@SkipCaption()">⏭</button>
+                <button class="btn btn-lg" @onclick="SkipToNextEvent" title="@SkipCaption()" aria-label="@SkipCaption()">⏭</button>
             }
         </div>
     </div>
@@ -192,7 +192,7 @@ else
             @foreach (var group in grouped)
             {
                 <div class="fixture-block">
-                    <div class="fixture-block-head">@(group.First().Competition?.Name ?? "Other")</div>
+                    <div class="fixture-block-head">@(group.First().Competition != null ? CompetitionHeading(group.First().Competition!) : "Other")</div>
                     @foreach (var item in group)
                     {
                         var f = item.Fixture;
@@ -222,6 +222,12 @@ else
             {
                 var homeStarters = homeClub.TacticSlots.Take(11).ToList();
                 <div class="pitch">
+                    <div class="pitch-box-top"></div>
+                    <div class="pitch-box-bottom"></div>
+                    <div class="pitch-corner tl"></div>
+                    <div class="pitch-corner tr"></div>
+                    <div class="pitch-corner bl"></div>
+                    <div class="pitch-corner br"></div>
                     @for (var i = 0; i < homeStarters.Count; i++)
                     {
                         var slot = homeStarters[i];
@@ -240,6 +246,12 @@ else
             {
                 var awayStarters = awayClub.TacticSlots.Take(11).ToList();
                 <div class="pitch">
+                    <div class="pitch-box-top"></div>
+                    <div class="pitch-box-bottom"></div>
+                    <div class="pitch-corner tl"></div>
+                    <div class="pitch-corner tr"></div>
+                    <div class="pitch-corner bl"></div>
+                    <div class="pitch-corner br"></div>
                     @for (var i = 0; i < awayStarters.Count; i++)
                     {
                         var slot = awayStarters[i];
@@ -284,6 +296,8 @@ else
     private int _revealedAwayGoals;
     private int _revealedHomeCards;
     private int _revealedAwayCards;
+    private int _revealedHomeInjuries;
+    private int _revealedAwayInjuries;
     private int? _selectedSlot;
     private string? _swapError;
 
@@ -306,6 +320,8 @@ else
             _revealedAwayGoals = _displayedAwayGoals;
             _revealedHomeCards = _fixture.HomeCards.Count(c => c.Minute <= _currentMinute);
             _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
+            _revealedHomeInjuries = _fixture.HomeInjuries.Count(i => i.Minute <= _currentMinute);
+            _revealedAwayInjuries = _fixture.AwayInjuries.Count(i => i.Minute <= _currentMinute);
 
             _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
             RebuildEventFeed();
@@ -379,6 +395,16 @@ else
             var type = c.IsRed ? "Red card" : "Yellow card";
             events.Add((c.Minute, new MatchEvent(c.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", c.IsRed ? "event-red" : "event-yellow")));
         }
+        foreach (var i in _fixture.HomeInjuries.Where(i => i.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(i.PlayerId);
+            events.Add((i.Minute, new MatchEvent(i.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {i.Description}", "event-injury")));
+        }
+        foreach (var i in _fixture.AwayInjuries.Where(i => i.Minute <= _currentMinute))
+        {
+            var player = Engine.GetPlayer(i.PlayerId);
+            events.Add((i.Minute, new MatchEvent(i.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
+        }
 
         foreach (var e in events.OrderBy(e => e.Minute))
             _eventFeed.Add(e.Event);
@@ -417,19 +443,37 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    // Plays out the rest of the current period at once, revealing its goals and cards.
-    private void SkipToStoppage()
+    private void SkipToNextEvent()
     {
         lock (_clockLock)
         {
             if (_phase is not (MatchPhase.FirstHalf or MatchPhase.SecondHalf or MatchPhase.ExtraTime))
                 return;
 
-            _isPaused = true;
+            var stoppage = StoppageMinute;
+            var myInjuries = _fixture!.HomeClub.Id == Engine.State.MyClubId
+                ? _fixture.HomeInjuries : _fixture.AwayClub.Id == Engine.State.MyClubId
+                ? _fixture.AwayInjuries : Enumerable.Empty<InjuryModel>();
+            var nextMajor = _fixture.HomeScorers.Select(g => g.Minute)
+                .Concat(_fixture.AwayScorers.Select(g => g.Minute))
+                .Concat(_fixture.HomeCards.Where(c => c.IsRed).Select(c => c.Minute))
+                .Concat(_fixture.AwayCards.Where(c => c.IsRed).Select(c => c.Minute))
+                .Concat(myInjuries.Select(i => i.Minute))
+                .Where(m => m > _currentMinute && m <= stoppage)
+                .Order()
+                .FirstOrDefault();
+
             _selectedSlot = null;
-            _currentMinute = StoppageMinute;
+            _currentMinute = nextMajor > 0 ? nextMajor : stoppage;
             RevealEvents();
-            TransitionPhase();
+
+            if (_currentMinute >= stoppage)
+            {
+                _currentMinute = stoppage;
+                _isPaused = true;
+                TransitionPhase();
+            }
+
             SyncFixtureClock();
         }
     }
@@ -441,12 +485,7 @@ else
         _fixture.GoalsAway = _displayedAwayGoals;
     }
 
-    private string SkipCaption() => _phase switch
-    {
-        MatchPhase.FirstHalf => "Skip to Half Time",
-        MatchPhase.ExtraTime => "Skip to End of Extra Time",
-        _ => "Skip to Full Time"
-    };
+    private string SkipCaption() => "Skip to Next Event";
 
     private void RevealEvents()
     {
@@ -506,6 +545,32 @@ else
             var type = card.IsRed ? "Red card" : "Yellow card";
             _eventFeed.Add(new MatchEvent(card.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", card.IsRed ? "event-red" : "event-yellow"));
             _revealedAwayCards++;
+        }
+
+        var homeInjuriesToReveal = _fixture.HomeInjuries
+            .Where(i => i.Minute <= _currentMinute)
+            .OrderBy(i => i.Minute)
+            .Skip(_revealedHomeInjuries)
+            .ToList();
+
+        foreach (var injury in homeInjuriesToReveal)
+        {
+            var player = Engine.GetPlayer(injury.PlayerId);
+            _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
+            _revealedHomeInjuries++;
+        }
+
+        var awayInjuriesToReveal = _fixture.AwayInjuries
+            .Where(i => i.Minute <= _currentMinute)
+            .OrderBy(i => i.Minute)
+            .Skip(_revealedAwayInjuries)
+            .ToList();
+
+        foreach (var injury in awayInjuriesToReveal)
+        {
+            var player = Engine.GetPlayer(injury.PlayerId);
+            _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
+            _revealedAwayInjuries++;
         }
 
         _displayedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
