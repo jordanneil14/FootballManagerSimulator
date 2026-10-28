@@ -12,7 +12,14 @@
         <h1>Manager Hub</h1>
     </div>
     <div class="page-actions">
-        <button class="btn btn-primary btn-lg" @onclick="Advance">⏩ Advance</button>
+        @if (Engine.State.MatchInProgress)
+        {
+            <button class="btn btn-primary btn-lg" @onclick='() => Nav.NavigateTo("/match")'>⚽ Return to Match</button>
+        }
+        else
+        {
+            <button class="btn btn-primary btn-lg" @onclick="Advance">⏩ Advance</button>
+        }
     </div>
 </div>
 
