@@ -37,7 +37,7 @@ else
                 <button class="btn btn-primary btn-lg" @onclick="TogglePause">
                     @(_isPaused ? "Resume ▶" : "Pause ⏸")
                 </button>
-                <button class="btn btn-lg" @onclick="SkipToStoppage" title="@SkipCaption()" aria-label="@SkipCaption()">⏭</button>
+                <button class="btn btn-lg" @onclick="SkipToNextEvent" title="@SkipCaption()" aria-label="@SkipCaption()">⏭</button>
             }
         </div>
     </div>
@@ -429,19 +429,33 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-    // Plays out the rest of the current period at once, revealing its goals and cards.
-    private void SkipToStoppage()
+    private void SkipToNextEvent()
     {
         lock (_clockLock)
         {
             if (_phase is not (MatchPhase.FirstHalf or MatchPhase.SecondHalf or MatchPhase.ExtraTime))
                 return;
 
-            _isPaused = true;
+            var stoppage = StoppageMinute;
+            var nextMajor = _fixture!.HomeScorers.Select(g => g.Minute)
+                .Concat(_fixture.AwayScorers.Select(g => g.Minute))
+                .Concat(_fixture.HomeCards.Where(c => c.IsRed).Select(c => c.Minute))
+                .Concat(_fixture.AwayCards.Where(c => c.IsRed).Select(c => c.Minute))
+                .Where(m => m > _currentMinute && m <= stoppage)
+                .Order()
+                .FirstOrDefault();
+
             _selectedSlot = null;
-            _currentMinute = StoppageMinute;
+            _currentMinute = nextMajor > 0 ? nextMajor : stoppage;
             RevealEvents();
-            TransitionPhase();
+
+            if (_currentMinute >= stoppage)
+            {
+                _currentMinute = stoppage;
+                _isPaused = true;
+                TransitionPhase();
+            }
+
             SyncFixtureClock();
         }
     }
@@ -453,12 +467,7 @@ else
         _fixture.GoalsAway = _displayedAwayGoals;
     }
 
-    private string SkipCaption() => _phase switch
-    {
-        MatchPhase.FirstHalf => "Skip to Half Time",
-        MatchPhase.ExtraTime => "Skip to End of Extra Time",
-        _ => "Skip to Full Time"
-    };
+    private string SkipCaption() => "Skip to Next Event";
 
     private void RevealEvents()
     {
