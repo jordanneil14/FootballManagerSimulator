@@ -1,0 +1,172 @@
+@page "/staff"
+@layout GameLayout
+@inject GameEngine Engine
+@inject IScoutHelper Scouts
+@inject NavigationManager Nav
+
+<PageTitle>Staff</PageTitle>
+
+<div class="page-head">
+    <div><h1>Staff</h1><div class="subtitle">Manage your backroom staff</div></div>
+</div>
+
+@if (_message != null)
+{
+    <div class="feedback"><div class="feedback-item">@_message</div></div>
+}
+
+@if (!Engine.IsUnemployed)
+{
+    <div class="panel">
+        <h2 style="justify-content:space-between;flex-wrap:wrap">
+            <span>🕵️ Scouts <span class="panel-title-sub">@Engine.State.Scouts.Count / @ScoutRules.MaxScouts</span></span>
+            <button class="btn btn-primary" @onclick="HireScout"
+                    disabled="@(Engine.State.Scouts.Count >= ScoutRules.MaxScouts || Engine.MyClub.TransferBudget < ScoutRules.MonthlyWage)">
+                Hire Scout (@Ui.Money(ScoutRules.MonthlyWage)/month)
+            </button>
+        </h2>
+        <p style="font-size:.82rem">Each scout costs <strong>@Ui.Money(ScoutRules.MonthlyWage)</strong> per month from the budget and reports up to @ScoutRules.MaxPlayersPerReport new players every month.</p>
+        @if (Engine.State.Scouts.Count == 0)
+        {
+            <p class="muted">You haven't hired any scouts yet.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data">
+                    <thead>
+                        <tr><th>Name</th><th>Next Report</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var scout in Engine.State.Scouts)
+                        {
+                            <tr>
+                                <td><strong>@scout.Name</strong></td>
+                                <td>@scout.NextReportDate.ToString("dd MMM yyyy")</td>
+                                <td style="text-align:right;white-space:nowrap">
+                                    <button class="btn btn-danger" @onclick="() => _dismissScout = scout">Dismiss</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <div class="panel">
+        <h2 style="justify-content:space-between;flex-wrap:wrap">
+            <span>🏥 Physios <span class="panel-title-sub">@Engine.State.Physios.Count / @PhysioRules.MaxPhysios</span></span>
+            <button class="btn btn-primary" @onclick="HirePhysio"
+                    disabled="@(Engine.State.Physios.Count >= PhysioRules.MaxPhysios || Engine.MyClub.TransferBudget < PhysioRules.MonthlyWage)">
+                Hire Physio (@Ui.Money(PhysioRules.MonthlyWage)/month)
+            </button>
+        </h2>
+        <p style="font-size:.82rem">
+            Each physio costs <strong>@Ui.Money(PhysioRules.MonthlyWage)</strong> per month from the budget and reduces your players' injury recovery time.
+            Current reduction: <strong>@PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count)</strong>.
+        </p>
+        @{
+            var physioCount = Engine.State.Physios.Count;
+            var nextReduction = physioCount < PhysioRules.MaxPhysios
+                ? $"Hiring another physio will increase the reduction to {PhysioRules.InjuryReductionLabel(physioCount + 1)}."
+                : "";
+        }
+        @if (!string.IsNullOrEmpty(nextReduction))
+        {
+            <p style="font-size:.82rem">@nextReduction</p>
+        }
+        @if (physioCount == 0)
+        {
+            <p class="muted">You haven't hired any physios yet.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data">
+                    <thead>
+                        <tr><th>Name</th><th>Hired</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var physio in Engine.State.Physios)
+                        {
+                            <tr>
+                                <td><strong>@physio.Name</strong></td>
+                                <td>@physio.HiredDate.ToString("dd MMM yyyy")</td>
+                                <td style="text-align:right;white-space:nowrap">
+                                    <button class="btn btn-danger" @onclick="() => _dismissPhysio = physio">Dismiss</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+}
+
+<ConfirmModal Visible="_dismissScout != null"
+              Title="@($"Dismiss {_dismissScout?.Name}?")"
+              Message="They will leave the club immediately and stop sending scouting reports."
+              ConfirmText="Dismiss"
+              ConfirmClass="btn-danger"
+              OnConfirm="DismissScout"
+              OnCancel="() => _dismissScout = null" />
+
+<ConfirmModal Visible="_dismissPhysio != null"
+              Title="@($"Dismiss {_dismissPhysio?.Name}?")"
+              Message="They will leave the club immediately. Your injury recovery reduction will decrease."
+              ConfirmText="Dismiss"
+              ConfirmClass="btn-danger"
+              OnConfirm="DismissPhysio"
+              OnCancel="() => _dismissPhysio = null" />
+
+@code {
+    private string? _message;
+    private ScoutModel? _dismissScout;
+    private PhysioModel? _dismissPhysio;
+
+    private void HireScout()
+    {
+        _message = Scouts.HireScout();
+        Engine.NotifyChanged();
+    }
+
+    private void DismissScout()
+    {
+        if (_dismissScout != null)
+            _message = Scouts.DismissScout(_dismissScout.Id);
+        _dismissScout = null;
+        Engine.NotifyChanged();
+    }
+
+    private void HirePhysio()
+    {
+        if (Engine.MyClub == null) { _message = "You need a club to hire physios."; return; }
+        if (Engine.State.Physios.Count >= PhysioRules.MaxPhysios) { _message = $"You can employ at most {PhysioRules.MaxPhysios} physios."; return; }
+        if (Engine.MyClub.TransferBudget < PhysioRules.MonthlyWage) { _message = $"The board cannot fund this. A physio costs £{PhysioRules.MonthlyWage:n0} per month."; return; }
+
+        var physio = new PhysioModel
+        {
+            Id = Engine.State.Physios.Count == 0 ? 1 : Engine.State.Physios.Max(p => p.Id) + 1,
+            Name = new PlayerGenerator.PlayerGenerator().GeneratePlayer(Engine.State.Date.ToString("yyyy-MM-dd")).Name,
+            HiredDate = Engine.State.Date
+        };
+
+        Engine.State.Physios.Add(physio);
+        Engine.MyClub.TransferBudget -= PhysioRules.MonthlyWage;
+        _message = $"{physio.Name} has joined as a physio for £{PhysioRules.MonthlyWage:n0} per month. Your injury recovery is now reduced by {PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count)}.";
+        Engine.NotifyChanged();
+    }
+
+    private void DismissPhysio()
+    {
+        if (_dismissPhysio != null)
+        {
+            Engine.State.Physios.Remove(_dismissPhysio);
+            _message = $"{_dismissPhysio.Name} has been dismissed. Your injury recovery reduction is now {PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count)}.";
+        }
+        _dismissPhysio = null;
+        Engine.NotifyChanged();
+    }
+}

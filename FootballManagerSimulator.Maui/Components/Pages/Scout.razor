@@ -20,15 +20,11 @@
     <div class="panel">
         <h2 style="justify-content:space-between;flex-wrap:wrap">
             <span>🕵️ Scouts <span class="panel-title-sub">@Engine.State.Scouts.Count / @ScoutRules.MaxScouts</span></span>
-            <button class="btn btn-primary" @onclick="HireScout"
-                    disabled="@(Engine.State.Scouts.Count >= ScoutRules.MaxScouts || Engine.MyClub.TransferBudget < ScoutRules.MonthlyWage)">
-                Hire Scout (@Ui.Money(ScoutRules.MonthlyWage)/month)
-            </button>
+            <a class="btn btn-primary" href="/staff">Manage Staff</a>
         </h2>
-        <p style="font-size:.82rem">Each scout costs <strong>@Ui.Money(ScoutRules.MonthlyWage)</strong> per month from the budget and reports up to @ScoutRules.MaxPlayersPerReport new players every month.</p>
         @if (Engine.State.Scouts.Count == 0)
         {
-            <p class="muted">You haven't hired any scouts yet.</p>
+            <p class="muted">You haven't hired any scouts yet. <a href="/staff">Hire scouts</a> from the Staff page.</p>
         }
         else
         {
@@ -240,12 +236,6 @@
         .SelectMany(p => p.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         .Distinct()
         .OrderBy(p => p);
-
-    private void HireScout()
-    {
-        _message = Scouts.HireScout();
-        Engine.NotifyChanged();
-    }
 
     private void DismissScout()
     {

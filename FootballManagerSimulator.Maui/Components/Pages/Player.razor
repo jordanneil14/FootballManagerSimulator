@@ -76,6 +76,21 @@ else
         <div class="stat"><div class="label">Transfer Value</div><div class="value">@Ui.Money(Engine.GetTransferValue(player))</div></div>
     </div>
 
+    @if (player.InjuryEndDate != null && player.InjuryEndDate > Engine.State.Date)
+    {
+        var daysLeft = player.InjuryEndDate.Value.DayNumber - Engine.State.Date.DayNumber;
+        <div class="feedback">
+            <div class="feedback-item warn">
+                🏥 <strong>Injured</strong> — @player.InjuryDescription.
+                Expected return: @player.InjuryEndDate.Value.ToString("dd MMM yyyy") (@daysLeft @(daysLeft == 1 ? "day" : "days") remaining).
+                @if (playsForMe && Engine.State.Physios.Count > 0)
+                {
+                    <br /><span style="color:var(--success)">Your medical team of @Engine.State.Physios.Count @(Engine.State.Physios.Count == 1 ? "physio" : "physios") is reducing injury recovery time by @PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count).</span>
+                }
+            </div>
+        </div>
+    }
+
     <div class="grid grid-2">
         <div class="panel">
             <h2>General</h2>

@@ -53,6 +53,7 @@ public class ProcessHelper(
 
         AnnounceTransferWindowChange();
         ScoutHelper.ProcessScouts();
+        ProcessPhysios();
 
         if (State.Date.Month == 6 && State.Date.Day == 30)
         {
@@ -578,5 +579,29 @@ public class ProcessHelper(
 
         if (existsOutstandingFixtures)
             throw new ProcessException(ScreenType.Fixture);
+    }
+
+    private void ProcessPhysios()
+    {
+        var club = State.Clubs.FirstOrDefault(c => c.Id == State.MyClubId);
+        if (club == null) return;
+
+        foreach (var physio in State.Physios.Where(p => State.Date >= p.NextPaymentDate).ToList())
+        {
+            physio.MonthsWorked++;
+
+            if (club.TransferBudget >= PhysioRules.MonthlyWage)
+            {
+                club.TransferBudget -= PhysioRules.MonthlyWage;
+                continue;
+            }
+
+            State.Physios.Remove(physio);
+            NotificationFactory.AddNotification(
+                State.Date,
+                $"{physio.Name} (Physio)",
+                "Physio Left",
+                $"{physio.Name} has left the club because there was not enough in the budget to pay their £{PhysioRules.MonthlyWage:n0} monthly wage.");
+        }
     }
 }

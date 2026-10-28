@@ -298,22 +298,30 @@ public class MatchSimulatorHelper(
 
     private void ApplyInjuries(FixtureModel fixture)
     {
+        var physioCount = State.Physios.Count;
+
         foreach (var injury in fixture.HomeInjuries.Concat(fixture.AwayInjuries))
         {
             var player = PlayerHelper.GetPlayerById(injury.PlayerId);
             if (player == null) continue;
 
-            player.InjuryEndDate = State.Date.AddDays(injury.DaysOut);
+            var isMyPlayer = player.Contract != null && player.Contract.ClubId == State.MyClubId;
+            var daysOut = isMyPlayer ? PhysioRules.ReducedDays(injury.DaysOut, physioCount) : injury.DaysOut;
+
+            player.InjuryEndDate = State.Date.AddDays(daysOut);
             player.InjuryDescription = injury.Description;
 
-            if (player.Contract != null && player.Contract.ClubId == State.MyClubId)
+            if (isMyPlayer)
             {
+                var reduction = physioCount > 0
+                    ? $" (reduced from {injury.DaysOut} days by your medical team)"
+                    : "";
                 State.Notifications.Add(new NotificationModel
                 {
                     Date = State.Date,
                     Recipient = "Medical Team",
                     Subject = $"{player.Name} injured",
-                    Message = $"{player.Name} has suffered a {injury.Description.ToLower()} and is expected to be out until {player.InjuryEndDate:d MMMM yyyy}."
+                    Message = $"{player.Name} has suffered a {injury.Description.ToLower()} and is expected to be out for {daysOut} days, until {player.InjuryEndDate:d MMMM yyyy}.{reduction}"
                 });
             }
         }
