@@ -37,6 +37,12 @@
 <div class="panel">
     <h2>Starting XI</h2>
     <div class="pitch">
+        <div class="pitch-box-top"></div>
+        <div class="pitch-box-bottom"></div>
+        <div class="pitch-corner tl"></div>
+        <div class="pitch-corner tr"></div>
+        <div class="pitch-corner bl"></div>
+        <div class="pitch-corner br"></div>
         @for (var i = 0; i < starters.Count; i++)
         {
             var slot = starters[i];
@@ -111,9 +117,8 @@
             .OrderBy(t => SideOrder(t.s.TacticSlotType)).ToList();
         var posInLine = sameLine.FindIndex(t => t.i == index);
         var count = sameLine.Count;
-        // A pair of wide players (e.g. LW/RW with no CAM) keeps the wider spread.
-        var widePair = count == 2 && sameLine.All(t => SideOrder(t.s.TacticSlotType) != 1);
-        var spread = count >= 4 ? 64.0 : count == 3 || widePair ? 46.0 : 28.0;
+        var hasWide = sameLine.Any(t => SideOrder(t.s.TacticSlotType) != 1);
+        var spread = count >= 4 || (hasWide && count >= 2) ? 64.0 : count == 3 ? 46.0 : 28.0;
         var x = count == 1 ? 50.0 : (50.0 - spread / 2) + posInLine * (spread / (count - 1));
         var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
         return (x, y);
