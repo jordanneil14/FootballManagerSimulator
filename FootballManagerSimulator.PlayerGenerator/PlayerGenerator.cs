@@ -86,9 +86,9 @@ public class PlayerGenerator
     // Every squad needs at least this many players in each position.
     private static readonly (string Position, int Minimum)[] MinimumPerPosition =
     [
-        ("GK", 2), ("CB", 2), ("LB", 1), ("RB", 1),
-        ("CDM", 1), ("CM", 1), ("CAM", 1), ("LM", 1), ("RM", 1),
-        ("ST", 1), ("LW", 1), ("RW", 1)
+        ("GK", 2), ("CB", 4), ("LB", 2), ("RB", 2),
+        ("CDM", 1), ("CM", 4), ("CAM", 1), ("LM", 1), ("RM", 1),
+        ("ST", 2), ("LW", 1), ("RW", 1)
     ];
 
     // One entry per player the squad is short of, e.g. ["GK", "LB"] for a squad with one keeper and no left back.
