@@ -28,14 +28,17 @@
         <ApplicationId>com.jordanneil.pocketgaffer</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.5</ApplicationDisplayVersion>
-        <ApplicationVersion>8</ApplicationVersion>
+        <ApplicationDisplayVersion>1.7</ApplicationDisplayVersion>
+        <ApplicationVersion>10</ApplicationVersion>
 
         <!-- Partial trimming keeps our assemblies intact so reflection-based DI
              (NetCore.AutoRegisterDi) and Newtonsoft.Json TypeNameHandling work at runtime. -->
         <TrimMode>partial</TrimMode>
 
         <SupportedOSPlatformVersion>24.0</SupportedOSPlatformVersion>
+
+        <!-- Include 32-bit ARM: Fire tablets (e.g. Fire HD 8) run a 32-bit OS and are otherwise marked incompatible. -->
+        <RuntimeIdentifiers>android-arm;android-arm64;android-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <!-- Debug builds default to Fast Deployment, which leaves the .NET assemblies out of the APK, so a
