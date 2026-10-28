@@ -192,7 +192,7 @@ else
             @foreach (var group in grouped)
             {
                 <div class="fixture-block">
-                    <div class="fixture-block-head">@(group.First().Competition?.Name ?? "Other")</div>
+                    <div class="fixture-block-head">@(group.First().Competition != null ? CompetitionHeading(group.First().Competition!) : "Other")</div>
                     @foreach (var item in group)
                     {
                         var f = item.Fixture;
