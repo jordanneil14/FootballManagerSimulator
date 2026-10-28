@@ -268,6 +268,14 @@ public class GameEngine(
         return player != null && player.SuspensionMatches > 0;
     }
 
+    public bool IsPlayerInjured(int playerId)
+    {
+        var player = GetPlayer(playerId);
+        return player != null && player.IsInjured(State.Date);
+    }
+
+    public bool IsPlayerUnavailable(int playerId) => IsPlayerSuspended(playerId) || IsPlayerInjured(playerId);
+
     public string? StartMatch()
     {
         var unfilledStarters = MyClub.TacticSlots
@@ -283,6 +291,13 @@ public class GameEngine(
 
         if (suspendedInSquad)
             return "Unable to start game. You have a suspended player in your starting lineup or substitutes.";
+
+        var injuredInSquad = MyClub.TacticSlots
+            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.PlayerId != null)
+            .Any(p => IsPlayerInjured(p.PlayerId!.Value));
+
+        if (injuredInSquad)
+            return "Unable to start game. You have an injured player in your starting lineup or substitutes.";
 
         var myFixture = MyFixtureToday();
         State.MatchInProgress = true;

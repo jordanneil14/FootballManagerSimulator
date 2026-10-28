@@ -362,6 +362,7 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .event-goal { background: rgba(76,175,80,.12); }
 .event-yellow { background: rgba(255,235,59,.1); }
 .event-red { background: rgba(244,67,54,.1); }
+.event-injury { background: rgba(230,126,34,.12); }
 
 .lineups { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .lineup h3 { font-size: .85rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); border-bottom: 1px solid var(--border); padding-bottom: .5rem; }
@@ -416,6 +417,10 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .sus-chip { display: inline-block; margin-left: .5rem; padding: 0 6px; border-radius: 4px; background: var(--danger); color: #fff; font-size: .72rem; font-weight: 700; vertical-align: middle; }
 tr.suspended td:nth-child(2) > .pname-text { color: var(--text-faint); text-decoration: line-through; }
 .sus-warning { border-left: 3px solid var(--danger); color: var(--danger); }
+.pitch-player.injured .dot { background: var(--warning, #e67e22); color: #fff; }
+.pitch-player.injured .pname { background: var(--warning, #e67e22); color: #fff; }
+.inj-chip { display: inline-block; margin-left: .5rem; padding: 0 6px; border-radius: 4px; background: var(--warning, #e67e22); color: #fff; font-size: .72rem; font-weight: 700; vertical-align: middle; }
+tr.injured td:nth-child(2) > .pname-text { color: var(--text-faint); text-decoration: line-through; }
 
 /* ---------- Pager ---------- */
 .pager { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem; color: var(--text-dim); }

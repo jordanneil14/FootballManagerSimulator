@@ -671,18 +671,19 @@ public class TacticHelper(
         }
     }
 
-    private HashSet<int> GetSuspendedPlayerIds(int clubId)
+    private HashSet<int> GetUnavailablePlayerIds(int clubId)
     {
         return State.Players
-            .Where(p => p.Contract != null && p.Contract.ClubId == clubId && p.SuspensionMatches > 0)
+            .Where(p => p.Contract != null && p.Contract.ClubId == clubId
+                && (p.SuspensionMatches > 0 || p.IsInjured(State.Date)))
             .Select(p => p.Id)
             .ToHashSet();
     }
 
     private void FillEmptyFirstElevenTacticSlotsByClubId(int clubId)
     {
-        var suspendedIds = GetSuspendedPlayerIds(clubId);
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId && !suspendedIds.Contains(p.Id));
+        var unavailableIds = GetUnavailablePlayerIds(clubId);
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId && !unavailableIds.Contains(p.Id));
 
         // Move players from the reserves into the starting 11
         var tacticSlots = State.Clubs
@@ -704,7 +705,7 @@ public class TacticHelper(
             var reserves = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value));
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value));
 
             var selectedPlayer = reserves.Join(preferredPlayers, arg => arg.PlayerId, arg2 => arg2.Id,
                 (first, second) => new
@@ -739,7 +740,7 @@ public class TacticHelper(
             var selectedPlayer = State.Clubs
                 .First(p => p.Id == clubId)
                 .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !suspendedIds.Contains(p.PlayerId.Value))
+                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value))
                 .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId!.Value) })
                 .Where(p => p.Player != null && (isGkSlot ? p.Player.PreferredPosition == "GK" : p.Player.PreferredPosition != "GK"))
                 .OrderByDescending(p => p.Player!.Rating)
@@ -762,7 +763,7 @@ public class TacticHelper(
 
     private void FillEmptySubTacticSlotsByClubId(int clubId)
     {
-        var suspendedIds = GetSuspendedPlayerIds(clubId);
+        var unavailableIds = GetUnavailablePlayerIds(clubId);
         var club = State.Clubs.First(p => p.Id == clubId);
 
         var subSlots = club.TacticSlots
@@ -779,7 +780,7 @@ public class TacticHelper(
             var emptySlot = subSlots.FirstOrDefault(s => !s.PlayerId.HasValue);
             if (emptySlot == null) break;
 
-            var bestPlayer = AvailableReserves(club, suspendedIds, assignedIds)
+            var bestPlayer = AvailableReserves(club, unavailableIds, assignedIds)
                 .Where(p => GetPositionGroup(p.Player.PreferredPosition) == group)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
@@ -793,7 +794,7 @@ public class TacticHelper(
 
         foreach (var emptySlot in subSlots.Where(s => !s.PlayerId.HasValue).ToList())
         {
-            var bestRemaining = AvailableReserves(club, suspendedIds, assignedIds)
+            var bestRemaining = AvailableReserves(club, unavailableIds, assignedIds)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
 
@@ -806,11 +807,11 @@ public class TacticHelper(
     }
 
     // Reserves who can be named as a substitute: not suspended and not already picked.
-    private IEnumerable<ReserveCandidate> AvailableReserves(ClubModel club, HashSet<int> suspendedIds, HashSet<int> assignedIds)
+    private IEnumerable<ReserveCandidate> AvailableReserves(ClubModel club, HashSet<int> unavailableIds, HashSet<int> assignedIds)
     {
         foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES))
         {
-            if (slot.PlayerId is not { } playerId || suspendedIds.Contains(playerId) || assignedIds.Contains(playerId))
+            if (slot.PlayerId is not { } playerId || unavailableIds.Contains(playerId) || assignedIds.Contains(playerId))
                 continue;
 
             if (PlayerHelper.GetPlayerById(playerId) is { } player)

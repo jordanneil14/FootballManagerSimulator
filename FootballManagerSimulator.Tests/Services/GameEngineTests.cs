@@ -281,6 +281,59 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void StartMatch_RejectsAnInjuredStarter()
+    {
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        var starter = MyClub.TacticSlots[0].PlayerId!.Value;
+        var player = _state.Players.First(p => p.Id == starter);
+        player.InjuryEndDate = _state.Date.AddDays(7);
+        player.InjuryDescription = "Hamstring injury";
+
+        Assert.Contains("injured", _engine.StartMatch());
+    }
+
+    [Fact]
+    public void StartMatch_RejectsAnInjuredSubstitute()
+    {
+        AddFixtureToday(MyClub, _state.Clubs[1]);
+        _engine.AutoPickTeam();
+        var sub = MyClub.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null).PlayerId!.Value;
+        var player = _state.Players.First(p => p.Id == sub);
+        player.InjuryEndDate = _state.Date.AddDays(7);
+        player.InjuryDescription = "Minor knock";
+
+        Assert.Contains("injured", _engine.StartMatch());
+    }
+
+    [Fact]
+    public void IsPlayerInjured_ReturnsTrueForActiveInjuryAndFalseOtherwise()
+    {
+        var player = _state.Players.First(p => p.Contract?.ClubId == MyClub.Id);
+        Assert.False(_engine.IsPlayerInjured(player.Id));
+
+        player.InjuryEndDate = _state.Date.AddDays(10);
+        Assert.True(_engine.IsPlayerInjured(player.Id));
+
+        player.InjuryEndDate = _state.Date.AddDays(-1);
+        Assert.False(_engine.IsPlayerInjured(player.Id));
+    }
+
+    [Fact]
+    public void IsPlayerUnavailable_CombinesSuspensionAndInjury()
+    {
+        var player = _state.Players.First(p => p.Contract?.ClubId == MyClub.Id);
+        Assert.False(_engine.IsPlayerUnavailable(player.Id));
+
+        player.SuspensionMatches = 1;
+        Assert.True(_engine.IsPlayerUnavailable(player.Id));
+
+        player.SuspensionMatches = 0;
+        player.InjuryEndDate = _state.Date.AddDays(5);
+        Assert.True(_engine.IsPlayerUnavailable(player.Id));
+    }
+
+    [Fact]
     public void StartMatch_PreGeneratesMyMatchAndSimulatesTheRest()
     {
         var mine = AddFixtureToday(MyClub, _state.Clubs[1]);

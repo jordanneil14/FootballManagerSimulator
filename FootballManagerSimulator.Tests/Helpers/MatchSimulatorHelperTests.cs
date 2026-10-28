@@ -512,6 +512,103 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void ConcludeFixture_GeneratesInjuriesOverManyMatches()
+    {
+        var anyInjury = false;
+        for (var i = 0; i < 200; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.League);
+            _simulator.ConcludeFixture(fixture, competition);
+
+            if (fixture.HomeInjuries.Count > 0 || fixture.AwayInjuries.Count > 0)
+            {
+                anyInjury = true;
+                Assert.All(fixture.HomeInjuries, inj =>
+                {
+                    Assert.InRange(inj.Minute, 1, 90);
+                    Assert.NotEmpty(inj.Description);
+                    Assert.True(inj.DaysOut > 0);
+                    Assert.Contains(inj.PlayerId, StarterIds(Home));
+                });
+                Assert.All(fixture.AwayInjuries, inj =>
+                {
+                    Assert.InRange(inj.Minute, 1, 90);
+                    Assert.NotEmpty(inj.Description);
+                    Assert.True(inj.DaysOut > 0);
+                    Assert.Contains(inj.PlayerId, StarterIds(Away));
+                });
+            }
+        }
+        Assert.True(anyInjury, "Expected at least one injury across 200 matches");
+    }
+
+    [Fact]
+    public void FinaliseMatch_AppliesInjuriesToPlayerModels()
+    {
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        var playerId = Home.TacticSlots[5].PlayerId!.Value;
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 30, PlayerId = playerId, Description = "Hamstring injury", DaysOut = 21 });
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        var player = _state.Players.First(p => p.Id == playerId);
+        Assert.Equal(_state.Date.AddDays(21), player.InjuryEndDate);
+        Assert.Equal("Hamstring injury", player.InjuryDescription);
+        Assert.True(player.IsInjured(_state.Date));
+    }
+
+    [Fact]
+    public void FinaliseMatch_InjuryNotificationOnlySentForMyClubPlayers()
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        var myPlayerId = Home.TacticSlots[5].PlayerId!.Value;
+        var opponentPlayerId = Away.TacticSlots[5].PlayerId!.Value;
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 30, PlayerId = myPlayerId, Description = "Minor knock", DaysOut = 5 });
+        fixture.AwayInjuries.Add(new InjuryModel { Minute = 55, PlayerId = opponentPlayerId, Description = "Fracture", DaysOut = 60 });
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        var injuryNotifications = _state.Notifications.Where(n => n.Subject.Contains("injured")).ToList();
+        Assert.Single(injuryNotifications);
+        Assert.Contains(_state.Players.First(p => p.Id == myPlayerId).Name, injuryNotifications[0].Subject);
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_ClearsInjuriesPastTheGivenMinute()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 20, PlayerId = Home.TacticSlots[5].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 70, PlayerId = Home.TacticSlots[6].PlayerId!.Value, Description = "Fracture", DaysOut = 60 });
+
+        _simulator.ReGenerateFromMinute(fixture, 50);
+
+        Assert.Single(fixture.HomeInjuries);
+        Assert.Equal(20, fixture.HomeInjuries[0].Minute);
+    }
+
+    [Fact]
+    public void FinaliseMatch_SackingNotificationRespectsShowManagerNotificationsSetting()
+    {
+        Away.JobSecurity = 3;
+        _state.ShowManagerNotifications = false;
+
+        for (var i = 0; i < 2; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.League);
+            fixture.GoalsHome = 1;
+            fixture.GoalsAway = 0;
+            _simulator.FinaliseMatch(fixture, competition);
+        }
+
+        Assert.DoesNotContain(_state.Notifications, n => n.Subject.Contains("sack their manager"));
+    }
+
+    [Fact]
     public void PrepareMatch_AutoPicksOpponentsButLeavesMyTeamAlone()
     {
         _state.MyClubId = Home.Id;

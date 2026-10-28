@@ -94,6 +94,7 @@ public class MatchSimulatorHelper(
         fixture.GoalsAway = 0;
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
+        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
 
         while (fixture.Minute <= 45)
         {
@@ -154,6 +155,7 @@ public class MatchSimulatorHelper(
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
+        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
 
         while (fixture.Minute <= 90)
         {
@@ -235,6 +237,88 @@ public class MatchSimulatorHelper(
         }
     }
 
+    private static readonly (string Description, int MinDays, int MaxDays, int Weight)[] InjuryTypes =
+    [
+        ("Minor knock", 3, 7, 40),
+        ("Muscle strain", 7, 21, 30),
+        ("Hamstring injury", 14, 42, 15),
+        ("Ligament damage", 28, 90, 10),
+        ("Fracture", 42, 120, 5)
+    ];
+
+    private static readonly int TotalInjuryWeight = InjuryTypes.Sum(i => i.Weight);
+
+    private void SimulateInjuries(
+        FixtureModel fixture,
+        IEnumerable<TacticSlotModel> homeSlots,
+        IEnumerable<TacticSlotModel> awaySlots,
+        int minuteFrom,
+        int minuteTo)
+    {
+        var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        var awayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+
+        for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(8, 20))
+        {
+            if (RandomNumberHelper.Next(1, 25) != 1)
+                continue;
+
+            var isHome = RandomNumberHelper.Next(0, 2) == 0;
+            var injuries = isHome ? fixture.HomeInjuries : fixture.AwayInjuries;
+            var alreadyInjured = injuries.Select(i => i.PlayerId).ToHashSet();
+            var playerIds = (isHome ? homePlayerIds : awayPlayerIds).Where(id => !alreadyInjured.Contains(id)).ToList();
+
+            if (!playerIds.Any()) continue;
+
+            var playerId = playerIds[RandomNumberHelper.Next(0, playerIds.Count)];
+            var (description, daysOut) = PickInjury();
+
+            injuries.Add(new InjuryModel
+            {
+                Minute = minute,
+                PlayerId = playerId,
+                Description = description,
+                DaysOut = daysOut
+            });
+        }
+    }
+
+    private static (string Description, int DaysOut) PickInjury()
+    {
+        var roll = RandomNumberHelper.Next(TotalInjuryWeight);
+        var cumulative = 0;
+        foreach (var (description, minDays, maxDays, weight) in InjuryTypes)
+        {
+            cumulative += weight;
+            if (roll < cumulative)
+                return (description, RandomNumberHelper.Next(minDays, maxDays + 1));
+        }
+        return (InjuryTypes[0].Description, RandomNumberHelper.Next(InjuryTypes[0].MinDays, InjuryTypes[0].MaxDays + 1));
+    }
+
+    private void ApplyInjuries(FixtureModel fixture)
+    {
+        foreach (var injury in fixture.HomeInjuries.Concat(fixture.AwayInjuries))
+        {
+            var player = PlayerHelper.GetPlayerById(injury.PlayerId);
+            if (player == null) continue;
+
+            player.InjuryEndDate = State.Date.AddDays(injury.DaysOut);
+            player.InjuryDescription = injury.Description;
+
+            if (player.Contract != null && player.Contract.ClubId == State.MyClubId)
+            {
+                State.Notifications.Add(new NotificationModel
+                {
+                    Date = State.Date,
+                    Recipient = "Medical Team",
+                    Subject = $"{player.Name} injured",
+                    Message = $"{player.Name} has suffered a {injury.Description.ToLower()} and is expected to be out until {player.InjuryEndDate:d MMMM yyyy}."
+                });
+            }
+        }
+    }
+
     private bool IsCompetitivFixture(ICompetition competition)
     {
         return competition.Type != CompetitionType.Friendly;
@@ -298,6 +382,7 @@ public class MatchSimulatorHelper(
 
         ReduceSuspensions(fixture, competition);
         ApplySuspensions(fixture, competition);
+        ApplyInjuries(fixture);
 
         if (!wasConcluded)
         {
@@ -554,6 +639,8 @@ public class MatchSimulatorHelper(
         fixture.AwayScorers.RemoveAll(g => g.Minute > fromMinute);
         fixture.HomeCards.RemoveAll(c => c.Minute > fromMinute);
         fixture.AwayCards.RemoveAll(c => c.Minute > fromMinute);
+        fixture.HomeInjuries.RemoveAll(i => i.Minute > fromMinute);
+        fixture.AwayInjuries.RemoveAll(i => i.Minute > fromMinute);
 
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
@@ -561,6 +648,7 @@ public class MatchSimulatorHelper(
         if (fromMinute < 45)
         {
             SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
+            SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
             var minute = fromMinute;
             while (minute <= 45)
             {
@@ -573,6 +661,7 @@ public class MatchSimulatorHelper(
 
         var secondHalfStart = Math.Max(fromMinute, 45);
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
+        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
         var minute2 = secondHalfStart;
         while (minute2 <= 90)
         {
