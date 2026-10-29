@@ -395,10 +395,10 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .pitch-box-top, .pitch-box-bottom { position: absolute; left: 50%; width: 60%; transform: translateX(-50%); height: 16%; border: var(--lw) solid var(--line); pointer-events: none; }
 .pitch-box-top { top: 0; border-top: none; }
 .pitch-box-bottom { bottom: 0; border-bottom: none; }
-/* 6-yard boxes */
-.pitch-box-top::before, .pitch-box-bottom::before { content: ""; position: absolute; left: 50%; width: 40%; transform: translateX(-50%); height: 40%; border: var(--lw) solid var(--line); }
-.pitch-box-top::before { bottom: 0; border-top: none; }
-.pitch-box-bottom::before { top: 0; border-bottom: none; }
+/* 6-yard boxes — 20yd wide vs 44yd penalty box ≈ 45%, 6yd deep vs 18yd ≈ 33% */
+.pitch-box-top::before, .pitch-box-bottom::before { content: ""; position: absolute; left: 50%; width: 45%; transform: translateX(-50%); height: 33%; border: var(--lw) solid var(--line); }
+.pitch-box-top::before { top: 0; border-top: none; }
+.pitch-box-bottom::before { bottom: 0; border-bottom: none; }
 /* corner arcs */
 .pitch-corner { position: absolute; width: 16px; height: 16px; border: var(--lw) solid var(--line); border-radius: 50%; pointer-events: none; }
 .pitch-corner.tl { top: -8px; left: -8px; }
