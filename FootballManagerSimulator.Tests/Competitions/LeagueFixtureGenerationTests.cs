@@ -85,6 +85,20 @@ public class LeagueFixtureGenerationTests
 
     [Theory]
     [MemberData(nameof(Cases))]
+    public void NoClubPlaysMoreThanTwoHomeOrAwayGamesInARow(string serviceName, int clubCount)
+    {
+        for (var season = 0; season < 25; season++)
+        {
+            var (service, _, league) = Arrange(serviceName, clubCount);
+
+            service.GenerateNextRoundOfFixtures(league);
+
+            Assert.True(FixtureRuns.LongestHomeOrAwayRun(league.Fixtures) <= 2);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Cases))]
     public void MatchdaysAreSaturdaysOrTuesdaysWithinTheSeason(string serviceName, int clubCount)
     {
         var (service, _, league) = Arrange(serviceName, clubCount);

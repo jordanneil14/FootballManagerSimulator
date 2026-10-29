@@ -206,6 +206,9 @@ public class FullGameTests : IDisposable
 
         // Every competitive fixture of the season has been played.
         Assert.All(state.Competitions.SelectMany(c => c.Fixtures), f => Assert.True(f.Concluded));
+
+        // No club in any league played more than two home or away league games in a row.
+        Assert.All(state.Competitions.OfType<LeagueModel>(), l => Assert.True(FixtureRuns.LongestHomeOrAwayRun(l.Fixtures) <= 2, l.Name));
         var cup = (CupModel)state.Competitions.Single(c => c.Type == CompetitionType.Cup);
         Assert.Single(cup.Fixtures, f => f.Round == 7);
         Assert.NotNull(cup.Fixtures.Single(f => f.Round == 7).ClubWon);

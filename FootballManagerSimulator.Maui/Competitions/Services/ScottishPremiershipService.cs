@@ -72,39 +72,13 @@ public class ScottishPremiershipService(IState state, INotificationFactory notif
 
 	public void GenerateNextRoundOfFixtures(ICompetition competition)
 	{
-		var league = (LeagueModel)competition;
-
-		var firstRoundRobin = SingleRoundRobin(league.Clubs.OrderBy(_ => RandomNumberHelper.Next()).ToList());
-		var returnRoundRobin = firstRoundRobin.Select(round => round.Select(p => (Home: p.Away, Away: p.Home)).ToList());
-
-		// Shuffled afresh, so who gets the extra home game against whom is independent of the first two meetings.
-		var thirdRoundRobin = SingleRoundRobin(league.Clubs.OrderBy(_ => RandomNumberHelper.Next()).ToList());
-
-		var rounds = firstRoundRobin
-			.Concat(returnRoundRobin)
-			.Concat(thirdRoundRobin)
-			.OrderBy(_ => RandomNumberHelper.Next())
-			.ToList();
-
-		var fixtureDates = GetFixtureDates(rounds.Count);
-
-		competition.Fixtures = rounds
-			.SelectMany((round, index) => round.Select(p => new FixtureModel
-			{
-				HomeClub = p.Home,
-				AwayClub = p.Away,
-				Round = index + 1,
-				Date = fixtureDates[index],
-				KickOffTime = new TimeOnly(15, 00)
-			}))
-			.OrderBy(p => p.Round)
-			.ThenBy(p => p.HomeClub.Name)
-			.ToList();
+		competition.Fixtures = LeagueScheduler.CreateFixtures(competition.Clubs, 3, GetFixtureDates);
 	}
 
 	// Splits the table in half after the first three rounds of meetings. Each half plays one
-	// more round amongst itself on the following Saturdays, at the ground of whichever club
-	// has had fewer home games in that pairing so far. Returns the date of the last match.
+	// more round amongst itself on the following Saturdays. No club plays more than two home or
+	// away games in a row; within that, each pairing is levelled at two home games each where
+	// possible. Returns the date of the last match.
 	public DateOnly GenerateSplitFixtures(LeagueModel league)
 	{
 		var table = league.GenerateLeagueTable().Select(p => p.Club).ToList();
@@ -112,8 +86,9 @@ public class ScottishPremiershipService(IState state, INotificationFactory notif
 
 		league.TopSplitClubIds = table.Take(splitSize).Select(p => p.Id).ToList();
 
+		var played = league.Fixtures.OrderBy(p => p.Round).ToList();
 		var halves = new[] { table.Take(splitSize).ToList(), table.Skip(splitSize).ToList() };
-		var splitRounds = halves.Select(SingleRoundRobin).ToList();
+		var splitRounds = halves.Select(half => SplitRounds(half, played)).ToList();
 		var roundCount = splitRounds.Max(p => p.Count);
 
 		var firstSaturday = State.Date;
@@ -124,12 +99,8 @@ public class ScottishPremiershipService(IState state, INotificationFactory notif
 
 		for (var round = 0; round < roundCount; round++)
 		{
-			foreach (var pairing in splitRounds.Where(p => round < p.Count).SelectMany(p => p[round]))
+			foreach (var (home, away) in splitRounds.Where(p => round < p.Count).SelectMany(p => p[round]))
 			{
-				var (home, away) = HomeGames(league, pairing.Home, pairing.Away) <= HomeGames(league, pairing.Away, pairing.Home)
-					? (pairing.Home, pairing.Away)
-					: (pairing.Away, pairing.Home);
-
 				league.Fixtures.Add(new FixtureModel
 				{
 					HomeClub = home,
@@ -144,35 +115,20 @@ public class ScottishPremiershipService(IState state, INotificationFactory notif
 		return firstSaturday.AddDays(7 * (roundCount - 1));
 	}
 
-	private static int HomeGames(LeagueModel league, ClubModel home, ClubModel away) =>
-		league.Fixtures.Count(p => p.HomeClub.Id == home.Id && p.AwayClub.Id == away.Id);
-
-	// Circle method for an even number of clubs: each meets every other once over n - 1 rounds.
-	// A pairing is played at the lower-placed club's ground when the gap between the two
-	// positions is odd, otherwise at the higher one's, giving everyone n/2 or n/2 - 1 home games.
-	public static List<List<(ClubModel Home, ClubModel Away)>> SingleRoundRobin(List<ClubModel> clubs)
+	private static List<List<(ClubModel Home, ClubModel Away)>> SplitRounds(List<ClubModel> half, List<FixtureModel> played)
 	{
-		var count = clubs.Count;
-		var rotating = Enumerable.Range(1, count - 1).ToList();
-		var rounds = new List<List<(ClubModel Home, ClubModel Away)>>();
+		var history = half
+			.Select(club => (IReadOnlyList<bool>)played
+				.Where(p => p.HomeClub.Id == club.Id || p.AwayClub.Id == club.Id)
+				.Select(p => p.HomeClub.Id == club.Id)
+				.ToList())
+			.ToList();
 
-		for (var round = 0; round < count - 1; round++)
-		{
-			var order = new List<int> { 0 };
-			order.AddRange(rotating.Skip(round).Concat(rotating.Take(round)));
+		int Hosted(int a, int b) => played.Count(p => p.HomeClub.Id == half[a].Id && p.AwayClub.Id == half[b].Id);
 
-			var matches = new List<(ClubModel Home, ClubModel Away)>();
-			for (var i = 0; i < count / 2; i++)
-			{
-				var low = Math.Min(order[i], order[count - 1 - i]);
-				var high = Math.Max(order[i], order[count - 1 - i]);
+		var rounds = LeagueScheduler.Continue(history, Hosted, RandomNumberHelper.Next)
+			?? throw new InvalidOperationException("No split schedule keeps every club within two home or away games in a row.");
 
-				matches.Add((high - low) % 2 == 1 ? (clubs[low], clubs[high]) : (clubs[high], clubs[low]));
-			}
-
-			rounds.Add(matches);
-		}
-
-		return rounds;
+		return rounds.Select(r => r.Select(m => (half[m.Home], half[m.Away])).ToList()).ToList();
 	}
 }

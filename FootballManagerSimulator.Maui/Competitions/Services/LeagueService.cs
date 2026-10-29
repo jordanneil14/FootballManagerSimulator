@@ -1,4 +1,4 @@
-﻿using FootballManagerSimulator.Maui.Helpers;
+using FootballManagerSimulator.Maui.Helpers;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 
@@ -39,12 +39,6 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
     }
 
 
-    public class RandomFixture
-    {
-        public int WeekNumber { get; set; }
-        public DateOnly Date { get; set; }
-    }
-
     private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
     {
         var startDate = new DateOnly(State.Date.Year, 8, 1);
@@ -75,103 +69,8 @@ public class LeagueService(IState state, INotificationFactory notificationFactor
         return availableSaturdays.Concat(randomDates).OrderBy(p => p);
     }
 
-    public void GenerateNextRoundOfFixtures(ICompetition competition)
-    {
-        var league = (LeagueModel)competition;
-
-        var output = new List<FixtureModel>();
-
-        var numRounds = league.Clubs.Count() - 1;
-        var halfSize = league.Clubs.Count() / 2;
-
-        var clubIndices = new List<ClubModel>(league.Clubs);
-
-        clubIndices.RemoveAt(0);
-
-        var clubIdxSize = clubIndices.Count;
-
-        //var date = new DateOnly(State.Date.Year, 8, 1);
-
-        var fixtureDates = GetFixtureDates(numRounds * 2);
-
-        var randomHelpers = new List<RandomFixture>();
-        for (var i = 1; i <= numRounds * 2; i++)
-        {
-            randomHelpers.Add(new RandomFixture
-            {
-                WeekNumber = i,
-                Date = fixtureDates.ElementAt(i - 1)
-            });
-        }
-        randomHelpers = randomHelpers.OrderBy(p => RandomNumberHelper.Next()).ToList();
-
-        for (var round = 0; round < numRounds; round++)
-        {
-            var clubIdx = round % clubIdxSize;
-
-            var randomHelper = randomHelpers.First();
-            randomHelpers.Remove(randomHelper);
-
-            output.Add(new FixtureModel
-            {
-                HomeClub = league.Clubs.ElementAt(0),
-                AwayClub = clubIndices[clubIdx],
-                Round = randomHelper.WeekNumber,
-                Date = randomHelper.Date,
-                KickOffTime = new TimeOnly(15, 00)
-            });
-
-            for (var idx = 1; idx < halfSize; idx++)
-            {
-                var firstClubIdx = (round + idx) % clubIdxSize;
-                var secondClubIdx = (round + clubIdxSize - idx) % clubIdxSize;
-
-                output.Add(new FixtureModel
-                {
-                    HomeClub = clubIndices[firstClubIdx],
-                    AwayClub = clubIndices[secondClubIdx],
-                    Round = randomHelper.WeekNumber,
-                    Date = randomHelper.Date,
-                    KickOffTime = new TimeOnly(15, 00)
-                });
-            }
-        }
-
-        for (var round = 0; round < numRounds; round++)
-        {
-            var randomHelper = randomHelpers.First();
-            randomHelpers.Remove(randomHelper);
-
-            var clubIdx = round % clubIdxSize;
-
-            output.Add(new FixtureModel
-            {
-                HomeClub = clubIndices[clubIdx],
-                AwayClub = league.Clubs.ElementAt(0),
-                Round = randomHelper.WeekNumber,
-                Date = randomHelper.Date,
-                KickOffTime = new TimeOnly(15, 00)
-            });
-
-            for (var idx = 1; idx < halfSize; idx++)
-            {
-                var firstClubIdx = (round + idx) % clubIdxSize;
-                var secondClubIdx = (round + clubIdxSize - idx) % clubIdxSize;
-
-                output.Add(new FixtureModel
-                {
-                    HomeClub = clubIndices[secondClubIdx],
-                    AwayClub = clubIndices[firstClubIdx],
-                    Round = randomHelper.WeekNumber,
-                    Date = randomHelper.Date,
-                    KickOffTime = new TimeOnly(15, 00)
-                });
-            }
-        }
-
-        competition.Fixtures = output
-            .OrderBy(p => p.Round)
-            .ThenBy(p => p.HomeClub.Name)
-            .ToList();
-    }
+	public void GenerateNextRoundOfFixtures(ICompetition competition)
+	{
+		competition.Fixtures = LeagueScheduler.CreateFixtures(competition.Clubs, 2, GetFixtureDates);
+	}
 }

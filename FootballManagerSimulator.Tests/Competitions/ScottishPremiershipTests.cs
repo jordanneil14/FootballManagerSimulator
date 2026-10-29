@@ -86,7 +86,7 @@ public class ScottishPremiershipTests : IDisposable
     }
 
     [Fact]
-    public void Split_EachHalfPlaysItselfOnceMore_LevellingEveryPairingAtTwoHomeGamesEach()
+    public void Split_EachHalfPlaysItselfOnceMore_LevellingMostPairingsAtTwoHomeGamesEach()
     {
         _service.GenerateNextRoundOfFixtures(_league);
         PlayFirstPhase(new DateOnly(2027, 3, 28));
@@ -99,12 +99,17 @@ public class ScottishPremiershipTests : IDisposable
         Assert.Equal(2 * (6 * 5 / 2), split.Count);
         Assert.All(split, f => Assert.Equal(f.HomeClub.Id <= 6, f.AwayClub.Id <= 6));
 
+        // Levelling gives way where it would mean three home or away games in a row, leaving a pairing at 3-1.
+        var levelled = 0;
         foreach (var a in _league.Clubs)
         foreach (var b in _league.Clubs.Where(c => c.Id > a.Id && (c.Id <= 6) == (a.Id <= 6)))
         {
-            Assert.Equal(2, Meetings(_league.Fixtures, a.Id, b.Id));
-            Assert.Equal(2, Meetings(_league.Fixtures, b.Id, a.Id));
+            var homeGames = new[] { Meetings(_league.Fixtures, a.Id, b.Id), Meetings(_league.Fixtures, b.Id, a.Id) };
+            Assert.Equal(4, homeGames.Sum());
+            Assert.InRange(homeGames.Min(), 1, 2);
+            if (homeGames.Min() == 2) levelled++;
         }
+        Assert.True(levelled >= 20, $"Only {levelled} of 30 split pairings were levelled.");
 
         // Five consecutive Saturdays starting the first Saturday after the split, rounds 34 to 38.
         var dates = split.Select(f => f.Date).Distinct().OrderBy(d => d).ToList();
@@ -112,6 +117,31 @@ public class ScottishPremiershipTests : IDisposable
         Assert.Equal(dates.Last(), lastMatch);
         Assert.Equal(Enumerable.Range(34, 5), split.Select(f => f.Round).Distinct().OrderBy(r => r));
         Assert.All(split.GroupBy(f => f.Round), round => Assert.Single(round.Select(f => f.Date).Distinct()));
+    }
+
+    [Fact]
+    public void NoClubPlaysMoreThanTwoHomeOrAwayGamesInARow_IncludingTheSplit()
+    {
+        var random = new Random(42);
+        for (var season = 0; season < 50; season++)
+        {
+            _league.Fixtures.Clear();
+            _service.GenerateNextRoundOfFixtures(_league);
+            Assert.True(FixtureRuns.LongestHomeOrAwayRun(_league.Fixtures) <= 2);
+
+            // Random results give a different split each season.
+            foreach (var fixture in _league.Fixtures)
+            {
+                fixture.GoalsHome = random.Next(4);
+                fixture.GoalsAway = random.Next(4);
+                fixture.Concluded = true;
+            }
+            _host.State.Date = new DateOnly(2027, 3, 28);
+
+            _service.GenerateSplitFixtures(_league);
+
+            Assert.True(FixtureRuns.LongestHomeOrAwayRun(_league.Fixtures) <= 2);
+        }
     }
 
     [Fact]
