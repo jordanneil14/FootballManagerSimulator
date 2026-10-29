@@ -41,6 +41,14 @@ public class PlayerModel : IPerson
 
     // A retiring player will not sign a new contract and leaves the game once their current one expires.
     public bool IsRetiring(DateOnly onDate) => GetAge(onDate) >= RetirementAge;
+
+    // The 30 June the player's last contract ran out. Only meaningful while Contract is null; free agents
+    // from the start of the game (or an older save) get the date at the first 30 June they're seen.
+    public DateOnly? FreeAgentSince { get; set; }
+
+    // A free agent who goes a whole season without a club gives up and leaves the game.
+    public bool HasGivenUp(DateOnly onDate) =>
+        Contract == null && FreeAgentSince is { } since && since.AddYears(1) <= onDate;
     public string PreferredPosition { get; set; } = "";
     public string WorkRate { get; set; } = "";
     public int Weakfoot { get; set; }

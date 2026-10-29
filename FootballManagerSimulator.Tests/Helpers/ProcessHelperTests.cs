@@ -1,4 +1,5 @@
 using FootballManagerSimulator.Maui.Events;
+using FootballManagerSimulator.Maui.Helpers;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using FootballManagerSimulator.Tests.Support;
@@ -94,6 +95,15 @@ public class ProcessHelperTests : IDisposable
     [Fact]
     public void AIRenewals_ReSignSomeAIPlayersOn30MarchButNeverTouchMine()
     {
+        // Ageing fringe players at each AI club, so some contracts are all but certain to be let go.
+        foreach (var club in State.Clubs.Skip(1))
+            for (var i = 0; i < 12; i++)
+            {
+                var fringe = TestData.Player(9300 + 100 * club.Id + i, club.Id, rating: 50, clubName: club.Name);
+                fringe.BirthDate = "01/15/1994";
+                State.Players.Add(fringe);
+            }
+
         var seasonEnd = new DateOnly(2027, 6, 30);
         foreach (var player in State.Players)
             player.Contract!.ExpiryDate = seasonEnd;
@@ -109,6 +119,36 @@ public class ProcessHelperTests : IDisposable
         Assert.All(ai, p => Assert.Contains(p.Contract!.ExpiryDate, Enumerable.Range(0, 5).Select(y => seasonEnd.AddYears(y))));
         Assert.Contains(ai, p => p.Contract!.ExpiryDate > seasonEnd);
         Assert.Contains(ai, p => p.Contract!.ExpiryDate == seasonEnd && p != retiring);
+    }
+
+    [Fact]
+    public void AIRenewals_KeepTheFirstTeamAndLetSurplusPlayersGo()
+    {
+        // Club 2 gets a 30-man squad of 26-year-olds with distinct ratings, best first.
+        var club = State.Clubs[1];
+        for (var id = 9200; State.Players.Count(p => p.Contract?.ClubId == club.Id) < 30; id++)
+            State.Players.Add(TestData.Player(id, club.Id, clubName: club.Name));
+        var squad = State.Players.Where(p => p.Contract?.ClubId == club.Id).ToList();
+        for (var i = 0; i < squad.Count; i++)
+        {
+            squad[i].Rating = 90 - i;
+            squad[i].BirthDate = "01/15/2001";
+        }
+
+        var seasonEnd = new DateOnly(2027, 6, 30);
+        int firstTeamKept = 0, surplusKept = 0;
+        const int trials = 40;
+        for (var trial = 0; trial < trials; trial++)
+        {
+            squad.ForEach(p => p.Contract!.ExpiryDate = seasonEnd);
+            AdvanceTo(new DateOnly(2027, 3, 30));
+            firstTeamKept += squad.Take(11).Count(p => p.Contract!.ExpiryDate > seasonEnd);
+            surplusKept += squad.Skip(25).Count(p => p.Contract!.ExpiryDate > seasonEnd);
+        }
+
+        // Expected 98% of the first team and 88% of ranks 26-30.
+        Assert.InRange(firstTeamKept / (11.0 * trials), 0.92, 1);
+        Assert.InRange(surplusKept / (5.0 * trials), 0.75, 0.97);
     }
 
     [Fact]
@@ -182,13 +222,44 @@ public class ProcessHelperTests : IDisposable
         Assert.DoesNotContain(State.TransferListItems, p => p.PlayerId == myRetiree.Id);
         Assert.DoesNotContain(State.Clubs.SelectMany(c => c.TacticSlots), s => s.PlayerId == myRetiree.Id || s.PlayerId == aiRetiree.Id);
 
+        // Released, not retired (club 2, a player down after its retirement, may well sign him straight away).
         Assert.Contains(released, State.Players);
-        Assert.Null(released.Contract);
+        Assert.NotEqual(1, released.Contract?.ClubId);
         Assert.Equal(1, stillContracted.Contract!.ClubId);
 
         var notification = Assert.Single(State.Notifications, n => n.Subject == "Retirements");
         Assert.Contains(myRetiree.Name, notification.Message);
         Assert.DoesNotContain(aiRetiree.Name, notification.Message);
+    }
+
+    [Fact]
+    public void EndOfSeason_FreeAgentsWhoGoAWholeSeasonUnsignedLeaveTheGame()
+    {
+        // Rated 40, so no club wants them.
+        var unsignedAllSeason = TestData.Player(9500, null, rating: 40);
+        unsignedAllSeason.FreeAgentSince = new DateOnly(2026, 6, 30);
+        var neverDated = TestData.Player(9501, null, rating: 40); // from the start of the game or an older save
+        State.Players.AddRange([unsignedAllSeason, neverDated]);
+        // Squads keep their size, so no AI club is short and signs them on 30 June.
+        foreach (var player in State.Players.Where(p => p.Contract != null))
+            player.Contract!.ExpiryDate = new DateOnly(2030, 6, 30);
+        var released = PlayerAt(1, 0); // mine, so no AI club is a player down
+        released.Rating = 40;
+        released.Contract!.ExpiryDate = new DateOnly(2027, 6, 30);
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        Assert.DoesNotContain(unsignedAllSeason, State.Players);
+        Assert.Contains(neverDated, State.Players);
+        Assert.Equal(new DateOnly(2027, 6, 30), neverDated.FreeAgentSince);
+        Assert.Contains(released, State.Players);
+        Assert.Null(released.Contract);
+        Assert.Equal(new DateOnly(2027, 6, 30), released.FreeAgentSince);
+
+        // A season later, both are gone.
+        AdvanceTo(new DateOnly(2028, 6, 30));
+        Assert.DoesNotContain(neverDated, State.Players);
+        Assert.DoesNotContain(released, State.Players);
     }
 
     [Fact]
@@ -204,20 +275,57 @@ public class ProcessHelperTests : IDisposable
     }
 
     [Fact]
-    public void EndOfSeason_GivesAFullSquadWithNoKeepersTwoNewOnes()
+    public void EndOfSeason_GivesASquadOfTheMinimumOrMoreOnlyTheKeepersItIsShortOf()
     {
+        // 28 players with no keepers, and short of full backs, centre backs and centre mids.
         var club = State.Clubs[1];
         foreach (var keeper in State.Players.Where(p => p.Contract?.ClubId == club.Id && p.Position == "GK"))
-            keeper.Position = keeper.PreferredPosition = "CB";
+            keeper.Position = keeper.PreferredPosition = "ST";
         for (var id = 9100; id < 9110; id++)
             State.Players.Add(TestData.Player(id, club.Id, "CAM", clubName: club.Name));
-        Assert.True(State.Players.Count(p => p.Contract?.ClubId == club.Id) >= 25);
+        var before = State.Players.Count(p => p.Contract?.ClubId == club.Id);
+        Assert.True(before >= 25);
+        Assert.Contains("LB", PlayerGenerator.PlayerGenerator.MissingPositions(State.Players.Where(p => p.Contract?.ClubId == club.Id).Select(p => p.Position)));
 
         AdvanceTo(new DateOnly(2027, 6, 30));
 
         var squad = State.Players.Where(p => p.Contract?.ClubId == club.Id).Select(p => p.Position).ToList();
+        Assert.Equal(before + 2, squad.Count);
         Assert.Equal(2, squad.Count(p => p == "GK"));
-        Assert.Empty(PlayerGenerator.PlayerGenerator.MissingPositions(squad));
+        Assert.Equal(["CB", "LB", "RB", "CM"], PlayerGenerator.PlayerGenerator.MissingPositions(squad));
+    }
+
+    [Fact]
+    public void EndOfSeason_SignsFreeAgentsBeforeGeneratingPlayersForASquadBelowTheMinimum()
+    {
+        // Club 2 is down to 14; the pool has two players for it, so only the rest are generated.
+        var club = State.Clubs[1];
+        var squad = State.Players.Where(p => p.Contract?.ClubId == club.Id && p.Position != "GK").Take(4).ToList();
+        State.Players.RemoveAll(squad.Contains);
+        var freeAgents = new[] { TestData.Player(9400, null, rating: 62), TestData.Player(9401, null, rating: 61) };
+        State.Players.AddRange(freeAgents);
+        var maxId = State.Players.Max(p => p.Id);
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        var after = State.Players.Where(p => p.Contract?.ClubId == club.Id).ToList();
+        Assert.All(freeAgents, p => Assert.Equal(club.Id, p.Contract?.ClubId));
+        Assert.True(after.Count >= SquadSizeRules.Minimum);
+        Assert.InRange(after.Count(p => p.Id > maxId), 2, SquadSizeRules.Minimum);
+        Assert.Empty(PlayerGenerator.PlayerGenerator.MissingPositions(after.Select(p => p.Position)));
+    }
+
+    [Fact]
+    public void FreeAgentsAreSignedOutsideTheTransferWindow()
+    {
+        var freeAgent = TestData.Player(9400, null, rating: 62);
+        State.Players.Add(freeAgent);
+
+        AdvanceTo(new DateOnly(2026, 10, 15));
+
+        Assert.False(TransferWindowRules.IsOpen(State.Date));
+        Assert.NotNull(freeAgent.Contract);
+        Assert.NotEqual(1, freeAgent.Contract.ClubId);
     }
 
     [Fact]
@@ -255,7 +363,7 @@ public class ProcessHelperTests : IDisposable
 
         var intake = State.Players.Where(p => !before.Contains(p.Id)).ToList();
         var mine = intake.Where(p => p.Contract!.ClubId == 1).ToList();
-        Assert.All(State.Clubs, c => Assert.InRange(intake.Count(p => p.Contract!.ClubId == c.Id), 2, 4));
+        Assert.All(State.Clubs, c => Assert.Equal(ProcessHelper.YouthIntakePerClub, intake.Count(p => p.Contract!.ClubId == c.Id)));
         Assert.All(intake, p => Assert.Contains(p.Contract!.ExpiryDate, new[] { new DateOnly(2029, 6, 30), new DateOnly(2030, 6, 30) }));
 
         // 7 is a midfielder's number, so a midfield youngster fills the gap and nobody else takes it.

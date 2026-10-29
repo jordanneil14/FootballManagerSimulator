@@ -79,6 +79,8 @@ public class ProcessHelper(
             JobOfferHelper.ProcessJobOffers();
         }
 
+        // Free agents can sign at any time; only deals between clubs wait for the window.
+        TransferListHelper.ProcessAIFreeAgentSignings();
         if (TransferWindowRules.IsOpen(State.Date))
             TransferListHelper.ProcessAITransfers();
 
@@ -107,10 +109,11 @@ public class ProcessHelper(
 
         foreach (var squad in squads)
         {
-            var squadAverage = squad.Average(p => p.Rating);
-            foreach (var player in squad.Where(p => p.Contract!.ExpiryDate <= seasonEnd))
+            // Ranked across the whole squad, so the first team means the same at every club.
+            var ranked = squad.OrderByDescending(p => p.Rating).Select((player, index) => (player, rank: index + 1));
+            foreach (var (player, rank) in ranked.Where(p => p.player.Contract!.ExpiryDate <= seasonEnd))
             {
-                if (RandomNumberHelper.NextDouble() >= ContractRenewalRules.RenewalChance(player, squadAverage, seasonEnd))
+                if (RandomNumberHelper.NextDouble() >= ContractRenewalRules.RenewalChance(player, rank, seasonEnd))
                     continue;
 
                 var years = ContractRenewalRules.RenewalYears(player.GetAge(seasonEnd));
@@ -170,7 +173,8 @@ public class ProcessHelper(
         RecordLeagueTitle();
         ProcessPromotionAndRelegation();
         ExpireContracts();
-        TopUpSquads();
+        TransferListHelper.SignFreeAgentsForShortSquads();
+        TopUpSquads(SquadSizeRules.Minimum);
         ResetSuspensions();
         RecreateCompetitions();
         var myIncrease = IncreaseTransferBudgets();
@@ -277,6 +281,7 @@ public class ProcessHelper(
         foreach (var player in expiredPlayers)
         {
             player.Contract = null;
+            player.FreeAgentSince = State.Date;
             TransferListHelper.RemovePlayerFromTransferList(player.Id);
         }
 
@@ -290,11 +295,16 @@ public class ProcessHelper(
                 $"The following players have retired following the expiry of their contracts:\n\t{string.Join("\n\t", myRetirees)}");
     }
 
-    // Out-of-contract players at or past the retirement age won't sign again, so they leave the game.
+    // Out-of-contract players at or past the retirement age won't sign again, so they leave the game,
+    // as do free agents who have gone a whole season without a club. That keeps the number of players
+    // in the game from outgrowing the squads, since the youth intake adds more each year than retire.
     private void RetirePlayers()
     {
+        foreach (var player in State.Players.Where(p => p.Contract == null && p.FreeAgentSince == null))
+            player.FreeAgentSince = State.Date;
+
         var retiredIds = State.Players
-            .Where(p => p.Contract == null && p.IsRetiring(State.Date))
+            .Where(p => p.Contract == null && (p.IsRetiring(State.Date) || p.HasGivenUp(State.Date)))
             .Select(p => p.Id)
             .ToHashSet();
 
@@ -311,11 +321,12 @@ public class ProcessHelper(
         State.Players.RemoveAll(p => retiredIds.Contains(p.Id));
     }
 
-    // Every club promotes a handful of 16-17 year olds from its academy on 1 March.
+    public const int YouthIntakePerClub = 2;
+
+    // Every club promotes two 16-17 year olds from its academy on 1 March.
     private void ProcessYouthIntake()
     {
         var generator = new PlayerGenerator.PlayerGenerator();
-        var random = new Random();
         var startDate = State.Date.ToString("yyyy-MM-dd");
         var nextId = State.Players.Max(p => p.Id) + 1;
         var myIntake = new List<PlayerModel>();
@@ -327,7 +338,7 @@ public class ProcessHelper(
         foreach (var club in State.Clubs)
         {
             var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
-            var generated = generator.GenerateYouthIntake(club.Name, random.Next(2, 5), startDate, leagueRank, club.AcademyRating);
+            var generated = generator.GenerateYouthIntake(club.Name, YouthIntakePerClub, startDate, leagueRank, club.AcademyRating);
 
             foreach (var gp in generated)
             {
@@ -353,11 +364,13 @@ public class ProcessHelper(
                 $"The following players have been promoted from the academy:\n\t{string.Join("\n\t", myIntake.Select(p => $"{p.Name} ({p.PreferredPosition}, {p.Rating})"))}");
     }
 
-    private void TopUpSquads()
+    // A last resort, so generated players don't add to the number in the game: AI clubs short of a
+    // matchday squad or two keepers sign free agents first (see TransferListHelper), and only what's
+    // still missing is generated. Clubs build beyond this by signing free agents during the season.
+    private void TopUpSquads(int squadSize)
     {
         var generator = new PlayerGenerator.PlayerGenerator();
-        var random = new Random();
-        var startDate = $"{State.Date.Year}-07-01";
+        var startDate = State.Date.ToString("yyyy-MM-dd");
         var nextId = State.Players.Max(p => p.Id) + 1;
 
         var leagueRankLookup = Settings.Competitions
@@ -371,16 +384,24 @@ public class ProcessHelper(
                 .Select(p => p.Position)
                 .ToList();
 
-            // A full squad still gets cover for any position it has no one in (or only one keeper).
-            var missingCount = PlayerGenerator.PlayerGenerator.MissingPositions(contractedPositions).Count;
-            var targetSize = contractedPositions.Count >= 25 ? 0 : random.Next(25, 31);
-            var playersNeeded = Math.Max(targetSize - contractedPositions.Count, missingCount);
-
-            if (playersNeeded <= 0)
-                continue;
-
             var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
-            var generated = generator.GenerateTopUp(club.Name, playersNeeded, contractedPositions, startDate, leagueRank);
+            List<PlayerGenerator.GeneratedPlayer> generated;
+
+            if (contractedPositions.Count < squadSize)
+            {
+                // Filled to the target, covering any position the squad has no one in.
+                var missingCount = PlayerGenerator.PlayerGenerator.MissingPositions(contractedPositions).Count;
+                var playersNeeded = Math.Max(squadSize - contractedPositions.Count, missingCount);
+                generated = generator.GenerateTopUp(club.Name, playersNeeded, contractedPositions, startDate, leagueRank);
+            }
+            else
+            {
+                // A big enough squad is left to cover its own positions, except that it always has two keepers.
+                var keepersNeeded = 2 - contractedPositions.Count(p => p == "GK");
+                if (keepersNeeded <= 0)
+                    continue;
+                generated = generator.GenerateKeepers(club.Name, keepersNeeded, startDate, leagueRank);
+            }
 
             // Generated numbers only avoid each other, so number the newcomers around the existing squad, best first.
             foreach (var gp in generated.OrderByDescending(p => p.Rating))
@@ -389,6 +410,10 @@ public class ProcessHelper(
                 player.Id = nextId++;
                 player.ShirtNumber = ShirtNumberRules.NextAvailable(State.Players, club.Id, player.Position);
                 State.Players.Add(player);
+
+                var reserveSlot = club.TacticSlots.FirstOrDefault(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId == null);
+                if (reserveSlot != null)
+                    reserveSlot.PlayerId = player.Id;
             }
         }
     }

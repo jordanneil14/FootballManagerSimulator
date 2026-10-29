@@ -8,21 +8,31 @@ public static class ContractRenewalRules
     public const int RenewalMonth = 3;
     public const int RenewalDay = 30;
 
-    // Clubs keep most players, favouring those at or above the squad's level and the young,
-    // and are reluctant to commit to players in their thirties.
-    public static double RenewalChance(PlayerModel player, double squadAverageRating, DateOnly seasonEnd)
+    public const int FirstTeamSize = 11;
+
+    // Clubs keep about 95% of a squad in its twenties: the first team and rotation almost without fail,
+    // surplus players less often. squadRank is the player's place in his squad by rating, 1 being the best.
+    // Age counts against fringe players far more than against first-team regulars, and young players are
+    // kept as prospects.
+    public static double RenewalChance(PlayerModel player, int squadRank, DateOnly seasonEnd)
     {
         if (player.IsRetiring(seasonEnd))
             return 0;
 
-        var age = player.GetAge(seasonEnd);
-        var chance = 0.55;
-        if (player.Rating >= squadAverageRating) chance += 0.3;
-        if (age <= 23) chance += 0.15;
-        if (age >= 32) chance -= 0.3;
-        else if (age >= 30) chance -= 0.15;
+        var firstTeam = squadRank <= FirstTeamSize;
+        var chance = squadRank switch
+        {
+            <= 18 => 0.98,
+            <= 25 => 0.95,
+            _ => 0.88
+        };
 
-        return Math.Clamp(chance, 0.1, 0.95);
+        var age = player.GetAge(seasonEnd);
+        if (age <= 23) chance += 0.15;
+        else if (age >= 32) chance -= firstTeam ? 0.15 : 0.3;
+        else if (age >= 30) chance -= firstTeam ? 0.05 : 0.15;
+
+        return Math.Clamp(chance, 0.05, 0.98);
     }
 
     // Younger players are offered longer deals.

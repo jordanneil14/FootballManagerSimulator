@@ -160,14 +160,13 @@ public class TransferListHelperTests
     }
 
     [Fact]
-    public void ProcessAITransfers_AIClubsSignSuitableFreeAgents()
+    public void AIFreeAgentSignings_AIClubsSignSuitableFreeAgents()
     {
         // Squads average a rating of about 62, so a 62-rated free agent suits every AI club.
         var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
         _state.Players.Add(freeAgent);
 
-        for (var i = 0; i < 200 && freeAgent.Contract == null; i++)
-            _helper.ProcessAITransfers();
+        _helper.ProcessAIFreeAgentSignings();
 
         var club = _state.Clubs.Single(c => c.Id == freeAgent.Contract!.ClubId);
         Assert.NotEqual(1, club.Id); // never signed to my club behind my back
@@ -178,7 +177,7 @@ public class TransferListHelperTests
     }
 
     [Fact]
-    public void ProcessAITransfers_AIClubsWithFullSquadsSignNoFreeAgents()
+    public void AIFreeAgentSignings_AIClubsWithFullSquadsSignNoFreeAgents()
     {
         // Fill both AI squads to the 30-player cap.
         foreach (var clubId in new[] { 2, 3 })
@@ -187,7 +186,19 @@ public class TransferListHelperTests
         var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
         _state.Players.Add(freeAgent);
 
-        for (var i = 0; i < 200; i++)
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Null(freeAgent.Contract);
+    }
+
+    [Fact]
+    public void ProcessAITransfers_NoLongerSignsFreeAgents()
+    {
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
+        _state.Players.Add(freeAgent);
+        _helper.AddPlayerToTransferList(PlayerAt(2).Id, 1);
+
+        for (var i = 0; i < 50; i++)
             _helper.ProcessAITransfers();
 
         Assert.Null(freeAgent.Contract);
@@ -222,18 +233,100 @@ public class TransferListHelperTests
     }
 
     [Fact]
-    public void ProcessAITransfers_AIClubsIgnoreRetiringAndUnsuitableFreeAgents()
+    public void AIFreeAgentSignings_AIClubsIgnoreRetiringAndUnsuitableFreeAgents()
     {
         var retiring = TestData.Player(5000, clubId: null, rating: 62);
         retiring.BirthDate = "01/15/1990";
         var tooGood = TestData.Player(5001, clubId: null, rating: 90);
         _state.Players.AddRange([retiring, tooGood]);
 
-        for (var i = 0; i < 200; i++)
-            _helper.ProcessAITransfers();
+        _helper.ProcessAIFreeAgentSignings();
 
         Assert.Null(retiring.Contract);
         Assert.Null(tooGood.Contract);
+    }
+
+    [Fact]
+    public void AIFreeAgentSignings_SignsUpToFiveFreeAgentsADayBestFirst()
+    {
+        // Squads' best 20 average about 62, so all eight (59-66) suit every AI club; only the best five sign today.
+        var freeAgents = Enumerable.Range(0, 8).Select(i => TestData.Player(5000 + i, clubId: null, rating: 66 - i)).ToList();
+        _state.Players.AddRange(freeAgents);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.All(freeAgents.Take(5), p => Assert.NotNull(p.Contract));
+        Assert.All(freeAgents.Skip(5), p => Assert.Null(p.Contract));
+    }
+
+    [Fact]
+    public void AIFreeAgentSignings_FreeAgentsJoinTheStrongestClubTheyWouldPlayFor()
+    {
+        // Club 3 is stronger than club 2 but still within the free agent's reach.
+        foreach (var player in _state.Players.Where(p => p.Contract?.ClubId == 3))
+            player.Rating += 4;
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 68);
+        _state.Players.Add(freeAgent);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Equal(3, freeAgent.Contract!.ClubId);
+    }
+
+    [Fact]
+    public void AIFreeAgentSignings_ClubsShortOfTheTargetSizeGetFirstPick()
+    {
+        // Club 3 has 27 players and is stronger (about 65); club 2 has 18 (about 62). Both suit a 64.
+        for (var i = 0; i < 9; i++)
+            _state.Players.Add(TestData.Player(3000 + i, clubId: 3, rating: 66));
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 64);
+        _state.Players.Add(freeAgent);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Equal(2, freeAgent.Contract!.ClubId);
+    }
+
+    [Theory]
+    [InlineData(0, true)]   // 18-man squads are short, so take a player 7 below their level
+    [InlineData(8, false)]  // 26-man squads only take players within 5
+    public void AIFreeAgentSignings_ShortSquadsTakePlayersFurtherBelowTheirLevel(int extraPlayers, bool signed)
+    {
+        foreach (var clubId in new[] { 2, 3 })
+            for (var i = 0; i < extraPlayers; i++)
+                _state.Players.Add(TestData.Player(1000 * clubId + i, clubId, rating: 62));
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 55);
+        _state.Players.Add(freeAgent);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Equal(signed, freeAgent.Contract != null);
+    }
+
+    [Fact]
+    public void SignFreeAgentsForShortSquads_SignsKeepersAndPlayersUpToTheMinimumFromThePool()
+    {
+        // Club 2 is down to 15 players with one keeper; club 1 (mine) is short too but is left alone.
+        foreach (var clubId in new[] { 1, 2 })
+        {
+            var squad = _state.Players.Where(p => p.Contract?.ClubId == clubId).ToList();
+            _state.Players.Remove(squad.First(p => p.Position == "GK"));
+            _state.Players.RemoveAll(p => squad.Where(s => s.Position != "GK").Take(2).Contains(p));
+        }
+        var keepers = Enumerable.Range(0, 2).Select(i => TestData.Player(5000 + i, clubId: null, "GK", rating: 60)).ToList();
+        var outfield = Enumerable.Range(0, 4).Select(i => TestData.Player(5100 + i, clubId: null, rating: 63 - i)).ToList();
+        var tooGood = TestData.Player(5200, clubId: null, rating: 90);
+        _state.Players.AddRange([.. keepers, .. outfield, tooGood]);
+
+        _helper.SignFreeAgentsForShortSquads();
+
+        var club2 = _state.Players.Where(p => p.Contract?.ClubId == 2).ToList();
+        Assert.Equal(SquadSizeRules.Minimum, club2.Count);
+        Assert.Equal(2, club2.Count(p => p.Position == "GK"));
+        Assert.Equal(15, _state.Players.Count(p => p.Contract?.ClubId == 1));
+        Assert.Null(tooGood.Contract);
+        // One keeper, then the two best outfielders, bring club 2 back to 18.
+        Assert.Equal([2, 2, null, null], outfield.Select(p => p.Contract?.ClubId));
     }
 
     [Fact]

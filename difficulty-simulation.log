@@ -1,0 +1,36 @@
+=== DIFFICULTY SIMULATION: 3 SEASONS, 3 SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===
+Club: Cotswold Reds (ID 89)
+Starting League: Division 4 | League average strength 62.8, ours 62.9 (rank 12 of 24)
+Starting Budget: £783,000
+Strength = average of best 20 players; Str Rank = 1 is the strongest squad in the league; Free Agts = pool on 1 July
+
+Season    League         Pos   Pts   W    D    L    GF    GA    GD            Budget  Strength  Str Rank  Free Agts
+-------------------------------------------------------------------------------------------------------------------
+2026/27   Division 4     7     70    19   13   14   56    52    +4          £873,000      64.7         8         94
+2027/28   Division 3     22    51    11   18   17   48    61    -13       £3,083,000      66.3        22        130
+2028/29   Division 4     9     66    17   15   14   58    46    +12       £2,638,220      68.1         6        186
+
+=== FREE AGENTS AT THE START OF EACH SEASON ===
+2026/27: 94 (avg 65.1, best 92/90/89, 53 above our strength of 62.9, 13 of them willing to join)
+2027/28: 130 (avg 63.6, best 94/93/89, 63 above our strength of 64.7, 7 of them willing to join)
+2028/29: 186 (avg 67.0, best 94/93/93, 100 above our strength of 66.3, 14 of them willing to join)
+2029/30: 348 (avg 68.7, best 94/94/94, 200 above our strength of 68.1, 36 of them willing to join)
+
+=== WHERE FREE AGENTS COME FROM AND GO ===
+2026/27: pool on 1 July 100 | AI clubs signed 91, we signed 3, still unsigned on 29 June 6 (6 of them now retiring) | 30 June: released 139, signed straight back by short squads 9, retired from clubs 216, left the pool (retired or unsigned all season) 6 | total players in the game 8993 on 1 July, 9446 after 30 June | new players: youth intake 648, top-ups 27 | AI squads on 1 July avg 27.5, 62 of 323 at 30+, on 1 September avg 27.7, 68 of 323 at 30+
+2027/28: pool on 1 July 130 | AI clubs signed 113, we signed 3, still unsigned on 29 June 14 (2 of them now retiring) | 30 June: released 207, signed straight back by short squads 21, retired from clubs 322, left the pool (retired or unsigned all season) 14 | total players in the game 9446 on 1 July, 9776 after 30 June | new players: youth intake 648, top-ups 18 | AI squads on 1 July avg 28.7, 123 of 323 at 30+, on 1 September avg 29.1, 185 of 323 at 30+
+2028/29: pool on 1 July 186 | AI clubs signed 121, we signed 1, still unsigned on 29 June 64 (8 of them now retiring) | 30 June: released 384, signed straight back by short squads 36, retired from clubs 411, left the pool (retired or unsigned all season) 64 | total players in the game 9776 on 1 July, 9954 after 30 June | new players: youth intake 648, top-ups 5 | AI squads on 1 July avg 29.6, 181 of 323 at 30+, on 1 September avg 30.0, 255 of 323 at 30+
+
+=== SIGNINGS ===
+2026/27: Nelson Fernandes (ST, 67, £0), David Ortiz (LM, 68, £0), Andrew Souttar (RB/RM, 69, £0)
+2027/28: Paulo Aguero (CDM, 69, £0), Jean Traore (CAM, 70, £0), Pedri Lopez (RB/RM, 70, £0)
+2028/29: Oh Young-gwon (CB, 71, £514,451), Neymar Teixeira (CAM, 71, £541,329), Julian Hermann (CB/LB, 72, £0)
+
+=== CONTRACT RENEWALS ===
+2026/27: Hugo Delgado (63), Andres Araujo (59)
+2027/28: Florian Schroeder (69), Miguel Rodriguez (68), Gareth Roberts (66)
+2028/29: Mathew Hrustic (73), Jean Traore (70), Pedri Lopez (70), Paulo Aguero (69), Andrew Souttar (69), David Ortiz (68), Nelson Fernandes (67), Alberth Maldonado (66), Alexis Vidal (64), Hugo Delgado (63)
+
+=== SUMMARY ===
+Started: Rank 4 | Finished: Rank 4
+Divisions climbed: 0

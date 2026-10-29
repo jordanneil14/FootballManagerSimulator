@@ -83,6 +83,10 @@ public class PlayerGenerator
         return players;
     }
 
+    // Goalkeepers only, for a squad that is otherwise big enough but would be left without two keepers.
+    public List<GeneratedPlayer> GenerateKeepers(string clubName, int count, string startDate, int leagueRank = 1) =>
+        Enumerable.Range(0, count).Select(_ => GeneratePlayerForClub(clubName, "GK", startDate, leagueRank)).ToList();
+
     // Every squad needs at least this many players in each position.
     private static readonly (string Position, int Minimum)[] MinimumPerPosition =
     [
@@ -159,8 +163,11 @@ public class PlayerGenerator
         }
     }
 
-    // Academy graduates: 16 or 17 years old, rated below the senior squad, on a 2-3 year first contract.
-    // A rating-5 academy knocks 10-20 off a senior rating; each point above or below 5 shifts that by 2.
+    public const int MaxYouthRating = 94;
+
+    // Academy graduates: 16 or 17 years old, on a 2-3 year first contract. Ratings never change, so they're
+    // rated like the senior players at the club's level: a rating-5 academy matches them on average, and
+    // each academy point above or below 5 shifts the rating by 2 (between 35 and the best senior rating, 94).
     public List<GeneratedPlayer> GenerateYouthIntake(string clubName, int count, string startDate, int leagueRank, int academyRating)
     {
         var academyBonus = (academyRating - 5) * 2;
@@ -171,12 +178,7 @@ public class PlayerGenerator
         {
             var position = PickRandom(["GK", "CB", "CB", "LB", "RB", "CDM", "CM", "CM", "CAM", "LM", "RM", "ST", "ST", "LW", "RW"]);
             var age = _random.Next(16, 18);
-            var rating = Math.Max(35, GenerateRating(leagueRank) - _random.Next(10, 21) + academyBonus);
-
-            // A 90+ graduate only comes through one time in five; the rest are knocked down 5 into the high 80s.
-            var isGenerationalTalent = _random.Next(5) == 0;
-            if (rating >= 90 && !isGenerationalTalent)
-                rating -= 5;
+            var rating = Math.Clamp(GenerateRating(leagueRank) + academyBonus, 35, MaxYouthRating);
 
             var player = GeneratePlayerWithPosition(position, clubName, null, startDate, startDateOnly, leagueRank, age, rating);
             player.Contract = new GeneratedContract

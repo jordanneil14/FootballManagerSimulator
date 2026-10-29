@@ -12,23 +12,31 @@ public class ContractRenewalRulesTests
         BirthDate = SeasonEnd.AddYears(-age).AddDays(-1).ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture)
     };
 
-    [Fact]
-    public void RenewalChance_FavoursGoodYoungPlayersOverAgeingOnes()
-    {
-        var youngStar = ContractRenewalRules.RenewalChance(Aged(21, 75), 70, SeasonEnd);
-        var primeRegular = ContractRenewalRules.RenewalChance(Aged(26, 72), 70, SeasonEnd);
-        var primeReserve = ContractRenewalRules.RenewalChance(Aged(26, 65), 70, SeasonEnd);
-        var veteranReserve = ContractRenewalRules.RenewalChance(Aged(33, 65), 70, SeasonEnd);
+    [Theory]
+    [InlineData(26, 1, 0.98)]   // first team
+    [InlineData(26, 11, 0.98)]
+    [InlineData(26, 12, 0.98)]  // rotation
+    [InlineData(26, 18, 0.98)]
+    [InlineData(26, 19, 0.95)]  // squad
+    [InlineData(26, 25, 0.95)]
+    [InlineData(26, 26, 0.88)]  // surplus
+    public void RenewalChance_DependsOnThePlayersPlaceInTheSquad(int age, int squadRank, double expected) =>
+        Assert.Equal(expected, ContractRenewalRules.RenewalChance(Aged(age, 70), squadRank, SeasonEnd), precision: 6);
 
-        Assert.Equal(0.95, youngStar, precision: 6);
-        Assert.Equal(0.85, primeRegular, precision: 6);
-        Assert.Equal(0.55, primeReserve, precision: 6);
-        Assert.Equal(0.25, veteranReserve, precision: 6);
-    }
+    [Theory]
+    [InlineData(21, 30, 0.98)]  // prospects are kept (capped)
+    [InlineData(21, 20, 0.98)]
+    [InlineData(31, 5, 0.93)]   // first-team regulars barely lose out with age
+    [InlineData(33, 5, 0.83)]
+    [InlineData(31, 15, 0.83)]  // everyone else loses out far more
+    [InlineData(33, 15, 0.68)]
+    [InlineData(33, 28, 0.58)]
+    public void RenewalChance_AgeCountsAgainstFringePlayersMoreThanTheFirstTeam(int age, int squadRank, double expected) =>
+        Assert.Equal(expected, ContractRenewalRules.RenewalChance(Aged(age, 70), squadRank, SeasonEnd), precision: 6);
 
     [Fact]
     public void RenewalChance_IsZeroForPlayersWhoWillRetire() =>
-        Assert.Equal(0, ContractRenewalRules.RenewalChance(Aged(PlayerModel.RetirementAge, 80), 70, SeasonEnd));
+        Assert.Equal(0, ContractRenewalRules.RenewalChance(Aged(PlayerModel.RetirementAge, 80), 1, SeasonEnd));
 
     [Theory]
     [InlineData(20, 2, 4)]

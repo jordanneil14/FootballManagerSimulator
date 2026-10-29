@@ -12,4 +12,6 @@ public interface ITransferListHelper
     void RemovePlayerFromTransferList(int playerId);
     void SignFreeAgentByPlayerId(int playerId, int contractYears);
     void ProcessAITransfers();
+    void ProcessAIFreeAgentSignings();
+    void SignFreeAgentsForShortSquads();
 }

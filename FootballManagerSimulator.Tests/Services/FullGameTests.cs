@@ -192,11 +192,11 @@ public class FullGameTests : IDisposable
         var division2 = state.Clubs.Where(c => c.LeagueId == 2).Select(c => c.Id).ToHashSet();
         LeagueModel? finalDivision1 = null, finalDivision2 = null;
 
-        // 1 March: every club promotes 2-4 academy players aged 16 or 17, and I'm told about mine.
+        // 1 March: every club promotes 2 academy players aged 16 or 17, and I'm told about mine.
         var lastIdBeforeIntake = state.Players.Max(p => p.Id);
         PlayUntil(engine, new DateOnly(2027, 3, 1));
         var intake = state.Players.Where(p => p.Id > lastIdBeforeIntake).ToList();
-        Assert.All(state.Clubs, c => Assert.InRange(intake.Count(p => p.Contract?.ClubId == c.Id), 2, 4));
+        Assert.All(state.Clubs, c => Assert.Equal(ProcessHelper.YouthIntakePerClub, intake.Count(p => p.Contract?.ClubId == c.Id)));
         Assert.All(intake, p => Assert.InRange(p.GetAge(state.Date), 16, 17));
         Assert.All(intake, p => Assert.Contains(state.Clubs.Single(c => c.Id == p.Contract!.ClubId).TacticSlots, s => s.PlayerId == p.Id));
         var youthNotification = Assert.Single(state.Notifications, n => n.Subject == "Youth Intake");
@@ -265,7 +265,8 @@ public class FullGameTests : IDisposable
         var newDivision1 = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == 1);
         Assert.Equal(state.Clubs.Where(c => c.LeagueId == 1).Select(c => c.Id).OrderBy(i => i), newDivision1.Clubs.Select(c => c.Id).OrderBy(i => i));
         Assert.All(newDivision1.Fixtures, f => Assert.False(f.Concluded));
-        Assert.All(state.Clubs, c => Assert.InRange(state.Players.Count(p => p.Contract?.ClubId == c.Id), 25, 40));
+        // 30 June only tops squads up to a matchday squad; clubs build beyond it by signing free agents.
+        Assert.All(state.Clubs, c => Assert.InRange(state.Players.Count(p => p.Contract?.ClubId == c.Id), SquadSizeRules.Minimum, 40));
         Assert.DoesNotContain(state.Players, p => p.SuspensionMatches > 0);
 
         // A season of transfers, top-ups and youth intakes never leaves two players at a club sharing a number.

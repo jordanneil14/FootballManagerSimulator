@@ -33,6 +33,41 @@ public class PlayerHelperTests
         Assert.Equal(expected, _helper.GetTransferValue(TestData.Player(1, clubId: 1, rating: rating)));
     }
 
+    [Theory]
+    [InlineData(17, 1.3)]
+    [InlineData(21, 1.3)]
+    [InlineData(22, 1.15)]
+    [InlineData(25, 1.15)]
+    [InlineData(26, 1.0)]
+    [InlineData(28, 1.0)]
+    [InlineData(29, 0.8)]
+    [InlineData(31, 0.55)]
+    [InlineData(33, 0.35)]
+    [InlineData(34, 0.2)]
+    public void GetTransferValue_YoungPlayersAreWorthMoreAndOlderPlayersLess(int age, double factor)
+    {
+        _state.Date = new DateOnly(2027, 1, 1);
+        var player = TestData.Player(1, clubId: 1, rating: 80);
+        player.BirthDate = _state.Date.AddYears(-age).AddDays(-1).ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.Equal((int)(80 * 135000 * factor), _helper.GetTransferValue(player));
+    }
+
+    [Fact]
+    public void GetTransferValue_FallsWithAgeForTheSameRating()
+    {
+        _state.Date = new DateOnly(2027, 1, 1);
+        var values = Enumerable.Range(17, 18).Select(age =>
+        {
+            var player = TestData.Player(1, clubId: 1, rating: 75);
+            player.BirthDate = _state.Date.AddYears(-age).AddDays(-1).ToString("MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            return _helper.GetTransferValue(player);
+        }).ToList();
+
+        Assert.Equal(values.OrderByDescending(v => v), values);
+        Assert.True(values[0] > values[^1] * 5);
+    }
+
     [Fact]
     public void GetTransferValue_IncreasesWithRating()
     {

@@ -1,5 +1,6 @@
 ﻿using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Services;
 
 namespace FootballManagerSimulator.Maui.Helpers;
 
@@ -137,54 +138,120 @@ public class TransferListHelper(
         }
     }
 
+    // Deals between clubs, which only happen while a transfer window is open.
     public void ProcessAITransfers()
     {
-        ProcessAIFreeAgentSignings();
-
         if (State.TransferListItems.Count == 0) return;
 
         ProcessAITransferListBids();
         ProcessUnsolicitedBidsForMyPlayers();
     }
 
-    private const int MaxAISquadSize = 30;
+    private const int MaxAISquadSize = SquadSizeRules.Maximum;
+    public const int MaxAIFreeAgentSigningsPerDay = 5;
 
-    // AI clubs pick up out-of-contract players whose ability suits their squad. Free agents cost no fee.
-    private void ProcessAIFreeAgentSignings()
+    // AI clubs pick up out-of-contract players every day, best first, so good players don't sit unsigned.
+    // A player only joins a club he'd play for (the same rule as for the user's club: his rating no more
+    // than 5 above the club's best-20 average) that wants him (he's within 5 below it). Clubs short of
+    // SquadSizeRules.Target get first pick and will take players up to 8 below; otherwise he joins the
+    // strongest club that fits. Free agents cost no fee.
+    public void ProcessAIFreeAgentSignings()
     {
         var freeAgents = State.Players
             .Where(p => p.Contract == null && !p.IsRetiring(State.Date))
+            .OrderByDescending(p => p.Rating)
             .ToList();
 
         if (freeAgents.Count == 0) return;
 
-        var squads = State.Players
-            .Where(p => p.Contract != null && p.Contract.ClubId != State.MyClubId)
-            .GroupBy(p => p.Contract!.ClubId)
-            .Select(p => new { ClubId = p.Key, Size = p.Count(), Rating = p.Average(r => r.Rating) })
-            .Where(p => p.Size < MaxAISquadSize)
-            .ToList();
+        var squads = AISquads().Where(p => p.Size < MaxAISquadSize).ToList();
 
-        var randomNoOfSignings = RandomNumberHelper.Next(3);
-        for (var i = 0; i < randomNoOfSignings && freeAgents.Count > 0; i++)
+        var signings = 0;
+        foreach (var player in freeAgents)
         {
-            var player = freeAgents[RandomNumberHelper.Next(freeAgents.Count)];
-            freeAgents.Remove(player);
+            if (signings == MaxAIFreeAgentSigningsPerDay)
+                break;
 
-            var suitable = squads.Where(p => Math.Abs(p.Rating - player.Rating) < 5).ToList();
-            if (suitable.Count == 0)
+            var squad = squads.FirstOrDefault(p => p.Size < SquadSizeRules.Target && p.Suits(player, SquadSizeRules.ShortSquadRatingRange))
+                ?? squads.FirstOrDefault(p => p.Suits(player, GameEngine.SigningRatingRange));
+            if (squad == null)
                 continue;
 
-            var club = ClubHelper.GetClubById(suitable[RandomNumberHelper.Next(suitable.Count)].ClubId);
-            SignFreeAgentForClub(player, club, RandomNumberHelper.Next(1, 4));
-
-            if (State.ShowTransferNotifications)
-                NotificationFactory.AddNotification(
-                    State.Date,
-                    "Press Officer",
-                    $"{club.Name} sign {player.Name}",
-                    $"{player.Name} has joined {club.Name} on a free transfer.");
+            SignForAISquad(player, squad);
+            if (squad.Size == MaxAISquadSize)
+                squads.Remove(squad);
+            signings++;
         }
+    }
+
+    // On 30 June, before any players are generated: AI clubs left without two keepers or a matchday squad
+    // sign the best free agents who'll join them, so the top-up only generates what the pool can't supply.
+    public void SignFreeAgentsForShortSquads()
+    {
+        var freeAgents = State.Players
+            .Where(p => p.Contract == null && !p.IsRetiring(State.Date))
+            .OrderByDescending(p => p.Rating)
+            .ToList();
+
+        foreach (var squad in AISquads())
+        {
+            while (squad.Keepers < SquadSizeRules.Keepers && Best(p => p.Position == "GK") is { } keeper)
+                Sign(keeper);
+
+            while (squad.Size < SquadSizeRules.Minimum && Best(_ => true) is { } player)
+                Sign(player);
+
+            PlayerModel? Best(Func<PlayerModel, bool> wanted) =>
+                freeAgents.FirstOrDefault(p => wanted(p) && p.Rating - squad.Strength <= GameEngine.SigningRatingRange);
+
+            void Sign(PlayerModel signing)
+            {
+                freeAgents.Remove(signing);
+                SignForAISquad(signing, squad);
+            }
+        }
+    }
+
+    // Strongest first.
+    private List<AISquad> AISquads() =>
+        State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId != State.MyClubId)
+            .GroupBy(p => p.Contract!.ClubId)
+            .Select(p => new AISquad(
+                p.Key,
+                p.Count(),
+                p.Count(r => r.Position == "GK"),
+                p.Select(r => r.Rating).OrderByDescending(r => r).Take(GameEngine.SquadAverageBestPlayers).Average()))
+            .OrderByDescending(p => p.Strength)
+            .ToList();
+
+    private void SignForAISquad(PlayerModel player, AISquad squad)
+    {
+        squad.Size++;
+        if (player.Position == "GK")
+            squad.Keepers++;
+
+        var club = ClubHelper.GetClubById(squad.ClubId);
+        SignFreeAgentForClub(player, club, RandomNumberHelper.Next(1, 4));
+
+        if (State.ShowTransferNotifications)
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Press Officer",
+                $"{club.Name} sign {player.Name}",
+                $"{player.Name} has joined {club.Name} on a free transfer.");
+    }
+
+    private sealed class AISquad(int clubId, int size, int keepers, double strength)
+    {
+        public int ClubId { get; } = clubId;
+        public int Size { get; set; } = size;
+        public int Keepers { get; set; } = keepers;
+        public double Strength { get; } = strength;
+
+        // He'd join (no more than 5 above the squad's strength) and the club wants him (less than belowRange under it).
+        public bool Suits(PlayerModel player, int belowRange) =>
+            player.Rating - Strength <= GameEngine.SigningRatingRange && Strength - player.Rating < belowRange;
     }
 
     private void ProcessAITransferListBids()

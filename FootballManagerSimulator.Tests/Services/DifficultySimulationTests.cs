@@ -9,7 +9,8 @@ namespace FootballManagerSimulator.Tests.Services;
 [Collection(SaveFilesCollection.Name)]
 public class DifficultySimulationTests : IDisposable
 {
-    private const int Seasons = 10;
+    // Set DIFFICULTY_SEASONS for a shorter (or longer) run.
+    private static readonly int Seasons = int.TryParse(Environment.GetEnvironmentVariable("DIFFICULTY_SEASONS"), out var seasons) ? seasons : 10;
     private const int SigningsPerSeason = 3;
     private const int MaxSigningAge = 30;
     private const int ContractYears = 3;
@@ -167,6 +168,31 @@ public class DifficultySimulationTests : IDisposable
         return renewed;
     }
 
+    // The out-of-contract pool on the first day of the season, before anyone (including us) signs from it.
+    private static string FreeAgentPool(GameEngine engine)
+    {
+        var freeAgents = engine.State.Players.Where(p => p.Contract == null && !engine.IsPlayerRetiring(p)).ToList();
+        if (freeAgents.Count == 0)
+            return "0";
+
+        var ours = engine.MySquadAverageRating() ?? 0;
+        var ratings = freeAgents.Select(p => p.Rating).OrderByDescending(r => r).ToList();
+        return $"{freeAgents.Count} (avg {ratings.Average():F1}, best {string.Join("/", ratings.Take(3))}, " +
+            $"{ratings.Count(r => r > ours)} above our strength of {ours:F1}, " +
+            $"{freeAgents.Count(p => p.Rating > ours && engine.SigningLevelRefusal(p) == null)} of them willing to join)";
+    }
+
+    // How full the AI squads are; clubs at 30 players sign no free agents.
+    private static string AISquadSizes(GameEngine engine)
+    {
+        var sizes = engine.State.Players
+            .Where(p => p.Contract != null && p.Contract.ClubId != engine.State.MyClubId)
+            .GroupBy(p => p.Contract!.ClubId)
+            .Select(g => g.Count())
+            .ToList();
+        return $"avg {sizes.Average():F1}, {sizes.Count(s => s >= 30)} of {sizes.Count} at 30+";
+    }
+
     private record SeasonSnapshot(
         string LeagueName, int Rank, int Position, int Points,
         int Wins, int Draws, int Losses, int GF, int GA, string GD,
@@ -223,14 +249,17 @@ public class DifficultySimulationTests : IDisposable
         Log($"Club: {club.Name} (ID {club.Id})");
         Log($"Starting League: {division4.Name} | League average strength {leagueAverage:F1}, ours {SquadStrength(engine, club.Id):F1} (rank {StrengthRank(engine, startLeague, club.Id)} of {startLeague.Clubs.Count})");
         Log($"Starting Budget: £{engine.MyClub.TransferBudget:n0}");
-        Log("Strength = average of best 20 players; Str Rank = 1 is the strongest squad in the league");
+        Log("Strength = average of best 20 players; Str Rank = 1 is the strongest squad in the league; Free Agts = pool on 1 July");
         Log();
 
-        var header = $"{"Season",-9} {"League",-14} {"Pos",-5} {"Pts",-5} {"W",-4} {"D",-4} {"L",-4} {"GF",-5} {"GA",-5} {"GD",-6} {"Budget",13} {"Strength",9} {"Str Rank",9}";
+        var header = $"{"Season",-9} {"League",-14} {"Pos",-5} {"Pts",-5} {"W",-4} {"D",-4} {"L",-4} {"GF",-5} {"GA",-5} {"GD",-6} {"Budget",13} {"Strength",9} {"Str Rank",9} {"Free Agts",10}";
         Log(header);
         Log(new string('-', header.Length));
         var signingLog = new List<string>();
         var renewalLog = new List<string>();
+        var freeAgentLog = new List<string>();
+        var flowLog = new List<string>();
+        var myClubId = club.Id;
 
         var seasonStart = new DateOnly(2026, 7, 1);
         var lastRank = division4.Rank;
@@ -240,8 +269,18 @@ public class DifficultySimulationTests : IDisposable
         {
             var yearLabel = $"{seasonStart.Year}/{(seasonStart.Year + 1) % 100:D2}";
 
+            var freeAgentCount = engine.State.Players.Count(p => p.Contract == null && !engine.IsPlayerRetiring(p));
+            freeAgentLog.Add($"{yearLabel}: {FreeAgentPool(engine)}");
+            var poolAtStart = engine.State.Players.Where(p => p.Contract == null).Select(p => p.Id).ToHashSet();
+            var maxIdAtStart = engine.State.Players.Max(p => p.Id);
+            var squadsAtStart = AISquadSizes(engine);
+            var totalAtStart = engine.State.Players.Count;
+
             var signed = SignPlayers(engine);
             signingLog.Add($"{yearLabel}: {(signed.Count == 0 ? "no affordable targets" : string.Join(", ", signed))}");
+
+            PlayUntil(engine, new DateOnly(seasonStart.Year, 9, 1));
+            var squadsAfterSummerWindow = AISquadSizes(engine);
 
             PlayUntil(engine, new DateOnly(seasonStart.Year + 1, 6, 29));
             if (engine.IsUnemployed)
@@ -259,10 +298,23 @@ public class DifficultySimulationTests : IDisposable
             }
 
             lastRank = snap.Rank;
-            Log($"{yearLabel,-9} {snap.LeagueName,-14} {snap.Position,-5} {snap.Points,-5} {snap.Wins,-4} {snap.Draws,-4} {snap.Losses,-4} {snap.GF,-5} {snap.GA,-5} {snap.GD,-6} {"£" + snap.Budget.ToString("n0"),13} {snap.Strength,9:F1} {snap.StrengthRank,9}");
+            Log($"{yearLabel,-9} {snap.LeagueName,-14} {snap.Position,-5} {snap.Points,-5} {snap.Wins,-4} {snap.Draws,-4} {snap.Losses,-4} {snap.GF,-5} {snap.GA,-5} {snap.GD,-6} {"£" + snap.Budget.ToString("n0"),13} {snap.Strength,9:F1} {snap.StrengthRank,9} {freeAgentCount,10}");
 
             var renewed = RenewBestContracts(engine);
             renewalLog.Add($"{yearLabel}: {(renewed.Count == 0 ? "none expiring" : string.Join(", ", renewed))}");
+
+            // During the season: who left the pool, and who was added by the youth intake.
+            var players = engine.State.Players.ToDictionary(p => p.Id);
+            var aiSigned = poolAtStart.Count(id => players.TryGetValue(id, out var p) && p.Contract != null && p.Contract.ClubId != myClubId);
+            var weSigned = poolAtStart.Count(id => players.TryGetValue(id, out var p) && p.Contract?.ClubId == myClubId);
+            var stillUnsigned = poolAtStart.Count(id => players.TryGetValue(id, out var p) && p.Contract == null);
+            var youthIntake = engine.State.Players.Count(p => p.Id > maxIdAtStart);
+            var newlyRetiring = poolAtStart.Count(id => players.TryGetValue(id, out var p) && p.Contract == null && engine.IsPlayerRetiring(p));
+
+            // The end of the season on 30 June: releases, retirements and squad top-ups.
+            var contracted = engine.State.Players.Where(p => p.Contract != null).ToDictionary(p => p.Id, p => p.Contract!.ClubId);
+            var unsigned = engine.State.Players.Where(p => p.Contract == null).Select(p => p.Id).ToHashSet();
+            var maxIdBeforeEnd = engine.State.Players.Max(p => p.Id);
 
             PlayUntil(engine, new DateOnly(seasonStart.Year + 1, 6, 30));
             if (engine.IsUnemployed)
@@ -272,8 +324,33 @@ public class DifficultySimulationTests : IDisposable
                 break;
             }
 
+            players = engine.State.Players.ToDictionary(p => p.Id);
+            // A released player can be signed by a short squad the same day, so "released" means left his club.
+            var released = contracted.Count(c => players.TryGetValue(c.Key, out var p) && p.Contract?.ClubId != c.Value);
+            var retiredFromClubs = contracted.Count(c => !players.ContainsKey(c.Key));
+            var retiredFromPool = unsigned.Count(id => !players.ContainsKey(id));
+            var signedOn30June = engine.State.Players.Count(p => p.Contract != null && p.Id <= maxIdBeforeEnd &&
+                (unsigned.Contains(p.Id) || (contracted.TryGetValue(p.Id, out var before) && before != p.Contract.ClubId)));
+            var toppedUp = engine.State.Players.Count(p => p.Id > maxIdBeforeEnd);
+
+            flowLog.Add($"{yearLabel}: pool on 1 July {poolAtStart.Count} | AI clubs signed {aiSigned}, we signed {weSigned}, still unsigned on 29 June {stillUnsigned} ({newlyRetiring} of them now retiring) | " +
+                $"30 June: released {released}, signed straight back by short squads {signedOn30June}, retired from clubs {retiredFromClubs}, left the pool (retired or unsigned all season) {retiredFromPool} | " +
+                $"total players in the game {totalAtStart} on 1 July, {engine.State.Players.Count} after 30 June | " +
+                $"new players: youth intake {youthIntake}, top-ups {toppedUp} | " +
+                $"AI squads on 1 July {squadsAtStart}, on 1 September {squadsAfterSummerWindow}");
+
             seasonStart = seasonStart.AddYears(1);
         }
+
+        Log();
+        Log("=== FREE AGENTS AT THE START OF EACH SEASON ===");
+        freeAgentLog.ForEach(Log);
+        if (!sacked)
+            Log($"{seasonStart.Year}/{(seasonStart.Year + 1) % 100:D2}: {FreeAgentPool(engine)}");
+
+        Log();
+        Log("=== WHERE FREE AGENTS COME FROM AND GO ===");
+        flowLog.ForEach(Log);
 
         Log();
         Log("=== SIGNINGS ===");

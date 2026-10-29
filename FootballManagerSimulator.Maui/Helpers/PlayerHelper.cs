@@ -54,28 +54,47 @@ public class PlayerHelper(IState state) : IPlayerHelper
         state.Players.AddRange(playerData.Players);
     }
 
+    // What a player's rating is worth, adjusted for age (see AgeValueFactor).
     public int GetTransferValue(PlayerModel player)
     {
         if (player.Contract == null) return 0;
 
-        return player.Rating switch
-        {
-            < 50 => player.Rating * 500,
-            < 53 => player.Rating * 700,
-            < 56 => player.Rating * 1000,
-            < 59 => player.Rating * 1750,
-            < 62 => player.Rating * 2750,
-            < 65 => player.Rating * 3500,
-            < 68 => player.Rating * 5000,
-            < 71 => player.Rating * 8000,
-            < 74 => player.Rating * 12000,
-            < 77 => player.Rating * 20000,
-            < 80 => player.Rating * 50000,
-            < 83 => player.Rating * 135000,
-            < 86 => player.Rating * 225000,
-            < 89 => player.Rating * 350000,
-            < 92 => player.Rating * 575000,
-            _ => player.Rating * 750000,
-        };
+        return (int)(RatingValue(player.Rating) * AgeValueFactor(player.GetAge(state.Date)));
     }
+
+    // Ratings don't change, so a young player offers the same ability for many more seasons: clubs pay a
+    // premium for youth, peak value runs into the mid-twenties, and it falls away quickly in the thirties
+    // as retirement at 35 approaches.
+    public static double AgeValueFactor(int age) => age switch
+    {
+        < 16 => 1.0,  // no birth date on record
+        <= 21 => 1.3,
+        <= 25 => 1.15,
+        <= 28 => 1.0,
+        <= 30 => 0.8,
+        <= 32 => 0.55,
+        33 => 0.35,
+        _ => 0.2
+    };
+
+    private static int RatingValue(int rating) =>
+        rating switch
+        {
+            < 50 => rating * 500,
+            < 53 => rating * 700,
+            < 56 => rating * 1000,
+            < 59 => rating * 1750,
+            < 62 => rating * 2750,
+            < 65 => rating * 3500,
+            < 68 => rating * 5000,
+            < 71 => rating * 8000,
+            < 74 => rating * 12000,
+            < 77 => rating * 20000,
+            < 80 => rating * 50000,
+            < 83 => rating * 135000,
+            < 86 => rating * 225000,
+            < 89 => rating * 350000,
+            < 92 => rating * 575000,
+            _ => rating * 750000,
+        };
 }

@@ -12,18 +12,28 @@ public class PlayerGeneratorTests
         var poor = new PlayerGenerator.PlayerGenerator(42).GenerateYouthIntake("Club", 50, "2027-03-01", 1, academyRating: 1);
         var elite = new PlayerGenerator.PlayerGenerator(42).GenerateYouthIntake("Club", 50, "2027-03-01", 1, academyRating: 10);
 
-        // Academy 10 is 9 points above academy 1, worth 2 rating each, unless the poor player hit the floor of 35.
-        // An elite graduate who reached 90+ may also have been knocked down 5.
+        // Academy 10 is 9 points above academy 1, worth 2 rating each, unless one of them hit the floor or the ceiling.
         Assert.All(poor.Zip(elite), pair =>
         {
-            if (pair.First.Rating > 35 && pair.First.Rating + 18 >= 90)
-                Assert.Contains(pair.Second.Rating, new[] { pair.First.Rating + 18, pair.First.Rating + 13 });
-            else if (pair.First.Rating > 35)
+            if (pair.First.Rating > 35 && pair.Second.Rating < PlayerGenerator.PlayerGenerator.MaxYouthRating)
                 Assert.Equal(pair.First.Rating + 18, pair.Second.Rating);
             else
-                Assert.InRange(pair.Second.Rating, 35, 53);
+                Assert.InRange(pair.Second.Rating, pair.First.Rating, PlayerGenerator.PlayerGenerator.MaxYouthRating);
         });
         Assert.True(elite.Average(p => p.Rating) > poor.Average(p => p.Rating) + 10);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(4)]
+    [InlineData(6)]
+    public void GenerateYouthIntake_AnAverageAcademyProducesPlayersAsGoodAsTheSeniorsAtThatLevel(int leagueRank)
+    {
+        var youth = new PlayerGenerator.PlayerGenerator(1).GenerateYouthIntake("Club", 5000, "2027-03-01", leagueRank, academyRating: 5);
+        var generator = new PlayerGenerator.PlayerGenerator(2);
+        var seniors = Enumerable.Range(0, 170).SelectMany(_ => generator.GenerateSquad("Club", 30, "2026-07-01", leagueRank)).ToList();
+
+        Assert.InRange(youth.Average(p => p.Rating) - seniors.Average(p => p.Rating), -1.5, 1.5);
     }
 
     [Fact]
@@ -81,6 +91,14 @@ public class PlayerGeneratorTests
         var players = new PlayerGenerator.PlayerGenerator(5).GenerateTopUp("Club", 2, existing, "2026-07-01", 1);
 
         Assert.All(players, p => Assert.Contains(p.ClubPosition, new[] { "ST", "LW", "RW" }));
+    }
+
+    [Fact]
+    public void GenerateKeepers_GeneratesOnlyGoalkeepers()
+    {
+        var keepers = new PlayerGenerator.PlayerGenerator(5).GenerateKeepers("Club", 2, "2026-07-01", 1);
+
+        Assert.Equal(["GK", "GK"], keepers.Select(p => p.ClubPosition));
     }
 
     [Fact]
