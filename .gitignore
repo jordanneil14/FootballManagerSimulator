@@ -29,3 +29,5 @@
 *.apk
 /FootballManagerSimulator.Tests/bin/
 /FootballManagerSimulator.Tests/obj/
+/FootballManagerSimulator.PlayerGenerator.Tests/bin/
+/FootballManagerSimulator.PlayerGenerator.Tests/obj/
