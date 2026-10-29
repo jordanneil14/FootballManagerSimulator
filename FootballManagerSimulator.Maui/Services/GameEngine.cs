@@ -959,40 +959,45 @@ public class GameEngine(
         File.Move(tempPath, path, overwrite: true);
     }
 
-    public IEnumerable<LoadGamePreviewModel> ListSaves()
+    public IEnumerable<LoadGamePreviewModel> ListSaves() =>
+        SaveFilesNewestFirst().Select(PreviewSave).OfType<LoadGamePreviewModel>().ToList();
+
+    // The save written most recently, manual or autosave. Only that file's preview is read, so this stays quick
+    // however many saves there are; an unreadable newest file falls back to the next one.
+    public LoadGamePreviewModel? MostRecentSave() =>
+        SaveFilesNewestFirst().Select(PreviewSave).FirstOrDefault(p => p != null);
+
+    private IEnumerable<FileInfo> SaveFilesNewestFirst()
     {
-        var games = new List<LoadGamePreviewModel>();
-        FileInfo[] files;
         try
         {
-            files = new DirectoryInfo(SaveDirectory).GetFiles("*.fms");
+            return new DirectoryInfo(SaveDirectory).GetFiles("*.fms").OrderByDescending(f => f.LastWriteTime);
         }
         catch (Exception)
         {
-            return games;
+            return [];
         }
+    }
 
-        foreach (var file in files)
+    private static LoadGamePreviewModel? PreviewSave(FileInfo file)
+    {
+        try
         {
-            try
+            var (clubName, managerName) = ReadSavePreview(file.FullName);
+            return new LoadGamePreviewModel
             {
-                var (clubName, managerName) = ReadSavePreview(file.FullName);
-                games.Add(new LoadGamePreviewModel
-                {
-                    FileName = file.Name,
-                    ClubName = clubName,
-                    ManagerName = managerName,
-                    SaveDate = file.LastWriteTime,
-                    IsAutosave = file.Name.StartsWith(AutosavePrefix)
-                });
-            }
-            catch (Exception)
-            {
-                // Ignore unreadable save files.
-            }
+                FileName = file.Name,
+                ClubName = clubName,
+                ManagerName = managerName,
+                SaveDate = file.LastWriteTime,
+                IsAutosave = file.Name.StartsWith(AutosavePrefix)
+            };
         }
-
-        return games.OrderByDescending(p => p.SaveDate);
+        catch (Exception)
+        {
+            // Ignore unreadable save files.
+            return null;
+        }
     }
 
     // Permanently removes a save from the saves folder. Returns an error message, or null on success.
@@ -1165,9 +1170,12 @@ public class GameEngine(
             State.BoardConfidence = deserialised.BoardConfidence;
             State.ManagerHistory = deserialised.ManagerHistory;
             State.Scouts = deserialised.Scouts;
+            State.Physios = deserialised.Physios;
             State.DiscoveredPlayerIds = deserialised.DiscoveredPlayerIds;
             State.MatchSpeedMs = deserialised.MatchSpeedMs;
             State.AutoSaveEnabled = deserialised.AutoSaveEnabled;
+            State.ShowTransferNotifications = deserialised.ShowTransferNotifications;
+            State.ShowManagerNotifications = deserialised.ShowManagerNotifications;
             State.MatchInProgress = false;
             // Saves from before autosave existed get their own slot from here on.
             State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;

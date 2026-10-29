@@ -227,27 +227,35 @@ public class DifficultySimulationTests : IDisposable
     }
 
     [SimulationFact]
-    public void TenSeasons_AverageDivision4Club_SigningThreePlayersASeason()
+    public void TenSeasons_AverageDivision4Club_SigningThreePlayersASeason() =>
+        Simulate(startRank: 4, Seasons, stopWhenChampions: false);
+
+    // Set TITLE_SEASONS to change how long it keeps trying.
+    [SimulationFact]
+    public void UntilTitle_AverageDivision1Club_SigningThreePlayersASeason() =>
+        Simulate(startRank: 1, int.TryParse(Environment.GetEnvironmentVariable("TITLE_SEASONS"), out var max) ? max : 15, stopWhenChampions: true);
+
+    private void Simulate(int startRank, int seasons, bool stopWhenChampions)
     {
         var engine = _host.Engine;
         engine.StartNewGame();
         engine.SetManagerName("Test Manager");
 
-        // Players exist before a club is chosen, so pick the Division 4 club closest to the league's average strength.
-        var division4 = _host.Settings.Competitions.First(c => c.IsLeague && c.CountryId == 1 && c.Rank == 4);
-        var division4Clubs = engine.State.Clubs.Where(c => c.LeagueId == division4.Id).ToList();
-        var leagueAverage = division4Clubs.Average(c => SquadStrength(engine, c.Id));
-        var club = division4Clubs.OrderBy(c => Math.Abs(SquadStrength(engine, c.Id) - leagueAverage)).First();
+        // Players exist before a club is chosen, so pick the club closest to the league's average strength.
+        var startDivision = _host.Settings.Competitions.First(c => c.IsLeague && c.CountryId == 1 && c.Rank == startRank);
+        var startDivisionClubs = engine.State.Clubs.Where(c => c.LeagueId == startDivision.Id).ToList();
+        var leagueAverage = startDivisionClubs.Average(c => SquadStrength(engine, c.Id));
+        var club = startDivisionClubs.OrderBy(c => Math.Abs(SquadStrength(engine, c.Id) - leagueAverage)).First();
 
-        engine.SelectLeague(division4.Id);
+        engine.SelectLeague(startDivision.Id);
         engine.SelectClub(club.Id);
         var state = engine.State;
-        var startLeague = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == division4.Id);
+        var startLeague = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == startDivision.Id);
 
         File.WriteAllText(_logPath, "");
-        Log($"=== DIFFICULTY SIMULATION: {Seasons} SEASONS, {SigningsPerSeason} SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===");
+        Log($"=== DIFFICULTY SIMULATION: {(stopWhenChampions ? $"UP TO {seasons} SEASONS OR THE TITLE" : $"{seasons} SEASONS")}, {SigningsPerSeason} SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===");
         Log($"Club: {club.Name} (ID {club.Id})");
-        Log($"Starting League: {division4.Name} | League average strength {leagueAverage:F1}, ours {SquadStrength(engine, club.Id):F1} (rank {StrengthRank(engine, startLeague, club.Id)} of {startLeague.Clubs.Count})");
+        Log($"Starting League: {startDivision.Name} | League average strength {leagueAverage:F1}, ours {SquadStrength(engine, club.Id):F1} (rank {StrengthRank(engine, startLeague, club.Id)} of {startLeague.Clubs.Count})");
         Log($"Starting Budget: £{engine.MyClub.TransferBudget:n0}");
         Log("Strength = average of best 20 players; Str Rank = 1 is the strongest squad in the league; Free Agts = pool on 1 July");
         Log();
@@ -262,10 +270,11 @@ public class DifficultySimulationTests : IDisposable
         var myClubId = club.Id;
 
         var seasonStart = new DateOnly(2026, 7, 1);
-        var lastRank = division4.Rank;
+        var lastRank = startDivision.Rank;
         var sacked = false;
+        int? titleSeason = null;
 
-        for (var season = 1; season <= Seasons; season++)
+        for (var season = 1; season <= seasons; season++)
         {
             var yearLabel = $"{seasonStart.Year}/{(seasonStart.Year + 1) % 100:D2}";
 
@@ -299,6 +308,13 @@ public class DifficultySimulationTests : IDisposable
 
             lastRank = snap.Rank;
             Log($"{yearLabel,-9} {snap.LeagueName,-14} {snap.Position,-5} {snap.Points,-5} {snap.Wins,-4} {snap.Draws,-4} {snap.Losses,-4} {snap.GF,-5} {snap.GA,-5} {snap.GD,-6} {"£" + snap.Budget.ToString("n0"),13} {snap.Strength,9:F1} {snap.StrengthRank,9} {freeAgentCount,10}");
+
+            if (stopWhenChampions && snap.Rank == 1 && snap.Position == 1)
+            {
+                titleSeason = season;
+                seasonStart = seasonStart.AddYears(1);
+                break;
+            }
 
             var renewed = RenewBestContracts(engine);
             renewalLog.Add($"{yearLabel}: {(renewed.Count == 0 ? "none expiring" : string.Join(", ", renewed))}");
@@ -362,7 +378,9 @@ public class DifficultySimulationTests : IDisposable
 
         Log();
         Log("=== SUMMARY ===");
-        Log($"Started: Rank {division4.Rank} | Finished: Rank {lastRank}{(sacked ? " (sacked)" : "")}");
-        Log($"Divisions climbed: {division4.Rank - lastRank}");
+        Log($"Started: Rank {startDivision.Rank} | Finished: Rank {lastRank}{(sacked ? " (sacked)" : "")}");
+        Log($"Divisions climbed: {startDivision.Rank - lastRank}");
+        if (stopWhenChampions)
+            Log(titleSeason is { } won ? $"Won the {startLeague.Name} title in season {won}" : $"No title in {seasons} seasons");
     }
 }

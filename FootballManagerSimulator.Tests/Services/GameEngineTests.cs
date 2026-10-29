@@ -944,6 +944,51 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void MostRecentSave_IsTheLastWrittenSave_ManualOrAutosave()
+    {
+        _state.ManagerName = "Tester";
+        _engine.SaveGame("older");
+        _engine.SaveGame("newer");
+        File.SetLastWriteTime(Path.Combine(_storage.SaveDirectory, "older.fms"), DateTime.Now.AddHours(-2));
+        File.SetLastWriteTime(Path.Combine(_storage.SaveDirectory, "newer.fms"), DateTime.Now.AddHours(-1));
+
+        Assert.True(_engine.AutoSave());
+
+        var latest = _engine.MostRecentSave();
+        Assert.Equal((_engine.AutosaveFileName, "Club 1", "Tester", true), (latest!.FileName, latest.ClubName, latest.ManagerName, latest.IsAutosave));
+    }
+
+    [Fact]
+    public void MostRecentSave_SkipsAnUnreadableNewestFile()
+    {
+        _engine.SaveGame("good");
+        File.SetLastWriteTime(Path.Combine(_storage.SaveDirectory, "good.fms"), DateTime.Now.AddHours(-1));
+        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "broken.fms"), "{ not json");
+
+        Assert.Equal("good.fms", _engine.MostRecentSave()!.FileName);
+    }
+
+    [Fact]
+    public void MostRecentSave_IsNullWithNoSaves()
+    {
+        Assert.Null(_engine.MostRecentSave());
+    }
+
+    [Fact]
+    public void MostRecentSave_CanBeLoadedStraightBack()
+    {
+        _state.ManagerName = "Tester";
+        _engine.SaveGame("career");
+        var date = _state.Date;
+        _state.Date = date.AddDays(10);
+
+        Assert.Null(_engine.LoadGame(_engine.MostRecentSave()!.FileName));
+
+        Assert.Equal(date, _state.Date);
+        Assert.True(_engine.GameInProgress);
+    }
+
+    [Fact]
     public void DeleteSave_RemovesOnlyThatSave()
     {
         _engine.SaveGame("keep");
@@ -1019,12 +1064,30 @@ public class GameEngineTests : IDisposable
         _state.CareerId = "career1";
         _state.MatchSpeedMs = 250;
         _state.AutoSaveEnabled = false;
+        _state.ShowTransferNotifications = false;
+        _state.ShowManagerNotifications = false;
         _engine.SaveGame("settings");
         (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled) = ("other", 1000, true);
+        (_state.ShowTransferNotifications, _state.ShowManagerNotifications) = (true, true);
 
         Assert.Null(_engine.LoadGame("settings.fms"));
 
         Assert.Equal(("career1", 250, false), (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled));
+        Assert.False(_state.ShowTransferNotifications);
+        Assert.False(_state.ShowManagerNotifications);
+    }
+
+    [Fact]
+    public void LoadGame_RestoresThatCareersPhysios()
+    {
+        _state.Physios = [new PhysioModel { Id = 1, Name = "Sam Physio", HiredDate = _state.Date, MonthsWorked = 2 }];
+        _engine.SaveGame("with-physio");
+        _state.Physios = [new PhysioModel { Id = 1, Name = "Other Career" }, new PhysioModel { Id = 2, Name = "Other Career" }];
+
+        Assert.Null(_engine.LoadGame("with-physio.fms"));
+
+        var physio = Assert.Single(_state.Physios);
+        Assert.Equal(("Sam Physio", 2), (physio.Name, physio.MonthsWorked));
     }
 
     [Fact]
