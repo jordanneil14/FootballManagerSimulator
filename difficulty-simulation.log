@@ -1,36 +1,241 @@
-=== DIFFICULTY SIMULATION: 3 SEASONS, 3 SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===
-Club: Cotswold Reds (ID 89)
-Starting League: Division 4 | League average strength 62.8, ours 62.9 (rank 12 of 24)
-Starting Budget: £783,000
+=== DIFFICULTY SIMULATION: 10 SEASONS, 3 SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===
+Club: Bay Reds (ID 86)
+Starting League: Division 4 | League average strength 62.9, ours 63.0 (rank 13 of 24)
+Starting Budget: £718,000
 Strength = average of best 20 players; Str Rank = 1 is the strongest squad in the league; Free Agts = pool on 1 July
 
 Season    League         Pos   Pts   W    D    L    GF    GA    GD            Budget  Strength  Str Rank  Free Agts
 -------------------------------------------------------------------------------------------------------------------
-2026/27   Division 4     7     70    19   13   14   56    52    +4          £873,000      64.7         8         94
-2027/28   Division 3     22    51    11   18   17   48    61    -13       £3,083,000      66.3        22        130
-2028/29   Division 4     9     66    17   15   14   58    46    +12       £2,638,220      68.1         6        186
+2026/27   Division 4     3     74    21   11   14   60    43    +17         £743,000      64.9         4         96
+2027/28   Division 3     9     69    19   12   15   58    51    +7        £1,935,000      67.5        18        254
+2028/29   Division 3     16    61    17   10   19   57    61    -4        £1,780,000      68.5        17        359
+2029/30   Division 3     6     70    20   10   16   64    48    +16       £2,350,000      69.9        15        589
+2030/31   Division 3     2     77    22   11   13   59    45    +14       £2,315,000      71.7        10        773
+2031/32   Division 2     7     73    20   13   13   66    48    +18       £5,125,000      73.2        23        578
+2032/33   Division 2     18    55    15   10   21   50    62    -12       £5,960,000      75.2        19        645
+2033/34   Division 2     5     74    22   8    16   66    49    +17       £5,740,000      76.3        14        647
+2034/35   Division 2     3     73    20   13   13   64    45    +19       £5,385,000      77.7         9        648
+2035/36   Division 2     1     81    22   15   9    71    42    +29       £5,575,000      79.2         5        585
 
 === FREE AGENTS AT THE START OF EACH SEASON ===
-2026/27: 94 (avg 65.1, best 92/90/89, 53 above our strength of 62.9, 13 of them willing to join)
-2027/28: 130 (avg 63.6, best 94/93/89, 63 above our strength of 64.7, 7 of them willing to join)
-2028/29: 186 (avg 67.0, best 94/93/93, 100 above our strength of 66.3, 14 of them willing to join)
-2029/30: 348 (avg 68.7, best 94/94/94, 200 above our strength of 68.1, 36 of them willing to join)
+2026/27: 96 (avg 63.9, best 88/88/86, 56 above our strength of 63.0, 26 of them willing to join)
+2027/28: 254 (avg 62.6, best 94/94/94, 120 above our strength of 64.9, 20 of them willing to join)
+2028/29: 359 (avg 63.3, best 94/93/93, 167 above our strength of 66.9, 58 of them willing to join)
+2029/30: 589 (avg 62.2, best 94/94/94, 251 above our strength of 68.5, 102 of them willing to join)
+2030/31: 773 (avg 64.2, best 94/94/94, 319 above our strength of 70.4, 122 of them willing to join)
+2031/32: 578 (avg 65.0, best 94/94/94, 241 above our strength of 71.7, 71 of them willing to join)
+2032/33: 645 (avg 66.0, best 94/94/94, 250 above our strength of 73.2, 101 of them willing to join)
+2033/34: 647 (avg 65.5, best 94/94/94, 207 above our strength of 75.2, 68 of them willing to join)
+2034/35: 648 (avg 66.8, best 94/94/93, 221 above our strength of 76.2, 90 of them willing to join)
+2035/36: 585 (avg 66.5, best 94/94/94, 170 above our strength of 77.8, 75 of them willing to join)
+2036/37: 579 (avg 66.9, best 94/94/94, 140 above our strength of 79.5, 69 of them willing to join)
 
 === WHERE FREE AGENTS COME FROM AND GO ===
-2026/27: pool on 1 July 100 | AI clubs signed 91, we signed 3, still unsigned on 29 June 6 (6 of them now retiring) | 30 June: released 139, signed straight back by short squads 9, retired from clubs 216, left the pool (retired or unsigned all season) 6 | total players in the game 8993 on 1 July, 9446 after 30 June | new players: youth intake 648, top-ups 27 | AI squads on 1 July avg 27.5, 62 of 323 at 30+, on 1 September avg 27.7, 68 of 323 at 30+
-2027/28: pool on 1 July 130 | AI clubs signed 113, we signed 3, still unsigned on 29 June 14 (2 of them now retiring) | 30 June: released 207, signed straight back by short squads 21, retired from clubs 322, left the pool (retired or unsigned all season) 14 | total players in the game 9446 on 1 July, 9776 after 30 June | new players: youth intake 648, top-ups 18 | AI squads on 1 July avg 28.7, 123 of 323 at 30+, on 1 September avg 29.1, 185 of 323 at 30+
-2028/29: pool on 1 July 186 | AI clubs signed 121, we signed 1, still unsigned on 29 June 64 (8 of them now retiring) | 30 June: released 384, signed straight back by short squads 36, retired from clubs 411, left the pool (retired or unsigned all season) 64 | total players in the game 9776 on 1 July, 9954 after 30 June | new players: youth intake 648, top-ups 5 | AI squads on 1 July avg 29.6, 181 of 323 at 30+, on 1 September avg 30.0, 255 of 323 at 30+
+2026/27: pool on 1 July 103 | AI clubs signed 92, we signed 3, still unsigned on 29 June 8 (7 of them now retiring) | 30 June: released 267, signed straight back by short squads 14, retired from clubs 222, left the pool (retired or unsigned all season) 7 | total players in the game 8996 on 1 July, 9448 after 30 June | new players: youth intake 648, top-ups 33 | AI squads on 1 July avg 27.4, 49 of 323 at 30+, on 1 September avg 27.7, 69 of 323 at 30+ | transfers between clubs 313
+2027/28: pool on 1 July 254 | AI clubs signed 218, we signed 3, still unsigned on 29 June 33 (2 of them now retiring) | 30 June: released 390, signed straight back by short squads 31, retired from clubs 302, left the pool (retired or unsigned all season) 33 | total players in the game 9448 on 1 July, 9776 after 30 June | new players: youth intake 648, top-ups 15 | AI squads on 1 July avg 28.4, 87 of 323 at 30+, on 1 September avg 29.0, 180 of 323 at 30+ | transfers between clubs 254
+2028/29: pool on 1 July 359 | AI clubs signed 161, we signed 3, still unsigned on 29 June 195 (12 of them now retiring) | 30 June: released 643, signed straight back by short squads 54, retired from clubs 399, left the pool (retired or unsigned all season) 195 | total players in the game 9776 on 1 July, 9836 after 30 June | new players: youth intake 648, top-ups 6 | AI squads on 1 July avg 29.1, 140 of 323 at 30+, on 1 September avg 29.5, 222 of 323 at 30+ | transfers between clubs 201
+2029/30: pool on 1 July 589 | AI clubs signed 256, we signed 3, still unsigned on 29 June 330 (35 of them now retiring) | 30 June: released 853, signed straight back by short squads 80, retired from clubs 665, left the pool (retired or unsigned all season) 330 | total players in the game 9836 on 1 July, 9502 after 30 June | new players: youth intake 648, top-ups 13 | AI squads on 1 July avg 28.6, 109 of 323 at 30+, on 1 September avg 29.3, 219 of 323 at 30+ | transfers between clubs 205
+2030/31: pool on 1 July 773 | AI clubs signed 491, we signed 3, still unsigned on 29 June 279 (25 of them now retiring) | 30 June: released 650, signed straight back by short squads 72, retired from clubs 331, left the pool (retired or unsigned all season) 279 | total players in the game 9502 on 1 July, 9548 after 30 June | new players: youth intake 648, top-ups 8 | AI squads on 1 July avg 26.9, 33 of 323 at 30+, on 1 September avg 27.9, 98 of 323 at 30+ | transfers between clubs 303
+2031/32: pool on 1 July 578 | AI clubs signed 330, we signed 3, still unsigned on 29 June 245 (26 of them now retiring) | 30 June: released 740, signed straight back by short squads 95, retired from clubs 375, left the pool (retired or unsigned all season) 245 | total players in the game 9548 on 1 July, 9576 after 30 June | new players: youth intake 648, top-ups 0 | AI squads on 1 July avg 27.7, 74 of 323 at 30+, on 1 September avg 28.7, 168 of 323 at 30+ | transfers between clubs 252
+2032/33: pool on 1 July 645 | AI clubs signed 358, we signed 3, still unsigned on 29 June 284 (16 of them now retiring) | 30 June: released 724, signed straight back by short squads 77, retired from clubs 354, left the pool (retired or unsigned all season) 284 | total players in the game 9576 on 1 July, 9586 after 30 June | new players: youth intake 648, top-ups 0 | AI squads on 1 July avg 27.6, 72 of 323 at 30+, on 1 September avg 28.5, 153 of 323 at 30+ | transfers between clubs 245
+2033/34: pool on 1 July 647 | AI clubs signed 414, we signed 3, still unsigned on 29 June 230 (19 of them now retiring) | 30 June: released 740, signed straight back by short squads 92, retired from clubs 503, left the pool (retired or unsigned all season) 230 | total players in the game 9586 on 1 July, 9501 after 30 June | new players: youth intake 648, top-ups 0 | AI squads on 1 July avg 27.6, 55 of 323 at 30+, on 1 September avg 28.6, 147 of 323 at 30+ | transfers between clubs 253
+2034/35: pool on 1 July 648 | AI clubs signed 465, we signed 3, still unsigned on 29 June 180 (18 of them now retiring) | 30 June: released 684, signed straight back by short squads 99, retired from clubs 516, left the pool (retired or unsigned all season) 180 | total players in the game 9501 on 1 July, 9468 after 30 June | new players: youth intake 648, top-ups 15 | AI squads on 1 July avg 27.3, 56 of 323 at 30+, on 1 September avg 28.3, 129 of 323 at 30+ | transfers between clubs 270
+2035/36: pool on 1 July 585 | AI clubs signed 413, we signed 3, still unsigned on 29 June 169 (16 of them now retiring) | 30 June: released 677, signed straight back by short squads 98, retired from clubs 503, left the pool (retired or unsigned all season) 169 | total players in the game 9468 on 1 July, 9465 after 30 June | new players: youth intake 648, top-ups 21 | AI squads on 1 July avg 27.4, 60 of 323 at 30+, on 1 September avg 28.4, 148 of 323 at 30+ | transfers between clubs 264
+
+=== AI TRANSFER BUDGETS BY LEAGUE TIER (every club, every season: see the -budgets.csv file) ===
+2026/27, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £36,491,778 (min £4,840,000, max £131,000,000) | avg 1.00x allocation | 0 at the cap
+  Tier 2: 24 AI clubs | avg £12,091,667 (min £6,070,000, max £24,300,000) | avg 1.00x allocation | 0 at the cap
+  Tier 3: 24 AI clubs | avg £4,581,667 (min £2,280,000, max £8,810,000) | avg 1.00x allocation | 0 at the cap
+  Tier 4: 23 AI clubs | avg £1,023,870 (min £588,000, max £1,740,000) | avg 1.00x allocation | 0 at the cap
+  Tier 5: 24 AI clubs | avg £252,958 (min £126,000, max £479,000) | avg 1.00x allocation | 0 at the cap
+  Tier 6: 48 AI clubs | avg £100,496 (min £52,200, max £202,000) | avg 1.00x allocation | 0 at the cap
+  All AI clubs: £7,003,123,800 in total; ours £718,000
+2026/27, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £36,129,073 (min £148,996, max £142,955,990) | avg 1.22x allocation | 31 at the cap
+  Tier 2: 24 AI clubs | avg £15,139,921 (min £6,703,484, max £51,205,318) | avg 1.31x allocation | 4 at the cap
+  Tier 3: 24 AI clubs | avg £4,865,218 (min £1,004,524, max £8,725,000) | avg 1.09x allocation | 0 at the cap
+  Tier 4: 23 AI clubs | avg £1,135,715 (min £478,818, max £1,999,741) | avg 1.13x allocation | 5 at the cap
+  Tier 5: 24 AI clubs | avg £281,848 (min £32,282, max £644,352) | avg 1.16x allocation | 4 at the cap
+  Tier 6: 48 AI clubs | avg £117,427 (min £38,190, max £234,795) | avg 1.21x allocation | 9 at the cap
+  All AI clubs: £7,021,878,800 in total; ours £743,000
+2027/28, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £52,262,487 (min £6,483,888, max £196,500,000) | avg 1.46x allocation | 150 at the cap
+  Tier 2: 24 AI clubs | avg £15,177,500 (min £7,665,000, max £30,600,000) | avg 1.50x allocation | 24 at the cap
+  Tier 3: 23 AI clubs | avg £5,827,558 (min £2,865,000, max £11,490,000) | avg 1.49x allocation | 19 at the cap
+  Tier 4: 24 AI clubs | avg £1,188,347 (min £494,323, max £2,550,000) | avg 1.49x allocation | 23 at the cap
+  Tier 5: 24 AI clubs | avg £319,258 (min £144,190, max £624,000) | avg 1.49x allocation | 23 at the cap
+  Tier 6: 48 AI clubs | avg £126,290 (min £63,900, max £255,000) | avg 1.50x allocation | 46 at the cap
+  All AI clubs: £9,947,785,983 in total; ours £1,910,000
+2027/28, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £52,177,896 (min £33,692, max £199,030,576) | avg 1.57x allocation | 98 at the cap
+  Tier 2: 24 AI clubs | avg £16,347,183 (min £7,755,000, max £37,842,825) | avg 1.62x allocation | 21 at the cap
+  Tier 3: 23 AI clubs | avg £5,959,395 (min £2,179,380, max £11,515,000) | avg 1.51x allocation | 15 at the cap
+  Tier 4: 24 AI clubs | avg £1,299,379 (min £550,631, max £3,180,000) | avg 1.64x allocation | 18 at the cap
+  Tier 5: 24 AI clubs | avg £303,027 (min £70,784, max £607,069) | avg 1.41x allocation | 13 at the cap
+  Tier 6: 48 AI clubs | avg £138,823 (min £41,282, max £502,667) | avg 1.61x allocation | 27 at the cap
+  All AI clubs: £9,966,540,983 in total; ours £1,935,000
+2028/29, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £51,924,326 (min £7,260,000, max £196,500,000) | avg 1.48x allocation | 164 at the cap
+  Tier 2: 24 AI clubs | avg £13,440,625 (min £6,765,000, max £27,150,000) | avg 1.50x allocation | 24 at the cap
+  Tier 3: 23 AI clubs | avg £5,187,363 (min £2,369,000, max £10,155,000) | avg 1.49x allocation | 21 at the cap
+  Tier 4: 24 AI clubs | avg £1,085,688 (min £564,000, max £2,250,000) | avg 1.50x allocation | 24 at the cap
+  Tier 5: 24 AI clubs | avg £281,863 (min £151,500, max £528,000) | avg 1.50x allocation | 23 at the cap
+  Tier 6: 48 AI clubs | avg £111,106 (min £56,400, max £225,000) | avg 1.50x allocation | 48 at the cap
+  All AI clubs: £9,826,417,306 in total; ours £1,690,000
+2028/29, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £51,693,571 (min £161,398, max £216,869,384) | avg 1.58x allocation | 96 at the cap
+  Tier 2: 24 AI clubs | avg £15,100,032 (min £6,867,474, max £31,091,568) | avg 1.84x allocation | 21 at the cap
+  Tier 3: 23 AI clubs | avg £5,550,931 (min £2,326,128, max £11,554,608) | avg 1.63x allocation | 21 at the cap
+  Tier 4: 24 AI clubs | avg £1,569,055 (min £463,908, max £5,443,611) | avg 2.11x allocation | 20 at the cap
+  Tier 5: 24 AI clubs | avg £288,095 (min £151,500, max £465,000) | avg 1.56x allocation | 21 at the cap
+  Tier 6: 48 AI clubs | avg £117,098 (min £26,902, max £281,694) | avg 1.55x allocation | 40 at the cap
+  All AI clubs: £9,845,107,306 in total; ours £1,780,000
+2029/30, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £53,862,604 (min £5,731,398, max £196,500,000) | avg 1.48x allocation | 164 at the cap
+  Tier 2: 24 AI clubs | avg £18,038,750 (min £9,030,000, max £36,150,000) | avg 1.50x allocation | 24 at the cap
+  Tier 3: 23 AI clubs | avg £7,056,319 (min £2,723,908, max £12,735,000) | avg 1.48x allocation | 20 at the cap
+  Tier 4: 24 AI clubs | avg £1,506,826 (min £751,500, max £2,805,000) | avg 1.49x allocation | 23 at the cap
+  Tier 5: 24 AI clubs | avg £374,984 (min £187,500, max £618,000) | avg 1.49x allocation | 23 at the cap
+  Tier 6: 48 AI clubs | avg £148,229 (min £75,150, max £301,500) | avg 1.50x allocation | 47 at the cap
+  All AI clubs: £10,342,772,527 in total; ours £2,260,000
+2029/30, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £53,781,910 (min £452,135, max £205,479,524) | avg 1.67x allocation | 103 at the cap
+  Tier 2: 24 AI clubs | avg £18,895,121 (min £8,822,354, max £36,175,000) | avg 1.58x allocation | 18 at the cap
+  Tier 3: 23 AI clubs | avg £7,497,135 (min £2,473,618, max £13,951,752) | avg 1.55x allocation | 17 at the cap
+  Tier 4: 24 AI clubs | avg £1,607,467 (min £776,500, max £3,088,568) | avg 1.60x allocation | 22 at the cap
+  Tier 5: 24 AI clubs | avg £378,503 (min £178,788, max £618,000) | avg 1.52x allocation | 18 at the cap
+  Tier 6: 48 AI clubs | avg £148,717 (min £32,031, max £316,814) | avg 1.50x allocation | 38 at the cap
+  All AI clubs: £10,361,462,527 in total; ours £2,350,000
+2030/31, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £54,178,671 (min £6,744,677, max £196,500,000) | avg 1.48x allocation | 169 at the cap
+  Tier 2: 24 AI clubs | avg £18,296,875 (min £9,150,000, max £36,600,000) | avg 1.50x allocation | 24 at the cap
+  Tier 3: 23 AI clubs | avg £7,190,630 (min £3,294,500, max £13,320,000) | avg 1.50x allocation | 22 at the cap
+  Tier 4: 24 AI clubs | avg £1,524,062 (min £837,000, max £2,640,000) | avg 1.50x allocation | 24 at the cap
+  Tier 5: 24 AI clubs | avg £381,438 (min £190,500, max £627,000) | avg 1.50x allocation | 24 at the cap
+  Tier 6: 48 AI clubs | avg £149,824 (min £76,200, max £304,500) | avg 1.50x allocation | 47 at the cap
+  All AI clubs: £10,409,593,745 in total; ours £2,290,000
+2030/31, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £54,133,185 (min £1,056,186, max £195,687,007) | avg 1.85x allocation | 95 at the cap
+  Tier 2: 24 AI clubs | avg £19,182,917 (min £3,740,127, max £69,240,192) | avg 1.56x allocation | 13 at the cap
+  Tier 3: 23 AI clubs | avg £7,347,393 (min £2,142,584, max £13,777,644) | avg 1.53x allocation | 17 at the cap
+  Tier 4: 24 AI clubs | avg £1,602,325 (min £1,017,000, max £2,942,850) | avg 1.60x allocation | 15 at the cap
+  Tier 5: 24 AI clubs | avg £382,459 (min £153,300, max £588,627) | avg 1.52x allocation | 13 at the cap
+  Tier 6: 48 AI clubs | avg £153,346 (min £9,269, max £326,666) | avg 1.52x allocation | 30 at the cap
+  All AI clubs: £10,428,348,745 in total; ours £2,315,000
+2031/32, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £52,679,431 (min £6,879,708, max £196,500,000) | avg 1.48x allocation | 162 at the cap
+  Tier 2: 23 AI clubs | avg £15,546,745 (min £7,650,000, max £30,600,000) | avg 1.49x allocation | 22 at the cap
+  Tier 3: 24 AI clubs | avg £5,796,875 (min £2,865,000, max £11,460,000) | avg 1.50x allocation | 24 at the cap
+  Tier 4: 24 AI clubs | avg £1,223,500 (min £637,500, max £2,550,000) | avg 1.50x allocation | 24 at the cap
+  Tier 5: 24 AI clubs | avg £315,188 (min £159,000, max £637,500) | avg 1.50x allocation | 24 at the cap
+  Tier 6: 48 AI clubs | avg £125,281 (min £63,750, max £255,000) | avg 1.49x allocation | 47 at the cap
+  All AI clubs: £10,021,939,748 in total; ours £5,100,000
+2031/32, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £52,309,319 (min £564,568, max £226,748,049) | avg 1.75x allocation | 99 at the cap
+  Tier 2: 23 AI clubs | avg £18,477,037 (min £7,740,000, max £43,784,504) | avg 1.74x allocation | 16 at the cap
+  Tier 3: 24 AI clubs | avg £6,521,044 (min £2,400,332, max £25,450,556) | avg 1.63x allocation | 18 at the cap
+  Tier 4: 24 AI clubs | avg £1,272,365 (min £662,500, max £2,685,638) | avg 1.59x allocation | 20 at the cap
+  Tier 5: 24 AI clubs | avg £293,484 (min £45,635, max £637,500) | avg 1.37x allocation | 15 at the cap
+  Tier 6: 48 AI clubs | avg £124,168 (min £45,154, max £302,118) | avg 1.51x allocation | 38 at the cap
+  All AI clubs: £10,040,694,748 in total; ours £5,125,000
+2032/33, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £53,163,290 (min £7,260,000, max £196,500,000) | avg 1.47x allocation | 156 at the cap
+  Tier 2: 23 AI clubs | avg £17,051,087 (min £8,445,000, max £33,750,000) | avg 1.50x allocation | 23 at the cap
+  Tier 3: 24 AI clubs | avg £6,376,641 (min £3,165,000, max £12,030,000) | avg 1.49x allocation | 23 at the cap
+  Tier 4: 24 AI clubs | avg £1,403,318 (min £514,635, max £2,820,000) | avg 1.48x allocation | 23 at the cap
+  Tier 5: 24 AI clubs | avg £347,617 (min £175,500, max £703,500) | avg 1.50x allocation | 23 at the cap
+  Tier 6: 48 AI clubs | avg £138,638 (min £70,350, max £282,000) | avg 1.50x allocation | 47 at the cap
+  All AI clubs: £10,163,283,700 in total; ours £5,630,000
+2032/33, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £53,035,723 (min £168,244, max £182,636,957) | avg 1.95x allocation | 93 at the cap
+  Tier 2: 23 AI clubs | avg £17,917,844 (min £8,470,000, max £37,771,358) | avg 1.56x allocation | 13 at the cap
+  Tier 3: 24 AI clubs | avg £7,002,571 (min £3,087,549, max £12,653,787) | avg 1.70x allocation | 18 at the cap
+  Tier 4: 24 AI clubs | avg £1,662,464 (min £574,673, max £5,707,441) | avg 1.80x allocation | 18 at the cap
+  Tier 5: 24 AI clubs | avg £339,697 (min £125,263, max £725,157) | avg 1.49x allocation | 13 at the cap
+  Tier 6: 48 AI clubs | avg £147,491 (min £50,291, max £302,684) | avg 1.60x allocation | 40 at the cap
+  All AI clubs: £10,181,733,700 in total; ours £5,960,000
+2033/34, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £52,827,480 (min £7,260,000, max £196,500,000) | avg 1.47x allocation | 159 at the cap
+  Tier 2: 23 AI clubs | avg £16,758,261 (min £8,340,000, max £33,450,000) | avg 1.50x allocation | 23 at the cap
+  Tier 3: 24 AI clubs | avg £6,338,750 (min £3,135,000, max £11,685,000) | avg 1.50x allocation | 24 at the cap
+  Tier 4: 24 AI clubs | avg £1,372,812 (min £715,500, max £2,775,000) | avg 1.50x allocation | 24 at the cap
+  Tier 5: 24 AI clubs | avg £346,750 (min £198,000, max £696,000) | avg 1.50x allocation | 24 at the cap
+  Tier 6: 48 AI clubs | avg £137,650 (min £69,600, max £277,500) | avg 1.50x allocation | 48 at the cap
+  All AI clubs: £10,094,393,157 in total; ours £5,560,000
+2033/34, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £52,444,443 (min £384,227, max £227,258,225) | avg 1.82x allocation | 97 at the cap
+  Tier 2: 23 AI clubs | avg £19,557,029 (min £6,291,660, max £71,707,291) | avg 1.66x allocation | 15 at the cap
+  Tier 3: 24 AI clubs | avg £7,203,776 (min £2,440,272, max £30,432,047) | avg 1.60x allocation | 15 at the cap
+  Tier 4: 24 AI clubs | avg £1,448,002 (min £740,500, max £3,126,818) | avg 1.57x allocation | 18 at the cap
+  Tier 5: 24 AI clubs | avg £357,741 (min £112,844, max £753,736) | avg 1.53x allocation | 16 at the cap
+  Tier 6: 48 AI clubs | avg £144,862 (min £66,534, max £281,049) | avg 1.60x allocation | 37 at the cap
+  All AI clubs: £10,112,993,157 in total; ours £5,740,000
+2034/35, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £52,532,022 (min £5,366,253, max £196,500,000) | avg 1.46x allocation | 155 at the cap
+  Tier 2: 23 AI clubs | avg £16,260,000 (min £8,040,000, max £32,100,000) | avg 1.50x allocation | 23 at the cap
+  Tier 3: 24 AI clubs | avg £6,096,875 (min £3,015,000, max £12,045,000) | avg 1.50x allocation | 24 at the cap
+  Tier 4: 24 AI clubs | avg £1,290,521 (min £644,000, max £2,685,000) | avg 1.50x allocation | 23 at the cap
+  Tier 5: 24 AI clubs | avg £331,500 (min £168,000, max £669,000) | avg 1.50x allocation | 24 at the cap
+  Tier 6: 48 AI clubs | avg £133,847 (min £66,900, max £268,500) | avg 1.50x allocation | 48 at the cap
+  All AI clubs: £10,021,422,049 in total; ours £5,360,000
+2034/35, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £52,351,522 (min £242,541, max £217,563,147) | avg 1.82x allocation | 95 at the cap
+  Tier 2: 23 AI clubs | avg £17,959,063 (min £5,344,155, max £33,493,885) | avg 1.68x allocation | 15 at the cap
+  Tier 3: 24 AI clubs | avg £6,490,940 (min £402,667, max £23,972,134) | avg 1.56x allocation | 17 at the cap
+  Tier 4: 24 AI clubs | avg £1,408,027 (min £646,445, max £3,373,988) | avg 1.66x allocation | 15 at the cap
+  Tier 5: 24 AI clubs | avg £308,527 (min £101,700, max £666,376) | avg 1.38x allocation | 16 at the cap
+  Tier 6: 48 AI clubs | avg £143,017 (min £53,655, max £395,982) | avg 1.60x allocation | 34 at the cap
+  All AI clubs: £10,040,177,049 in total; ours £5,385,000
+2035/36, 1 July (after the allocation and cap):
+  Tier 1: 180 AI clubs | avg £52,813,908 (min £7,228,537, max £196,500,000) | avg 1.47x allocation | 158 at the cap
+  Tier 2: 23 AI clubs | avg £17,083,160 (min £8,325,000, max £33,300,000) | avg 1.49x allocation | 22 at the cap
+  Tier 3: 24 AI clubs | avg £6,232,320 (min £3,074,933, max £11,850,000) | avg 1.48x allocation | 21 at the cap
+  Tier 4: 24 AI clubs | avg £1,321,328 (min £563,700, max £2,775,000) | avg 1.49x allocation | 22 at the cap
+  Tier 5: 24 AI clubs | avg £342,971 (min £196,500, max £693,000) | avg 1.50x allocation | 23 at the cap
+  Tier 6: 48 AI clubs | avg £137,988 (min £69,300, max £277,500) | avg 1.50x allocation | 48 at the cap
+  All AI clubs: £10,095,558,463 in total; ours £5,550,000
+2035/36, 29 June (before the allocation):
+  Tier 1: 180 AI clubs | avg £52,505,558 (min £84,185, max £212,892,154) | avg 1.77x allocation | 97 at the cap
+  Tier 2: 23 AI clubs | avg £20,077,419 (min £5,793,265, max £72,786,696) | avg 1.72x allocation | 15 at the cap
+  Tier 3: 24 AI clubs | avg £6,317,447 (min £1,666,768, max £13,503,565) | avg 1.49x allocation | 17 at the cap
+  Tier 4: 24 AI clubs | avg £1,424,671 (min £588,700, max £3,176,989) | avg 1.60x allocation | 18 at the cap
+  Tier 5: 24 AI clubs | avg £380,932 (min £173,098, max £876,335) | avg 1.63x allocation | 16 at the cap
+  Tier 6: 48 AI clubs | avg £137,066 (min £37,859, max £286,749) | avg 1.51x allocation | 35 at the cap
+  All AI clubs: £10,114,313,463 in total; ours £5,575,000
+2036/37, 1 July (after the allocation and cap):
+  Tier 1: 179 AI clubs | avg £52,870,062 (min £5,654,185, max £196,500,000) | avg 1.47x allocation | 152 at the cap
+  Tier 2: 24 AI clubs | avg £16,318,247 (min £7,982,928, max £32,400,000) | avg 1.50x allocation | 23 at the cap
+  Tier 3: 24 AI clubs | avg £6,081,573 (min £2,750,078, max £12,165,000) | avg 1.49x allocation | 22 at the cap
+  Tier 4: 24 AI clubs | avg £1,286,562 (min £676,500, max £2,700,000) | avg 1.50x allocation | 24 at the cap
+  Tier 5: 24 AI clubs | avg £338,125 (min £208,500, max £556,500) | avg 1.50x allocation | 24 at the cap
+  Tier 6: 48 AI clubs | avg £133,774 (min £67,650, max £270,000) | avg 1.50x allocation | 47 at the cap
+  All AI clubs: £10,046,750,353 in total; ours £22,500,000
 
 === SIGNINGS ===
-2026/27: Nelson Fernandes (ST, 67, £0), David Ortiz (LM, 68, £0), Andrew Souttar (RB/RM, 69, £0)
-2027/28: Paulo Aguero (CDM, 69, £0), Jean Traore (CAM, 70, £0), Pedri Lopez (RB/RM, 70, £0)
-2028/29: Oh Young-gwon (CB, 71, £514,451), Neymar Teixeira (CAM, 71, £541,329), Julian Hermann (CB/LB, 72, £0)
+2026/27: Nicklas Hojbjerg (GK, 67, £0), Martin Vesely (RB, 68, £0), Roberto Martins (ST, 69, £0)
+2027/28: Lisandro Castro (CM/CDM, 69, £0), Felipe Correia (LM, 70, £0), Michy Claes (CB, 71, £0)
+2028/29: Andres Mojica (CM/CAM, 71, £0), Mathias Normann (CM, 72, £0), Jordan White (LB/LW, 73, £0)
+2029/30: Declan Grealish (CM, 73, £0), Stefan Milinkovic-Savic (CM/CAM, 74, £0), Bailey Brown (LW, 74, £0)
+2030/31: Ales Novak (ST, 75, £0), Jamal Kruger (ST, 75, £0), Adrian Delgado (RM/RB, 76, £0)
+2031/32: Marquinhos Nunes (CB, 76, £0), Gokhan Yilmaz (CM, 77, £0), Andres Sanchez (RM, 77, £0)
+2032/33: Nicklas Hojbjerg (LB/LW, 78, £0), John Power (RM, 78, £0), Bruno Almeida (ST/RW, 79, £0)
+2033/34: Luis Diaz (ST, 80, £0), Oliver Roberts (LM/LW, 79, £0), Leonardo Sanna (ST, 79, £0)
+2034/35: Amadou Dendoncker (LW, 81, £0), Shuichi Okazaki (CAM, 81, £0), Nahitan Torres (CAM/LW, 82, £0)
+2035/36: Lim Min-jae (CB, 82, £0), Jesper Braithwaite (LB/LM, 83, £0), Philipp Alaba (ST/LW, 83, £0)
 
 === CONTRACT RENEWALS ===
-2026/27: Hugo Delgado (63), Andres Araujo (59)
-2027/28: Florian Schroeder (69), Miguel Rodriguez (68), Gareth Roberts (66)
-2028/29: Mathew Hrustic (73), Jean Traore (70), Pedri Lopez (70), Paulo Aguero (69), Andrew Souttar (69), David Ortiz (68), Nelson Fernandes (67), Alberth Maldonado (66), Alexis Vidal (64), Hugo Delgado (63)
+2026/27: Kelechi Troost-Ekong (65), Gabriel Santos (61), Fabian Mora (60), Dani Fernandez (57)
+2027/28: Jean-Pierre Moukandjo (65)
+2028/29: Hugo Molina (72), Michy Claes (71), Felipe Correia (70), Lisandro Castro (69), Roberto Martins (69), Martin Vesely (68), Nicklas Hojbjerg (67), Rahul Bheke (66), Kelechi Troost-Ekong (65)
+2029/30: Jordan White (73), Mathias Normann (72), Andres Mojica (71), N'Golo Dubois (71), Adrien Laurent (69), Jordi Ramos (67), Hugo Morel (67), Louie Ward (67)
+2030/31: Stefan Milinkovic-Savic (74), Bailey Brown (74), Declan Grealish (73), Hugo Molina (72), Michy Claes (71), Felipe Correia (70), Lisandro Castro (69), Roberto Martins (69), Martin Vesely (68), Josh Stones (68)
+2031/32: Adrian Delgado (76), Ales Novak (75), Jamal Kruger (75), Jordan White (73), Mathias Normann (72), Andres Mojica (71), N'Golo Dubois (71), Adrien Laurent (69)
+2032/33: Gokhan Yilmaz (77), Andres Sanchez (77), Marquinhos Nunes (76), Stefan Milinkovic-Savic (74), Bailey Brown (74), Declan Grealish (73), Hugo Molina (72), Michy Claes (71)
+2033/34: Bruno Almeida (79), Nicklas Hojbjerg (78), John Power (78), Adrian Delgado (76), Daniel Edwards (76), Ales Novak (75), Jamal Kruger (75)
+2034/35: Luis Diaz (80), Oliver Roberts (79), Leonardo Sanna (79), Gokhan Yilmaz (77), Andres Sanchez (77), Federico Godin (77), Marquinhos Nunes (76)
+2035/36: Nahitan Torres (82), Amadou Dendoncker (81), Shuichi Okazaki (81), Bruno Almeida (79), Nicklas Hojbjerg (78), John Power (78), Malik Robinson (77), Adrian Delgado (76)
 
 === SUMMARY ===
-Started: Rank 4 | Finished: Rank 4
-Divisions climbed: 0
+Started: Rank 4 | Finished: Rank 2
+Divisions climbed: 2

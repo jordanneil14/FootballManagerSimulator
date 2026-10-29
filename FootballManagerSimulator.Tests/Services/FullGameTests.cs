@@ -238,9 +238,15 @@ public class FullGameTests : IDisposable
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
 
-        // Every club receives its seasonal budget allocation for its new league on top of what it had left.
+        // Every club receives its seasonal budget allocation for its new league on top of what it had left,
+        // with AI clubs capped at one and a half times that allocation and mine at the allocation itself.
         var allocations = SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions);
-        Assert.All(state.Clubs, c => Assert.Equal(budgetsBefore[c.Id] + allocations[c.Id], c.TransferBudget));
+        Assert.All(state.Clubs, c => Assert.Equal(
+            Math.Min(budgetsBefore[c.Id] + allocations[c.Id], c.Id == state.MyClubId
+                ? SeasonalBudgetRules.MyClubBudgetCap(allocations[c.Id])
+                : SeasonalBudgetRules.AIBudgetCap(allocations[c.Id])),
+            c.TransferBudget));
+        Assert.All(state.Clubs.Where(c => c.Id != state.MyClubId), c => Assert.True(c.TransferBudget <= allocations[c.Id] * 1.5));
 
         // Promoted clubs are now paid as top-flight clubs, relegated clubs as second-tier ones.
         var startingBudgets = SeasonalBudgetRules.Budgets(_host.Settings.Clubs, _host.Settings.Competitions);

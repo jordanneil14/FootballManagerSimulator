@@ -566,8 +566,8 @@ public class MatchSimulatorHelper(
     // stay possible but rare. Applied before the multipliers below so those keep their stated strength.
     internal const double RatingGapExponent = 3;
 
-    // Applied after cubing, so it is cubed too: a 4% rating edge.
-    internal static readonly double MyClubRatingBoost = Math.Pow(1.04, RatingGapExponent);
+    // Applied after cubing, so it is cubed too: a 6% rating edge.
+    internal static readonly double MyClubRatingBoost = Math.Pow(1.06, RatingGapExponent);
 
     private (double homeRating, double awayRating) GetAdjustedRatings(FixtureModel fixture)
     {

@@ -146,9 +146,9 @@ public class ProcessHelperTests : IDisposable
             surplusKept += squad.Skip(25).Count(p => p.Contract!.ExpiryDate > seasonEnd);
         }
 
-        // Expected 98% of the first team and 88% of ranks 26-30.
+        // Expected 98% of the first team and 50% of ranks 26-30.
         Assert.InRange(firstTeamKept / (11.0 * trials), 0.92, 1);
-        Assert.InRange(surplusKept / (5.0 * trials), 0.75, 0.97);
+        Assert.InRange(surplusKept / (5.0 * trials), 0.3, 0.7);
     }
 
     [Fact]

@@ -4,6 +4,7 @@ using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Exceptions;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
+using FootballManagerSimulator.Maui.Services;
 using FootballManagerSimulator.PlayerGenerator;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -110,10 +111,11 @@ public class ProcessHelper(
         foreach (var squad in squads)
         {
             // Ranked across the whole squad, so the first team means the same at every club.
-            var ranked = squad.OrderByDescending(p => p.Rating).Select((player, index) => (player, rank: index + 1));
+            var ranked = squad.OrderByDescending(p => p.Rating).Select((player, index) => (player, rank: index + 1)).ToList();
+            var strength = ranked.Take(GameEngine.SquadAverageBestPlayers).Average(p => p.player.Rating);
             foreach (var (player, rank) in ranked.Where(p => p.player.Contract!.ExpiryDate <= seasonEnd))
             {
-                if (RandomNumberHelper.NextDouble() >= ContractRenewalRules.RenewalChance(player, rank, seasonEnd))
+                if (RandomNumberHelper.NextDouble() >= ContractRenewalRules.RenewalChance(player, rank, strength, seasonEnd))
                     continue;
 
                 var years = ContractRenewalRules.RenewalYears(player.GetAge(seasonEnd));
@@ -177,33 +179,39 @@ public class ProcessHelper(
         TopUpSquads(SquadSizeRules.Minimum);
         ResetSuspensions();
         RecreateCompetitions();
-        var myIncrease = IncreaseTransferBudgets();
+        var (myIncrease, myReturned) = IncreaseTransferBudgets();
 
+        var returned = myReturned > 0 ? $" £{myReturned:n0} left unspent last season has gone back to the board." : "";
         NotificationFactory.AddNotification(
             State.Date,
             "Chairman",
             "New Season",
-            $"The new season has begun. The board has added £{myIncrease:n0} to your budget. Good luck!");
+            $"The new season has begun. The board has added £{myIncrease:n0} to your budget.{returned} Good luck!");
     }
 
     // Each club receives its seasonal allocation for the league it is now in (see SeasonalBudgetRules)
-    // on top of whatever it has left. Returns the amount given to the user's club.
-    // Must run after promotion and relegation so clubs are paid for their new division.
-    private int IncreaseTransferBudgets()
+    // on top of whatever it has left, then is capped: AI clubs at 1.5x that allocation, the user's at 1x.
+    // Returns the amount given to the user's club and how much of its leftover the board took back.
+    // Must run after promotion and relegation so clubs are paid, and capped, for their new division.
+    private (int Increase, int Returned) IncreaseTransferBudgets()
     {
         var allocations = SeasonalBudgetRules.Budgets(State.Clubs, Settings.Competitions);
-        var myIncrease = 0;
+        var (myIncrease, myReturned) = (0, 0);
 
         foreach (var club in State.Clubs)
         {
-            var increase = allocations.GetValueOrDefault(club.Id);
-            club.TransferBudget = (int)Math.Min((long)club.TransferBudget + increase, int.MaxValue);
+            // Clubs outside a known league get no allocation, and no cap.
+            if (!allocations.TryGetValue(club.Id, out var increase))
+                continue;
+
+            var before = club.TransferBudget;
+            club.TransferBudget = SeasonalBudgetRules.NextBudget(before, increase, isAIClub: club.Id != State.MyClubId);
 
             if (club.Id == State.MyClubId)
-                myIncrease = increase;
+                (myIncrease, myReturned) = (increase, (int)Math.Max(0, (long)before + increase - club.TransferBudget));
         }
 
-        return myIncrease;
+        return (myIncrease, myReturned);
     }
 
     // Must run before promotion and relegation move the club into next season's league.
