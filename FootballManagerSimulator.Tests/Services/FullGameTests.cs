@@ -114,7 +114,7 @@ public class FullGameTests : IDisposable
         Assert.Single(state.Events.OfType<EnglishCommunityShieldFixtureDrawEvent>());
         Assert.Equal(["Manchester Blue", "North London Reds"],
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
-        Assert.Equal(3, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count());
+        Assert.Equal(4, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count()); // English Divisions 2-4 and Spain Division 2
         Assert.Equal(3, state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>().Count());
         Assert.Single(state.Events.OfType<ScottishPremiershipSplitEvent>());
 

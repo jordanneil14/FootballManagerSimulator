@@ -326,7 +326,7 @@ public class CommunityShieldQualificationTests : IDisposable
         faCup.Fixtures.Add(new FixtureModel { HomeClub = c, AwayClub = d, Round = FACupRules.Rounds, Concluded = true, ClubWon = c, GoalsHome = 1, GoalsAway = 0 });
 
         // The season is skipped, so settle each play-off to keep the divisions the right size.
-        foreach (var league in state.Competitions.OfType<LeagueModel>().Where(l => l.CountryId == 1 && l.Rank > 1 && l.HasPlayoffs))
+        foreach (var league in state.Competitions.OfType<LeagueModel>().Where(l => l.Rank > 1 && l.HasPlayoffs))
         {
             var table = league.GenerateLeagueTable().Select(p => p.Club).ToList();
             var winner = table[league.AutomaticPromotionPlaces];

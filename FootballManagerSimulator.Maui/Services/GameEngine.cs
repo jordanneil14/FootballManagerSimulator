@@ -1183,6 +1183,7 @@ public class GameEngine(
             State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;
 
             RelinkClubs();
+            gameFactory.AddClubsMissingFromSave();
 
             // Saves from before the manager history existed start the record from today.
             var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);

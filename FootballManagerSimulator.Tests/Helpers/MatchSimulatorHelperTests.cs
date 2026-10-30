@@ -772,13 +772,16 @@ public class MatchSimulatorHelperTests
     public void ReGenerateFromMinute_ClearsInjuriesPastTheGivenMinute()
     {
         var (fixture, _) = NewFixture(CompetitionType.League);
-        fixture.HomeInjuries.Add(new InjuryModel { Minute = 20, PlayerId = Home.TacticSlots[5].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
-        fixture.HomeInjuries.Add(new InjuryModel { Minute = 70, PlayerId = Home.TacticSlots[6].PlayerId!.Value, Description = "Fracture", DaysOut = 60 });
+        var early = new InjuryModel { Minute = 20, PlayerId = Home.TacticSlots[5].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 };
+        var late = new InjuryModel { Minute = 70, PlayerId = Home.TacticSlots[6].PlayerId!.Value, Description = "Fracture", DaysOut = 60 };
+        fixture.HomeInjuries.AddRange([early, late]);
 
         _simulator.ReGenerateFromMinute(fixture, 50);
 
-        Assert.Single(fixture.HomeInjuries);
-        Assert.Equal(20, fixture.HomeInjuries[0].Minute);
+        // The rest of the match is re-simulated, so a new injury after minute 50 is possible.
+        Assert.Contains(early, fixture.HomeInjuries);
+        Assert.DoesNotContain(late, fixture.HomeInjuries);
+        Assert.All(fixture.HomeInjuries.Where(i => i != early), i => Assert.InRange(i.Minute, 51, 90));
     }
 
     [Fact]

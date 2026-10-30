@@ -570,7 +570,7 @@ public class ProcessHelper(
         if (shieldClubIds != null)
             ApplyShieldQualifiers(shieldClubIds);
 
-        foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague).Cast<LeagueModel>())
+        foreach (var league in State.Competitions.Where(p => p.Type.HasTwoLeggedPlayoffs()).Cast<LeagueModel>())
         {
             if (league.PlayoffPlaces <= 0)
                 continue;
