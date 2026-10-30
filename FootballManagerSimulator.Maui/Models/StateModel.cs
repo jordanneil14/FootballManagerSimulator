@@ -6,14 +6,16 @@ namespace FootballManagerSimulator.Maui.Models;
 
 public class StateModel : IState
 {
+    // Saves are written in declaration order, so the fields the Load page previews come first
+    // and it can stop reading each file almost at once.
+    public string ManagerName { get; set; } = "";
+    public int? MyClubId { get; set; }
+    public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
     public DateOnly Date { get; set; }
     public string Weather { get; set; } = "";
     public List<NotificationModel> Notifications { get; set; } = new List<NotificationModel>();
-    public List<ClubModel> Clubs { get; set; } = new List<ClubModel>();
-    public int? MyClubId { get; set; }
     public List<PlayerModel> Players { get; set; } = new List<PlayerModel>();
     public List<string> UserFeedbackUpdates { get; set; } = new List<string>();
-    public string ManagerName { get; set; } = "";
 
     public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
     // Not saved: release builds trim the Stack<T> members Newtonsoft needs to rebuild it, so

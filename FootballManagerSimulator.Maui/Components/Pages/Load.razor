@@ -81,8 +81,12 @@
         _pendingDelete = null;
         if (save == null || _busy) return;
 
+        // Drop the row straight away: re-reading every save's preview is slow with many large saves.
         _error = await Task.Run(() => Engine.DeleteSave(save.FileName));
-        _saves = await Task.Run(() => Engine.ListSaves().ToList());
+        if (_error == null)
+            _saves?.Remove(save);
+        else
+            _saves = await Task.Run(() => Engine.ListSaves().ToList());
     }
 
     // File work runs off the UI thread so the WebView can keep animating the throbber.

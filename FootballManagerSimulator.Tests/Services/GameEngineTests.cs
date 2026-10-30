@@ -945,6 +945,26 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void SaveGame_WritesThePreviewFieldsFirst()
+    {
+        _engine.SaveGame("order");
+
+        var json = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(Path.Combine(_storage.SaveDirectory, "order.fms")));
+        Assert.Equal(["ManagerName", "MyClubId", "Clubs"], json.Properties().Take(3).Select(p => p.Name));
+    }
+
+    [Fact]
+    public void ListSaves_PreviewsAnUnemployedManagerWithNoClub()
+    {
+        _state.ManagerName = "Tester";
+        _state.MyClubId = null;
+        _engine.SaveGame("unemployed");
+
+        var preview = Assert.Single(_engine.ListSaves());
+        Assert.Equal(("", "Tester"), (preview.ClubName, preview.ManagerName));
+    }
+
+    [Fact]
     public void SaveGame_IsRefusedOnlyFromKickOffUntilTheDaysResultsAreIn()
     {
         AddFixtureToday(MyClub, _state.Clubs[1]);

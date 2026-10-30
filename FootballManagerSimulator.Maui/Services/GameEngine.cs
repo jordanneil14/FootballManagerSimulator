@@ -1059,13 +1059,15 @@ public class GameEngine(
         return (state, eventsJson);
     }
 
-    // Streams only the top-level fields the preview needs, skipping players/competitions without allocating them.
+    // Streams only the fields the preview needs. Saves write them first (see StateModel), so reading
+    // stops at the manager's club, long before the players and competitions.
     private static (string ClubName, string ManagerName) ReadSavePreview(string path)
     {
         using var reader = new JsonTextReader(new StreamReader(path));
-        var clubNames = new Dictionary<int, string>();
         int? myClubId = null;
+        var readMyClubId = false;
         string? managerName = null;
+        string? clubName = null;
 
         if (!reader.Read() || reader.TokenType != JsonToken.StartObject)
             throw new JsonException("Not a save file.");
@@ -1082,24 +1084,26 @@ public class GameEngine(
                     break;
                 case nameof(StateModel.MyClubId):
                     myClubId = reader.Value == null ? null : Convert.ToInt32(reader.Value);
+                    readMyClubId = true;
                     break;
-                case nameof(StateModel.Clubs) when reader.TokenType == JsonToken.StartArray:
-                    ReadClubNames(reader, clubNames);
+                case nameof(StateModel.Clubs) when reader.TokenType == JsonToken.StartArray && myClubId != null:
+                    clubName = ReadClubName(reader, myClubId.Value);
                     break;
                 default:
                     reader.Skip();
                     break;
             }
 
-            if (managerName != null && myClubId != null && clubNames.Count > 0)
+            // An unemployed manager has no club to look up.
+            if (managerName != null && readMyClubId && (myClubId == null || clubName != null))
                 break;
         }
 
-        var clubName = myClubId != null && clubNames.TryGetValue(myClubId.Value, out var name) ? name : "";
-        return (clubName, managerName ?? "");
+        return (clubName ?? "", managerName ?? "");
     }
 
-    private static void ReadClubNames(JsonTextReader reader, Dictionary<int, string> clubNames)
+    // Reads the clubs until it finds the given one, leaving the reader where it stopped.
+    private static string? ReadClubName(JsonTextReader reader, int clubId)
     {
         while (reader.Read() && reader.TokenType == JsonToken.StartObject)
         {
@@ -1117,11 +1121,13 @@ public class GameEngine(
                     name = reader.Value as string;
                 else
                     reader.Skip();
-            }
 
-            if (id != null && name != null)
-                clubNames[id.Value] = name;
+                if (id == clubId && name != null)
+                    return name;
+            }
         }
+
+        return null;
     }
 
     // Competitions and fixtures are saved holding club references; point them back at the real clubs.
