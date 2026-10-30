@@ -29,13 +29,7 @@ public class SpainDivisionTwoTests : IDisposable
     // Jumps to the season's end, settling every play-off on the way so each division stays the right size.
     private void EndTheSeason(GameEngine engine, Func<LeagueModel, ClubModel>? playoffWinner = null)
     {
-        foreach (var league in engine.State.Competitions.OfType<LeagueModel>().Where(l => l.Rank > 1 && l.HasPlayoffs))
-        {
-            var winner = playoffWinner?.Invoke(league) ?? league.GenerateLeagueTable().ElementAt(league.AutomaticPromotionPlaces).Club;
-            var final = TestData.Result(winner, league.Clubs.First(c => c.Id != winner.Id), 1, 0, FixtureType.PlayoffFinal);
-            final.ClubWon = winner;
-            league.Fixtures.Add(final);
-        }
+        TestData.SettlePlayoffs(engine.State, playoffWinner);
 
         engine.State.Date = new DateOnly(2027, 6, 29);
         _host.Get<IProcessHelper>().Process();

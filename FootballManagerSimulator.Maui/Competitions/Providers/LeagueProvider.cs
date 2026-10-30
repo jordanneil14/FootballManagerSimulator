@@ -34,7 +34,8 @@ public class LeagueProvider(
             AutomaticPromotionPlaces = competition.LeagueTable.AutomaticPromotionPlaces,
             PlayoffPlaces = competition.LeagueTable.PlayoffPlaces,
             RelegationPlaces = competition.LeagueTable.RelegationPlaces,
-            RelegationPlayoffPlaces = competition.LeagueTable.RelegationPlayoffPlaces
+            RelegationPlayoffPlaces = competition.LeagueTable.RelegationPlayoffPlaces,
+            PlayoffFormat = competition.LeagueTable.PlayoffFormat
         };
 
         CompetitionService.GenerateNextRoundOfFixtures(league);

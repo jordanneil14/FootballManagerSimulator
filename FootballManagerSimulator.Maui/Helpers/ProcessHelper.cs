@@ -255,7 +255,7 @@ public class ProcessHelper(
                     {
                         var leagueAbove = tiers[i - 1][0];
 
-                        foreach (var club in league.PromotedClubs(leagueAbove))
+                        foreach (var club in league.PromotedClubs())
                             clubsById[club.Id].LeagueId = leagueAbove.Id;
                     }
 
@@ -570,39 +570,7 @@ public class ProcessHelper(
         if (shieldClubIds != null)
             ApplyShieldQualifiers(shieldClubIds);
 
-        foreach (var league in State.Competitions.Where(p => p.Type.HasTwoLeggedPlayoffs()).Cast<LeagueModel>())
-        {
-            if (league.PlayoffPlaces <= 0 || RelegationPlayoffEvent.LeagueAbove(State, league) != null)
-                continue;
-
-            var lastBaseFixtureDate = league.Fixtures
-                .Where(p => p.FixtureType == FixtureType.Base)
-                .Max(p => p.Date);
-
-            var triggerDate = lastBaseFixtureDate.AddDays(1);
-
-            var playoffEvent = ActivatorUtilities.CreateInstance<EnglishFootballLeaguePlayoffEvent>(
-                ServiceProvider, triggerDate, false, league.Id);
-            EventManager.ValidateAndAddEvent(playoffEvent);
-        }
-
-        foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishNationalLeague).Cast<LeagueModel>())
-        {
-            if (league.PlayoffPlaces < 6)
-                continue;
-
-            var lastBaseFixtureDate = league.Fixtures
-                .Where(p => p.FixtureType == FixtureType.Base)
-                .Max(p => p.Date);
-
-            var triggerDate = lastBaseFixtureDate.AddDays(1);
-
-            var playoffEvent = ActivatorUtilities.CreateInstance<NationalLeaguePlayoffQuarterFinalEvent>(
-                ServiceProvider, triggerDate, false, league.Id);
-            EventManager.ValidateAndAddEvent(playoffEvent);
-        }
-
-        RelegationPlayoffEvent.ScheduleForLeagues(State, EventManager, ServiceProvider);
+        PlayoffScheduler.Schedule(State, EventManager, ServiceProvider);
         CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
 
         foreach (var competition in State.Competitions.Where(p => p.Type == CompetitionType.Friendly))

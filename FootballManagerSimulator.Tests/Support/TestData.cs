@@ -97,6 +97,25 @@ public static class TestData
         FixtureType = type
     };
 
+    /// <summary>
+    /// Settles every play-off of a skipped season so each division stays the right size: the given club
+    /// (by default the first in the play-off places) wins the final, two-legged where the format has one.
+    /// </summary>
+    public static void SettlePlayoffs(IState state, Func<LeagueModel, ClubModel>? winner = null)
+    {
+        foreach (var league in state.Competitions.OfType<LeagueModel>().Where(l => l.Rank > 1 && l.HasPlayoffs))
+        {
+            var club = winner?.Invoke(league) ?? league.GenerateLeagueTable().ElementAt(league.AutomaticPromotionPlaces).Club;
+            var opponent = league.Clubs.First(c => c.Id != club.Id);
+            var final = league.PlayoffFormat == PlayoffFormat.SerieB
+                ? Result(club, opponent, 1, 0, FixtureType.PlayoffSecondLeg)
+                : Result(club, opponent, 1, 0, FixtureType.PlayoffFinal);
+            final.Round = league.Fixtures.Max(f => f.Round) + 1;
+            final.ClubWon = club;
+            league.Fixtures.Add(final);
+        }
+    }
+
     /// <summary>A Cup competition whose draw dates the English league services exclude from their calendars.</summary>
     public static CupModel LeagueCup(params DateOnly[] fixtureDates) => new()
     {

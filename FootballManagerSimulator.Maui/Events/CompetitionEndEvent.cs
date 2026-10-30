@@ -41,7 +41,7 @@ public class CompetitionEndEvent(
         var leagueAbove = countryLeagues.Where(p => p.Rank < league.Rank).MaxBy(p => p.Rank);
         var leagueBelow = countryLeagues.Where(p => p.Rank > league.Rank).MinBy(p => p.Rank);
 
-        var promoted = leagueAbove != null ? league.PromotedClubs(leagueAbove) : [];
+        var promoted = leagueAbove != null ? league.PromotedClubs() : [];
         var relegated = leagueBelow != null ? league.RelegatedClubs(leagueBelow) : [];
 
         if (promoted.Count == 0 && relegated.Count == 0)

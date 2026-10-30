@@ -116,6 +116,7 @@ public class FullGameTests : IDisposable
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
         Assert.Equal(4, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count()); // English Divisions 2-4 and Spain Division 2
         Assert.Single(state.Events.OfType<RelegationPlayoffEvent>()); // Germany Division 1 v Division 2
+        Assert.Single(state.Events.OfType<SerieBPlayoffEvent>()); // Italy Division 2
         Assert.Equal(3, state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>().Count());
         Assert.Single(state.Events.OfType<ScottishPremiershipSplitEvent>());
 
@@ -300,6 +301,22 @@ public class FullGameTests : IDisposable
 
         Assert.NotEqual(division1, state.Clubs.Where(c => c.LeagueId == 1).Select(c => c.Id).ToHashSet());
         Assert.NotEqual(division2, state.Clubs.Where(c => c.LeagueId == 2).Select(c => c.Id).ToHashSet());
+    }
+
+    [Fact]
+    public void LoadingASaveFromBeforePlayoffFormats_GivesTheNationalLeagueItsFormat()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var nationalLeague = engine.State.Competitions.OfType<LeagueModel>().Where(l => l.Type == CompetitionType.EnglishNationalLeague).ToList();
+        Assert.Equal(3, nationalLeague.Count);
+        Assert.All(nationalLeague, l => l.PlayoffFormat = PlayoffFormat.TwoLeggedSemiFinals);
+        Assert.Equal("Game saved successfully.", engine.SaveGame("before-playoff-formats"));
+
+        Assert.Null(engine.LoadGame("before-playoff-formats.fms"));
+
+        Assert.All(engine.State.Competitions.OfType<LeagueModel>(), l => Assert.Equal(
+            l.Type == CompetitionType.EnglishNationalLeague ? PlayoffFormat.NationalLeague : _host.Settings.Competitions.Single(c => c.Id == l.Id).LeagueTable.PlayoffFormat,
+            l.PlayoffFormat));
     }
 
     [Fact]

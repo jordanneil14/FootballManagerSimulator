@@ -173,11 +173,11 @@ public class MatchSimulatorHelper(
             PopulateFirstLegScores(fixture, competition);
             var homeAgg = (fixture.GoalsHome ?? 0) + (fixture.FirstLegGoalsAway ?? 0);
             var awayAgg = (fixture.GoalsAway ?? 0) + (fixture.FirstLegGoalsHome ?? 0);
-            if (homeAgg != awayAgg)
+            if (homeAgg != awayAgg || LevelTieGoesToHigherPlacedClub(fixture, competition))
                 EndFixture(fixture, competition);
         }
         else if (fixture.FixtureType == FixtureType.PlayoffFinal ||
-                 (fixture.FixtureType == FixtureType.Playoff && competition.Type == CompetitionType.EnglishNationalLeague))
+                 (competition is LeagueModel league && league.IsOneOffPlayoffMatch(fixture)))
         {
             if (fixture.GoalsHome != fixture.GoalsAway)
                 EndFixture(fixture, competition);
@@ -385,6 +385,8 @@ public class MatchSimulatorHelper(
             fixture.ClubWon = fixture.HomeClub;
         else if (awayGoals > homeGoals)
             fixture.ClubWon = fixture.AwayClub;
+        else if (LevelTieGoesToHigherPlacedClub(fixture, competition))
+            fixture.ClubWon = ((LeagueModel)competition).HigherPlacedClub(fixture.HomeClub, fixture.AwayClub);
         else
             fixture.ClubWon = null;
 
@@ -417,7 +419,7 @@ public class MatchSimulatorHelper(
         if (won != true)
             return;
 
-        if (fixture.FixtureType == FixtureType.PlayoffFinal)
+        if (fixture.FixtureType == FixtureType.PlayoffFinal || (competition as LeagueModel)?.IsTwoLeggedPlayoffFinal(fixture) == true)
             State.ManagerHistory.AddTrophy($"{competition.Name} Play-off Final", fixture.Date);
         else if (IsCupFinal(fixture, competition))
             State.ManagerHistory.AddTrophy(competition.Name, fixture.Date);
@@ -545,6 +547,9 @@ public class MatchSimulatorHelper(
     {
         EndFixture(fixture, competition);
     }
+
+    private static bool LevelTieGoesToHigherPlacedClub(FixtureModel fixture, ICompetition competition) =>
+        competition is LeagueModel league && league.LevelTieGoesToHigherPlacedClub(fixture);
 
     public void PopulateFirstLegScores(FixtureModel secondLeg, ICompetition competition)
     {

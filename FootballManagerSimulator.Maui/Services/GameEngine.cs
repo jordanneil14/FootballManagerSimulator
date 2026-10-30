@@ -1190,6 +1190,10 @@ public class GameEngine(
             if (State.ManagerHistory.CurrentJob == null && myClub != null)
                 State.ManagerHistory.StartJob(myClub, State.Date);
 
+            // Saves from before play-off formats were a league setting played the National League's by its type.
+            foreach (var league in State.Competitions.OfType<LeagueModel>().Where(p => p.Type == CompetitionType.EnglishNationalLeague))
+                league.PlayoffFormat = PlayoffFormat.NationalLeague;
+
             // Saves from before academies existed hand every club its starting rating.
             foreach (var club in State.Clubs.Where(p => p.AcademyRating == 0))
             {

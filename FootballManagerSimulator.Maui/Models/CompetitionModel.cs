@@ -1,4 +1,6 @@
-﻿namespace FootballManagerSimulator.Maui.Models;
+﻿using FootballManagerSimulator.Maui.Enums;
+
+namespace FootballManagerSimulator.Maui.Models;
 public class CompetitionModel
 {
     public string Type { get; set; } = "";
@@ -14,6 +16,7 @@ public class CompetitionModel
         public int PlayoffPlaces { get; set; }
         public int RelegationPlaces { get; set; }
         public int RelegationPlayoffPlaces { get; set; }
+        public PlayoffFormat PlayoffFormat { get; set; }
         public int Places { get; set; }
     }
 

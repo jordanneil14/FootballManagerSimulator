@@ -34,13 +34,7 @@ public class GermanyDivisionTwoTests : IDisposable
     // Jumps to the season's end, settling the other countries' play-offs so each division stays the right size.
     private void EndTheSeason(IState state)
     {
-        foreach (var league in state.Competitions.OfType<LeagueModel>().Where(l => l.Rank > 1 && l.HasPlayoffs && l.CountryId != 3))
-        {
-            var winner = league.GenerateLeagueTable().ElementAt(league.AutomaticPromotionPlaces).Club;
-            var final = TestData.Result(winner, league.Clubs.First(c => c.Id != winner.Id), 1, 0, FixtureType.PlayoffFinal);
-            final.ClubWon = winner;
-            league.Fixtures.Add(final);
-        }
+        TestData.SettlePlayoffs(state);
 
         state.Date = new DateOnly(2027, 6, 29);
         _host.Get<IProcessHelper>().Process();

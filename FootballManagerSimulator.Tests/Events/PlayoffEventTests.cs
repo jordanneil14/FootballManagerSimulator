@@ -212,6 +212,7 @@ public class PlayoffEventTests : IDisposable
     {
         _league.AutomaticPromotionPlaces = 1;
         _league.PlayoffPlaces = 6;
+        _league.PlayoffFormat = PlayoffFormat.NationalLeague;
     }
 
     [Fact]

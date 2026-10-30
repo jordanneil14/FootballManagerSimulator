@@ -34,7 +34,8 @@ public class EnglishFootballLeagueProvider(
 			Year = State.Date.Year,
 			AutomaticPromotionPlaces = competition.LeagueTable.AutomaticPromotionPlaces,
 			PlayoffPlaces = competition.LeagueTable.PlayoffPlaces,
-			RelegationPlaces = competition.LeagueTable.RelegationPlaces
+			RelegationPlaces = competition.LeagueTable.RelegationPlaces,
+			PlayoffFormat = competition.LeagueTable.PlayoffFormat
 		};
 
 		CompetitionService.GenerateNextRoundOfFixtures(league);

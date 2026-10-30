@@ -2898,6 +2898,182 @@
       "LeagueId": 22,
       "Colour": "Purple/White",
       "StadiumSize": 15700
+    },
+    {
+      "ID": 368,
+      "Name": "Ciociaria Yellows",
+      "Stadium": "Frosinone Fields",
+      "LeagueId": 7,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 16200
+    },
+    {
+      "ID": 369,
+      "Name": "Brianza Reds",
+      "Stadium": "Brianteo Fields",
+      "LeagueId": 7,
+      "Colour": "Red/White",
+      "StadiumSize": 17100
+    },
+    {
+      "ID": 370,
+      "Name": "Chimera Maroons",
+      "Stadium": "Arezzo Fields",
+      "LeagueId": 23,
+      "Colour": "Maroon/White",
+      "StadiumSize": 13100
+    },
+    {
+      "ID": 371,
+      "Name": "Piceno Stripes",
+      "Stadium": "Del Duca Fields",
+      "LeagueId": 23,
+      "Colour": "Black/White",
+      "StadiumSize": 12500
+    },
+    {
+      "ID": 372,
+      "Name": "Irpinia Greens",
+      "Stadium": "Partenio Fields",
+      "LeagueId": 23,
+      "Colour": "Green/White",
+      "StadiumSize": 26000
+    },
+    {
+      "ID": 373,
+      "Name": "Sannio Witches",
+      "Stadium": "Benevento Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 16900
+    },
+    {
+      "ID": 374,
+      "Name": "Marble Blues",
+      "Stadium": "Carrara Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 4200
+    },
+    {
+      "ID": 375,
+      "Name": "Calabrian Eagles",
+      "Stadium": "Ceravolo Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Red",
+      "StadiumSize": 14700
+    },
+    {
+      "ID": 376,
+      "Name": "Romagna Seahorses",
+      "Stadium": "Manuzzi Fields",
+      "LeagueId": 23,
+      "Colour": "White/Black",
+      "StadiumSize": 20200
+    },
+    {
+      "ID": 377,
+      "Name": "Cremona Greys",
+      "Stadium": "Zini Fields",
+      "LeagueId": 23,
+      "Colour": "Grey/Red",
+      "StadiumSize": 20600
+    },
+    {
+      "ID": 378,
+      "Name": "Arno Blues",
+      "Stadium": "Empoli Fields",
+      "LeagueId": 23,
+      "Colour": "Blue/White",
+      "StadiumSize": 16300
+    },
+    {
+      "ID": 379,
+      "Name": "Scaligeri Yellows",
+      "Stadium": "Bentegodi Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 39200
+    },
+    {
+      "ID": 380,
+      "Name": "Stabia Wasps",
+      "Stadium": "Castellammare Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 7600
+    },
+    {
+      "ID": 381,
+      "Name": "Mincio Reds",
+      "Stadium": "Mantua Fields",
+      "LeagueId": 23,
+      "Colour": "Red/White",
+      "StadiumSize": 14900
+    },
+    {
+      "ID": 382,
+      "Name": "Modena Canaries",
+      "Stadium": "Braglia Fields",
+      "LeagueId": 23,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 21200
+    },
+    {
+      "ID": 383,
+      "Name": "Euganean Whites",
+      "Stadium": "Padua Fields",
+      "LeagueId": 23,
+      "Colour": "White/Red",
+      "StadiumSize": 32400
+    },
+    {
+      "ID": 384,
+      "Name": "Conca d'Oro Pinks",
+      "Stadium": "Barbera Fields",
+      "LeagueId": 23,
+      "Colour": "Pink/Black",
+      "StadiumSize": 36400
+    },
+    {
+      "ID": 385,
+      "Name": "Tower Blacks",
+      "Stadium": "Garibaldi Fields",
+      "LeagueId": 23,
+      "Colour": "Black/Blue",
+      "StadiumSize": 12500
+    },
+    {
+      "ID": 386,
+      "Name": "Ligurian Blues",
+      "Stadium": "Marassi Fields",
+      "LeagueId": 23,
+      "Colour": "Blue/White/Red/Black",
+      "StadiumSize": 33200
+    },
+    {
+      "ID": 387,
+      "Name": "South Tyrol Whites",
+      "Stadium": "Bolzano Fields",
+      "LeagueId": 23,
+      "Colour": "White/Red",
+      "StadiumSize": 5500
+    },
+    {
+      "ID": 388,
+      "Name": "Berici Reds",
+      "Stadium": "Vicenza Fields",
+      "LeagueId": 23,
+      "Colour": "Red/White",
+      "StadiumSize": 12000
+    },
+    {
+      "ID": 389,
+      "Name": "Chiavari Blues",
+      "Stadium": "Entella Fields",
+      "LeagueId": 23,
+      "Colour": "White/Blue",
+      "StadiumSize": 5500
     }
   ],
   "Countries": [
@@ -3036,7 +3212,7 @@
       "Type": "League",
       "Name": "Division 1",
       "LeagueTable": {
-        "Places": 18,
+        "Places": 20,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
         "RelegationPlaces": 3
@@ -3081,7 +3257,23 @@
         "Places": 18,
         "AutomaticPromotionPlaces": 2,
         "PlayoffPlaces": 1,
-        "RelegationPlaces": 0
+        "RelegationPlaces": 0,
+        "PlayoffFormat": "RelegationPlayoff"
+      }
+    },
+    {
+      "Id": 23,
+      "CountryId": 4,
+      "Rank": 2,
+      "IsLeague": true,
+      "Type": "League",
+      "Name": "Division 2",
+      "LeagueTable": {
+        "Places": 20,
+        "AutomaticPromotionPlaces": 2,
+        "PlayoffPlaces": 6,
+        "RelegationPlaces": 0,
+        "PlayoffFormat": "SerieB"
       }
     },
     {
@@ -3159,7 +3351,8 @@
         "Places": 24,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 6,
-        "RelegationPlaces": 4
+        "RelegationPlaces": 4,
+        "PlayoffFormat": "NationalLeague"
       }
     },
     {
@@ -3173,7 +3366,8 @@
         "Places": 24,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 6,
-        "RelegationPlaces": 0
+        "RelegationPlaces": 0,
+        "PlayoffFormat": "NationalLeague"
       }
     },
     {
@@ -3187,7 +3381,8 @@
         "Places": 24,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 6,
-        "RelegationPlaces": 0
+        "RelegationPlaces": 0,
+        "PlayoffFormat": "NationalLeague"
       }
     },
     {

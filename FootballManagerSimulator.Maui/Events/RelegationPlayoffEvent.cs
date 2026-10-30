@@ -1,7 +1,6 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -90,28 +89,9 @@ public class RelegationPlayoffEvent(
         return (true, "");
     }
 
-    // The league above, when this league's play-off place is a relegation play-off against it.
+    // The league above with a club in the relegation play-off.
     public static LeagueModel? LeagueAbove(IState state, LeagueModel league) =>
         state.Competitions
             .OfType<LeagueModel>()
             .FirstOrDefault(p => p.CountryId == league.CountryId && p.Rank == league.Rank - 1 && p.RelegationPlayoffPlaces > 0);
-
-    // Draws each tie the day after both leagues have finished.
-    public static void ScheduleForLeagues(IState state, IEventManager eventManager, IServiceProvider serviceProvider)
-    {
-        foreach (var lower in state.Competitions.OfType<LeagueModel>().Where(p => p.PlayoffPlaces > 0))
-        {
-            if (LeagueAbove(state, lower) is not { } upper)
-                continue;
-
-            var lastBaseFixtureDate = upper.Fixtures
-                .Concat(lower.Fixtures)
-                .Where(p => p.FixtureType == FixtureType.Base)
-                .Max(p => p.Date);
-
-            var playoffEvent = ActivatorUtilities.CreateInstance<RelegationPlayoffEvent>(
-                serviceProvider, lastBaseFixtureDate.AddDays(1), false, lower.Id);
-            eventManager.ValidateAndAddEvent(playoffEvent);
-        }
-    }
 }

@@ -602,7 +602,8 @@ else
             Engine.MatchSimulator.PopulateFirstLegScores(_fixture, _competition);
             var homeAgg = _displayedHomeGoals + (_fixture.FirstLegGoalsAway ?? 0);
             var awayAgg = _displayedAwayGoals + (_fixture.FirstLegGoalsHome ?? 0);
-            if (homeAgg == awayAgg)
+            var higherPlacedClubGoesThrough = (_competition as LeagueModel)?.LevelTieGoesToHigherPlacedClub(_fixture) == true;
+            if (homeAgg == awayAgg && !higherPlacedClubGoesThrough)
             {
                 Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture);
                 return MatchPhase.ExtraTimeBreak;
@@ -610,7 +611,7 @@ else
         }
 
         if ((_fixture?.FixtureType == FixtureType.PlayoffFinal ||
-             (_fixture?.FixtureType == FixtureType.Playoff && _competition?.Type == CompetitionType.EnglishNationalLeague))
+             (_competition is LeagueModel league && league.IsOneOffPlayoffMatch(_fixture!)))
             && _displayedHomeGoals == _displayedAwayGoals)
         {
             Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture!);

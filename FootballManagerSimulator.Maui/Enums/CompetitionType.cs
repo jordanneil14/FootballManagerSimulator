@@ -19,10 +19,6 @@ public static class CompetitionTypeExtensions
     public static bool IsKnockout(this CompetitionType type) =>
         type is CompetitionType.Cup or CompetitionType.EnglishFACup or CompetitionType.EnglishCommunityShield;
 
-    // Leagues whose play-off places (if any) go to two-legged semi-finals and a one-off final.
-    public static bool HasTwoLeggedPlayoffs(this CompetitionType type) =>
-        type is CompetitionType.EnglishFootballLeague or CompetitionType.League;
-
     // English cups played across the season, whose dates the English leagues keep clear.
     public static bool IsSeasonLongEnglishCup(this CompetitionType type) =>
         type is CompetitionType.Cup or CompetitionType.EnglishFACup;
