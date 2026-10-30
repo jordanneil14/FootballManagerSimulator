@@ -54,6 +54,15 @@ public class PlayerHelperTests
     }
 
     [Fact]
+    public void GetTransferValue_WithNoBirthDateOnRecordIsNotAdjustedForAge()
+    {
+        var player = TestData.Player(1, clubId: 1, rating: 80);
+        player.BirthDate = "";
+
+        Assert.Equal(80 * 135000, _helper.GetTransferValue(player));
+    }
+
+    [Fact]
     public void GetTransferValue_FallsWithAgeForTheSameRating()
     {
         _state.Date = new DateOnly(2027, 1, 1);

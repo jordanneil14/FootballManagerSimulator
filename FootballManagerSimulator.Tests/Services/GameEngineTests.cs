@@ -320,6 +320,28 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void IsPlayerSuspended_WhileAnySuspensionMatchesRemain()
+    {
+        var player = _state.Players.First(p => p.Contract?.ClubId == MyClub.Id);
+        Assert.False(_engine.IsPlayerSuspended(player.Id));
+
+        player.SuspensionMatches = 2;
+        Assert.True(_engine.IsPlayerSuspended(player.Id));
+
+        player.InjuryEndDate = _state.Date.AddDays(5);
+        player.SuspensionMatches = 0;
+        Assert.False(_engine.IsPlayerSuspended(player.Id));
+    }
+
+    [Fact]
+    public void AvailabilityChecks_AreFalseForAnUnknownPlayer()
+    {
+        Assert.False(_engine.IsPlayerSuspended(-1));
+        Assert.False(_engine.IsPlayerInjured(-1));
+        Assert.False(_engine.IsPlayerUnavailable(-1));
+    }
+
+    [Fact]
     public void IsPlayerUnavailable_CombinesSuspensionAndInjury()
     {
         var player = _state.Players.First(p => p.Contract?.ClubId == MyClub.Id);

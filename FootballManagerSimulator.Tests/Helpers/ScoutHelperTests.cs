@@ -32,6 +32,59 @@ public class ScoutHelperTests
         Assert.DoesNotContain(discovered, p => p.Contract?.ClubId == MyClub.Id);
     }
 
+    // My squad's 18 players are rated 60-64, averaging just under 61.9.
+    [Theory]
+    [InlineData(55, true)]
+    [InlineData(66, true)]
+    [InlineData(67, false)]
+    [InlineData(90, false)]
+    public void WillSign_RefusesPlayersMoreThan5AboveMySquadAverage(int rating, bool willSign)
+    {
+        var player = TestData.Player(1000, clubId: null, rating: rating);
+
+        Assert.Equal(willSign, _helper.WillSign(player));
+    }
+
+    [Fact]
+    public void WillSign_CountsOnlyMyBest20Players()
+    {
+        _state.Players.Add(TestData.Player(498, MyClub.Id, rating: 62));
+        _state.Players.Add(TestData.Player(499, MyClub.Id, rating: 62));
+        for (var i = 0; i < 10; i++)
+            _state.Players.Add(TestData.Player(500 + i, MyClub.Id, rating: 30));
+
+        Assert.True(_helper.WillSign(TestData.Player(1000, clubId: null, rating: 66)));
+    }
+
+    [Fact]
+    public void WillSign_RetiringPlayersNeverSign()
+    {
+        var player = TestData.Player(1000, clubId: null, rating: 40);
+        player.BirthDate = "01/01/1980";
+
+        Assert.False(_helper.WillSign(player));
+    }
+
+    [Fact]
+    public void WillSign_MyOwnPlayersAlwaysWill()
+    {
+        var player = TestData.Player(1000, MyClub.Id, rating: 90);
+
+        Assert.True(_helper.WillSign(player));
+    }
+
+    [Fact]
+    public void WillSign_AnyoneWillWhileIAmUnemployedOrMyClubHasNoPlayers()
+    {
+        var star = TestData.Player(1000, clubId: null, rating: 90);
+
+        _state.Players.RemoveAll(p => p.Contract?.ClubId == MyClub.Id);
+        Assert.True(_helper.WillSign(star));
+
+        _state.MyClubId = null;
+        Assert.True(_helper.WillSign(star));
+    }
+
     [Fact]
     public void HireScout_ChargesTheFirstMonthAndRespectsTheLimit()
     {
