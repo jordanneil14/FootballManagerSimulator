@@ -59,8 +59,8 @@ public class SerieBPlayoffEvent(
         foreach (var (home, away) in ties)
             league.Fixtures.Add(Fixture(home, away, round, date, new TimeOnly(15, 00), FixtureType.Playoff));
 
-        Notify(league, "Playoffs",
-            $"The {league.Name} playoff preliminaries have been drawn:\n" +
+        Notify(league, "Play-offs",
+            $"The {league.Name} play-off preliminaries have been drawn:\n" +
             string.Join("\n", ties.Select(t => $"{t.Item1.Name} v {t.Item2.Name}")) +
             $"\nFixtures will be played on {date:d MMMM yyyy}");
 
@@ -78,8 +78,8 @@ public class SerieBPlayoffEvent(
 
         var ties = DrawTwoLeggedRound(league, [(table[0], Winner(sixthVSeventh)), (table[1], Winner(fifthVEighth))]);
 
-        Notify(league, "Playoffs",
-            $"The {league.Name} playoff semi-finals have been drawn:\n" +
+        Notify(league, "Play-offs",
+            $"The {league.Name} play-off semi-finals have been drawn:\n" +
             string.Join("\n", ties.Select(t => $"{t.FirstLeg.HomeClub.Name} v {t.FirstLeg.AwayClub.Name}")) +
             $"\n1st Leg: {ties[0].FirstLeg.Date:d MMMM yyyy}\n2nd Leg: {ties[0].SecondLeg.Date:d MMMM yyyy}");
 
@@ -98,8 +98,8 @@ public class SerieBPlayoffEvent(
 
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, final.SecondLeg.Date, CompetitionId);
 
-        Notify(league, "Playoff Final",
-            $"The {league.Name} playoff final has been set:\n" +
+        Notify(league, "Play-off Final",
+            $"The {league.Name} play-off final has been set:\n" +
             $"{final.FirstLeg.HomeClub.Name} v {final.FirstLeg.AwayClub.Name}\n" +
             $"1st Leg: {final.FirstLeg.Date:d MMMM yyyy}\n2nd Leg: {final.SecondLeg.Date:d MMMM yyyy}");
     }

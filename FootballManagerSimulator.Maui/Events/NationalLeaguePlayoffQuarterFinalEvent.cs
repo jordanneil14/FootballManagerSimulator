@@ -69,7 +69,7 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
         competition.Fixtures.Add(eliminator1);
         competition.Fixtures.Add(eliminator2);
 
-        var message = $"The {competition.Name} playoff eliminators have been drawn:\n" +
+        var message = $"The {competition.Name} play-off eliminators have been drawn:\n" +
             $"{eliminator1.HomeClub.Name} v {eliminator1.AwayClub.Name}\n" +
             $"{eliminator2.HomeClub.Name} v {eliminator2.AwayClub.Name}\n" +
             $"Fixtures will be played on {nextSaturday:d MMMM yyyy}";
@@ -77,7 +77,7 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Playoffs",
+            $"{competition.Name} Play-offs",
             message);
 
         var semiTriggerDate = nextSaturday.AddDays(1);

@@ -73,7 +73,7 @@ public class NationalLeaguePlayoffSemiFinalEvent(
         competition.Fixtures.Add(semi1);
         competition.Fixtures.Add(semi2);
 
-        var message = $"The {competition.Name} playoff semi-finals:\n" +
+        var message = $"The {competition.Name} play-off semi-finals:\n" +
             $"{semi1.HomeClub.Name} v {semi1.AwayClub.Name}\n" +
             $"{semi2.HomeClub.Name} v {semi2.AwayClub.Name}\n" +
             $"Fixtures will be played on {nextTuesday:d MMMM yyyy}";
@@ -81,7 +81,7 @@ public class NationalLeaguePlayoffSemiFinalEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Playoffs",
+            $"{competition.Name} Play-offs",
             message);
 
         var finalTriggerDate = nextTuesday.AddDays(1);

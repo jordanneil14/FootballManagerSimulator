@@ -73,14 +73,14 @@ public class RelegationPlayoffEvent(
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, nextTuesday, upper.Id);
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, nextTuesday, lower.Id);
 
-        var message = $"{upperClub.Name} ({upper.Name}) will face {lowerClub.Name} ({lower.Name}) in the relegation playoff, with a place in {upper.Name} at stake:\n" +
+        var message = $"{upperClub.Name} ({upper.Name}) will face {lowerClub.Name} ({lower.Name}) in the relegation play-off, with a place in {upper.Name} at stake:\n" +
             $"1st Leg: {upperClub.Name} v {lowerClub.Name}, {nextSaturday:d MMMM yyyy}\n" +
             $"2nd Leg: {lowerClub.Name} v {upperClub.Name}, {nextTuesday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{upper.Name} Relegation Playoff",
+            $"{upper.Name} Relegation Play-off",
             message);
     }
 

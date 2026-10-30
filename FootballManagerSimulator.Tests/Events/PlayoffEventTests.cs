@@ -95,7 +95,7 @@ public class PlayoffEventTests : IDisposable
 
         Run<EnglishFootballLeaguePlayoffEvent>();
 
-        var notification = Assert.Single(State.Notifications, n => n.Subject == "League 1 Playoffs");
+        var notification = Assert.Single(State.Notifications, n => n.Subject == "League 1 Play-offs");
         Assert.Contains("Club 3 v Club 6\nClub 4 v Club 5", notification.Message);
         Assert.Contains("1st Leg: 8 May 2027", notification.Message);
         Assert.Contains("2nd Leg: 11 May 2027", notification.Message);
@@ -167,7 +167,7 @@ public class PlayoffEventTests : IDisposable
         Assert.Equal((6, 4), Ids(final));
         Assert.Equal((new DateOnly(2027, 5, 15), new TimeOnly(15, 0), LastLeagueRound + 2), (final.Date, final.KickOffTime, final.Round));
         var notification = Assert.Single(State.Notifications);
-        Assert.Equal("League 1 Playoff Final", notification.Subject);
+        Assert.Equal("League 1 Play-off Final", notification.Subject);
         Assert.Contains("Club 6 v Club 4", notification.Message);
         Assert.Contains("15 May 2027", notification.Message);
     }
@@ -225,7 +225,7 @@ public class PlayoffEventTests : IDisposable
         var eliminators = Fixtures(FixtureType.Playoff);
         Assert.Equal([(5, 6), (4, 7)], eliminators.Select(Ids));
         Assert.All(eliminators, f => Assert.Equal((Saturday, new TimeOnly(15, 0), LastLeagueRound + 1), (f.Date, f.KickOffTime, f.Round)));
-        var notification = Assert.Single(State.Notifications, n => n.Subject == "League 1 Playoffs");
+        var notification = Assert.Single(State.Notifications, n => n.Subject == "League 1 Play-offs");
         Assert.Contains("Club 5 v Club 6\nClub 4 v Club 7", notification.Message);
         var semis = Assert.Single(State.Events.OfType<NationalLeaguePlayoffSemiFinalEvent>());
         Assert.Equal(Saturday.AddDays(1), semis.TriggerDate);

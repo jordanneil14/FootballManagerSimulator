@@ -1,5 +1,6 @@
 @page "/league-table"
 @page "/league-table/{Id:int}"
+@page "/league-table/{Id:int}/{View}"
 @layout GameLayout
 @inject GameEngine Engine
 @inject NavigationManager Nav
@@ -12,29 +13,86 @@
     var competition = Engine.State.Competitions.FirstOrDefault(p => p.Id == selectedId);
     var league = competition as LeagueModel;
     var cup = competition as CupModel;
+    var countryId = CountryId(selectedId);
+    var playoffLeague = league == null ? null : PlayoffLeague(league);
+    var showPlayoffs = playoffLeague != null && View == PlayoffsView;
 }
 
 <div class="page-head">
     <div>
         <h1>@CountryFlag(selectedId) @(competition?.Name ?? "Competitions")</h1>
-        <div class="subtitle">@(league != null ? "Standings" : "Draw")</div>
+        <div class="subtitle">@(league == null ? "Draw" : showPlayoffs ? "Play-offs" : "Standings")</div>
     </div>
 </div>
 
 <div class="league-select">
-    <select class="input" value="@selectedId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="Competition">
-        @foreach (var l in Engine.Leagues.OrderBy(p => p.Rank))
+    <select class="input" value="@countryId" @onchange="e => SelectCountry(int.Parse(e.Value!.ToString()!))" aria-label="Country">
+        @foreach (var country in Countries())
         {
-            <option value="@l.Id" selected="@(l.Id == selectedId)">@CountryName(l.Id) - @l.Name</option>
-        }
-        @foreach (var c in Engine.State.Competitions.Where(p => !p.IsLeague && p.Type != CompetitionType.Friendly))
-        {
-            <option value="@c.Id" selected="@(c.Id == selectedId)">@CompetitionLabel(c)</option>
+            <option value="@country.Id" selected="@(country.Id == countryId)">@country.Name</option>
         }
     </select>
+
+    <select class="input" value="@selectedId" @onchange='e => Nav.NavigateTo($"/league-table/{e.Value}")' aria-label="Competition">
+        @foreach (var c in CompetitionsIn(countryId))
+        {
+            <option value="@c.Id" selected="@(c.Id == selectedId)">@c.Name</option>
+        }
+    </select>
+
+    @if (playoffLeague != null)
+    {
+        <select class="input" value="@(showPlayoffs ? PlayoffsView : TableView)" @onchange='e => Nav.NavigateTo($"/league-table/{selectedId}/{e.Value}")' aria-label="View">
+            <option value="@TableView" selected="@(!showPlayoffs)">League Table</option>
+            <option value="@PlayoffsView" selected="@showPlayoffs">Play-offs</option>
+        </select>
+    }
 </div>
 
-@if (league != null)
+@if (league != null && playoffLeague != null && showPlayoffs)
+{
+    var rounds = playoffLeague.Fixtures
+        .Where(f => f.FixtureType is FixtureType.Playoff or FixtureType.PlayoffSecondLeg or FixtureType.PlayoffFinal)
+        .GroupBy(f => f.Round)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    @if (!rounds.Any())
+    {
+        var contenders = PlayoffContenders(league);
+        <p class="muted">The play-offs are drawn once the season ends. In the play-off places now:</p>
+        <div class="table-wrap">
+            <table class="data">
+                <tbody>
+                    @foreach (var (position, club, leagueName) in contenders)
+                    {
+                        <tr class="clickable @(club.Id == Engine.State.MyClubId ? "highlight" : "")" @onclick='() => Nav.NavigateTo($"/club/{club.Id}")'>
+                            <td class="num">@position</td>
+                            <td><strong>@club.Name</strong></td>
+                            <td class="muted">@leagueName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        var roundNames = PlayoffRoundNames(playoffLeague.PlayoffFormat);
+        @for (var r = 0; r < rounds.Count; r++)
+        {
+            var round = rounds[r];
+            <div class="fixture-block">
+                <div class="fixture-block-head">@(r < roundNames.Length ? roundNames[r] : $"Round {r + 1}")</div>
+                @foreach (var f in round.OrderBy(f => f.Date).ThenBy(f => f.KickOffTime))
+                {
+                    @FixtureRow(f, LegLabel(f, round), Aggregate(f, playoffLeague))
+                }
+            </div>
+        }
+    }
+}
+else if (league != null)
 {
     var table = league.GenerateLeagueTable().ToList();
     <div class="table-wrap">
@@ -89,24 +147,7 @@ else if (cup != null)
                 <div class="fixture-block-head">Round @round.Key</div>
                 @foreach (var f in round.OrderBy(f => f.Date).ThenBy(f => f.KickOffTime))
                 {
-                    var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
-                    <div class="fixture-row @(mine ? "mine" : "")">
-                        <div class="fixture-row-border"></div>
-                        <div class="fixture-row-inner">
-                            <span class="fixture-team home">@f.HomeClub.Name</span>
-                            <span class="fixture-score">
-                                @if (f.Concluded)
-                                {
-                                    <strong>@f.GoalsHome - @f.GoalsAway</strong>
-                                }
-                                else
-                                {
-                                    <span class="fixture-time">@f.Date.ToString("dd MMM")</span>
-                                }
-                            </span>
-                            <span class="fixture-team away">@f.AwayClub.Name</span>
-                        </div>
-                    </div>
+                    @FixtureRow(f, null, null)
                 }
             </div>
         }
@@ -119,6 +160,10 @@ else
 
 @code {
     [Parameter] public int? Id { get; set; }
+    [Parameter] public string? View { get; set; }
+
+    private const string TableView = "table";
+    private const string PlayoffsView = "playoffs";
 
     private SettingsModel Settings => SettingsOptions.Value;
 
@@ -136,22 +181,124 @@ else
         ["Turkey"] = "🇹🇷",
     };
 
+    private RenderFragment FixtureRow(FixtureModel f, string? note, string? aggregate) => __builder =>
+    {
+        var mine = f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId;
+        <div class="fixture-row @(mine ? "mine" : "")">
+            <div class="fixture-row-border"></div>
+            <div class="fixture-row-inner">
+                <span class="fixture-team home">@f.HomeClub.Name</span>
+                <span class="fixture-score">
+                    @if (f.Concluded)
+                    {
+                        <strong>@f.GoalsHome - @f.GoalsAway</strong>
+                    }
+                    else
+                    {
+                        <span class="fixture-time">@f.Date.ToString("dd MMM")</span>
+                    }
+                </span>
+                <span class="fixture-team away">@f.AwayClub.Name</span>
+                @if (note != null || aggregate != null)
+                {
+                    <span class="fixture-note">@string.Join(" · ", new[] { note, aggregate }.Where(s => s != null))</span>
+                }
+            </div>
+        </div>
+    };
+
+    // Countries with a competition to show, in the order settings lists them.
+    private IEnumerable<SettingsModel.IdNameModel> Countries()
+    {
+        var withCompetitions = Engine.State.Competitions
+            .Where(p => p.Type != CompetitionType.Friendly)
+            .Select(p => CountryId(p.Id))
+            .ToHashSet();
+        return Settings.Countries.Where(c => withCompetitions.Contains(c.Id));
+    }
+
+    // Leagues from the top down, then the cups.
+    private IEnumerable<ICompetition> CompetitionsIn(int countryId) =>
+        Engine.Leagues.Where(p => p.CountryId == countryId).OrderBy(p => p.Rank).ThenBy(p => p.Id)
+            .Concat<ICompetition>(Engine.State.Competitions.Where(p => !p.IsLeague && p.Type != CompetitionType.Friendly && CountryId(p.Id) == countryId));
+
+    // Opens the country at your own league if you play there, otherwise at its top competition.
+    private void SelectCountry(int countryId)
+    {
+        var mine = Engine.Leagues.FirstOrDefault(p => p.Id == Engine.CurrentClub?.LeagueId && p.CountryId == countryId);
+        var target = mine ?? CompetitionsIn(countryId).FirstOrDefault();
+        if (target != null)
+            Nav.NavigateTo($"/league-table/{target.Id}");
+    }
+
+    private int CountryId(int competitionId) =>
+        Settings.Competitions.FirstOrDefault(p => p.Id == competitionId)?.CountryId ?? 0;
+
     private string CountryFlag(int competitionId)
     {
-        var name = CountryName(competitionId);
+        var name = Settings.Countries.FirstOrDefault(c => c.Id == CountryId(competitionId))?.Name ?? "";
         return CountryFlags.TryGetValue(name, out var flag) ? flag : "🏳️";
     }
 
-    private string CountryName(int competitionId)
+    // The league holding the play-off fixtures this league's clubs play in: its own, or for a league
+    // whose relegation play-off place faces the league below, that league's.
+    private LeagueModel? PlayoffLeague(LeagueModel league)
     {
-        var countryId = Settings.Competitions.FirstOrDefault(p => p.Id == competitionId)?.CountryId;
-        return Settings.Countries.FirstOrDefault(c => c.Id == countryId)?.Name ?? "";
+        if (league.HasPlayoffEvent)
+            return league;
+
+        if (league.RelegationPlayoffPlaces > 0)
+            return Engine.Leagues.FirstOrDefault(p => p.CountryId == league.CountryId && p.Rank == league.Rank + 1
+                && p.PlayoffFormat == PlayoffFormat.RelegationPlayoff);
+
+        return null;
     }
 
-    private string CompetitionLabel(ICompetition competition)
+    // Before the draw: the clubs in the play-off places, including the other league's side of a relegation play-off.
+    private List<(int Position, ClubModel Club, string League)> PlayoffContenders(LeagueModel league)
     {
-        var country = CountryName(competition.Id);
-        return string.IsNullOrEmpty(country) ? competition.Name : $"{country} - {competition.Name}";
+        var leagues = new[] { league }
+            .Concat(Engine.Leagues.Where(p => p.CountryId == league.CountryId && Math.Abs(p.Rank - league.Rank) == 1
+                && (p.PlayoffFormat == PlayoffFormat.RelegationPlayoff && p.Rank > league.Rank && league.RelegationPlayoffPlaces > 0
+                    || league.PlayoffFormat == PlayoffFormat.RelegationPlayoff && p.Rank < league.Rank && p.RelegationPlayoffPlaces > 0)))
+            .OrderBy(p => p.Rank);
+
+        return leagues
+            .SelectMany(l => l.GenerateLeagueTable()
+                .Select((row, i) => (Position: i + 1, row.Club, League: l.Name, Zone: ZoneClass(i + 1, l.Id)))
+                .Where(p => p.Zone == "zone-playoff")
+                .Select(p => (p.Position, p.Club, p.League)))
+            .ToList();
+    }
+
+    private static string[] PlayoffRoundNames(PlayoffFormat format) => format switch
+    {
+        PlayoffFormat.SerieB => ["Preliminary Round", "Semi-finals", "Final"],
+        PlayoffFormat.NationalLeague => ["Eliminators", "Semi-finals", "Final"],
+        PlayoffFormat.RelegationPlayoff => ["Relegation Play-off"],
+        _ => ["Semi-finals", "Final"]
+    };
+
+    // Two-legged ties label their legs; one-off matches need no label.
+    private static string? LegLabel(FixtureModel fixture, IEnumerable<FixtureModel> round) =>
+        fixture.FixtureType == FixtureType.PlayoffSecondLeg ? "2nd leg"
+        : fixture.FixtureType == FixtureType.Playoff && round.Any(p => p.FixtureType == FixtureType.PlayoffSecondLeg
+            && p.HomeClub.Id == fixture.AwayClub.Id && p.AwayClub.Id == fixture.HomeClub.Id) ? "1st leg"
+        : null;
+
+    private static string? Aggregate(FixtureModel fixture, LeagueModel league)
+    {
+        if (fixture.FixtureType != FixtureType.PlayoffSecondLeg || !fixture.Concluded)
+            return null;
+
+        var firstLeg = league.Fixtures.FirstOrDefault(p => p.FixtureType == FixtureType.Playoff && p.Concluded
+            && p.HomeClub.Id == fixture.AwayClub.Id && p.AwayClub.Id == fixture.HomeClub.Id);
+        if (firstLeg == null)
+            return null;
+
+        var home = (fixture.GoalsHome ?? 0) + (firstLeg.GoalsAway ?? 0);
+        var away = (fixture.GoalsAway ?? 0) + (firstLeg.GoalsHome ?? 0);
+        return fixture.ClubWon is { } winner ? $"agg {home}-{away}, {winner.Name} through" : $"agg {home}-{away}";
     }
 
     private string ZoneClass(int position, int leagueId)

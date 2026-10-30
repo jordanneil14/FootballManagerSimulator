@@ -93,7 +93,7 @@ public class EnglishFootballLeaguePlayoffEvent(
         competition.Fixtures.Add(semiFinal1Leg2);
         competition.Fixtures.Add(semiFinal2Leg2);
 
-        var message = $"The {competition.Name} playoff semi-finals have been drawn:\n" +
+        var message = $"The {competition.Name} play-off semi-finals have been drawn:\n" +
             $"{semiFinal1Leg1.HomeClub.Name} v {semiFinal1Leg1.AwayClub.Name}\n" +
             $"{semiFinal2Leg1.HomeClub.Name} v {semiFinal2Leg1.AwayClub.Name}\n" +
             $"1st Leg: {nextSaturday:d MMMM yyyy}\n" +
@@ -102,7 +102,7 @@ public class EnglishFootballLeaguePlayoffEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Playoffs",
+            $"{competition.Name} Play-offs",
             message);
 
         var finalTriggerDate = nextTuesday.AddDays(1);

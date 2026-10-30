@@ -69,14 +69,14 @@ public class EnglishFootballLeaguePlayoffFinalEvent(
         competition.Fixtures.Add(final);
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, final.Date, CompetitionId);
 
-        var message = $"The {competition.Name} playoff final has been set:\n" +
+        var message = $"The {competition.Name} play-off final has been set:\n" +
             $"{final.HomeClub.Name} v {final.AwayClub.Name}\n" +
             $"The match will be played on {nextSaturday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Playoff Final",
+            $"{competition.Name} Play-off Final",
             message);
     }
 

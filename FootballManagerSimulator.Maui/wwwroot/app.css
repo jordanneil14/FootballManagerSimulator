@@ -146,8 +146,8 @@ p { color: var(--text-dim); line-height: 1.55; }
 }
 .input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
-.league-select { margin-bottom: 1.2rem; max-width: 320px; }
-.league-select .input { cursor: pointer; }
+.league-select { margin-bottom: 1.2rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+.league-select .input { cursor: pointer; flex: 1 1 180px; max-width: 260px; }
 
 .steps { display: flex; gap: .5rem; justify-content: center; margin-bottom: 1.6rem; }
 .step-dot { width: 26px; height: 6px; border-radius: 3px; background: var(--panel-3); }
@@ -581,6 +581,14 @@ tr.injured td:nth-child(2) > .pname-text { color: var(--text-faint); text-decora
     color: var(--text-faint);
     font-weight: 600;
     font-size: .85rem;
+}
+/* A line under the teams and score, e.g. a play-off leg and aggregate. */
+.fixture-note {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-faint);
+    font-weight: 600;
+    font-size: .78rem;
 }
 /* ---------- Progress bar ---------- */
 .progress-bar {
