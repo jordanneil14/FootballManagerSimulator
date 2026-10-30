@@ -5,7 +5,6 @@ namespace FootballManagerSimulator.Maui.Interfaces;
 public interface IScoutHelper
 {
     void SeedDiscoveredPlayers();
-    void EnsureDiscoveredPlayers();
     IEnumerable<PlayerModel> DiscoveredPlayers();
     bool WillSign(PlayerModel player);
     bool MatchesAssignment(PlayerModel player, ScoutAssignmentModel assignment);

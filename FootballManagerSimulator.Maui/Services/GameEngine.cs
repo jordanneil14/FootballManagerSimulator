@@ -935,9 +935,6 @@ public class GameEngine(
 
         try
         {
-            if (string.IsNullOrEmpty(State.CareerId))
-                State.CareerId = NewCareerId();
-
             WriteSave(Path.Combine(SaveDirectory, AutosaveFileName));
             return true;
         }
@@ -1179,27 +1176,9 @@ public class GameEngine(
             State.ShowTransferNotifications = deserialised.ShowTransferNotifications;
             State.ShowManagerNotifications = deserialised.ShowManagerNotifications;
             State.MatchInProgress = false;
-            // Saves from before autosave existed get their own slot from here on.
-            State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;
+            State.CareerId = deserialised.CareerId;
 
             RelinkClubs();
-            gameFactory.AddClubsMissingFromSave();
-
-            // Saves from before the manager history existed start the record from today.
-            var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);
-            if (State.ManagerHistory.CurrentJob == null && myClub != null)
-                State.ManagerHistory.StartJob(myClub, State.Date);
-
-            // Saves from before play-off formats were a league setting played the National League's by its type.
-            foreach (var league in State.Competitions.OfType<LeagueModel>().Where(p => p.Type == CompetitionType.EnglishNationalLeague))
-                league.PlayoffFormat = PlayoffFormat.NationalLeague;
-
-            // Saves from before academies existed hand every club its starting rating.
-            foreach (var club in State.Clubs.Where(p => p.AcademyRating == 0))
-            {
-                var leagueRank = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == club.LeagueId)?.Rank ?? 1;
-                club.AcademyRating = AcademyRules.StartingRating(leagueRank);
-            }
 
             State.Events.Clear();
             if (eventsJson != null)

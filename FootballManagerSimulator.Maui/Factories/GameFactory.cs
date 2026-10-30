@@ -159,27 +159,6 @@ public class GameFactory(
         CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
     }
 
-    // Clubs added to settings after a save was made (e.g. a new division) join that save with fresh squads.
-    // Their league is built at the next new season, like every other competition.
-    public void AddClubsMissingFromSave()
-    {
-        var known = State.Clubs.Select(p => p.Id).ToHashSet();
-        var missing = Settings.Clubs.Where(p => !known.Contains(p.Id)).Select(NewClub).ToList();
-        if (missing.Count == 0)
-            return;
-
-        State.Clubs.AddRange(missing);
-        var players = StockClubs(missing, new PlayerGenerator.PlayerGenerator(), State.Date.ToString("yyyy-MM-dd"));
-
-        var nextId = State.Players.Count == 0 ? 1 : State.Players.Max(p => p.Id) + 1;
-        foreach (var player in players)
-            player.Id = nextId++;
-        State.Players.AddRange(players);
-
-        foreach (var club in missing)
-            ResetTactics(club);
-    }
-
     private static ClubModel NewClub(ClubModel settingsClub) => new()
     {
         Id = settingsClub.Id,

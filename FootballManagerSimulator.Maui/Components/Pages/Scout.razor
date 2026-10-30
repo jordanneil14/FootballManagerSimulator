@@ -229,8 +229,6 @@
         public bool OnlyWillSign { get; set; } = true;
     }
 
-    protected override void OnInitialized() => Scouts.EnsureDiscoveredPlayers();
-
     // Players can have several positions ("CAM/CM"), so list each one on its own.
     private IEnumerable<string> Positions() => Engine.State.Players
         .SelectMany(p => p.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))

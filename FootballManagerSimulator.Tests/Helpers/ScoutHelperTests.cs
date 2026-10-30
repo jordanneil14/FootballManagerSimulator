@@ -241,37 +241,6 @@ public class ScoutHelperTests
     }
 
     [Fact]
-    public void EnsureDiscoveredPlayers_GivesAnOlderSaveAStartingPool()
-    {
-        _state.DiscoveredPlayerIds.Clear();
-
-        _helper.EnsureDiscoveredPlayers();
-
-        Assert.NotEmpty(_state.DiscoveredPlayerIds);
-    }
-
-    [Fact]
-    public void EnsureDiscoveredPlayers_KeepsAnExistingPool()
-    {
-        _state.DiscoveredPlayerIds = [_state.Players[^1].Id];
-
-        _helper.EnsureDiscoveredPlayers();
-
-        Assert.Equal([_state.Players[^1].Id], _state.DiscoveredPlayerIds);
-    }
-
-    [Fact]
-    public void EnsureDiscoveredPlayers_DoesNothingWithNoPlayers()
-    {
-        _state.Players.Clear();
-        _state.DiscoveredPlayerIds.Clear();
-
-        _helper.EnsureDiscoveredPlayers();
-
-        Assert.Empty(_state.DiscoveredPlayerIds);
-    }
-
-    [Fact]
     public void HireScout_RefusedWhileUnemployed()
     {
         _state.MyClubId = null;

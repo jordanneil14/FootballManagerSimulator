@@ -4,5 +4,4 @@ public interface IGameFactory
 {
 	void FinaliseGameState();
 	void IntitialiseGameState();
-	void AddClubsMissingFromSave();
 }

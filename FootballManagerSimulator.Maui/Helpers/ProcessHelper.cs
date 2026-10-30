@@ -501,7 +501,6 @@ public class ProcessHelper(
     }
 
     // Last season's top-flight champions face the FA Cup winners; a double winner faces the league runners-up.
-    // A season without an FA Cup winner (e.g. one begun on a save from before it existed) uses the League Cup's.
     private List<int>? ShieldQualifierIds()
     {
         var shield = Settings.Competitions.FirstOrDefault(p => p.Type == CompetitionType.EnglishCommunityShield.ToString());
@@ -515,8 +514,7 @@ public class ProcessHelper(
         if (table == null || table.Count < 2)
             return null;
 
-        var cupWinnerId = CupWinnerId(CompetitionType.EnglishFACup, shield.CountryId)
-            ?? CupWinnerId(CompetitionType.Cup, shield.CountryId);
+        var cupWinnerId = CupWinnerId(CompetitionType.EnglishFACup, shield.CountryId);
 
         var champions = table[0];
         var opponent = cupWinnerId is { } winner && winner != champions ? winner : table[1];

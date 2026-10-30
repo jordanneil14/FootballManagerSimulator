@@ -38,13 +38,6 @@ public class ScoutHelper(
         State.DiscoveredPlayerIds = chosen.Select(p => p.Id).ToList();
     }
 
-    // Saves from before scouting existed start with a fresh pool.
-    public void EnsureDiscoveredPlayers()
-    {
-        if (State.DiscoveredPlayerIds.Count == 0 && State.Players.Count > 0)
-            SeedDiscoveredPlayers();
-    }
-
     // Retired players and your own squad are left out.
     public IEnumerable<PlayerModel> DiscoveredPlayers()
     {

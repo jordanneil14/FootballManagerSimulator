@@ -304,22 +304,6 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
-    public void LoadingASaveFromBeforePlayoffFormats_GivesTheNationalLeagueItsFormat()
-    {
-        var engine = _host.StartNewGame(clubId: 9);
-        var nationalLeague = engine.State.Competitions.OfType<LeagueModel>().Where(l => l.Type == CompetitionType.EnglishNationalLeague).ToList();
-        Assert.Equal(3, nationalLeague.Count);
-        Assert.All(nationalLeague, l => l.PlayoffFormat = PlayoffFormat.TwoLeggedSemiFinals);
-        Assert.Equal("Game saved successfully.", engine.SaveGame("before-playoff-formats"));
-
-        Assert.Null(engine.LoadGame("before-playoff-formats.fms"));
-
-        Assert.All(engine.State.Competitions.OfType<LeagueModel>(), l => Assert.Equal(
-            l.Type == CompetitionType.EnglishNationalLeague ? PlayoffFormat.NationalLeague : _host.Settings.Competitions.Single(c => c.Id == l.Id).LeagueTable.PlayoffFormat,
-            l.PlayoffFormat));
-    }
-
-    [Fact]
     public void SaveAndLoad_RestoresTheGameIncludingScheduledEvents()
     {
         var engine = _host.StartNewGame(clubId: 9);

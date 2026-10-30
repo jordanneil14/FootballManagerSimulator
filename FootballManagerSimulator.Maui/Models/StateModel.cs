@@ -17,7 +17,7 @@ public class StateModel : IState
 
     public List<ICompetition> Competitions { get; set; } = new List<ICompetition>();
     // Not saved: release builds trim the Stack<T> members Newtonsoft needs to rebuild it, so
-    // loading failed. Older saves that still contain it load fine because it is ignored.
+    // loading would fail.
     [Newtonsoft.Json.JsonIgnore]
     public Stack<ScreenModel> ScreenStack { get; set; } = new Stack<ScreenModel>();
     public PreviewModel Preview { get; set; } = new PreviewModel();

@@ -350,16 +350,4 @@ public class CommunityShieldQualificationTests : IDisposable
 
         Assert.Equal([champions, faCupWinners], ShieldClubIds(engine));
     }
-
-    [Fact]
-    public void WithoutAnFACupTheShieldFallsBackToTheLeagueCupWinners()
-    {
-        var engine = _host.StartNewGame(clubId: 9);
-        var (champions, leagueCupWinners, _) = SetUpTheSeason(engine);
-        engine.State.Competitions.RemoveAll(c => c.Type == CompetitionType.EnglishFACup); // a save from before the FA Cup
-
-        EndTheSeason(engine);
-
-        Assert.Equal([champions, leagueCupWinners], ShieldClubIds(engine));
-    }
 }

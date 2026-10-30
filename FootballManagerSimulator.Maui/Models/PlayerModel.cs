@@ -43,7 +43,7 @@ public class PlayerModel : IPerson
     public bool IsRetiring(DateOnly onDate) => GetAge(onDate) >= RetirementAge;
 
     // The 30 June the player's last contract ran out. Only meaningful while Contract is null; free agents
-    // from the start of the game (or an older save) get the date at the first 30 June they're seen.
+    // from the start of the game get the date at the first 30 June they're seen.
     public DateOnly? FreeAgentSince { get; set; }
 
     // A free agent who goes a whole season without a club gives up and leaves the game.

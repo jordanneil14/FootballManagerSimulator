@@ -892,17 +892,6 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
-    public void LoadGame_GivesClubsFromOlderSavesAStartingAcademyRating()
-    {
-        _state.Clubs.ForEach(c => c.AcademyRating = 0);
-        _engine.SaveGame("before-academies");
-
-        Assert.Null(_engine.LoadGame("before-academies.fms"));
-
-        Assert.All(_state.Clubs, c => Assert.InRange(c.AcademyRating, AcademyRules.Min, AcademyRules.StartingMax));
-    }
-
-    [Fact]
     public void RenewContract_ExtendsFromTheEndOfTheCurrentSeason()
     {
         var mine = PlayerAt(1); // contracted until June 2028
@@ -1091,40 +1080,11 @@ public class GameEngineTests : IDisposable
         Assert.NotNull(_engine.LoadGame("does-not-exist.fms"));
 
     [Fact]
-    public void LoadGame_ReadsOlderSavesThatHoldFullClubCopiesInFixtures()
-    {
-        var league = TestData.League(1, _state.Clubs);
-        _state.Competitions.Add(league);
-        league.Fixtures.Add(new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], ClubWon = MyClub, Concluded = true, GoalsHome = 2, GoalsAway = 1 });
-
-        // The old format: every club serialized in full wherever it appears.
-        var oldJson = Newtonsoft.Json.JsonConvert.SerializeObject(_state,
-            new Newtonsoft.Json.JsonSerializerSettings { TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto });
-        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "old.fms"), oldJson);
-
-        Assert.Null(_engine.LoadGame("old.fms"));
-
-        var fixture = Assert.Single(_state.Competitions.Single().Fixtures);
-        Assert.Same(_state.Clubs[0], fixture.HomeClub);
-        Assert.Same(_state.Clubs[1], fixture.AwayClub);
-        Assert.Same(_state.Clubs[0], fixture.ClubWon);
-        Assert.Equal(_state.Clubs, _state.Competitions.Single().Clubs);
-        Assert.Equal(MyClub.TacticSlots.Count, fixture.HomeClub.TacticSlots.Count);
-    }
-
-    [Fact]
-    public void SaveGame_LeavesOutTheScreenStack_AndOlderSavesThatHaveOneStillLoad()
+    public void SaveGame_LeavesOutTheScreenStack()
     {
         _state.ScreenStack.Push(new ScreenModel { Type = default });
         _engine.SaveGame("screens");
         Assert.DoesNotContain("ScreenStack", File.ReadAllText(Path.Combine(_storage.SaveDirectory, "screens.fms")));
-
-        // Older saves wrote the stack out; release builds could not read it back.
-        var oldJson = Newtonsoft.Json.JsonConvert.SerializeObject(new { _state.Date, _state.ManagerName, ScreenStack = new[] { new ScreenModel() } });
-        File.WriteAllText(Path.Combine(_storage.SaveDirectory, "old-screens.fms"), oldJson);
-
-        Assert.Null(_engine.LoadGame("old-screens.fms"));
-        Assert.Empty(_state.ScreenStack);
     }
 
     [Fact]
@@ -1157,17 +1117,6 @@ public class GameEngineTests : IDisposable
 
         var physio = Assert.Single(_state.Physios);
         Assert.Equal(("Sam Physio", 2), (physio.Name, physio.MonthsWorked));
-    }
-
-    [Fact]
-    public void LoadGame_GivesSavesFromBeforeAutosaveTheirOwnCareerId()
-    {
-        _state.CareerId = "";
-        _engine.SaveGame("before-autosave");
-
-        Assert.Null(_engine.LoadGame("before-autosave.fms"));
-
-        Assert.NotEmpty(_state.CareerId);
     }
 
     [Fact]

@@ -278,7 +278,7 @@ public class ProcessHelperTests : IDisposable
         // Rated 40, so no club wants them.
         var unsignedAllSeason = TestData.Player(9500, null, rating: 40);
         unsignedAllSeason.FreeAgentSince = new DateOnly(2026, 6, 30);
-        var neverDated = TestData.Player(9501, null, rating: 40); // from the start of the game or an older save
+        var neverDated = TestData.Player(9501, null, rating: 40); // from the start of the game
         State.Players.AddRange([unsignedAllSeason, neverDated]);
         // Squads keep their size, so no AI club is short and signs them on 30 June.
         foreach (var player in State.Players.Where(p => p.Contract != null))

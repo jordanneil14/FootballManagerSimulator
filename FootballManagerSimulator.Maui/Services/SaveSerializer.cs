@@ -59,7 +59,7 @@ public static class SaveSerializer
             writer.WriteEndObject();
         }
 
-        // Older saves hold the full club here; only the Id and Name are needed to relink it.
+        // A placeholder holding the Id and Name, relinked to the real club after loading.
         public override ClubModel? ReadJson(JsonReader reader, Type objectType, ClubModel? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
