@@ -69,6 +69,27 @@ public class SeasonalBudgetRulesTests
         Assert.True(after > before);
     }
 
+    [Theory]
+    [InlineData(0, 1_000_000, 1_000_000)]           // spent everything: just the allocation
+    [InlineData(300_000, 1_000_000, 1_300_000)]     // below the cap: keeps it all
+    [InlineData(500_000, 1_000_000, 1_500_000)]     // exactly reaches the cap
+    [InlineData(1_200_000, 1_000_000, 1_500_000)]   // never spends: held at one and a half times the allocation
+    [InlineData(20_000_000, 4_500_000, 6_750_000)]  // relegated with a big budget: cut to the new league's cap
+    [InlineData(2_000_000, 4_500_000, 6_500_000)]   // promoted: keeps its savings under the higher cap
+    public void NextBudget_AIClubsAreCappedAtOneAndAHalfTimesTheirAllocation(int current, int allocation, int expected) =>
+        Assert.Equal(expected, SeasonalBudgetRules.NextBudget(current, allocation, isAIClub: true));
+
+    [Theory]
+    [InlineData(20_000_000, 1_000_000)]  // saved a lot: the board takes it back
+    [InlineData(300_000, 1_000_000)]     // a little left over: taken back too
+    [InlineData(0, 1_000_000)]
+    public void NextBudget_TheUsersClubStartsEachSeasonOnJustItsAllocation(int current, int allocation) =>
+        Assert.Equal(allocation, SeasonalBudgetRules.NextBudget(current, allocation, isAIClub: false));
+
+    [Fact]
+    public void NextBudget_NeverOverflows() =>
+        Assert.Equal(int.MaxValue, SeasonalBudgetRules.NextBudget(int.MaxValue - 5, 2_000_000_000, isAIClub: true));
+
     [Fact]
     public void BudgetsAreRoundedToThreeFigures_AndClubsOutsideALeagueAreLeftOut()
     {

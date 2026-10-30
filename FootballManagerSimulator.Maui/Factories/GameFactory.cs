@@ -124,44 +124,13 @@ public class GameFactory(
     {
 		State.Date = Settings.General.StartDateAsDate;
 
-		State.Clubs = Settings.Clubs.Select(p => new ClubModel
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Stadium = p.Stadium,
-            StadiumSize = p.StadiumSize,
-            WageBudget = p.WageBudget,
-            LeagueId = p.LeagueId,
-            Colour = p.Colour
-        }).ToList();
-
-        // Same rule as the board's end-of-season allocation, so a new club starts with one season's budget.
-        var budgets = SeasonalBudgetRules.Budgets(State.Clubs, Settings.Competitions);
-        foreach (var club in State.Clubs)
-            club.TransferBudget = budgets.GetValueOrDefault(club.Id);
+		State.Clubs = Settings.Clubs.Select(NewClub).ToList();
 
         var generator = new PlayerGenerator.PlayerGenerator();
         var startDate = Settings.General.StartDate;
-        var allPlayers = new List<PlayerModel>();
-        var random = new Random();
+        var allPlayers = StockClubs(State.Clubs, generator, startDate);
 
-        var leagueRankLookup = Settings.Competitions
-            .Where(c => c.IsLeague)
-            .ToDictionary(c => c.Id, c => c.Rank);
-
-        foreach (var club in State.Clubs)
-        {
-            var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
-            club.AcademyRating = AcademyRules.StartingRating(leagueRank);
-            var squadSize = random.Next(25, 31);
-            var generated = generator.GenerateSquad(club.Name, squadSize, startDate, leagueRank);
-            foreach (var gp in generated)
-            {
-                allPlayers.Add(MapToPlayerModel(gp, club));
-            }
-        }
-
-        var freeAgentCount = random.Next(80, 121);
+        var freeAgentCount = RandomNumberHelper.Next(80, 121);
         var freeAgents = generator.GeneratePlayers(freeAgentCount, startDate);
         foreach (var gp in freeAgents)
         {
@@ -174,12 +143,9 @@ public class GameFactory(
         State.Players.AddRange(allPlayers);
 
         foreach (var club in State.Clubs)
-        {
-            club.Formation = Helpers.TacticHelper.Formations[random.Next(Helpers.TacticHelper.Formations.Length)];
-            TacticHelper.ResetTacticForClub(club);
-        }
+            ResetTactics(club);
 
-        foreach (var competition in Settings.Competitions.OrderByDescending(p => p.Type == "Cup"))
+        foreach (var competition in Settings.Competitions.OrderBy(p => p.CreationOrder()))
         {
             var competitionProvider = CompetitionProviders
                 .First(p => p.Type.ToString() == competition.Type);
@@ -189,7 +155,7 @@ public class GameFactory(
             State.Competitions.Add(competition1);
         }
 
-        foreach (var league in State.Competitions.Where(p => p.Type == CompetitionType.EnglishFootballLeague).Cast<LeagueModel>())
+        foreach (var league in State.Competitions.Where(p => p.Type.HasTwoLeggedPlayoffs()).Cast<LeagueModel>())
         {
             if (league.PlayoffPlaces <= 0)
                 continue;
@@ -222,6 +188,66 @@ public class GameFactory(
         }
 
         CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
+    }
+
+    // Clubs added to settings after a save was made (e.g. a new division) join that save with fresh squads.
+    // Their league is built at the next new season, like every other competition.
+    public void AddClubsMissingFromSave()
+    {
+        var known = State.Clubs.Select(p => p.Id).ToHashSet();
+        var missing = Settings.Clubs.Where(p => !known.Contains(p.Id)).Select(NewClub).ToList();
+        if (missing.Count == 0)
+            return;
+
+        State.Clubs.AddRange(missing);
+        var players = StockClubs(missing, new PlayerGenerator.PlayerGenerator(), State.Date.ToString("yyyy-MM-dd"));
+
+        var nextId = State.Players.Count == 0 ? 1 : State.Players.Max(p => p.Id) + 1;
+        foreach (var player in players)
+            player.Id = nextId++;
+        State.Players.AddRange(players);
+
+        foreach (var club in missing)
+            ResetTactics(club);
+    }
+
+    private static ClubModel NewClub(ClubModel settingsClub) => new()
+    {
+        Id = settingsClub.Id,
+        Name = settingsClub.Name,
+        Stadium = settingsClub.Stadium,
+        StadiumSize = settingsClub.StadiumSize,
+        WageBudget = settingsClub.WageBudget,
+        LeagueId = settingsClub.LeagueId,
+        Colour = settingsClub.Colour
+    };
+
+    // Gives each club its budget, academy rating and a squad rated for its division; returns the squads' players.
+    private List<PlayerModel> StockClubs(List<ClubModel> clubs, PlayerGenerator.PlayerGenerator generator, string startDate)
+    {
+        // Same rule as the board's end-of-season allocation, so a new club starts with one season's budget.
+        var budgets = SeasonalBudgetRules.Budgets(State.Clubs, Settings.Competitions);
+
+        var leagueRankLookup = Settings.Competitions
+            .Where(c => c.IsLeague)
+            .ToDictionary(c => c.Id, c => c.Rank);
+
+        var players = new List<PlayerModel>();
+        foreach (var club in clubs)
+        {
+            club.TransferBudget = budgets.GetValueOrDefault(club.Id);
+            var leagueRank = leagueRankLookup.GetValueOrDefault(club.LeagueId, 1);
+            club.AcademyRating = AcademyRules.StartingRating(leagueRank);
+            var squadSize = RandomNumberHelper.Next(25, 31);
+            players.AddRange(generator.GenerateSquad(club.Name, squadSize, startDate, leagueRank).Select(gp => MapToPlayerModel(gp, club)));
+        }
+        return players;
+    }
+
+    private void ResetTactics(ClubModel club)
+    {
+        club.Formation = Helpers.TacticHelper.Formations[RandomNumberHelper.Next(Helpers.TacticHelper.Formations.Length)];
+        TacticHelper.ResetTacticForClub(club);
     }
 
     private static PlayerModel MapToPlayerModel(GeneratedPlayer gp, ClubModel? club)

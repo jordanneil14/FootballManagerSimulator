@@ -29,7 +29,7 @@ public class LeagueModel : ICompetition
 	// Matches the leagues whose season continues past the fixtures known when it is created:
 	// those with a play-off event, and the split league, whose final round is drawn later.
 	public bool HasPlayoffs =>
-		(Type == CompetitionType.EnglishFootballLeague && PlayoffPlaces > 0)
+		(Type.HasTwoLeggedPlayoffs() && PlayoffPlaces > 0)
 		|| (Type == CompetitionType.EnglishNationalLeague && PlayoffPlaces >= 6)
 		|| Type == CompetitionType.ScottishPremiership;
 

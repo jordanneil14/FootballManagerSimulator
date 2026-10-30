@@ -29,4 +29,32 @@ public class PlayerModelTests
 
         Assert.False(player.IsInjured(new DateOnly(2026, 8, 1)));
     }
+
+    [Fact]
+    public void HasGivenUp_OnceAFreeAgentHasGoneAWholeSeasonUnsigned()
+    {
+        var player = new PlayerModel { FreeAgentSince = new DateOnly(2026, 6, 30) };
+
+        Assert.False(player.HasGivenUp(new DateOnly(2027, 6, 29)));
+        Assert.True(player.HasGivenUp(new DateOnly(2027, 6, 30)));
+        Assert.True(player.HasGivenUp(new DateOnly(2028, 1, 1)));
+    }
+
+    [Fact]
+    public void HasGivenUp_NeverForAPlayerWithAClub()
+    {
+        var player = new PlayerModel
+        {
+            FreeAgentSince = new DateOnly(2020, 6, 30),
+            Contract = new PlayerModel.ContractModel { ClubId = 1, ExpiryDate = new DateOnly(2028, 6, 30) }
+        };
+
+        Assert.False(player.HasGivenUp(new DateOnly(2027, 6, 30)));
+    }
+
+    [Fact]
+    public void HasGivenUp_NeverForAFreeAgentNotYetSeenAtASeasonEnd()
+    {
+        Assert.False(new PlayerModel().HasGivenUp(new DateOnly(2040, 6, 30)));
+    }
 }

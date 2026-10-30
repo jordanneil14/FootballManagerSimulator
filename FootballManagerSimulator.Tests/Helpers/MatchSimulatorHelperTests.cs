@@ -34,7 +34,7 @@ public class MatchSimulatorHelperTests
         ICompetition competition = type switch
         {
             CompetitionType.Friendly => new FriendlyModel { Id = 50 },
-            CompetitionType.Cup or CompetitionType.EnglishCommunityShield => new CupModel { Id = 50, Type = type },
+            CompetitionType.Cup or CompetitionType.EnglishCommunityShield or CompetitionType.EnglishFACup => new CupModel { Id = 50, Type = type },
             _ => TestData.League(50, _state.Clubs, type)
         };
         competition.Fixtures.Add(fixture);
@@ -72,6 +72,7 @@ public class MatchSimulatorHelperTests
     [Theory]
     [InlineData(CompetitionType.Cup)]
     [InlineData(CompetitionType.EnglishCommunityShield)]
+    [InlineData(CompetitionType.EnglishFACup)]
     public void ConcludeFixture_KnockoutMatchAlwaysProducesAWinner(CompetitionType type)
     {
         for (var i = 0; i < Iterations; i++)
@@ -188,6 +189,67 @@ public class MatchSimulatorHelperTests
         Assert.DoesNotContain(late, fixture.HomeScorers);
         Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers).Where(g => g != early), g => Assert.InRange(g.Minute, 61, 90));
         Assert.All(fixture.HomeCards.Concat(fixture.AwayCards), c => Assert.InRange(c.Minute, 61, 90));
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_InTheFirstHalfRegeneratesBothHalves()
+    {
+        var firstHalfGoals = 0;
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            var early = new GoalModel { Minute = 10, PlayerId = Home.TacticSlots[9].PlayerId!.Value };
+            fixture.HomeScorers.Add(early);
+
+            _simulator.ReGenerateFromMinute(fixture, 15);
+
+            var regenerated = fixture.HomeScorers.Concat(fixture.AwayScorers).Where(g => g != early).ToList();
+            Assert.Contains(early, fixture.HomeScorers);
+            Assert.All(regenerated, g => Assert.InRange(g.Minute, 16, 90));
+            firstHalfGoals += regenerated.Count(g => g.Minute <= 45);
+        }
+
+        Assert.True(firstHalfGoals > 0, $"Expected a regenerated first-half goal across {Iterations} matches");
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_DuringExtraTimeRegeneratesTheRestOfExtraTime()
+    {
+        var lateGoals = 0;
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.Cup);
+            var kept = new GoalModel { Minute = 95, PlayerId = Home.TacticSlots[9].PlayerId!.Value };
+            var dropped = new GoalModel { Minute = 110, PlayerId = Away.TacticSlots[9].PlayerId!.Value };
+            fixture.HomeScorers.Add(kept);
+            fixture.AwayScorers.Add(dropped);
+
+            _simulator.ReGenerateFromMinute(fixture, 100);
+
+            Assert.Contains(kept, fixture.HomeScorers);
+            Assert.DoesNotContain(dropped, fixture.AwayScorers);
+            var regenerated = fixture.HomeScorers.Concat(fixture.AwayScorers).Where(g => g != kept).ToList();
+            Assert.All(regenerated, g => Assert.InRange(g.Minute, 101, 120));
+            lateGoals += regenerated.Count;
+        }
+
+        Assert.True(lateGoals > 0, $"Expected a regenerated extra-time goal across {Iterations} matches");
+    }
+
+    [Theory]
+    [InlineData(100, true)]
+    [InlineData(120, false)]
+    public void ReGenerateFromMinute_AddsNoExtraTimeOnceItIsOverOrTheMatchHasFinished(int fromMinute, bool concluded)
+    {
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.Cup);
+            fixture.Concluded = concluded;
+
+            _simulator.ReGenerateFromMinute(fixture, fromMinute);
+
+            Assert.Empty(fixture.HomeScorers.Concat(fixture.AwayScorers));
+        }
     }
 
     [Fact]
@@ -400,6 +462,63 @@ public class MatchSimulatorHelperTests
         Assert.Equal((competition.Name, Away.Name), (trophy.Name, trophy.ClubName));
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void FinaliseMatch_WinningAPlayoffFinalIsATrophyButLosingOneIsNot(bool iWin)
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.League, FixtureType.PlayoffFinal);
+        fixture.GoalsHome = iWin ? 2 : 0;
+        fixture.GoalsAway = iWin ? 0 : 2;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        if (iWin)
+        {
+            var trophy = Assert.Single(_state.ManagerHistory.Trophies);
+            Assert.Equal(($"{competition.Name} Play-off Final", Home.Name, _state.Date), (trophy.Name, trophy.ClubName, trophy.Date));
+        }
+        else
+        {
+            Assert.Empty(_state.ManagerHistory.Trophies);
+        }
+    }
+
+    [Fact]
+    public void FinaliseMatch_OtherClubsWinningACupFinalIsNotMyTrophy()
+    {
+        _state.MyClubId = 3;
+        _state.ManagerHistory.StartJob(_state.Clubs[2], _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.Cup);
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Empty(_state.ManagerHistory.Trophies);
+        Assert.Equal(0, _state.ManagerHistory.Played);
+    }
+
+    [Theory]
+    [InlineData(FACupRules.Rounds, true)]
+    [InlineData(FACupRules.Rounds - 1, false)]
+    public void FinaliseMatch_OnlyWinningTheFACupFinalIsATrophy(int round, bool trophy)
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.EnglishFACup);
+        competition.DrawSettings.AddRange(Enumerable.Range(1, FACupRules.Rounds).Select(r => new DrawSettingsModel { Round = r }));
+        fixture.Round = round;
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Equal(trophy, _state.ManagerHistory.Trophies.Any(t => t.Name == competition.Name));
+    }
+
     [Fact]
     public void FinaliseMatch_WinningAnEarlierCupRoundIsNotATrophy()
     {
@@ -578,17 +697,91 @@ public class MatchSimulatorHelperTests
         Assert.Contains(_state.Players.First(p => p.Id == myPlayerId).Name, injuryNotifications[0].Subject);
     }
 
+    private void HirePhysios(int count)
+    {
+        for (var i = 1; i <= count; i++)
+            _state.Physios.Add(new PhysioModel { Id = i, Name = $"Physio {i}", HiredDate = _state.Date });
+    }
+
+    private (int myPlayerId, int opponentPlayerId) InjureOnePlayerEachSide(int daysOut)
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        var myPlayerId = Home.TacticSlots[5].PlayerId!.Value;
+        var opponentPlayerId = Away.TacticSlots[5].PlayerId!.Value;
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 30, PlayerId = myPlayerId, Description = "Hamstring injury", DaysOut = daysOut });
+        fixture.AwayInjuries.Add(new InjuryModel { Minute = 55, PlayerId = opponentPlayerId, Description = "Hamstring injury", DaysOut = daysOut });
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+        return (myPlayerId, opponentPlayerId);
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(1, 17)]
+    [InlineData(2, 15)]
+    [InlineData(3, 14)]
+    public void FinaliseMatch_PhysiosShortenOnlyMyPlayersInjuries(int physios, int expectedDays)
+    {
+        HirePhysios(physios);
+
+        var (mine, theirs) = InjureOnePlayerEachSide(daysOut: 20);
+
+        Assert.Equal(_state.Date.AddDays(expectedDays), _state.Players.First(p => p.Id == mine).InjuryEndDate);
+        Assert.Equal(_state.Date.AddDays(20), _state.Players.First(p => p.Id == theirs).InjuryEndDate);
+    }
+
+    [Fact]
+    public void FinaliseMatch_InjuryNotificationExplainsThePhysioReduction()
+    {
+        HirePhysios(2);
+
+        InjureOnePlayerEachSide(daysOut: 20);
+
+        var notification = Assert.Single(_state.Notifications, n => n.Subject.Contains("injured"));
+        Assert.Equal("Medical Team", notification.Recipient);
+        Assert.Contains("out for 15 days", notification.Message);
+        Assert.Contains("(reduced from 20 days by your medical team)", notification.Message);
+    }
+
+    [Fact]
+    public void FinaliseMatch_InjuryNotificationWithoutPhysiosMentionsNoReduction()
+    {
+        InjureOnePlayerEachSide(daysOut: 20);
+
+        var notification = Assert.Single(_state.Notifications, n => n.Subject.Contains("injured"));
+        Assert.Contains("out for 20 days", notification.Message);
+        Assert.DoesNotContain("reduced", notification.Message);
+    }
+
+    [Fact]
+    public void FinaliseMatch_PhysiosNeverClearAnInjuryEntirely()
+    {
+        HirePhysios(PhysioRules.MaxPhysios);
+
+        var (mine, _) = InjureOnePlayerEachSide(daysOut: 1);
+
+        var player = _state.Players.First(p => p.Id == mine);
+        Assert.Equal(_state.Date.AddDays(1), player.InjuryEndDate);
+        Assert.True(player.IsInjured(_state.Date));
+    }
+
     [Fact]
     public void ReGenerateFromMinute_ClearsInjuriesPastTheGivenMinute()
     {
         var (fixture, _) = NewFixture(CompetitionType.League);
-        fixture.HomeInjuries.Add(new InjuryModel { Minute = 20, PlayerId = Home.TacticSlots[5].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
-        fixture.HomeInjuries.Add(new InjuryModel { Minute = 70, PlayerId = Home.TacticSlots[6].PlayerId!.Value, Description = "Fracture", DaysOut = 60 });
+        var early = new InjuryModel { Minute = 20, PlayerId = Home.TacticSlots[5].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 };
+        var late = new InjuryModel { Minute = 70, PlayerId = Home.TacticSlots[6].PlayerId!.Value, Description = "Fracture", DaysOut = 60 };
+        fixture.HomeInjuries.AddRange([early, late]);
 
         _simulator.ReGenerateFromMinute(fixture, 50);
 
-        Assert.Single(fixture.HomeInjuries);
-        Assert.Equal(20, fixture.HomeInjuries[0].Minute);
+        // The rest of the match is re-simulated, so a new injury after minute 50 is possible.
+        Assert.Contains(early, fixture.HomeInjuries);
+        Assert.DoesNotContain(late, fixture.HomeInjuries);
+        Assert.All(fixture.HomeInjuries.Where(i => i != early), i => Assert.InRange(i.Minute, 51, 90));
     }
 
     [Fact]

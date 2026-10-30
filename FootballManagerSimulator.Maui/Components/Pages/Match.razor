@@ -591,7 +591,7 @@ else
 
     private MatchPhase CheckFullTime()
     {
-        if ((_competition?.Type == CompetitionType.Cup || _competition?.Type == CompetitionType.EnglishCommunityShield) && _displayedHomeGoals == _displayedAwayGoals)
+        if (_competition?.Type.IsKnockout() == true && _displayedHomeGoals == _displayedAwayGoals)
         {
             Engine.MatchSimulator.GenerateExtraTimeEvents(_fixture!);
             return MatchPhase.ExtraTimeBreak;

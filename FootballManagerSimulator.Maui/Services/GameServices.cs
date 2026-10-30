@@ -42,6 +42,8 @@ public static class GameServices
         // Concrete types resolved directly (by events / providers / the factory).
         services.AddScoped<Competitions.Providers.EnglishLeagueCupProvider>();
         services.AddScoped<EnglishLeagueCupService>();
+        services.AddScoped<Competitions.Providers.EnglishFACupProvider>();
+        services.AddScoped<EnglishFACupService>();
         services.AddScoped<FriendlyService>();
         services.AddScoped<EnglishPremierLeagueService>();
         services.AddScoped<LeagueService>();

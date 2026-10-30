@@ -110,10 +110,11 @@ public class FullGameTests : IDisposable
 
         // Cup draws, the shield draw and the playoff events are all scheduled up front.
         Assert.Equal(7, state.Events.OfType<EnglishLeagueCupFixtureDrawEvent>().Count());
+        Assert.Equal(FACupRules.Rounds, state.Events.OfType<EnglishFACupFixtureDrawEvent>().Count());
         Assert.Single(state.Events.OfType<EnglishCommunityShieldFixtureDrawEvent>());
         Assert.Equal(["Manchester Blue", "North London Reds"],
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
-        Assert.Equal(3, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count());
+        Assert.Equal(4, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count()); // English Divisions 2-4 and Spain Division 2
         Assert.Equal(3, state.Events.OfType<NationalLeaguePlayoffQuarterFinalEvent>().Count());
         Assert.Single(state.Events.OfType<ScottishPremiershipSplitEvent>());
 
@@ -212,6 +213,14 @@ public class FullGameTests : IDisposable
         var cup = (CupModel)state.Competitions.Single(c => c.Type == CompetitionType.Cup);
         Assert.Single(cup.Fixtures, f => f.Round == 7);
         Assert.NotNull(cup.Fixtures.Single(f => f.Round == 7).ClubWon);
+
+        // The FA Cup runs from 80 clubs in round 1 to a single final, with Divisions 1 and 2 joining in round 3.
+        var faCup = (CupModel)state.Competitions.Single(c => c.Type == CompetitionType.EnglishFACup);
+        Assert.Equal([40, 20, 32, 16, 8, 4, 2, 1],
+            Enumerable.Range(1, FACupRules.Rounds).Select(r => faCup.Fixtures.Count(f => f.Round == r)));
+        Assert.NotNull(faCup.Fixtures.Single(f => f.Round == FACupRules.Rounds).ClubWon);
+        var roundThreeClubs = faCup.Fixtures.Where(f => f.Round == 3).SelectMany(f => new[] { f.HomeClub.Id, f.AwayClub.Id }).ToHashSet();
+        Assert.All(state.Clubs.Where(c => c.LeagueId is 1 or 2), c => Assert.Contains(c.Id, roundThreeClubs));
         var scotland = (LeagueModel)state.Competitions.Single(c => c.Id == 16);
         Assert.Equal(198 + 30, scotland.Fixtures.Count);
         Assert.Equal(6, scotland.TopSplitClubIds.Count);
@@ -238,9 +247,15 @@ public class FullGameTests : IDisposable
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
 
-        // Every club receives its seasonal budget allocation for its new league on top of what it had left.
+        // Every club receives its seasonal budget allocation for its new league on top of what it had left,
+        // with AI clubs capped at one and a half times that allocation and mine at the allocation itself.
         var allocations = SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions);
-        Assert.All(state.Clubs, c => Assert.Equal(budgetsBefore[c.Id] + allocations[c.Id], c.TransferBudget));
+        Assert.All(state.Clubs, c => Assert.Equal(
+            Math.Min(budgetsBefore[c.Id] + allocations[c.Id], c.Id == state.MyClubId
+                ? SeasonalBudgetRules.MyClubBudgetCap(allocations[c.Id])
+                : SeasonalBudgetRules.AIBudgetCap(allocations[c.Id])),
+            c.TransferBudget));
+        Assert.All(state.Clubs.Where(c => c.Id != state.MyClubId), c => Assert.True(c.TransferBudget <= allocations[c.Id] * 1.5));
 
         // Promoted clubs are now paid as top-flight clubs, relegated clubs as second-tier ones.
         var startingBudgets = SeasonalBudgetRules.Budgets(_host.Settings.Clubs, _host.Settings.Competitions);
@@ -385,14 +400,14 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
-    public void NextSeasonsShield_IsLeagueChampionsAgainstCupWinners()
+    public void NextSeasonsShield_IsLeagueChampionsAgainstFACupWinners()
     {
         var engine = _host.StartNewGame(clubId: 9);
         var state = engine.State;
         PlayUntil(engine, new DateOnly(2027, 6, 29));
 
         var table = ((LeagueModel)state.Competitions.Single(c => c.Id == 1)).GenerateLeagueTable().Select(p => p.Club.Id).ToList();
-        var cup = state.Competitions.Single(c => c.Id == 8);
+        var cup = state.Competitions.Single(c => c.Type == CompetitionType.EnglishFACup);
         var cupWinner = cup.Fixtures.Single(f => f.Round == cup.DrawSettings.Max(d => d.Round)).ClubWon!.Id;
         int[] expected = [table[0], cupWinner == table[0] ? table[1] : cupWinner];
 

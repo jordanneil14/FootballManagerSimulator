@@ -60,6 +60,25 @@ public static class SeasonalBudgetRules
         });
     }
 
+    // AI clubs can't save beyond this many seasons' allocation, so their spending power stays in line
+    // with the league they're in. Relegated clubs drop to their new league's cap straight away.
+    public const double AIBudgetCapSeasons = 1.5;
+
+    // The user's club can't carry anything over: unspent money goes back to the board each season,
+    // so it has to be spent (on players, the stadium or the academy) to be worth anything.
+    public const double MyClubBudgetCapSeasons = 1.0;
+
+    // The most a club can hold after the end-of-season allocation.
+    public static int AIBudgetCap(int allocation) => Cap(allocation, AIBudgetCapSeasons);
+    public static int MyClubBudgetCap(int allocation) => Cap(allocation, MyClubBudgetCapSeasons);
+
+    private static int Cap(int allocation, double seasons) => (int)Math.Min(allocation * seasons, int.MaxValue);
+
+    // A club's budget after the end-of-season allocation (already for its new league), capped at
+    // AIBudgetCapSeasons x the allocation for AI clubs and MyClubBudgetCapSeasons x for the user's.
+    public static int NextBudget(int current, int allocation, bool isAIClub) =>
+        (int)Math.Min((long)current + allocation, isAIClub ? AIBudgetCap(allocation) : MyClubBudgetCap(allocation));
+
     // £52,345,678 → £52,300,000, so budgets read like a board would set them.
     private static int RoundToThreeFigures(double amount)
     {

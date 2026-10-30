@@ -2,6 +2,7 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject IScoutHelper Scouts
+@inject IPhysioHelper Physios
 @inject NavigationManager Nav
 
 <PageTitle>Staff</PageTitle>
@@ -142,30 +143,14 @@
 
     private void HirePhysio()
     {
-        if (Engine.MyClub == null) { _message = "You need a club to hire physios."; return; }
-        if (Engine.State.Physios.Count >= PhysioRules.MaxPhysios) { _message = $"You can employ at most {PhysioRules.MaxPhysios} physios."; return; }
-        if (Engine.MyClub.TransferBudget < PhysioRules.MonthlyWage) { _message = $"The board cannot fund this. A physio costs £{PhysioRules.MonthlyWage:n0} per month."; return; }
-
-        var physio = new PhysioModel
-        {
-            Id = Engine.State.Physios.Count == 0 ? 1 : Engine.State.Physios.Max(p => p.Id) + 1,
-            Name = new PlayerGenerator.PlayerGenerator().GeneratePlayer(Engine.State.Date.ToString("yyyy-MM-dd")).Name,
-            HiredDate = Engine.State.Date
-        };
-
-        Engine.State.Physios.Add(physio);
-        Engine.MyClub.TransferBudget -= PhysioRules.MonthlyWage;
-        _message = $"{physio.Name} has joined as a physio for £{PhysioRules.MonthlyWage:n0} per month. Your injury recovery is now reduced by {PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count)}.";
+        _message = Physios.HirePhysio();
         Engine.NotifyChanged();
     }
 
     private void DismissPhysio()
     {
         if (_dismissPhysio != null)
-        {
-            Engine.State.Physios.Remove(_dismissPhysio);
-            _message = $"{_dismissPhysio.Name} has been dismissed. Your injury recovery reduction is now {PhysioRules.InjuryReductionLabel(Engine.State.Physios.Count)}.";
-        }
+            _message = Physios.DismissPhysio(_dismissPhysio.Id);
         _dismissPhysio = null;
         Engine.NotifyChanged();
     }

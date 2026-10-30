@@ -26,12 +26,6 @@ public class EnglishCommunityShieldService(
         });
     }
 
-    public void GeneratePreMatchReportForFixture(FixtureModel fixture)
-    {
-        NotificationFactory.AddNotification(
-            State.Date,
-            "Club Analyst",
-            "Pre-Match Report",
-            "English United Shield match incoming");
-    }
+    public void GeneratePreMatchReportForFixture(FixtureModel fixture) =>
+        CupPreMatchReport.Send(State, NotificationFactory, fixture);
 }

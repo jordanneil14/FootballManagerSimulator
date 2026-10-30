@@ -193,6 +193,53 @@ public class DifficultySimulationTests : IDisposable
         return $"avg {sizes.Average():F1}, {sizes.Count(s => s >= 30)} of {sizes.Count} at 30+";
     }
 
+    private string CsvPath(string suffix) =>
+        Path.Combine(Path.GetDirectoryName(_logPath)!, Path.GetFileNameWithoutExtension(_logPath) + suffix + ".csv");
+
+    private static string Csv(params object[] values) =>
+        string.Join(",", values.Select(v => v is string s && s.Contains(',') ? $"\"{s}\"" : Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture)));
+
+    // League name and tier for every club, from the settings (the clubs' current league).
+    private (string Name, int Rank) LeagueOf(ClubModel club) =>
+        _host.Settings.Competitions.FirstOrDefault(c => c.Id == club.LeagueId) is { } league ? (league.Name, league.Rank) : ("None", 0);
+
+    // One row per club: its budget at this point, its allocation for its current league, and the AI cap.
+    private void WriteBudgets(GameEngine engine, string season, string stage)
+    {
+        var state = engine.State;
+        var allocations = SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions);
+        var squadSizes = state.Players.Where(p => p.Contract != null).GroupBy(p => p.Contract!.ClubId).ToDictionary(g => g.Key, g => g.Count());
+        var countries = _host.Settings.Competitions.Where(c => c.IsLeague).ToDictionary(c => c.Id, c => c.CountryId);
+
+        var rows = state.Clubs.Select(c =>
+        {
+            var (league, rank) = LeagueOf(c);
+            var allocation = allocations.GetValueOrDefault(c.Id);
+            return Csv(season, stage, c.Id, c.Name, countries.GetValueOrDefault(c.LeagueId), league, rank, c.Id == state.MyClubId ? "Y" : "N",
+                c.TransferBudget, allocation, SeasonalBudgetRules.AIBudgetCap(allocation),
+                allocation == 0 ? 0 : Math.Round((double)c.TransferBudget / allocation, 2), squadSizes.GetValueOrDefault(c.Id));
+        });
+        File.AppendAllLines(CsvPath("-budgets"), rows);
+    }
+
+    // AI budgets by league tier: how much clubs hold compared with their allocation, and how many sit at the cap.
+    private List<string> BudgetSummary(GameEngine engine, string label)
+    {
+        var state = engine.State;
+        var allocations = SeasonalBudgetRules.Budgets(state.Clubs, _host.Settings.Competitions);
+        var lines = new List<string> { label };
+        foreach (var tier in state.Clubs.Where(c => c.Id != state.MyClubId && allocations.ContainsKey(c.Id))
+                     .GroupBy(c => LeagueOf(c).Rank).OrderBy(g => g.Key))
+        {
+            var budgets = tier.Select(c => (Budget: c.TransferBudget, Allocation: allocations[c.Id])).ToList();
+            var atCap = budgets.Count(b => b.Budget >= SeasonalBudgetRules.AIBudgetCap(b.Allocation));
+            lines.Add($"  Tier {tier.Key}: {budgets.Count} AI clubs | avg £{budgets.Average(b => b.Budget):n0} (min £{budgets.Min(b => b.Budget):n0}, max £{budgets.Max(b => b.Budget):n0}) | " +
+                $"avg {budgets.Average(b => (double)b.Budget / b.Allocation):F2}x allocation | {atCap} at the cap");
+        }
+        lines.Add($"  All AI clubs: £{state.Clubs.Where(c => c.Id != state.MyClubId).Sum(c => (long)c.TransferBudget):n0} in total; ours £{(state.MyClubId is { } id ? state.Clubs.Single(c => c.Id == id).TransferBudget : 0):n0}");
+        return lines;
+    }
+
     private record SeasonSnapshot(
         string LeagueName, int Rank, int Position, int Points,
         int Wins, int Draws, int Losses, int GF, int GA, string GD,
@@ -267,7 +314,13 @@ public class DifficultySimulationTests : IDisposable
         var renewalLog = new List<string>();
         var freeAgentLog = new List<string>();
         var flowLog = new List<string>();
+        var budgetLog = new List<string>();
         var myClubId = club.Id;
+
+        File.WriteAllText(CsvPath("-budgets"), Csv("Season", "Stage", "ClubId", "Club", "CountryId", "League", "Tier", "Mine", "Budget", "Allocation", "AICap", "BudgetToAllocation", "SquadSize") + Environment.NewLine);
+        File.WriteAllText(CsvPath("-flows"), Csv("Season", "PoolOn1July", "AISignedFromPool", "WeSigned", "UnsignedOn29June", "TransfersBetweenClubs",
+            "Released", "SignedOn30June", "RetiredFromClubs", "LeftPool", "YouthIntake", "TopUps", "PlayersOn1July", "PlayersAfter30June",
+            "AvgAISquad1July", "AISquads30Plus1Sept", "AIBudgets29June", "AIBudgets1July") + Environment.NewLine);
 
         var seasonStart = new DateOnly(2026, 7, 1);
         var lastRank = startDivision.Rank;
@@ -284,12 +337,19 @@ public class DifficultySimulationTests : IDisposable
             var maxIdAtStart = engine.State.Players.Max(p => p.Id);
             var squadsAtStart = AISquadSizes(engine);
             var totalAtStart = engine.State.Players.Count;
+            var clubAtStart = engine.State.Players.Where(p => p.Contract != null).ToDictionary(p => p.Id, p => p.Contract!.ClubId);
+            var aiSquadSizes = engine.State.Players.Where(p => p.Contract != null && p.Contract.ClubId != myClubId).GroupBy(p => p.Contract!.ClubId).Select(g => g.Count()).ToList();
+            var aiBudgets1July = engine.State.Clubs.Where(c => c.Id != myClubId).Sum(c => (long)c.TransferBudget);
+            WriteBudgets(engine, yearLabel, "1 July");
+            budgetLog.AddRange(BudgetSummary(engine, $"{yearLabel}, 1 July (after the allocation and cap):"));
 
             var signed = SignPlayers(engine);
             signingLog.Add($"{yearLabel}: {(signed.Count == 0 ? "no affordable targets" : string.Join(", ", signed))}");
 
             PlayUntil(engine, new DateOnly(seasonStart.Year, 9, 1));
             var squadsAfterSummerWindow = AISquadSizes(engine);
+            var aiSquads30PlusSept = engine.State.Players.Where(p => p.Contract != null && p.Contract.ClubId != myClubId)
+                .GroupBy(p => p.Contract!.ClubId).Count(g => g.Count() >= 30);
 
             PlayUntil(engine, new DateOnly(seasonStart.Year + 1, 6, 29));
             if (engine.IsUnemployed)
@@ -318,6 +378,12 @@ public class DifficultySimulationTests : IDisposable
 
             var renewed = RenewBestContracts(engine);
             renewalLog.Add($"{yearLabel}: {(renewed.Count == 0 ? "none expiring" : string.Join(", ", renewed))}");
+
+            // Players who were at one club on 1 July and another on 29 June moved in a transfer between clubs.
+            var transfers = engine.State.Players.Count(p => p.Contract != null && clubAtStart.TryGetValue(p.Id, out var startClub) && startClub != p.Contract.ClubId);
+            var aiBudgets29June = engine.State.Clubs.Where(c => c.Id != myClubId).Sum(c => (long)c.TransferBudget);
+            WriteBudgets(engine, yearLabel, "29 June");
+            budgetLog.AddRange(BudgetSummary(engine, $"{yearLabel}, 29 June (before the allocation):"));
 
             // During the season: who left the pool, and who was added by the youth intake.
             var players = engine.State.Players.ToDictionary(p => p.Id);
@@ -353,7 +419,11 @@ public class DifficultySimulationTests : IDisposable
                 $"30 June: released {released}, signed straight back by short squads {signedOn30June}, retired from clubs {retiredFromClubs}, left the pool (retired or unsigned all season) {retiredFromPool} | " +
                 $"total players in the game {totalAtStart} on 1 July, {engine.State.Players.Count} after 30 June | " +
                 $"new players: youth intake {youthIntake}, top-ups {toppedUp} | " +
-                $"AI squads on 1 July {squadsAtStart}, on 1 September {squadsAfterSummerWindow}");
+                $"AI squads on 1 July {squadsAtStart}, on 1 September {squadsAfterSummerWindow} | transfers between clubs {transfers}");
+
+            File.AppendAllText(CsvPath("-flows"), Csv(yearLabel, poolAtStart.Count, aiSigned, weSigned, stillUnsigned, transfers,
+                released, signedOn30June, retiredFromClubs, retiredFromPool, youthIntake, toppedUp, totalAtStart, engine.State.Players.Count,
+                Math.Round(aiSquadSizes.Average(), 1), aiSquads30PlusSept, aiBudgets29June, aiBudgets1July) + Environment.NewLine);
 
             seasonStart = seasonStart.AddYears(1);
         }
@@ -367,6 +437,17 @@ public class DifficultySimulationTests : IDisposable
         Log();
         Log("=== WHERE FREE AGENTS COME FROM AND GO ===");
         flowLog.ForEach(Log);
+
+        if (!sacked)
+        {
+            var finalLabel = $"{seasonStart.Year}/{(seasonStart.Year + 1) % 100:D2}";
+            WriteBudgets(engine, finalLabel, "1 July");
+            budgetLog.AddRange(BudgetSummary(engine, $"{finalLabel}, 1 July (after the allocation and cap):"));
+        }
+
+        Log();
+        Log("=== AI TRANSFER BUDGETS BY LEAGUE TIER (every club, every season: see the -budgets.csv file) ===");
+        budgetLog.ForEach(Log);
 
         Log();
         Log("=== SIGNINGS ===");

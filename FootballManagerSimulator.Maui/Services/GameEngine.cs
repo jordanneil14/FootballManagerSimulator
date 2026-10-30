@@ -370,15 +370,17 @@ public class GameEngine(
         NotifyChanged();
     }
 
-    // English Cup ties pay both clubs, the winner double, but only once every match today is over,
+    // English cup ties pay both clubs, the winner double, but only once every match today is over,
     // so no money moves while the user's own game is still being played.
     private void PayCupPrizeMoney()
     {
         if (HasOutstandingFixturesToday())
             return;
 
-        foreach (var cup in State.Competitions.Where(p => p.Type == CompetitionType.Cup))
+        foreach (var cup in State.Competitions.Where(p => p.Type.IsSeasonLongEnglishCup()))
         {
+            Func<int, int> forWinner = cup.Type == CompetitionType.EnglishFACup ? FACupRules.ForWinner : CupPrizeMoneyRules.ForWinner;
+            Func<int, int> forLoser = cup.Type == CompetitionType.EnglishFACup ? FACupRules.ForLoser : CupPrizeMoneyRules.ForLoser;
             var finalRound = cup.DrawSettings.Count == 0 ? 0 : cup.DrawSettings.Max(p => p.Round);
             var ties = cup.Fixtures.Where(p => p.Date == State.Date && p.Concluded && !p.PrizeMoneyPaid && p.ClubWon != null);
 
@@ -391,8 +393,8 @@ public class GameEngine(
                 var loserId = winnerId == tie.HomeClub.Id ? tie.AwayClub.Id : tie.HomeClub.Id;
                 var winner = State.Clubs.FirstOrDefault(p => p.Id == winnerId);
                 var loser = State.Clubs.FirstOrDefault(p => p.Id == loserId);
-                var winnings = CupPrizeMoneyRules.ForWinner(tie.Round);
-                var consolation = CupPrizeMoneyRules.ForLoser(tie.Round);
+                var winnings = forWinner(tie.Round);
+                var consolation = forLoser(tie.Round);
 
                 if (winner != null)
                     winner.TransferBudget = (int)Math.Min((long)winner.TransferBudget + winnings, int.MaxValue);
@@ -1181,6 +1183,7 @@ public class GameEngine(
             State.CareerId = string.IsNullOrEmpty(deserialised.CareerId) ? NewCareerId() : deserialised.CareerId;
 
             RelinkClubs();
+            gameFactory.AddClubsMissingFromSave();
 
             // Saves from before the manager history existed start the record from today.
             var myClub = State.Clubs.FirstOrDefault(p => p.Id == State.MyClubId);

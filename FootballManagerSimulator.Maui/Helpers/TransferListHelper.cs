@@ -154,7 +154,8 @@ public class TransferListHelper(
     // A player only joins a club he'd play for (the same rule as for the user's club: his rating no more
     // than 5 above the club's best-20 average) that wants him (he's within 5 below it). Clubs short of
     // SquadSizeRules.Target get first pick and will take players up to 8 below; otherwise he joins the
-    // strongest club that fits. Free agents cost no fee.
+    // strongest club that fits, or, if he's too good for all of them, the strongest club with room.
+    // Free agents cost no fee.
     public void ProcessAIFreeAgentSignings()
     {
         var freeAgents = State.Players
@@ -173,7 +174,8 @@ public class TransferListHelper(
                 break;
 
             var squad = squads.FirstOrDefault(p => p.Size < SquadSizeRules.Target && p.Suits(player, SquadSizeRules.ShortSquadRatingRange))
-                ?? squads.FirstOrDefault(p => p.Suits(player, GameEngine.SigningRatingRange));
+                ?? squads.FirstOrDefault(p => p.Suits(player, GameEngine.SigningRatingRange))
+                ?? StrongestIfTooGoodForAll(squads, player);
             if (squad == null)
                 continue;
 
@@ -211,6 +213,14 @@ public class TransferListHelper(
             }
         }
     }
+
+    // A player too good for every AI club with room (a 94 when no squad averages 89) doesn't sit out of
+    // football: he joins the strongest of them, which is glad to have him. The user's club gets no such
+    // exception, so it still needs a squad within 5 of his rating.
+    private static AISquad? StrongestIfTooGoodForAll(List<AISquad> squadsStrongestFirst, PlayerModel player) =>
+        squadsStrongestFirst.FirstOrDefault() is { } strongest && player.Rating - strongest.Strength > GameEngine.SigningRatingRange
+            ? strongest
+            : null;
 
     // Strongest first.
     private List<AISquad> AISquads() =>

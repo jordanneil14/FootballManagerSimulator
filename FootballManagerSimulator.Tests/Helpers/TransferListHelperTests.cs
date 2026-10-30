@@ -233,17 +233,50 @@ public class TransferListHelperTests
     }
 
     [Fact]
-    public void AIFreeAgentSignings_AIClubsIgnoreRetiringAndUnsuitableFreeAgents()
+    public void AIFreeAgentSignings_AIClubsIgnoreRetiringAndTooWeakFreeAgents()
     {
+        // Squads are about 62, so a 50 is more than 8 below even the short squads.
         var retiring = TestData.Player(5000, clubId: null, rating: 62);
         retiring.BirthDate = "01/15/1990";
-        var tooGood = TestData.Player(5001, clubId: null, rating: 90);
-        _state.Players.AddRange([retiring, tooGood]);
+        var tooWeak = TestData.Player(5001, clubId: null, rating: 50);
+        _state.Players.AddRange([retiring, tooWeak]);
 
         _helper.ProcessAIFreeAgentSignings();
 
         Assert.Null(retiring.Contract);
-        Assert.Null(tooGood.Contract);
+        Assert.Null(tooWeak.Contract);
+    }
+
+    [Fact]
+    public void AIFreeAgentSignings_APlayerTooGoodForEveryClubJoinsTheStrongestWithRoom()
+    {
+        // Club 3 is the strongest (about 66) but has a full squad; club 2 (about 63) has room. Both are far below a 94.
+        foreach (var player in _state.Players.Where(p => p.Contract?.ClubId == 3))
+            player.Rating += 4;
+        for (var i = 0; i < 12; i++)
+            _state.Players.Add(TestData.Player(3000 + i, clubId: 3, rating: 66));
+        foreach (var player in _state.Players.Where(p => p.Contract?.ClubId == 2))
+            player.Rating += 1;
+        var star = TestData.Player(5000, clubId: null, rating: 94);
+        _state.Players.Add(star);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Equal(2, star.Contract!.ClubId);
+    }
+
+    [Fact]
+    public void AIFreeAgentSignings_APlayerWithAClubAtHisLevelStillJoinsAClubAtHisLevel()
+    {
+        // Club 3 (about 66) is within 5 of a 70, so he joins it rather than the fallback.
+        foreach (var player in _state.Players.Where(p => p.Contract?.ClubId == 3))
+            player.Rating += 4;
+        var freeAgent = TestData.Player(5000, clubId: null, rating: 70);
+        _state.Players.Add(freeAgent);
+
+        _helper.ProcessAIFreeAgentSignings();
+
+        Assert.Equal(3, freeAgent.Contract!.ClubId);
     }
 
     [Fact]

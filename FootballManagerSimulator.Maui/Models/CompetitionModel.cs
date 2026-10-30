@@ -18,6 +18,14 @@ public class CompetitionModel
 
     public IEnumerable<DrawSettingsModel> DrawSettings { get; set; } = [];
 
+    // The leagues schedule around the cups' dates, and the FA Cup around the League Cup's.
+    public int CreationOrder() => Type switch
+    {
+        "Cup" => 0,
+        "EnglishFACup" => 1,
+        _ => 2
+    };
+
     public class DrawSettingsModel
     {
         public int Round { get; set; }

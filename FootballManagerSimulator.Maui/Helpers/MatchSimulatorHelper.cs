@@ -182,7 +182,7 @@ public class MatchSimulatorHelper(
             if (fixture.GoalsHome != fixture.GoalsAway)
                 EndFixture(fixture, competition);
         }
-        else if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
+        else if (!competition.Type.IsKnockout() || fixture.GoalsHome != fixture.GoalsAway)
         {
             EndFixture(fixture, competition);
         }
@@ -424,8 +424,8 @@ public class MatchSimulatorHelper(
     }
 
     private static bool IsCupFinal(FixtureModel fixture, ICompetition competition) =>
-        (competition.Type == CompetitionType.Cup || competition.Type == CompetitionType.EnglishCommunityShield)
-        && (competition.DrawSettings.Count == 0 || fixture.Round == competition.DrawSettings.Max(p => p.Round));
+        competition.Type.IsKnockout()
+        &&(competition.DrawSettings.Count == 0 || fixture.Round == competition.DrawSettings.Max(p => p.Round));
 
     private void UpdateBoardConfidence(FixtureModel fixture, ICompetition competition)
     {
@@ -566,8 +566,8 @@ public class MatchSimulatorHelper(
     // stay possible but rare. Applied before the multipliers below so those keep their stated strength.
     internal const double RatingGapExponent = 3;
 
-    // Applied after cubing, so it is cubed too: a 4% rating edge.
-    internal static readonly double MyClubRatingBoost = Math.Pow(1.04, RatingGapExponent);
+    // Applied after cubing, so it is cubed too: a 6% rating edge.
+    internal static readonly double MyClubRatingBoost = Math.Pow(1.06, RatingGapExponent);
 
     private (double homeRating, double awayRating) GetAdjustedRatings(FixtureModel fixture)
     {
