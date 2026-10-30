@@ -45,7 +45,11 @@
             builder.AddContent(seq++, player?.ShirtNumber?.ToString() ?? "");
             builder.CloseElement();
 
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "class", "info");
+
             builder.OpenElement(seq++, "span");
+            builder.AddAttribute(seq++, "class", "name");
             builder.AddContent(seq++, player != null ? Surname(player.Name) : "Empty slot");
             builder.CloseElement();
 
@@ -80,6 +84,7 @@
                 }
             }
 
+            builder.CloseElement(); // info
             builder.CloseElement();
         }
     };

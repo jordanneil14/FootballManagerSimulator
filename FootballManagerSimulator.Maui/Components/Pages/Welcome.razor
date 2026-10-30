@@ -10,6 +10,11 @@
         <h1>Pocket Gaffer</h1>
     </div>
 
+    @if (_error != null)
+    {
+        <div class="feedback"><div class="feedback-item warn">@_error</div></div>
+    }
+
     @if (_busy)
     {
         <div class="throbber-wrap"><div class="throbber"></div></div>
@@ -23,6 +28,10 @@
             {
                 <button class="btn btn-ghost btn-block" @onclick="@(() => Go("/game"))">Resume Current Game</button>
             }
+            else if (_lastSave != null)
+            {
+                <button class="btn btn-ghost btn-block" @onclick="ResumeLastSave">Resume Current Game</button>
+            }
         </div>
     }
 
@@ -31,6 +40,33 @@
 
 @code {
     private bool _busy;
+    private string? _error;
+    private LoadGamePreviewModel? _lastSave;
+
+    // With no game open (e.g. the app was closed or updated), Resume offers the most recent save instead.
+    // Reading its preview is file work, so it runs off the UI thread and the button appears once it's found.
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Engine.GameInProgress)
+            _lastSave = await Task.Run(Engine.MostRecentSave);
+    }
+
+    private async Task ResumeLastSave()
+    {
+        if (_lastSave == null) return;
+        _error = null;
+        await ShowThrobber();
+
+        _error = await Task.Run(() => Engine.LoadGame(_lastSave.FileName));
+        if (_error == null)
+        {
+            Engine.NotifyChanged();
+            Nav.NavigateTo("/game");
+            return;
+        }
+
+        _busy = false;
+    }
 
     // Show the throbber and let the browser paint it before any blocking work or navigation.
     private async Task ShowThrobber()
