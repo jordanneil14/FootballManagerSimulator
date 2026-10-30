@@ -157,7 +157,7 @@
     },
     {
       "ID": 33,
-      "Name": "Villa",
+      "Name": "Witton Clarets",
       "Stadium": "Witton Lane Grounds",
       "LeagueId": 1,
       "Colour": "Claret/Blue",
@@ -749,7 +749,7 @@
     },
     {
       "ID": 95,
-      "Name": "Athletico",
+      "Name": "Manzanares Stripes",
       "Stadium": "Metropolitano Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
@@ -813,7 +813,7 @@
     },
     {
       "ID": 112,
-      "Name": "Grenada",
+      "Name": "Alhambra Reds",
       "Stadium": "Nuevo Los Carmenes Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
@@ -821,7 +821,7 @@
     },
     {
       "ID": 109,
-      "Name": "Leganas",
+      "Name": "Butarque Blues",
       "Stadium": "Butarque Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
@@ -862,7 +862,7 @@
     {
       "ID": 106,
       "Name": "Balearic Reds",
-      "Stadium": "Gran Canaria Fields",
+      "Stadium": "Son Moix Fields",
       "LeagueId": 5,
       "Colour": "Red/Black",
       "StadiumSize": 23142
@@ -877,7 +877,7 @@
     },
     {
       "ID": 98,
-      "Name": "Sociadad",
+      "Name": "Donostia Blues",
       "Stadium": "San Sebastian Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
@@ -901,7 +901,7 @@
     },
     {
       "ID": 115,
-      "Name": "04 Beyer",
+      "Name": "Wupper Reds",
       "Stadium": "Rhine Arena Fields",
       "LeagueId": 6,
       "Colour": "Red/Black",
@@ -925,7 +925,7 @@
     },
     {
       "ID": 126,
-      "Name": "Darmstad",
+      "Name": "Darmstadt Lilies",
       "Stadium": "Darmstadt Fields",
       "LeagueId": 22,
       "Colour": "Blue/White",
@@ -957,7 +957,7 @@
     },
     {
       "ID": 116,
-      "Name": "Gladback",
+      "Name": "Niederrhein Foals",
       "Stadium": "Niederrhein Park Fields",
       "LeagueId": 6,
       "Colour": "White/Green/Black",
@@ -989,7 +989,7 @@
     },
     {
       "ID": 127,
-      "Name": "Hoffheim",
+      "Name": "Kraichgau Blues",
       "Stadium": "Sinsheim Fields",
       "LeagueId": 6,
       "Colour": "Blue",
@@ -1013,7 +1013,7 @@
     },
     {
       "ID": 118,
-      "Name": "Maine",
+      "Name": "Rheinhessen Reds",
       "Stadium": "Mainz Fields",
       "LeagueId": 6,
       "Colour": "Red/White",
@@ -2501,7 +2501,7 @@
     },
     {
       "ID": 316,
-      "Name": "Izmir Goztepe",
+      "Name": "Izmir Yellows",
       "Stadium": "Gursel Aksel Fields",
       "LeagueId": 19,
       "Colour": "Yellow/Red",
