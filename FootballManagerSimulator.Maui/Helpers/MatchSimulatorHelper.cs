@@ -182,7 +182,7 @@ public class MatchSimulatorHelper(
             if (fixture.GoalsHome != fixture.GoalsAway)
                 EndFixture(fixture, competition);
         }
-        else if ((competition.Type != CompetitionType.Cup && competition.Type != CompetitionType.EnglishCommunityShield) || fixture.GoalsHome != fixture.GoalsAway)
+        else if (!competition.Type.IsKnockout() || fixture.GoalsHome != fixture.GoalsAway)
         {
             EndFixture(fixture, competition);
         }
@@ -424,8 +424,8 @@ public class MatchSimulatorHelper(
     }
 
     private static bool IsCupFinal(FixtureModel fixture, ICompetition competition) =>
-        (competition.Type == CompetitionType.Cup || competition.Type == CompetitionType.EnglishCommunityShield)
-        && (competition.DrawSettings.Count == 0 || fixture.Round == competition.DrawSettings.Max(p => p.Round));
+        competition.Type.IsKnockout()
+        &&(competition.DrawSettings.Count == 0 || fixture.Round == competition.DrawSettings.Max(p => p.Round));
 
     private void UpdateBoardConfidence(FixtureModel fixture, ICompetition competition)
     {

@@ -2745,6 +2745,13 @@
       "Name": "English Cup"
     },
     {
+      "Id": 20,
+      "CountryId": 1,
+      "IsLeague": false,
+      "Type": "EnglishFACup",
+      "Name": "National Association Cup"
+    },
+    {
       "Id": 9,
       "IsLeague": false,
       "Type": "Friendly",

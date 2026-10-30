@@ -41,9 +41,9 @@ public class EnglishPremierLeagueService(
             message);
     }
 
-	private IEnumerable<DateOnly> EnglishLeagueCupFixtureDates => State.Competitions
-		.First(p => p.Type == CompetitionType.Cup)
-		.DrawSettings
+	private IEnumerable<DateOnly> EnglishCupFixtureDates => State.Competitions
+		.Where(p => p.Type.IsSeasonLongEnglishCup())
+		.SelectMany(p => p.DrawSettings)
 		.Select(p => p.FixtureDate);
 
 	private IEnumerable<DateOnly> GetFixtureDates(int fixtureCount)
@@ -62,8 +62,8 @@ public class EnglishPremierLeagueService(
                 availableTuesdays.Add(date);
         }
 
-		availableSaturdays = [.. availableSaturdays.Except(EnglishLeagueCupFixtureDates)];
-		availableTuesdays = [.. availableTuesdays.Except(EnglishLeagueCupFixtureDates)];
+		availableSaturdays = [.. availableSaturdays.Except(EnglishCupFixtureDates)];
+		availableTuesdays = [.. availableTuesdays.Except(EnglishCupFixtureDates)];
 
 		var remainingFixtureCount = fixtureCount - availableSaturdays.Count();
 

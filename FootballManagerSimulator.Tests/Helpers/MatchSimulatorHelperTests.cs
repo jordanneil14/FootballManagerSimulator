@@ -34,7 +34,7 @@ public class MatchSimulatorHelperTests
         ICompetition competition = type switch
         {
             CompetitionType.Friendly => new FriendlyModel { Id = 50 },
-            CompetitionType.Cup or CompetitionType.EnglishCommunityShield => new CupModel { Id = 50, Type = type },
+            CompetitionType.Cup or CompetitionType.EnglishCommunityShield or CompetitionType.EnglishFACup => new CupModel { Id = 50, Type = type },
             _ => TestData.League(50, _state.Clubs, type)
         };
         competition.Fixtures.Add(fixture);
@@ -72,6 +72,7 @@ public class MatchSimulatorHelperTests
     [Theory]
     [InlineData(CompetitionType.Cup)]
     [InlineData(CompetitionType.EnglishCommunityShield)]
+    [InlineData(CompetitionType.EnglishFACup)]
     public void ConcludeFixture_KnockoutMatchAlwaysProducesAWinner(CompetitionType type)
     {
         for (var i = 0; i < Iterations; i++)
@@ -498,6 +499,24 @@ public class MatchSimulatorHelperTests
 
         Assert.Empty(_state.ManagerHistory.Trophies);
         Assert.Equal(0, _state.ManagerHistory.Played);
+    }
+
+    [Theory]
+    [InlineData(FACupRules.Rounds, true)]
+    [InlineData(FACupRules.Rounds - 1, false)]
+    public void FinaliseMatch_OnlyWinningTheFACupFinalIsATrophy(int round, bool trophy)
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.EnglishFACup);
+        competition.DrawSettings.AddRange(Enumerable.Range(1, FACupRules.Rounds).Select(r => new DrawSettingsModel { Round = r }));
+        fixture.Round = round;
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Equal(trophy, _state.ManagerHistory.Trophies.Any(t => t.Name == competition.Name));
     }
 
     [Fact]

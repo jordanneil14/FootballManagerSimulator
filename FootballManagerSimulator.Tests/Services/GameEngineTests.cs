@@ -459,6 +459,53 @@ public class GameEngineTests : IDisposable
         Assert.Contains($"£{CupPrizeMoneyRules.ForWinner(7):n0}", notification.Message);
     }
 
+    private CupModel AddFACup()
+    {
+        var cup = new CupModel
+        {
+            Id = 20,
+            Name = "National Association Cup",
+            Type = CompetitionType.EnglishFACup,
+            DrawSettings = Enumerable.Range(1, FACupRules.Rounds).Select(r => new DrawSettingsModel { Round = r }).ToList()
+        };
+        _state.Competitions.Add(cup);
+        return cup;
+    }
+
+    [Theory]
+    [InlineData(1, "round 1")]
+    [InlineData(3, "round 3")]
+    [InlineData(FACupRules.Rounds, "the final")]
+    public void FACupTies_PayTheFACupPrizeMoney(int round, string stage)
+    {
+        var budget = MyClub.TransferBudget;
+        var loser = _state.Clubs[1];
+        var loserBudget = loser.TransferBudget;
+        AddCupTieToday(AddFACup(), MyClub, loser, round);
+
+        _engine.CompleteRemainingFixtures();
+
+        Assert.Equal(budget + FACupRules.ForWinner(round), MyClub.TransferBudget);
+        Assert.Equal(loserBudget + FACupRules.ForLoser(round), loser.TransferBudget);
+        var notification = Assert.Single(_state.Notifications, n => n.Subject == "National Association Cup Prize Money");
+        Assert.Contains($"in {stage} of the National Association Cup", notification.Message);
+    }
+
+    [Fact]
+    public void CupTies_InBothCupsOnTheSameDayArePaidFromTheirOwnTables()
+    {
+        var (a, b, c, d) = (_state.Clubs[1], _state.Clubs[2], TestData.Club(77), TestData.Club(78));
+        _state.Clubs.AddRange([c, d]);
+        var (aBudget, cBudget) = (a.TransferBudget, c.TransferBudget);
+        AddCupTieToday(AddEnglishCup(), a, b, round: 2);
+        AddCupTieToday(AddFACup(), c, d, round: 2);
+
+        _engine.CompleteRemainingFixtures();
+
+        Assert.Equal(aBudget + CupPrizeMoneyRules.ForWinner(2), a.TransferBudget);
+        Assert.Equal(cBudget + FACupRules.ForWinner(2), c.TransferBudget);
+    }
+
     [Fact]
     public void CupTies_TellMeWhatALossStillEarned()
     {

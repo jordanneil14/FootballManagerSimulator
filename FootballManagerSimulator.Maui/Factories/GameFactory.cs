@@ -179,7 +179,7 @@ public class GameFactory(
             TacticHelper.ResetTacticForClub(club);
         }
 
-        foreach (var competition in Settings.Competitions.OrderByDescending(p => p.Type == "Cup"))
+        foreach (var competition in Settings.Competitions.OrderBy(p => p.CreationOrder()))
         {
             var competitionProvider = CompetitionProviders
                 .First(p => p.Type.ToString() == competition.Type);

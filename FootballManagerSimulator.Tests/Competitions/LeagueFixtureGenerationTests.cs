@@ -130,6 +130,28 @@ public class LeagueFixtureGenerationTests
     }
 
     [Theory]
+    [InlineData(nameof(EnglishPremierLeagueService))]
+    [InlineData(nameof(EnglishFootballLeagueService))]
+    [InlineData(nameof(EnglishNationalLeagueService))]
+    public void EnglishLeaguesAvoidFACupDatesTooAndPlayTheMatchesOnTuesdays(string serviceName)
+    {
+        var (service, state, league) = Arrange(serviceName, 24);
+        var faCupDates = Enumerable.Range(1, FACupRules.Rounds).Select(r => FACupRules.PlannedDate(r, 2026)).ToArray();
+        state.Competitions.Add(new CupModel
+        {
+            Id = 20,
+            Type = CompetitionType.EnglishFACup,
+            DrawSettings = faCupDates.Select((d, i) => new DrawSettingsModel { Round = i + 1, FixtureDate = d }).ToList()
+        });
+
+        service.GenerateNextRoundOfFixtures(league);
+
+        Assert.DoesNotContain(league.Fixtures, f => faCupDates.Contains(f.Date) || CupDates.Contains(f.Date));
+        Assert.Equal(2 * 23, league.Fixtures.Select(f => f.Date).Distinct().Count());
+        Assert.All(league.Fixtures, f => Assert.Contains(f.Date.DayOfWeek, new[] { DayOfWeek.Saturday, DayOfWeek.Tuesday }));
+    }
+
+    [Theory]
     [InlineData(nameof(LeagueService))]
     [InlineData(nameof(EnglishPremierLeagueService))]
     [InlineData(nameof(EnglishFootballLeagueService))]
