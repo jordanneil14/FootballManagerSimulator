@@ -73,6 +73,101 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void TryMakeJobOffer_NamesTheClubAndItsLeague()
+    {
+        _state.BoardConfidence = 90;
+
+        _helper.TryMakeJobOffer();
+
+        var offer = PendingOffer();
+        var club = _state.Clubs.Single(c => c.Id == offer.JobOfferClubId);
+        Assert.Equal($"Job offer from {club.Name}", offer.Subject);
+        Assert.Equal($"{club.Name} Chairman", offer.Recipient);
+        Assert.Contains($"({_state.Competitions.Single(c => c.Id == club.LeagueId).Name})", offer.Message);
+    }
+
+    [Fact]
+    public void TryMakeJobOffer_NothingWhenNoOtherClubIsEligible()
+    {
+        _state.BoardConfidence = 90;
+        _state.MyClubId = 6; // alone in the top league of country 2
+
+        Assert.False(_helper.TryMakeJobOffer());
+        Assert.Empty(_state.Notifications);
+    }
+
+    [Fact]
+    public void TryMakeJobOffer_NothingWhenMyClubIsOutsideAnyLeague()
+    {
+        _state.BoardConfidence = 90;
+        _state.Clubs.Single(c => c.Id == 3).LeagueId = 999;
+
+        Assert.False(_helper.TryMakeJobOffer());
+    }
+
+    [Fact]
+    public void ProcessJobOffers_OnlySometimesMakesAnOffer()
+    {
+        _state.BoardConfidence = 90;
+        var offers = 0;
+
+        for (var week = 0; week < 400; week++)
+        {
+            _helper.ProcessJobOffers();
+            if (_state.Notifications.Any(p => p.RequiresAction))
+            {
+                offers++;
+                _helper.DeclineJobOffer(PendingOffer());
+            }
+        }
+
+        // 15% a week: about 60 of 400.
+        Assert.InRange(offers, 20, 120);
+    }
+
+    [Fact]
+    public void AcceptJobOffer_FromAClubThatNoLongerExistsLeavesMeWhereIAm()
+    {
+        var offer = new NotificationModel { Date = _state.Date, Subject = "Job offer", RequiresAction = true, JobOfferClubId = 99 };
+        _state.Notifications.Add(offer);
+
+        _helper.AcceptJobOffer(offer);
+
+        Assert.Equal(3, _state.MyClubId);
+        Assert.False(offer.RequiresAction);
+        Assert.Equal("⚠️ Job no longer available", offer.Response);
+    }
+
+    [Fact]
+    public void AnsweringAJobOfferTwiceChangesNothing()
+    {
+        _state.BoardConfidence = 90;
+        _helper.TryMakeJobOffer();
+        var offer = PendingOffer();
+        _helper.DeclineJobOffer(offer);
+
+        _helper.AcceptJobOffer(offer);
+        _helper.DeclineJobOffer(offer);
+
+        Assert.Equal(3, _state.MyClubId);
+        Assert.Equal("❌ Job declined", offer.Response);
+    }
+
+    [Fact]
+    public void AnsweringANotificationThatIsNotAJobOfferChangesNothing()
+    {
+        var bid = new NotificationModel { Date = _state.Date, Subject = "Bid", RequiresAction = true, BidPlayerId = 1 };
+        _state.Notifications.Add(bid);
+
+        _helper.AcceptJobOffer(bid);
+        _helper.DeclineJobOffer(bid);
+
+        Assert.True(bid.RequiresAction);
+        Assert.Null(bid.Response);
+        Assert.Equal(3, _state.MyClubId);
+    }
+
+    [Fact]
     public void AcceptJobOffer_MovesMeToTheNewClubAndCancelsOldClubBusiness()
     {
         _state.BoardConfidence = 90;

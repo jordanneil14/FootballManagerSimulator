@@ -67,12 +67,6 @@ public class EnglishLeagueCupService(
         return fixtures;
     }
 
-    public void GeneratePreMatchReportForFixture(FixtureModel fixture)
-    {
-        NotificationFactory.AddNotification(
-            State.Date,
-            "Club Analyst",
-            "Pre-Match Report",
-            "English Cup match incoming");
-    }
+    public void GeneratePreMatchReportForFixture(FixtureModel fixture) =>
+        CupPreMatchReport.Send(State, NotificationFactory, fixture);
 }

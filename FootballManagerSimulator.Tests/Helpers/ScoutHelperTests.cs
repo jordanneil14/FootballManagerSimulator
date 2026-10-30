@@ -157,6 +157,152 @@ public class ScoutHelperTests
         Assert.False(_helper.MatchesAssignment(player, new ScoutAssignmentModel { Position = "ST" }));
     }
 
+    // Aged 25 on the state date, rated 62, at club 2.
+    private PlayerModel AssignmentCandidate(int? clubId = 2, int rating = 62)
+    {
+        var player = TestData.Player(5000, clubId, position: "CM", rating: rating);
+        player.BirthDate = "01/01/2001";
+        return player;
+    }
+
+    [Fact]
+    public void MatchesAssignment_AnEmptyAssignmentMatchesAnyone()
+    {
+        Assert.True(_helper.MatchesAssignment(AssignmentCandidate(), new ScoutAssignmentModel()));
+        Assert.True(_helper.MatchesAssignment(AssignmentCandidate(clubId: null), new ScoutAssignmentModel()));
+    }
+
+    [Theory]
+    [InlineData(true, null, true)]
+    [InlineData(true, 2, false)]
+    [InlineData(false, null, false)]
+    [InlineData(false, 2, true)]
+    public void MatchesAssignment_FiltersFreeAgentsOrContractedPlayers(bool wantFreeAgent, int? clubId, bool matches)
+    {
+        var assignment = new ScoutAssignmentModel { FreeAgent = wantFreeAgent };
+
+        Assert.Equal(matches, _helper.MatchesAssignment(AssignmentCandidate(clubId), assignment));
+    }
+
+    [Theory]
+    [InlineData(25, null, true)]
+    [InlineData(26, null, false)]
+    [InlineData(null, 25, true)]
+    [InlineData(null, 24, false)]
+    public void MatchesAssignment_FiltersByAgeInclusively(int? minAge, int? maxAge, bool matches)
+    {
+        var assignment = new ScoutAssignmentModel { MinAge = minAge, MaxAge = maxAge };
+
+        Assert.Equal(matches, _helper.MatchesAssignment(AssignmentCandidate(), assignment));
+    }
+
+    [Theory]
+    [InlineData(62, null, true)]
+    [InlineData(63, null, false)]
+    [InlineData(null, 62, true)]
+    [InlineData(null, 61, false)]
+    public void MatchesAssignment_FiltersByRatingInclusively(int? minRating, int? maxRating, bool matches)
+    {
+        var assignment = new ScoutAssignmentModel { MinRating = minRating, MaxRating = maxRating };
+
+        Assert.Equal(matches, _helper.MatchesAssignment(AssignmentCandidate(), assignment));
+    }
+
+    [Fact]
+    public void MatchesAssignment_FiltersByTransferValueInclusively()
+    {
+        var player = AssignmentCandidate();
+        var value = new PlayerHelper(_state).GetTransferValue(player);
+
+        Assert.True(_helper.MatchesAssignment(player, new ScoutAssignmentModel { MaxValue = value }));
+        Assert.False(_helper.MatchesAssignment(player, new ScoutAssignmentModel { MaxValue = value - 1 }));
+    }
+
+    [Fact]
+    public void MatchesAssignment_OnlyWillSignLeavesOutPlayersWhoWouldRefuse()
+    {
+        var star = AssignmentCandidate(rating: 90);
+
+        Assert.False(_helper.MatchesAssignment(star, new ScoutAssignmentModel { OnlyWillSign = true }));
+        Assert.True(_helper.MatchesAssignment(star, new ScoutAssignmentModel { OnlyWillSign = false }));
+        Assert.True(_helper.MatchesAssignment(AssignmentCandidate(), new ScoutAssignmentModel { OnlyWillSign = true }));
+    }
+
+    [Fact]
+    public void DiscoveredPlayers_LeavesOutMySquadAndPlayersNoLongerInTheGame()
+    {
+        var mine = _state.Players.First(p => p.Contract?.ClubId == MyClub.Id);
+        var theirs = _state.Players.First(p => p.Contract?.ClubId == 2);
+        var freeAgent = TestData.Player(5000, clubId: null);
+        _state.Players.Add(freeAgent);
+        _state.DiscoveredPlayerIds = [mine.Id, theirs.Id, freeAgent.Id, 99_999];
+
+        Assert.Equal([theirs, freeAgent], _helper.DiscoveredPlayers().OrderBy(p => p.Id == freeAgent.Id));
+    }
+
+    [Fact]
+    public void EnsureDiscoveredPlayers_GivesAnOlderSaveAStartingPool()
+    {
+        _state.DiscoveredPlayerIds.Clear();
+
+        _helper.EnsureDiscoveredPlayers();
+
+        Assert.NotEmpty(_state.DiscoveredPlayerIds);
+    }
+
+    [Fact]
+    public void EnsureDiscoveredPlayers_KeepsAnExistingPool()
+    {
+        _state.DiscoveredPlayerIds = [_state.Players[^1].Id];
+
+        _helper.EnsureDiscoveredPlayers();
+
+        Assert.Equal([_state.Players[^1].Id], _state.DiscoveredPlayerIds);
+    }
+
+    [Fact]
+    public void EnsureDiscoveredPlayers_DoesNothingWithNoPlayers()
+    {
+        _state.Players.Clear();
+        _state.DiscoveredPlayerIds.Clear();
+
+        _helper.EnsureDiscoveredPlayers();
+
+        Assert.Empty(_state.DiscoveredPlayerIds);
+    }
+
+    [Fact]
+    public void HireScout_RefusedWhileUnemployed()
+    {
+        _state.MyClubId = null;
+
+        Assert.Equal("You need a club to hire scouts.", _helper.HireScout());
+        Assert.Empty(_state.Scouts);
+    }
+
+    [Fact]
+    public void UnknownScouts_CannotBeDismissedOrGivenAnAssignment()
+    {
+        _helper.HireScout();
+
+        Assert.Equal("Scout not found.", _helper.DismissScout(99));
+        Assert.Equal("Scout not found.", _helper.SetAssignment(99, new ScoutAssignmentModel()));
+        Assert.Single(_state.Scouts);
+    }
+
+    [Fact]
+    public void SetAssignment_ClearingItSendsTheScoutBackToSearchingForAnyone()
+    {
+        _helper.HireScout();
+        var scout = _state.Scouts[0];
+        _helper.SetAssignment(scout.Id, new ScoutAssignmentModel { Position = "ST" });
+
+        var message = _helper.SetAssignment(scout.Id, null);
+
+        Assert.Null(scout.Assignment);
+        Assert.Equal($"{scout.Name} will search for any player.", message);
+    }
+
     [Fact]
     public void ProcessScouts_RecommendsChangingTheAssignmentWhenNothingIsFound()
     {

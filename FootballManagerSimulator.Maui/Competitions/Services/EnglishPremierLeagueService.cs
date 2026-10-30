@@ -30,7 +30,7 @@ public class EnglishPremierLeagueService(
             .Take(3)
             .Select(p => p.Name);
 
-        var message = $"I've generate a pre-match report for the upcoming fixture against {oppositionClub.Name}.\n" +
+        var message = $"I've generated a pre-match report for the upcoming fixture against {oppositionClub.Name}.\n" +
             $"They sit {NumberHelper.AddOrdinal(leaguePositionIndex)} in the league and have numerous players who can cause a threat:\n" +
             $"\t{string.Join("\n\t", oppositionPlayers)}";
 

@@ -191,6 +191,67 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void ReGenerateFromMinute_InTheFirstHalfRegeneratesBothHalves()
+    {
+        var firstHalfGoals = 0;
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            var early = new GoalModel { Minute = 10, PlayerId = Home.TacticSlots[9].PlayerId!.Value };
+            fixture.HomeScorers.Add(early);
+
+            _simulator.ReGenerateFromMinute(fixture, 15);
+
+            var regenerated = fixture.HomeScorers.Concat(fixture.AwayScorers).Where(g => g != early).ToList();
+            Assert.Contains(early, fixture.HomeScorers);
+            Assert.All(regenerated, g => Assert.InRange(g.Minute, 16, 90));
+            firstHalfGoals += regenerated.Count(g => g.Minute <= 45);
+        }
+
+        Assert.True(firstHalfGoals > 0, $"Expected a regenerated first-half goal across {Iterations} matches");
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_DuringExtraTimeRegeneratesTheRestOfExtraTime()
+    {
+        var lateGoals = 0;
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.Cup);
+            var kept = new GoalModel { Minute = 95, PlayerId = Home.TacticSlots[9].PlayerId!.Value };
+            var dropped = new GoalModel { Minute = 110, PlayerId = Away.TacticSlots[9].PlayerId!.Value };
+            fixture.HomeScorers.Add(kept);
+            fixture.AwayScorers.Add(dropped);
+
+            _simulator.ReGenerateFromMinute(fixture, 100);
+
+            Assert.Contains(kept, fixture.HomeScorers);
+            Assert.DoesNotContain(dropped, fixture.AwayScorers);
+            var regenerated = fixture.HomeScorers.Concat(fixture.AwayScorers).Where(g => g != kept).ToList();
+            Assert.All(regenerated, g => Assert.InRange(g.Minute, 101, 120));
+            lateGoals += regenerated.Count;
+        }
+
+        Assert.True(lateGoals > 0, $"Expected a regenerated extra-time goal across {Iterations} matches");
+    }
+
+    [Theory]
+    [InlineData(100, true)]
+    [InlineData(120, false)]
+    public void ReGenerateFromMinute_AddsNoExtraTimeOnceItIsOverOrTheMatchHasFinished(int fromMinute, bool concluded)
+    {
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.Cup);
+            fixture.Concluded = concluded;
+
+            _simulator.ReGenerateFromMinute(fixture, fromMinute);
+
+            Assert.Empty(fixture.HomeScorers.Concat(fixture.AwayScorers));
+        }
+    }
+
+    [Fact]
     public void ReGenerateFromMinute_RegeneratesAPenaltyWinnerIfThereWasOne()
     {
         var (fixture, _) = NewFixture(CompetitionType.Cup);
@@ -398,6 +459,45 @@ public class MatchSimulatorHelperTests
         Assert.Equal((1, 1, 1), (job.Won, job.GoalsFor, job.GoalsAgainst));
         var trophy = Assert.Single(_state.ManagerHistory.Trophies);
         Assert.Equal((competition.Name, Away.Name), (trophy.Name, trophy.ClubName));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void FinaliseMatch_WinningAPlayoffFinalIsATrophyButLosingOneIsNot(bool iWin)
+    {
+        _state.MyClubId = Home.Id;
+        _state.ManagerHistory.StartJob(Home, _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.League, FixtureType.PlayoffFinal);
+        fixture.GoalsHome = iWin ? 2 : 0;
+        fixture.GoalsAway = iWin ? 0 : 2;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        if (iWin)
+        {
+            var trophy = Assert.Single(_state.ManagerHistory.Trophies);
+            Assert.Equal(($"{competition.Name} Play-off Final", Home.Name, _state.Date), (trophy.Name, trophy.ClubName, trophy.Date));
+        }
+        else
+        {
+            Assert.Empty(_state.ManagerHistory.Trophies);
+        }
+    }
+
+    [Fact]
+    public void FinaliseMatch_OtherClubsWinningACupFinalIsNotMyTrophy()
+    {
+        _state.MyClubId = 3;
+        _state.ManagerHistory.StartJob(_state.Clubs[2], _state.Date);
+        var (fixture, competition) = NewFixture(CompetitionType.Cup);
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+
+        Assert.Empty(_state.ManagerHistory.Trophies);
+        Assert.Equal(0, _state.ManagerHistory.Played);
     }
 
     [Fact]

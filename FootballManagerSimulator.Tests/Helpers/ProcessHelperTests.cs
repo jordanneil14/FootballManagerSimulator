@@ -232,6 +232,46 @@ public class ProcessHelperTests : IDisposable
         Assert.DoesNotContain(aiRetiree.Name, notification.Message);
     }
 
+    private void FinishTheLeagueWithClubOnTop(int championId)
+    {
+        var league = TestData.League(1, State.Clubs);
+        foreach (var other in State.Clubs.Where(c => c.Id != championId))
+            league.Fixtures.Add(TestData.Result(State.Clubs.Single(c => c.Id == championId), other, 2, 0));
+        State.Competitions.Add(league);
+    }
+
+    [Fact]
+    public void EndOfSeason_WinningMyLeagueAddsATrophyForThatSeason()
+    {
+        FinishTheLeagueWithClubOnTop(championId: 1);
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        var trophy = Assert.Single(State.ManagerHistory.Trophies);
+        Assert.Equal(("League 1", "Club 1", "2026/27"), (trophy.Name, trophy.ClubName, trophy.Season));
+    }
+
+    [Fact]
+    public void EndOfSeason_AnotherClubWinningMyLeagueIsNoTrophy()
+    {
+        FinishTheLeagueWithClubOnTop(championId: 2);
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        Assert.Empty(State.ManagerHistory.Trophies);
+    }
+
+    [Fact]
+    public void EndOfSeason_NoLeagueTrophyWhileUnemployed()
+    {
+        FinishTheLeagueWithClubOnTop(championId: 1);
+        _host.Get<IJobOfferHelper>().SackUser();
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        Assert.Empty(State.ManagerHistory.Trophies);
+    }
+
     [Fact]
     public void EndOfSeason_FreeAgentsWhoGoAWholeSeasonUnsignedLeaveTheGame()
     {
