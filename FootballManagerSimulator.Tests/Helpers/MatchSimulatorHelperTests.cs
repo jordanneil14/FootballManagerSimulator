@@ -578,6 +578,77 @@ public class MatchSimulatorHelperTests
         Assert.Contains(_state.Players.First(p => p.Id == myPlayerId).Name, injuryNotifications[0].Subject);
     }
 
+    private void HirePhysios(int count)
+    {
+        for (var i = 1; i <= count; i++)
+            _state.Physios.Add(new PhysioModel { Id = i, Name = $"Physio {i}", HiredDate = _state.Date });
+    }
+
+    private (int myPlayerId, int opponentPlayerId) InjureOnePlayerEachSide(int daysOut)
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        var myPlayerId = Home.TacticSlots[5].PlayerId!.Value;
+        var opponentPlayerId = Away.TacticSlots[5].PlayerId!.Value;
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 30, PlayerId = myPlayerId, Description = "Hamstring injury", DaysOut = daysOut });
+        fixture.AwayInjuries.Add(new InjuryModel { Minute = 55, PlayerId = opponentPlayerId, Description = "Hamstring injury", DaysOut = daysOut });
+        fixture.GoalsHome = 1;
+        fixture.GoalsAway = 0;
+
+        _simulator.FinaliseMatch(fixture, competition);
+        return (myPlayerId, opponentPlayerId);
+    }
+
+    [Theory]
+    [InlineData(0, 20)]
+    [InlineData(1, 17)]
+    [InlineData(2, 15)]
+    [InlineData(3, 14)]
+    public void FinaliseMatch_PhysiosShortenOnlyMyPlayersInjuries(int physios, int expectedDays)
+    {
+        HirePhysios(physios);
+
+        var (mine, theirs) = InjureOnePlayerEachSide(daysOut: 20);
+
+        Assert.Equal(_state.Date.AddDays(expectedDays), _state.Players.First(p => p.Id == mine).InjuryEndDate);
+        Assert.Equal(_state.Date.AddDays(20), _state.Players.First(p => p.Id == theirs).InjuryEndDate);
+    }
+
+    [Fact]
+    public void FinaliseMatch_InjuryNotificationExplainsThePhysioReduction()
+    {
+        HirePhysios(2);
+
+        InjureOnePlayerEachSide(daysOut: 20);
+
+        var notification = Assert.Single(_state.Notifications, n => n.Subject.Contains("injured"));
+        Assert.Equal("Medical Team", notification.Recipient);
+        Assert.Contains("out for 15 days", notification.Message);
+        Assert.Contains("(reduced from 20 days by your medical team)", notification.Message);
+    }
+
+    [Fact]
+    public void FinaliseMatch_InjuryNotificationWithoutPhysiosMentionsNoReduction()
+    {
+        InjureOnePlayerEachSide(daysOut: 20);
+
+        var notification = Assert.Single(_state.Notifications, n => n.Subject.Contains("injured"));
+        Assert.Contains("out for 20 days", notification.Message);
+        Assert.DoesNotContain("reduced", notification.Message);
+    }
+
+    [Fact]
+    public void FinaliseMatch_PhysiosNeverClearAnInjuryEntirely()
+    {
+        HirePhysios(PhysioRules.MaxPhysios);
+
+        var (mine, _) = InjureOnePlayerEachSide(daysOut: 1);
+
+        var player = _state.Players.First(p => p.Id == mine);
+        Assert.Equal(_state.Date.AddDays(1), player.InjuryEndDate);
+        Assert.True(player.IsInjured(_state.Date));
+    }
+
     [Fact]
     public void ReGenerateFromMinute_ClearsInjuriesPastTheGivenMinute()
     {

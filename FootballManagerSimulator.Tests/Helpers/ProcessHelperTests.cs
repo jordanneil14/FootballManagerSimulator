@@ -382,6 +382,117 @@ public class ProcessHelperTests : IDisposable
         Assert.All(intake.Except(mine), p => Assert.DoesNotContain(p.Name, notification.Message));
     }
 
+    // ----- Physios -----------------------------------------------------------------------
+
+    private static readonly DateOnly PhysioHired = new(2026, 8, 15);
+
+    private PhysioModel HirePhysio(int id) =>
+        AddPhysio(new PhysioModel { Id = id, Name = $"Physio {id}", HiredDate = PhysioHired });
+
+    private PhysioModel AddPhysio(PhysioModel physio)
+    {
+        State.Physios.Add(physio);
+        return physio;
+    }
+
+    [Fact]
+    public void Physios_AreNotPaidBeforeAMonthHasPassed()
+    {
+        var physio = HirePhysio(1);
+        State.Clubs[0].TransferBudget = 1_000_000;
+
+        AdvanceTo(PhysioHired.AddMonths(1).AddDays(-1));
+
+        Assert.Equal(1_000_000, State.Clubs[0].TransferBudget);
+        Assert.Equal(0, physio.MonthsWorked);
+    }
+
+    [Fact]
+    public void Physios_ArePaidFromMyBudgetEachMonth()
+    {
+        var first = HirePhysio(1);
+        var second = HirePhysio(2);
+        State.Clubs[0].TransferBudget = 1_000_000;
+        var otherBudget = State.Clubs[1].TransferBudget;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Equal(1_000_000 - 2 * PhysioRules.MonthlyWage, State.Clubs[0].TransferBudget);
+        Assert.Equal(otherBudget, State.Clubs[1].TransferBudget);
+        Assert.All(new[] { first, second }, p => Assert.Equal(1, p.MonthsWorked));
+        Assert.Equal(PhysioHired.AddMonths(2), first.NextPaymentDate);
+        Assert.Equal(2, State.Physios.Count);
+    }
+
+    [Fact]
+    public void Physios_ArePaidOnlyOncePerMonth()
+    {
+        HirePhysio(1);
+        State.Clubs[0].TransferBudget = 1_000_000;
+
+        for (var date = PhysioHired.AddMonths(1); date < PhysioHired.AddMonths(2); date = date.AddDays(1))
+            AdvanceTo(date);
+
+        Assert.Equal(1_000_000 - PhysioRules.MonthlyWage, State.Clubs[0].TransferBudget);
+    }
+
+    [Fact]
+    public void Physios_StayWhenTheBudgetCoversTheWageExactly()
+    {
+        HirePhysio(1);
+        State.Clubs[0].TransferBudget = PhysioRules.MonthlyWage;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Equal(0, State.Clubs[0].TransferBudget);
+        Assert.Single(State.Physios);
+        Assert.DoesNotContain(State.Notifications, n => n.Subject == "Physio Left");
+    }
+
+    [Fact]
+    public void Physios_LeaveUnpaidWhenTheBudgetCannotCoverTheWage()
+    {
+        var physio = HirePhysio(1);
+        State.Clubs[0].TransferBudget = PhysioRules.MonthlyWage - 1;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Empty(State.Physios);
+        Assert.Equal(PhysioRules.MonthlyWage - 1, State.Clubs[0].TransferBudget);
+        var notification = Assert.Single(State.Notifications, n => n.Subject == "Physio Left");
+        Assert.Equal($"{physio.Name} (Physio)", notification.Recipient);
+        Assert.Contains($"£{PhysioRules.MonthlyWage:n0}", notification.Message);
+    }
+
+    [Fact]
+    public void Physios_WhenOnlyOneWageCanBePaidTheRestLeave()
+    {
+        HirePhysio(1);
+        HirePhysio(2);
+        HirePhysio(3);
+        State.Clubs[0].TransferBudget = PhysioRules.MonthlyWage + 1;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Equal(1, State.Clubs[0].TransferBudget);
+        Assert.Equal(1, Assert.Single(State.Physios).Id);
+        Assert.Equal(2, State.Notifications.Count(n => n.Subject == "Physio Left"));
+    }
+
+    [Fact]
+    public void Physios_HiredOnDifferentDaysArePaidOnTheirOwnDates()
+    {
+        var early = HirePhysio(1);
+        var late = AddPhysio(new PhysioModel { Id = 2, Name = "Physio 2", HiredDate = PhysioHired.AddDays(10) });
+        State.Clubs[0].TransferBudget = 1_000_000;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Equal(1, early.MonthsWorked);
+        Assert.Equal(0, late.MonthsWorked);
+        Assert.Equal(1_000_000 - PhysioRules.MonthlyWage, State.Clubs[0].TransferBudget);
+    }
+
     // ----- Sacking ------------------------------------------------------------------------
 
     [Theory]
