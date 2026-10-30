@@ -21,6 +21,9 @@ public class LeagueModel : ICompetition
 	public int PlayoffPlaces { get; set; }
 	public int RelegationPlaces { get; set; }
 
+	// The club just above the automatic relegation places plays off against the league below to stay up.
+	public int RelegationPlayoffPlaces { get; set; }
+
 	// Once a split league divides, the clubs in its top half. They stay above the rest whatever the points.
 	public List<int> TopSplitClubIds { get; set; } = [];
 
@@ -31,32 +34,51 @@ public class LeagueModel : ICompetition
 	public bool HasPlayoffs =>
 		(Type.HasTwoLeggedPlayoffs() && PlayoffPlaces > 0)
 		|| (Type == CompetitionType.EnglishNationalLeague && PlayoffPlaces >= 6)
-		|| Type == CompetitionType.ScottishPremiership;
+		|| Type == CompetitionType.ScottishPremiership
+		|| RelegationPlayoffPlaces > 0;
 
 	// The clubs that go up, assuming there is a league above: the automatic places plus the play-off winner.
-	public List<ClubModel> PromotedClubs()
+	// Against a league above with a relegation play-off, the winner only goes up if it is one of ours.
+	public List<ClubModel> PromotedClubs(LeagueModel? leagueAbove = null)
 	{
 		var promoted = GenerateLeagueTable()
 			.Take(AutomaticPromotionPlaces)
 			.Select(p => p.Club)
 			.ToList();
 
-		var playoffWinner = Fixtures
-			.Where(p => p.FixtureType == FixtureType.PlayoffFinal && p.Concluded)
-			.Select(p => p.ClubWon)
-			.FirstOrDefault();
+		var playoffWinner = leagueAbove?.RelegationPlayoffPlaces > 0
+			? RelegationPlayoffSecondLeg()?.ClubWon
+			: Fixtures
+				.Where(p => p.FixtureType == FixtureType.PlayoffFinal && p.Concluded)
+				.Select(p => p.ClubWon)
+				.FirstOrDefault();
 
-		if (playoffWinner != null)
+		if (playoffWinner != null && Clubs.Any(p => p.Id == playoffWinner.Id))
 			promoted.Add(playoffWinner);
 
 		return promoted;
 	}
 
-	// The clubs that go down, assuming there is a league below.
-	public List<ClubModel> RelegatedClubs() => GenerateLeagueTable()
-		.TakeLast(RelegationPlaces)
-		.Select(p => p.Club)
-		.ToList();
+	// The clubs that go down, assuming there is a league below, including a relegation play-off loser.
+	public List<ClubModel> RelegatedClubs(LeagueModel? leagueBelow = null)
+	{
+		var relegated = GenerateLeagueTable()
+			.TakeLast(RelegationPlaces)
+			.Select(p => p.Club)
+			.ToList();
+
+		if (RelegationPlayoffPlaces > 0 && leagueBelow?.RelegationPlayoffSecondLeg() is { ClubWon: { } winner } secondLeg)
+		{
+			var loser = winner.Id == secondLeg.HomeClub.Id ? secondLeg.AwayClub : secondLeg.HomeClub;
+			if (Clubs.Any(p => p.Id == loser.Id))
+				relegated.Add(loser);
+		}
+
+		return relegated;
+	}
+
+	private FixtureModel? RelegationPlayoffSecondLeg() =>
+		Fixtures.FirstOrDefault(p => p.FixtureType == FixtureType.PlayoffSecondLeg && p.Concluded);
 
 	public IOrderedEnumerable<LeaguePositionModel> GenerateLeagueTable()
     {

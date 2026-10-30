@@ -255,13 +255,13 @@ public class ProcessHelper(
                     {
                         var leagueAbove = tiers[i - 1][0];
 
-                        foreach (var club in league.PromotedClubs())
+                        foreach (var club in league.PromotedClubs(leagueAbove))
                             clubsById[club.Id].LeagueId = leagueAbove.Id;
                     }
 
                     if (i < tiers.Count - 1)
                     {
-                        foreach (var (club, leagueBelow) in SplitAcrossLeagues(league.RelegatedClubs(), tiers[i + 1]))
+                        foreach (var (club, leagueBelow) in SplitAcrossLeagues(league.RelegatedClubs(tiers[i + 1][0]), tiers[i + 1]))
                             clubsById[club.Id].LeagueId = leagueBelow.Id;
                     }
                 }
@@ -572,7 +572,7 @@ public class ProcessHelper(
 
         foreach (var league in State.Competitions.Where(p => p.Type.HasTwoLeggedPlayoffs()).Cast<LeagueModel>())
         {
-            if (league.PlayoffPlaces <= 0)
+            if (league.PlayoffPlaces <= 0 || RelegationPlayoffEvent.LeagueAbove(State, league) != null)
                 continue;
 
             var lastBaseFixtureDate = league.Fixtures
@@ -602,6 +602,7 @@ public class ProcessHelper(
             EventManager.ValidateAndAddEvent(playoffEvent);
         }
 
+        RelegationPlayoffEvent.ScheduleForLeagues(State, EventManager, ServiceProvider);
         CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
 
         foreach (var competition in State.Competitions.Where(p => p.Type == CompetitionType.Friendly))

@@ -161,6 +161,7 @@ else
         if (position <= cfg.AutomaticPromotionPlaces) return "zone-promo";
         if (position <= cfg.AutomaticPromotionPlaces + cfg.PlayoffPlaces) return "zone-playoff";
         if (position > cfg.Places - cfg.RelegationPlaces) return "zone-releg";
+        if (position > cfg.Places - cfg.RelegationPlaces - cfg.RelegationPlayoffPlaces) return "zone-playoff";
         return "";
     }
 }

@@ -157,7 +157,7 @@ public class GameFactory(
 
         foreach (var league in State.Competitions.Where(p => p.Type.HasTwoLeggedPlayoffs()).Cast<LeagueModel>())
         {
-            if (league.PlayoffPlaces <= 0)
+            if (league.PlayoffPlaces <= 0 || RelegationPlayoffEvent.LeagueAbove(State, league) != null)
                 continue;
 
             var lastBaseFixtureDate = league.Fixtures
@@ -187,6 +187,7 @@ public class GameFactory(
             EventManager.ValidateAndAddEvent(playoffEvent);
         }
 
+        RelegationPlayoffEvent.ScheduleForLeagues(State, EventManager, ServiceProvider);
         CompetitionEndEvent.ScheduleForCompetitions(State, EventManager, ServiceProvider);
     }
 

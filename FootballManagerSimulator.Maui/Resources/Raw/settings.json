@@ -927,7 +927,7 @@
       "ID": 126,
       "Name": "Darmstad",
       "Stadium": "Darmstadt Fields",
-      "LeagueId": 6,
+      "LeagueId": 22,
       "Colour": "Blue/White",
       "StadiumSize": 17000
     },
@@ -975,7 +975,7 @@
       "ID": 130,
       "Name": "Lower Saxony Reds",
       "Stadium": "Hannover Fields",
-      "LeagueId": 6,
+      "LeagueId": 22,
       "Colour": "Red/Green",
       "StadiumSize": 49000
     },
@@ -983,7 +983,7 @@
       "ID": 119,
       "Name": "Berlin Blues",
       "Stadium": "Olympiastadion Fields",
-      "LeagueId": 6,
+      "LeagueId": 22,
       "Colour": "Blue/White",
       "StadiumSize": 74244
     },
@@ -997,11 +997,11 @@
     },
     {
       "ID": 123,
-      "Name": "Danube Reds",
-      "Stadium": "Ingolstadt Fields",
+      "Name": "Saarland Blacks",
+      "Stadium": "Elversberg Fields",
       "LeagueId": 6,
-      "Colour": "Red/Black",
-      "StadiumSize": 15000
+      "Colour": "Black/White",
+      "StadiumSize": 10000
     },
     {
       "ID": 121,
@@ -1055,7 +1055,7 @@
       "ID": 120,
       "Name": "Aller Greens",
       "Stadium": "Wolfsburg Arena Fields",
-      "LeagueId": 6,
+      "LeagueId": 22,
       "Colour": "Green/White",
       "StadiumSize": 30000
     },
@@ -2770,6 +2770,134 @@
       "LeagueId": 21,
       "Colour": "White",
       "StadiumSize": 13300
+    },
+    {
+      "ID": 350,
+      "Name": "Franconia Reds",
+      "Stadium": "Nuremberg Fields",
+      "LeagueId": 22,
+      "Colour": "Red/Black",
+      "StadiumSize": 50000
+    },
+    {
+      "ID": 352,
+      "Name": "Palatinate Devils",
+      "Stadium": "Betzenberg Fields",
+      "LeagueId": 22,
+      "Colour": "Red/White",
+      "StadiumSize": 49850
+    },
+    {
+      "ID": 353,
+      "Name": "Harbour Browns",
+      "Stadium": "Millerntor Fields",
+      "LeagueId": 22,
+      "Colour": "Brown/White",
+      "StadiumSize": 29500
+    },
+    {
+      "ID": 354,
+      "Name": "Berlin Irons",
+      "Stadium": "Kopenick Fields",
+      "LeagueId": 6,
+      "Colour": "Red/White",
+      "StadiumSize": 22000
+    },
+    {
+      "ID": 355,
+      "Name": "Baden Blues",
+      "Stadium": "Karlsruhe Fields",
+      "LeagueId": 22,
+      "Colour": "Blue/White",
+      "StadiumSize": 34300
+    },
+    {
+      "ID": 356,
+      "Name": "East Westphalia Blues",
+      "Stadium": "Paderborn Fields",
+      "LeagueId": 6,
+      "Colour": "Blue/Black",
+      "StadiumSize": 15000
+    },
+    {
+      "ID": 357,
+      "Name": "Ruhr Valley Blues",
+      "Stadium": "Bochum Fields",
+      "LeagueId": 22,
+      "Colour": "Blue/White",
+      "StadiumSize": 26000
+    },
+    {
+      "ID": 358,
+      "Name": "Clover Greens",
+      "Stadium": "Furth Fields",
+      "LeagueId": 22,
+      "Colour": "Green/White",
+      "StadiumSize": 16600
+    },
+    {
+      "ID": 359,
+      "Name": "Lusatia Reds",
+      "Stadium": "Cottbus Fields",
+      "LeagueId": 22,
+      "Colour": "Red/White",
+      "StadiumSize": 22500
+    },
+    {
+      "ID": 360,
+      "Name": "Saxony-Anhalt Blues",
+      "Stadium": "Magdeburg Fields",
+      "LeagueId": 22,
+      "Colour": "Blue/White",
+      "StadiumSize": 30000
+    },
+    {
+      "ID": 361,
+      "Name": "Lion City Yellows",
+      "Stadium": "Brunswick Fields",
+      "LeagueId": 22,
+      "Colour": "Yellow/Blue",
+      "StadiumSize": 23300
+    },
+    {
+      "ID": 362,
+      "Name": "Fjord Storks",
+      "Stadium": "Kiel Fields",
+      "LeagueId": 22,
+      "Colour": "Blue/White/Red",
+      "StadiumSize": 15000
+    },
+    {
+      "ID": 363,
+      "Name": "Teutoburg Blacks",
+      "Stadium": "Bielefeld Fields",
+      "LeagueId": 22,
+      "Colour": "Black/White/Blue",
+      "StadiumSize": 26500
+    },
+    {
+      "ID": 364,
+      "Name": "Elbflorenz Yellows",
+      "Stadium": "Dresden Fields",
+      "LeagueId": 22,
+      "Colour": "Yellow/Black",
+      "StadiumSize": 32000
+    },
+    {
+      "ID": 365,
+      "Name": "Brenz Reds",
+      "Stadium": "Heidenheim Fields",
+      "LeagueId": 22,
+      "Colour": "Red/Blue",
+      "StadiumSize": 15000
+    },
+    {
+      "ID": 367,
+      "Name": "Hase Violets",
+      "Stadium": "Osnabruck Fields",
+      "LeagueId": 22,
+      "Colour": "Purple/White",
+      "StadiumSize": 15700
     }
   ],
   "Countries": [
@@ -2893,10 +3021,11 @@
       "Type": "League",
       "Name": "Division 1",
       "LeagueTable": {
-        "Places": 20,
+        "Places": 18,
         "AutomaticPromotionPlaces": 1,
         "PlayoffPlaces": 0,
-        "RelegationPlaces": 2
+        "RelegationPlaces": 2,
+        "RelegationPlayoffPlaces": 1
       }
     },
     {
@@ -2938,6 +3067,20 @@
         "Places": 22,
         "AutomaticPromotionPlaces": 2,
         "PlayoffPlaces": 4,
+        "RelegationPlaces": 0
+      }
+    },
+    {
+      "Id": 22,
+      "CountryId": 3,
+      "Rank": 2,
+      "IsLeague": true,
+      "Type": "League",
+      "Name": "Division 2",
+      "LeagueTable": {
+        "Places": 18,
+        "AutomaticPromotionPlaces": 2,
+        "PlayoffPlaces": 1,
         "RelegationPlaces": 0
       }
     },

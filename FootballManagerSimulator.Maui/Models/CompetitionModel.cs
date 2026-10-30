@@ -13,6 +13,7 @@ public class CompetitionModel
         public int AutomaticPromotionPlaces { get; set; }
         public int PlayoffPlaces { get; set; }
         public int RelegationPlaces { get; set; }
+        public int RelegationPlayoffPlaces { get; set; }
         public int Places { get; set; }
     }
 

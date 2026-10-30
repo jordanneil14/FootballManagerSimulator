@@ -193,6 +193,7 @@ else
             if (pos <= cfg.AutomaticPromotionPlaces) return "var(--accent)";
             if (pos <= cfg.AutomaticPromotionPlaces + cfg.PlayoffPlaces) return "#7fb2ff";
             if (pos > cfg.Places - cfg.RelegationPlaces) return "var(--danger)";
+            if (pos > cfg.Places - cfg.RelegationPlaces - cfg.RelegationPlayoffPlaces) return "#7fb2ff";
             return "var(--text)";
         }
     }
