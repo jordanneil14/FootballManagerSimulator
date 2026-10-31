@@ -461,7 +461,7 @@ public class MatchSimulatorHelper(
                 Date = State.Date,
                 Recipient = "Chairman",
                 Subject = "Your job is at risk",
-                Message = $"Results have not been good enough. The board's confidence in you has fallen to {State.BoardConfidence}/100 and your position is now at risk. Things need to improve quickly.",
+                Message = $"Results have not been good enough. The board's confidence in you has fallen to {BoardConfidenceRules.Format(State.BoardConfidence)} and your position is now at risk. Things need to improve quickly.",
                 RequiresAction = true,
                 IsBoardWarning = true
             });
@@ -483,7 +483,7 @@ public class MatchSimulatorHelper(
             });
     }
 
-    private static int ResultChange(FixtureModel fixture, int clubId) =>
+    private static double ResultChange(FixtureModel fixture, int clubId) =>
         fixture.ClubWon == null ? BoardConfidenceRules.Draw
         : fixture.ClubWon.Id == clubId ? BoardConfidenceRules.Win
         : BoardConfidenceRules.Loss;

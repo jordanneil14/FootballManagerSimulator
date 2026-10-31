@@ -73,7 +73,7 @@ public class CompetitionEndEvent(
             State.Date,
             "Chairman",
             "Promotion",
-            $"Congratulations on winning promotion from {league.Name}! Everyone at {myClub.Name} is delighted, and we look forward to competing in {leagueAbove.Name} next season. The board's confidence in you has risen to {State.BoardConfidence}/100.");
+            $"Congratulations on winning promotion from {league.Name}! Everyone at {myClub.Name} is delighted, and we look forward to competing in {leagueAbove.Name} next season. The board's confidence in you has risen to {BoardConfidenceRules.Format(State.BoardConfidence)}.");
     }
 
     private void AnnounceCupWinner(ICompetition cup)

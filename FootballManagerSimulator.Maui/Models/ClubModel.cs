@@ -15,7 +15,7 @@ public class ClubModel
     public List<TacticSlotModel> TacticSlots { get; set; } = new List<TacticSlotModel>();
     public string Formation { get; set; } = "4-4-2";
     public string Colour { get; set; } = "";
-    public int JobSecurity { get; set; } = BoardConfidenceRules.Starting;
+    public double JobSecurity { get; set; } = BoardConfidenceRules.Starting;
     public DateOnly? VacantUntil { get; set; }
 }
 

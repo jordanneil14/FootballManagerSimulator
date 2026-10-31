@@ -31,7 +31,7 @@ public class StateModel : IState
     [Newtonsoft.Json.JsonIgnore]
     public bool MatchInProgress { get; set; }
     public string CareerId { get; set; } = "";
-    public int BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
+    public double BoardConfidence { get; set; } = BoardConfidenceRules.Starting;
     public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();
     public List<ScoutModel> Scouts { get; set; } = new List<ScoutModel>();
     public List<PhysioModel> Physios { get; set; } = new List<PhysioModel>();

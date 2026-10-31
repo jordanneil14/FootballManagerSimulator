@@ -33,7 +33,7 @@
         <div class="progress-bar-fill" style="width:@(confidence)%;background:@confidenceColour"></div>
     </div>
     <p style="font-size:.82rem;margin-top:.5rem">
-        <strong style="color:@confidenceColour">@BoardConfidenceRules.Label(confidence)</strong> · @confidence / 100
+        <strong style="color:@confidenceColour">@BoardConfidenceRules.Label(confidence)</strong> · @BoardConfidenceRules.Format(confidence)
     </p>
 </div>
 

@@ -5,10 +5,10 @@ public static class BoardConfidenceRules
     public const int Starting = 50;
     public const int Min = 0;
     public const int Max = 100;
-    public const int Win = 3;
-    public const int Draw = 0;
-    public const int Loss = -3;
-    public const int Promotion = 10;
+    public const double Win = 3;
+    public const double Draw = 0;
+    public const double Loss = -2.5;
+    public const double Promotion = 10;
 
     public const int SecureFrom = 75;
     public const int StableFrom = 30;
@@ -32,9 +32,12 @@ public static class BoardConfidenceRules
     public const int StartingUnderThreatMin = 2;
     public const int StartingUnderThreatMax = 4;
 
-    public static int Apply(int confidence, int change) => Math.Clamp(confidence + change, Min, Max);
+    public static double Apply(double confidence, double change) => Math.Clamp(confidence + change, Min, Max);
 
-    public static string Label(int confidence) => confidence switch
+    // Confidence moves in half points, e.g. "47.5/100".
+    public static string Format(double confidence) => $"{confidence:0.#}/100";
+
+    public static string Label(double confidence) => confidence switch
     {
         >= SecureFrom => "Secure",
         >= StableFrom => "Stable",

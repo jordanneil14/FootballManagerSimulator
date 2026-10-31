@@ -313,8 +313,8 @@ public class MatchSimulatorHelperTests
     [Theory]
     [InlineData(2, 0, 53)]
     [InlineData(1, 1, 50)]
-    [InlineData(0, 2, 47)]
-    public void FinaliseMatch_MyCompetitiveResultMovesBoardConfidence(int homeGoals, int awayGoals, int expected)
+    [InlineData(0, 2, 47.5)]
+    public void FinaliseMatch_MyCompetitiveResultMovesBoardConfidence(int homeGoals, int awayGoals, double expected)
     {
         _state.MyClubId = Home.Id;
         var (fixture, competition) = NewFixture(CompetitionType.League);
@@ -342,7 +342,7 @@ public class MatchSimulatorHelperTests
         _simulator.FinaliseMatch(league, leagueComp);
         _simulator.FinaliseMatch(league, leagueComp);
 
-        Assert.Equal((53, 47), (Home.JobSecurity, Away.JobSecurity));
+        Assert.Equal((53, 47.5), (Home.JobSecurity, Away.JobSecurity));
     }
 
     [Fact]
@@ -358,7 +358,7 @@ public class MatchSimulatorHelperTests
             _simulator.FinaliseMatch(fixture, competition);
         }
 
-        Assert.Equal(6, Away.JobSecurity); // not reset while the job is vacant
+        Assert.Equal(7, Away.JobSecurity); // not reset while the job is vacant
         Assert.InRange(Away.VacantUntil!.Value.DayNumber - _state.Date.DayNumber,
             BoardConfidenceRules.VacancyMinDays, BoardConfidenceRules.VacancyMaxDays);
         var news = Assert.Single(_state.Notifications); // sacked once, not again while vacant
@@ -370,7 +370,7 @@ public class MatchSimulatorHelperTests
     public void FinaliseMatch_MyClubReachingZeroIsNotTreatedAsAnAiSacking()
     {
         _state.MyClubId = Away.Id;
-        Away.JobSecurity = 3;
+        Away.JobSecurity = 2;
         var (fixture, competition) = NewFixture(CompetitionType.League);
         fixture.GoalsHome = 1;
         fixture.GoalsAway = 0;
@@ -581,6 +581,12 @@ public class MatchSimulatorHelperTests
         Assert.Equal(100, BoardConfidenceRules.Apply(99, BoardConfidenceRules.Win));
         Assert.Equal(0, BoardConfidenceRules.Apply(1, BoardConfidenceRules.Loss));
     }
+
+    [Theory]
+    [InlineData(50, "50/100")]
+    [InlineData(47.5, "47.5/100")]
+    public void BoardConfidence_FormatsHalfPoints(double confidence, string expected) =>
+        Assert.Equal(expected, BoardConfidenceRules.Format(confidence));
 
     [Fact]
     public void PopulateFirstLegScores_CopiesTheReversedFirstLeg()
