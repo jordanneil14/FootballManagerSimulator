@@ -206,6 +206,12 @@ public class MatchSimulatorHelper(
         var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
         var awayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
 
+        // Goalkeepers are never sent off: they can be booked once, but get no straight red or second yellow.
+        var goalkeeperIds = homeSlots.Concat(awaySlots)
+            .Where(s => s.TacticSlotType == TacticSlotType.GK && s.PlayerId != null)
+            .Select(s => s.PlayerId!.Value)
+            .ToHashSet();
+
         for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(5, 15))
         {
             if (RandomNumberHelper.Next(1, 12) != 1)
@@ -214,13 +220,16 @@ public class MatchSimulatorHelper(
             var isHome = RandomNumberHelper.Next(0, 2) == 0;
             var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
             var sentOff = GetSentOffPlayerIds(cards, minute + 1);
-            var playerIds = (isHome ? homePlayerIds : awayPlayerIds).Where(id => !sentOff.Contains(id)).ToList();
+            var bookedKeepers = cards.Where(c => goalkeeperIds.Contains(c.PlayerId)).Select(c => c.PlayerId).ToHashSet();
+            var playerIds = (isHome ? homePlayerIds : awayPlayerIds)
+                .Where(id => !sentOff.Contains(id) && !bookedKeepers.Contains(id))
+                .ToList();
 
             if (!playerIds.Any()) continue;
 
             var playerId = playerIds[RandomNumberHelper.Next(0, playerIds.Count)];
 
-            var isStraightRed = RandomNumberHelper.Next(1, 12) == 1;
+            var isStraightRed = !goalkeeperIds.Contains(playerId) && RandomNumberHelper.Next(1, 12) == 1;
 
             if (isStraightRed)
             {

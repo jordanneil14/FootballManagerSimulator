@@ -1,3 +1,4 @@
+using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Events;
 using FootballManagerSimulator.Maui.Helpers;
 using FootballManagerSimulator.Maui.Interfaces;
@@ -230,6 +231,32 @@ public class ProcessHelperTests : IDisposable
         var notification = Assert.Single(State.Notifications, n => n.Subject == "Retirements");
         Assert.Contains(myRetiree.Name, notification.Message);
         Assert.DoesNotContain(aiRetiree.Name, notification.Message);
+    }
+
+    [Fact]
+    public void EndOfSeason_KeepsMyFormationAndLineupButDropsPlayersWhoLeft()
+    {
+        var seasonEnd = new DateOnly(2027, 6, 30);
+        var myClub = State.Clubs[0];
+        var tactics = _host.Get<ITacticHelper>();
+        myClub.Formation = "4-3-3";
+        tactics.ResetTacticForClub(myClub);
+        tactics.FillEmptyTacticSlotsByClubId(myClub.Id);
+
+        var released = State.Players.Single(p => p.Id == myClub.TacticSlots[1].PlayerId);
+        released.Contract!.ExpiryDate = seasonEnd;
+        // Reserve slots are left out: the summer squad top-up puts new signings into empty ones.
+        List<(TacticSlotType, int?)> Lineup() => myClub.TacticSlots
+            .Where(s => s.TacticSlotType != TacticSlotType.RES)
+            .Select(s => (s.TacticSlotType, s.PlayerId))
+            .ToList();
+        var lineupBefore = Lineup();
+
+        AdvanceTo(seasonEnd);
+
+        Assert.Equal("4-3-3", myClub.Formation);
+        Assert.Null(myClub.TacticSlots[1].PlayerId);
+        Assert.Equal(lineupBefore.Select((s, i) => i == 1 ? (s.Item1, null) : s), Lineup());
     }
 
     private void FinishTheLeagueWithClubOnTop(int championId)

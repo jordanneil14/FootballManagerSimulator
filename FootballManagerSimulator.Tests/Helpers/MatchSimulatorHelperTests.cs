@@ -161,6 +161,30 @@ public class MatchSimulatorHelperTests
         }
     }
 
+    [Fact]
+    public void Cards_GoalkeepersAreBookedAtMostOnceAndNeverSentOff()
+    {
+        var keeperIds = _state.Clubs
+            .SelectMany(c => c.TacticSlots)
+            .Where(s => s.TacticSlotType == TacticSlotType.GK)
+            .Select(s => s.PlayerId!.Value)
+            .ToHashSet();
+        var keeperBookings = 0;
+
+        for (var i = 0; i < 2000; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            _simulator.PreGenerateMatch(fixture);
+
+            var keeperCards = fixture.HomeCards.Concat(fixture.AwayCards).Where(c => keeperIds.Contains(c.PlayerId)).ToList();
+            Assert.DoesNotContain(keeperCards, c => c.IsRed);
+            Assert.All(keeperCards.GroupBy(c => c.PlayerId), g => Assert.Single(g));
+            keeperBookings += keeperCards.Count;
+        }
+
+        Assert.True(keeperBookings > 0, "Goalkeepers should still be booked sometimes.");
+    }
+
     // The user's live matches are pre-generated, so they must roll injuries like simulated matches do.
     [Fact]
     public void PreGenerateMatch_GeneratesInjuriesAtTheSimulatedRate()

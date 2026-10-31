@@ -577,8 +577,25 @@ public class ProcessHelper(
                 FriendlyService.GenerateNextRoundOfFixtures(competition);
         }
 
+        RemoveDepartedPlayersFromTactics();
+    }
+
+    // Lineups carry over into the new season (AI clubs pick theirs afresh before each match anyway);
+    // only players who have left a club over the summer are taken out of its slots.
+    private void RemoveDepartedPlayersFromTactics()
+    {
+        var clubIdByPlayer = State.Players
+            .Where(p => p.Contract != null)
+            .ToDictionary(p => p.Id, p => p.Contract!.ClubId);
+
         foreach (var club in State.Clubs)
-            TacticHelper.ResetTacticForClub(club);
+        {
+            foreach (var slot in club.TacticSlots)
+            {
+                if (slot.PlayerId is { } playerId && clubIdByPlayer.GetValueOrDefault(playerId) != club.Id)
+                    slot.PlayerId = null;
+            }
+        }
     }
 
     private void ValidateProcess()
