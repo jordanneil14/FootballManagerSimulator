@@ -161,6 +161,30 @@ public class MatchSimulatorHelperTests
         }
     }
 
+    // The user's live matches are pre-generated, so they must roll injuries like simulated matches do.
+    [Fact]
+    public void PreGenerateMatch_GeneratesInjuriesAtTheSimulatedRate()
+    {
+        const int matches = 500;
+        int preGenerated = 0, simulated = 0;
+
+        for (var i = 0; i < matches; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            _simulator.PreGenerateMatch(fixture);
+
+            Assert.All(fixture.HomeInjuries.Concat(fixture.AwayInjuries), injury => Assert.InRange(injury.Minute, 1, 90));
+            Assert.All(fixture.HomeInjuries, injury => Assert.Contains(injury.PlayerId, StarterIds(Home)));
+            preGenerated += fixture.HomeInjuries.Count + fixture.AwayInjuries.Count;
+
+            var (other, competition) = NewFixture(CompetitionType.League);
+            _simulator.ConcludeFixture(other, competition);
+            simulated += other.HomeInjuries.Count + other.AwayInjuries.Count;
+        }
+
+        Assert.InRange(preGenerated, simulated / 2, simulated * 2);
+    }
+
     [Fact]
     public void GenerateExtraTimeAndPenaltyEvents_AreAfterNinetyMinutes()
     {

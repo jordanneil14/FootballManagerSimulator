@@ -497,6 +497,7 @@ public class MatchSimulatorHelper(
         fixture.GoalsAway = 0;
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
+        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
 
         var minute = 0;
         while (minute <= 45)
@@ -508,6 +509,7 @@ public class MatchSimulatorHelper(
         }
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
+        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
 
         minute = 45;
         while (minute <= 90)
