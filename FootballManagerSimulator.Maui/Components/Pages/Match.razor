@@ -229,7 +229,7 @@ else
                     @for (var i = 0; i < homeStarters.Count; i++)
                     {
                         var slot = homeStarters[i];
-                        var (x, y) = PitchPosition(homeStarters, i);
+                        var (x, y) = PitchLayout.Position(homeStarters, i);
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
                         <div class="pitch-player" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
@@ -253,7 +253,7 @@ else
                     @for (var i = 0; i < awayStarters.Count; i++)
                     {
                         var slot = awayStarters[i];
-                        var (x, y) = PitchPosition(awayStarters, i);
+                        var (x, y) = PitchLayout.Position(awayStarters, i);
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
                         <div class="pitch-player" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
@@ -733,38 +733,6 @@ else
         var parts = name.Split(' ');
         return parts.Length > 1 ? parts[^1] : name;
     }
-
-    private static (double x, double y) PitchPosition(List<TacticSlotModel> starters, int index)
-    {
-        var line = LineOf(starters[index].TacticSlotType);
-        var sameLine = starters.Select((s, i) => (s, i)).Where(t => LineOf(t.s.TacticSlotType) == line)
-            .OrderBy(t => SideOrder(t.s.TacticSlotType)).ToList();
-        var posInLine = sameLine.FindIndex(t => t.i == index);
-        var count = sameLine.Count;
-        // A pair of wide players (e.g. LW/RW with no CAM) keeps the wider spread.
-        var widePair = count == 2 && sameLine.All(t => SideOrder(t.s.TacticSlotType) != 1);
-        var spread = count >= 4 ? 70.0 : count == 3 || widePair ? 50.0 : 30.0;
-        var x = count == 1 ? 50.0 : (50.0 - spread / 2) + posInLine * (spread / (count - 1));
-        var y = line switch { 0 => 90.0, 1 => 72.0, 2 => 60.0, 3 => 46.0, 4 => 30.0, _ => 14.0 };
-        return (x, y);
-    }
-
-    private static int SideOrder(TacticSlotType type) => type switch
-    {
-        TacticSlotType.LB or TacticSlotType.LM or TacticSlotType.LW or TacticSlotType.LF or TacticSlotType.LS => 0,
-        TacticSlotType.RB or TacticSlotType.RM or TacticSlotType.RW => 2,
-        _ => 1
-    };
-
-    private static int LineOf(TacticSlotType type) => type switch
-    {
-        TacticSlotType.GK => 0,
-        TacticSlotType.RB or TacticSlotType.LB or TacticSlotType.CB => 1,
-        TacticSlotType.CDM => 2,
-        TacticSlotType.RM or TacticSlotType.LM or TacticSlotType.CM => 3,
-        TacticSlotType.CAM or TacticSlotType.LW or TacticSlotType.RW => 4,
-        _ => 5
-    };
 
     private static readonly Dictionary<string, string> ColourMap = new(StringComparer.OrdinalIgnoreCase)
     {

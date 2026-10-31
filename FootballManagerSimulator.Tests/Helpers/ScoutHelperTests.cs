@@ -94,7 +94,8 @@ public class ScoutHelperTests
 
         var scout = Assert.Single(_state.Scouts);
         Assert.Equal(budget - ScoutRules.MonthlyWage, MyClub.TransferBudget);
-        Assert.Equal(_state.Date.AddMonths(1), scout.NextReportDate);
+        Assert.Equal(_state.Date.AddDays(14), scout.NextReportDate);
+        Assert.Equal(_state.Date.AddMonths(1), scout.NextPaymentDate);
 
         for (var i = 1; i < ScoutRules.MaxScouts; i++)
             _helper.HireScout();
@@ -119,7 +120,7 @@ public class ScoutHelperTests
     }
 
     [Fact]
-    public void ProcessScouts_ReportsMonthlyWithUpToThreeMatchingPlayers()
+    public void ProcessScouts_ReportsFortnightlyWithUpToThreeMatchingPlayers()
     {
         _helper.HireScout();
         var scout = _state.Scouts[0];
@@ -140,11 +141,28 @@ public class ScoutHelperTests
             Assert.Equal("ST", p.PreferredPosition);
             Assert.NotEqual(MyClub.Id, p.Contract?.ClubId);
         });
-        Assert.Equal(budget - ScoutRules.MonthlyWage, MyClub.TransferBudget);
+        Assert.Equal(budget, MyClub.TransferBudget);
         var report = Assert.Single(_state.Notifications);
         Assert.Equal("Scouting Report", report.Subject);
         Assert.All(found, p => Assert.Contains(p.Name, report.Message));
-        Assert.Equal(_state.Date.AddMonths(1), scout.NextReportDate);
+        Assert.Equal(_state.Date.AddDays(14), scout.NextReportDate);
+    }
+
+    [Fact]
+    public void ProcessScouts_PaysTheWageMonthlyBetweenReports()
+    {
+        _helper.HireScout();
+        var scout = _state.Scouts[0];
+        var hired = _state.Date;
+        var budget = MyClub.TransferBudget;
+
+        for (_state.Date = hired.AddDays(1); _state.Date <= hired.AddMonths(2); _state.Date = _state.Date.AddDays(1))
+            _helper.ProcessScouts();
+
+        Assert.Equal(budget - 2 * ScoutRules.MonthlyWage, MyClub.TransferBudget);
+        Assert.Equal(2, scout.MonthsWorked);
+        Assert.Equal((hired.AddMonths(2).DayNumber - hired.DayNumber) / ScoutRules.ReportIntervalDays, scout.ReportsMade);
+        Assert.Equal(scout.ReportsMade, _state.Notifications.Count(n => n.Subject == "Scouting Report"));
     }
 
     [Fact]
@@ -293,6 +311,10 @@ public class ScoutHelperTests
         MyClub.TransferBudget = 0;
 
         _state.Date = _state.Scouts[0].NextReportDate;
+        _helper.ProcessScouts();
+        Assert.Single(_state.Scouts);
+
+        _state.Date = _state.Scouts[0].NextPaymentDate;
         _helper.ProcessScouts();
 
         Assert.Empty(_state.Scouts);

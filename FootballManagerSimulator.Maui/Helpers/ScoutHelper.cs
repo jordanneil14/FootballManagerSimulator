@@ -127,17 +127,25 @@ public class ScoutHelper(
             : $"{scout.Name}'s assignment has been updated.";
     }
 
-    // Each scout reports once a month from the day they were hired, and is paid for the month ahead.
+    // Each scout reports every fortnight from the day they were hired, and on each monthly
+    // anniversary is paid for the month ahead.
     public void ProcessScouts()
     {
         if (MyClub is not { } club)
             return;
 
-        foreach (var scout in State.Scouts.Where(p => State.Date >= p.NextReportDate).ToList())
+        foreach (var scout in State.Scouts.ToList())
         {
-            scout.MonthsWorked++;
-            Report(scout);
+            if (State.Date >= scout.NextReportDate)
+            {
+                scout.ReportsMade++;
+                Report(scout);
+            }
 
+            if (State.Date < scout.NextPaymentDate)
+                continue;
+
+            scout.MonthsWorked++;
             if (club.TransferBudget >= ScoutRules.MonthlyWage)
             {
                 club.TransferBudget -= ScoutRules.MonthlyWage;
@@ -169,7 +177,7 @@ public class ScoutHelper(
                 State.Date,
                 $"{scout.Name} (Scout)",
                 "Scouting Report",
-                $"I couldn't find any new players matching my assignment ({assignment.Describe()}) this month. I recommend you change my assignment on the Scout page to widen the search.");
+                $"I couldn't find any new players matching my assignment ({assignment.Describe()}) in the last fortnight. I recommend you change my assignment on the Scout page to widen the search.");
             return;
         }
 
@@ -182,6 +190,6 @@ public class ScoutHelper(
             State.Date,
             $"{scout.Name} (Scout)",
             "Scouting Report",
-            $"I have found {found.Count} new player{(found.Count == 1 ? "" : "s")} for you this month. They have been added to the Scout page:\n\t{string.Join("\n\t", lines)}");
+            $"I have found {found.Count} new player{(found.Count == 1 ? "" : "s")} for you in the last fortnight. They have been added to the Scout page:\n\t{string.Join("\n\t", lines)}");
     }
 }

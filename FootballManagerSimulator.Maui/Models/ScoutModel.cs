@@ -5,11 +5,14 @@ public class ScoutModel
     public int Id { get; set; }
     public string Name { get; set; } = "";
     public DateOnly HiredDate { get; set; }
-    // Reports completed so far; the next one is due this many months (plus one) after hiring.
+    // Reports completed so far; the next one is due this many fortnights (plus one) after hiring.
+    public int ReportsMade { get; set; }
+    // Wages paid since hiring; the next is due this many months (plus one) after hiring.
     public int MonthsWorked { get; set; }
     public ScoutAssignmentModel? Assignment { get; set; }
 
-    public DateOnly NextReportDate => HiredDate.AddMonths(MonthsWorked + 1);
+    public DateOnly NextReportDate => HiredDate.AddDays(ScoutRules.ReportIntervalDays * (ReportsMade + 1));
+    public DateOnly NextPaymentDate => HiredDate.AddMonths(MonthsWorked + 1);
 }
 
 public class ScoutAssignmentModel
