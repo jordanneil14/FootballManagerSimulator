@@ -60,16 +60,31 @@
     @if (!rounds.Any())
     {
         var contenders = PlayoffContenders(league);
+        // Only a relegation play-off mixes clubs from two leagues, so only then say which is which.
+        var showLeague = contenders.Select(c => c.League).Distinct().Count() > 1;
         <p class="muted">The play-offs are drawn once the season ends. In the play-off places now:</p>
         <div class="table-wrap">
             <table class="data">
+                <thead>
+                    <tr>
+                        <th class="num">#</th><th>Club</th>
+                        @if (showLeague) { <th>League</th> }
+                        <th class="num">Pld</th><th class="num">Pts</th>
+                        <th class="num">F</th><th class="num">A</th><th class="num">GD</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    @foreach (var (position, club, leagueName) in contenders)
+                    @foreach (var (position, row, leagueName) in contenders)
                     {
-                        <tr class="clickable @(club.Id == Engine.State.MyClubId ? "highlight" : "")" @onclick='() => Nav.NavigateTo($"/club/{club.Id}")'>
+                        <tr class="clickable @(row.Club.Id == Engine.State.MyClubId ? "highlight" : "")" @onclick='() => Nav.NavigateTo($"/club/{row.Club.Id}")'>
                             <td class="num">@position</td>
-                            <td><strong>@club.Name</strong></td>
-                            <td class="muted">@leagueName</td>
+                            <td><strong>@row.Club.Name</strong></td>
+                            @if (showLeague) { <td class="muted">@leagueName</td> }
+                            <td class="num">@row.Played</td>
+                            <td class="num"><strong>@row.Points</strong></td>
+                            <td class="num">@row.GoalsScored</td>
+                            <td class="num">@row.GoalsConceded</td>
+                            <td class="num">@row.GoalDifference</td>
                         </tr>
                     }
                 </tbody>
@@ -255,7 +270,7 @@ else
     }
 
     // Before the draw: the clubs in the play-off places, including the other league's side of a relegation play-off.
-    private List<(int Position, ClubModel Club, string League)> PlayoffContenders(LeagueModel league)
+    private List<(int Position, LeaguePositionModel Row, string League)> PlayoffContenders(LeagueModel league)
     {
         var leagues = new[] { league }
             .Concat(Engine.Leagues.Where(p => p.CountryId == league.CountryId && Math.Abs(p.Rank - league.Rank) == 1
@@ -265,9 +280,9 @@ else
 
         return leagues
             .SelectMany(l => l.GenerateLeagueTable()
-                .Select((row, i) => (Position: i + 1, row.Club, League: l.Name, Zone: ZoneClass(i + 1, l.Id)))
+                .Select((row, i) => (Position: i + 1, Row: row, League: l.Name, Zone: ZoneClass(i + 1, l.Id)))
                 .Where(p => p.Zone == "zone-playoff")
-                .Select(p => (p.Position, p.Club, p.League)))
+                .Select(p => (p.Position, p.Row, p.League)))
             .ToList();
     }
 
