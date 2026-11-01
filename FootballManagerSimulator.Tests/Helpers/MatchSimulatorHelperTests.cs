@@ -838,6 +838,61 @@ public class MatchSimulatorHelperTests
         Assert.All(fixture.HomeInjuries.Where(i => i != early), i => Assert.InRange(i.Minute, 51, 90));
     }
 
+    // Home's share of the goals scored after minute 10, over many re-simulations of the rest of the match.
+    private double HomeGoalShareAfterMinute10(FixtureModel fixture)
+    {
+        int home = 0, away = 0;
+        for (var i = 0; i < 3000; i++)
+        {
+            _simulator.ReGenerateFromMinute(fixture, 10);
+            home += fixture.HomeScorers.Count(g => g.Minute > 10);
+            away += fixture.AwayScorers.Count(g => g.Minute > 10);
+        }
+        return (double)home / (home + away);
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_MyInjuredPlayerLeftOnThePitchNeverScores()
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        var injured = Home.TacticSlots[9].PlayerId!.Value;
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 10, PlayerId = injured, Description = "Minor knock", DaysOut = 5 });
+
+        for (var i = 0; i < Iterations * 5; i++)
+        {
+            _simulator.ReGenerateFromMinute(fixture, 10);
+            Assert.DoesNotContain(fixture.HomeScorers, g => g.PlayerId == injured && g.Minute > 10);
+        }
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_MyInjuredPlayerLeftOnThePitchWeakensTheSide()
+    {
+        _state.MyClubId = Home.Id;
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        var fullStrength = HomeGoalShareAfterMinute10(fixture);
+
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 10, PlayerId = Home.TacticSlots[9].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
+        var playerShort = HomeGoalShareAfterMinute10(fixture);
+
+        // One player short costs 20% of the rating, which takes several points off the goal share.
+        Assert.True(playerShort < fullStrength - 0.03, $"{playerShort:P1} with an injured player on vs {fullStrength:P1} at full strength");
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_AnAiInjuredPlayerPlaysOnAsBefore()
+    {
+        // Club 3 is mine, so neither side here makes substitutions and the injury doesn't weaken Home.
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        var fullStrength = HomeGoalShareAfterMinute10(fixture);
+
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 10, PlayerId = Home.TacticSlots[9].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
+        var injured = HomeGoalShareAfterMinute10(fixture);
+
+        Assert.InRange(injured, fullStrength - 0.03, fullStrength + 0.03);
+    }
+
     [Fact]
     public void FinaliseMatch_SackingNotificationRespectsShowManagerNotificationsSetting()
     {

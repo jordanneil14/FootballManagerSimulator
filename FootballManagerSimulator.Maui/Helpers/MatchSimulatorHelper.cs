@@ -600,14 +600,31 @@ public class MatchSimulatorHelper(
         return (homeRating, awayRating);
     }
 
-    // Each player sent off before the given minute costs the team 20% of its rating.
+    // Each player missing before the given minute costs the team 20% of its rating.
     private (double homeRating, double awayRating) GetRatingsAtMinute(FixtureModel fixture, int minute)
     {
         var (homeRating, awayRating) = GetAdjustedRatings(fixture);
-        var homeReds = GetSentOffPlayerIds(fixture.HomeCards, minute).Count;
-        var awayReds = GetSentOffPlayerIds(fixture.AwayCards, minute).Count;
+        var homeMissing = GetMissingPlayerIds(fixture, true, minute).Count;
+        var awayMissing = GetMissingPlayerIds(fixture, false, minute).Count;
 
-        return (homeRating * Math.Pow(0.8, homeReds), awayRating * Math.Pow(0.8, awayReds));
+        return (homeRating * Math.Pow(0.8, homeMissing), awayRating * Math.Pow(0.8, awayMissing));
+    }
+
+    // Starters who can't play on at the given minute: those sent off, and the user's injured players
+    // still in the XI, who leave the side a man short until they're substituted. AI clubs make no
+    // substitutions, so their injured players play on as before.
+    private HashSet<int> GetMissingPlayerIds(FixtureModel fixture, bool isHome, int minute)
+    {
+        var missing = GetSentOffPlayerIds(isHome ? fixture.HomeCards : fixture.AwayCards, minute);
+        var club = isHome ? fixture.HomeClub : fixture.AwayClub;
+        if (club.Id != State.MyClubId)
+            return missing;
+
+        var starters = ClubHelper.GetStartingElevenByClub(club.Id).Select(s => s.PlayerId).ToHashSet();
+        missing.UnionWith((isHome ? fixture.HomeInjuries : fixture.AwayInjuries)
+            .Where(i => i.Minute < minute && starters.Contains(i.PlayerId))
+            .Select(i => i.PlayerId));
+        return missing;
     }
 
     private static bool HomeWinsChance(double homeRating, double awayRating) =>
@@ -635,8 +652,8 @@ public class MatchSimulatorHelper(
         var slots = isHome ? homeFilled : awayFilled;
         if (!slots.Any()) return null;
 
-        var sentOff = GetSentOffPlayerIds(isHome ? fixture.HomeCards : fixture.AwayCards, minute);
-        var onPitch = slots.Where(s => !sentOff.Contains(s.PlayerId!.Value)).ToList();
+        var missing = GetMissingPlayerIds(fixture, isHome, minute);
+        var onPitch = slots.Where(s => !missing.Contains(s.PlayerId!.Value)).ToList();
 
         (isHome ? fixture.HomeScorers : fixture.AwayScorers).Add(new GoalModel
         {

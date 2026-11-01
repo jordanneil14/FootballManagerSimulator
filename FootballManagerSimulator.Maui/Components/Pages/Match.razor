@@ -66,6 +66,19 @@ else
         }
     </div>
 
+    @if (_stoppageReason != null)
+    {
+        <div class="feedback"><div class="feedback-item warn">@_stoppageReason</div></div>
+    }
+
+    <ConfirmModal Visible="_confirmPlayOn"
+                  Title="@($"Play on with {PlayersOnPitch} players?")"
+                  Message="@PlayOnWarning()"
+                  ConfirmText="Play On"
+                  ConfirmClass="btn-danger"
+                  OnConfirm="PlayOn"
+                  OnCancel="() => _confirmPlayOn = false" />
+
     <div class="tab-bar">
         <button class="tab-btn @(_tab == 0 ? "active" : "")" @onclick="() => _tab = 0">Match Events</button>
         <button class="tab-btn @(_tab == 1 ? "active" : "")" @onclick="() => _tab = 1">Lineups</button>
@@ -302,6 +315,10 @@ else
     private int _revealedAwayInjuries;
     private int? _selectedSlot;
     private string? _swapError;
+    private string? _stoppageReason;
+    private bool _confirmPlayOn;
+    private Action? _afterPlayOn;
+    private readonly HashSet<int> _playingOnInjured = [];
 
     private bool SubstitutionsLimited => _competition?.Type != CompetitionType.Friendly;
 
@@ -447,6 +464,9 @@ else
 
     private void SkipToNextEvent()
     {
+        if (WarnBeforePlayingOn(SkipToNextEvent)) return;
+        _stoppageReason = null;
+
         lock (_clockLock)
         {
             if (_phase is not (MatchPhase.FirstHalf or MatchPhase.SecondHalf or MatchPhase.ExtraTime))
@@ -532,6 +552,7 @@ else
             var type = card.IsRed ? "Red card" : "Yellow card";
             _eventFeed.Add(new MatchEvent(card.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", card.IsRed ? "event-red" : "event-yellow"));
             _revealedHomeCards++;
+            if (card.IsRed && IsMyClub(_fixture.HomeClub)) StopForSendingOff(player);
         }
 
         var awayCardsToReveal = _fixture.AwayCards
@@ -547,6 +568,7 @@ else
             var type = card.IsRed ? "Red card" : "Yellow card";
             _eventFeed.Add(new MatchEvent(card.Minute, icon, $"{type} - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", card.IsRed ? "event-red" : "event-yellow"));
             _revealedAwayCards++;
+            if (card.IsRed && IsMyClub(_fixture.AwayClub)) StopForSendingOff(player);
         }
 
         var homeInjuriesToReveal = _fixture.HomeInjuries
@@ -560,6 +582,7 @@ else
             var player = Engine.GetPlayer(injury.PlayerId);
             _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
             _revealedHomeInjuries++;
+            if (IsMyClub(_fixture.HomeClub)) StopForInjury(player, injury);
         }
 
         var awayInjuriesToReveal = _fixture.AwayInjuries
@@ -573,6 +596,7 @@ else
             var player = Engine.GetPlayer(injury.PlayerId);
             _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
             _revealedAwayInjuries++;
+            if (IsMyClub(_fixture.AwayClub)) StopForInjury(player, injury);
         }
 
         _displayedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
@@ -657,6 +681,22 @@ else
 
     private void ContinueFromBreak()
     {
+        if (!WarnBeforePlayingOn(Restart)) Restart();
+    }
+
+    // Asks before play continues while an injured player the user hasn't agreed to play on with is
+    // still in the XI. Returns true if it asked, in which case `then` runs once they confirm.
+    private bool WarnBeforePlayingOn(Action then)
+    {
+        if (InjuredOnPitch().All(p => _playingOnInjured.Contains(p.Id))) return false;
+        _afterPlayOn = then;
+        _confirmPlayOn = true;
+        return true;
+    }
+
+    // Restarts play from a pause or a break.
+    private void Restart()
+    {
         _phase = _phase switch
         {
             MatchPhase.HalfTime => MatchPhase.SecondHalf,
@@ -664,6 +704,69 @@ else
             _ => _phase
         };
         _isPaused = false;
+        _selectedSlot = null;
+        _stoppageReason = null;
+    }
+
+    private bool IsMyClub(ClubModel club) => club.Id == Engine.State.MyClubId;
+
+    // A red card or injury for the user's side stops the clock so they can react before play goes on.
+    private void StopForSendingOff(PlayerModel? player)
+    {
+        _isPaused = true;
+        _stoppageReason = $"🟥 {player?.Name ?? "A player"} has been sent off. Reorganise from the Tactics tab, then resume.";
+    }
+
+    private void StopForInjury(PlayerModel? player, InjuryModel injury)
+    {
+        _isPaused = true;
+        _stoppageReason = $"🏥 {player?.Name ?? "A player"} is injured ({injury.Description.ToLower()}). Substitute him from the Tactics tab, then resume.";
+    }
+
+    // The user's injured players still in the starting XI, who leave the side a player short.
+    private List<PlayerModel> InjuredOnPitch()
+    {
+        if (_fixture == null) return [];
+        var injuries = IsMyClub(_fixture.HomeClub) ? _fixture.HomeInjuries
+            : IsMyClub(_fixture.AwayClub) ? _fixture.AwayInjuries : [];
+        var sentOff = MySentOffIds();
+        var starters = Engine.MyClub.TacticSlots
+            .Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES))
+            .Select(s => s.PlayerId)
+            .ToHashSet();
+        return injuries
+            .Where(i => i.Minute <= _currentMinute && starters.Contains(i.PlayerId) && !sentOff.Contains(i.PlayerId))
+            .Select(i => Engine.GetPlayer(i.PlayerId))
+            .OfType<PlayerModel>()
+            .ToList();
+    }
+
+    private HashSet<int> MySentOffIds()
+    {
+        if (_fixture == null) return [];
+        var cards = IsMyClub(_fixture.HomeClub) ? _fixture.HomeCards
+            : IsMyClub(_fixture.AwayClub) ? _fixture.AwayCards : [];
+        return cards.Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
+    }
+
+    private int PlayersOnPitch => 11 - MySentOffIds().Count - InjuredOnPitch().Count;
+
+    private string PlayOnWarning()
+    {
+        var injured = InjuredOnPitch();
+        var names = string.Join(" and ", injured.Select(p => p.Name));
+        var verb = injured.Count == 1 ? "is" : "are";
+        return $"{names} {verb} injured and can't carry on. If you play on without a substitution, " +
+               $"you'll be playing with {PlayersOnPitch} players until you make one.";
+    }
+
+    private void PlayOn()
+    {
+        _confirmPlayOn = false;
+        _playingOnInjured.UnionWith(InjuredOnPitch().Select(p => p.Id));
+        var then = _afterPlayOn;
+        _afterPlayOn = null;
+        then?.Invoke();
     }
 
     private void StartPenalties()
@@ -684,8 +787,8 @@ else
 
     private void TogglePause()
     {
-        _isPaused = !_isPaused;
-        if (!_isPaused) _selectedSlot = null;
+        if (!_isPaused) { _isPaused = true; return; }
+        if (!WarnBeforePlayingOn(Restart)) Restart();
     }
 
     // Green in-arrow for a player brought on, red out-arrow for one taken off, with the minute.
