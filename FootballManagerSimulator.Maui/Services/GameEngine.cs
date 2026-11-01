@@ -278,6 +278,12 @@ public class GameEngine(
 
     public string? StartMatch()
     {
+        // Already kicked off (e.g. reached Pre-Match again with the back button): generating the match
+        // again would reset the score and duplicate its events, so carry on with the one in progress.
+        var myFixture = MyFixtureToday();
+        if (myFixture is { } started && (started.Concluded || started.GoalsHome != null))
+            return null;
+
         var unfilledStarters = MyClub.TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.SUB && p.TacticSlotType != TacticSlotType.RES)
             .Any(p => p.PlayerId == null);
@@ -299,7 +305,6 @@ public class GameEngine(
         if (injuredInSquad)
             return "Unable to start game. You have an injured player in your starting lineup or substitutes.";
 
-        var myFixture = MyFixtureToday();
         State.MatchInProgress = true;
 
         foreach (var competition in State.Competitions)

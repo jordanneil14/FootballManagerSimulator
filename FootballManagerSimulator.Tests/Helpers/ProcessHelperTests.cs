@@ -300,6 +300,16 @@ public class ProcessHelperTests : IDisposable
     }
 
     [Fact]
+    public void EndOfSeason_NoBudgetMessageWhileUnemployed()
+    {
+        _host.Get<IJobOfferHelper>().SackUser();
+
+        AdvanceTo(new DateOnly(2027, 6, 30));
+
+        Assert.DoesNotContain(State.Notifications, n => n.Subject == "New Season");
+    }
+
+    [Fact]
     public void EndOfSeason_FreeAgentsWhoGoAWholeSeasonUnsignedLeaveTheGame()
     {
         // Rated 40, so no club wants them.

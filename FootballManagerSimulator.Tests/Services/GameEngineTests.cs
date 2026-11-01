@@ -369,6 +369,24 @@ public class GameEngineTests : IDisposable
         _match.Verify(m => m.ConcludeFixture(mine, It.IsAny<ICompetition>()), Times.Never);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void StartMatch_LeavesAMatchThatHasAlreadyKickedOffAlone(bool concluded)
+    {
+        var mine = AddFixtureToday(MyClub, _state.Clubs[1]);
+        mine.GoalsHome = 2;
+        mine.GoalsAway = 1;
+        mine.Minute = concluded ? 90 : 0;
+        mine.Concluded = concluded;
+        MyClub.TacticSlots.ForEach(s => s.PlayerId = null); // an unpicked side would otherwise be refused
+
+        Assert.Null(_engine.StartMatch());
+
+        _match.Verify(m => m.PreGenerateMatch(It.IsAny<FixtureModel>()), Times.Never);
+        Assert.Equal((2, 1), (mine.GoalsHome, mine.GoalsAway));
+    }
+
     [Fact]
     public void ContinueMatch_ReturnsTrueOnceMyFixtureHasConcluded()
     {

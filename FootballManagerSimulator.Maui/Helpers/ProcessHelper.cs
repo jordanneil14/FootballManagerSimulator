@@ -181,6 +181,10 @@ public class ProcessHelper(
         RecreateCompetitions();
         var (myIncrease, myReturned) = IncreaseTransferBudgets();
 
+        // An unemployed manager has no budget to hear about.
+        if (State.MyClubId == null)
+            return;
+
         var returned = myReturned > 0 ? $" £{myReturned:n0} left unspent last season has gone back to the board." : "";
         NotificationFactory.AddNotification(
             State.Date,

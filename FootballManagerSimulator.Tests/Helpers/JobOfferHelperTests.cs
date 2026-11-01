@@ -311,6 +311,16 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void LeavingAClub_LeavesItsPhysiosBehind()
+    {
+        _state.Physios.Add(new PhysioModel { Id = 1, Name = "Sam Physio", HiredDate = _state.Date });
+
+        _helper.ResignUser();
+
+        Assert.Empty(_state.Physios);
+    }
+
+    [Fact]
     public void ResignUser_LeavesMeWithoutAClub()
     {
         var club = _state.Clubs.Single(p => p.Id == 3);
