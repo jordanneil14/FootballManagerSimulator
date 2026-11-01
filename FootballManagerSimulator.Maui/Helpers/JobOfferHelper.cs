@@ -167,7 +167,10 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
         // Requests made at the old club would otherwise pay out to (or rebuild) whichever club you manage next.
         foreach (var @event in State.Events.Where(p => !p.IsCompleted
             && p is IncreaseTransferBudgetRequestEvent or StadiumExpansionEvent or AcademyUpgradeEvent))
+        {
             @event.IsCompleted = true;
+            oldClub.TransferBudget += RefundFor(@event, oldClub);
+        }
 
         // Scouts are on the old club's payroll, so they stay behind.
         State.Scouts.Clear();
@@ -179,6 +182,15 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             pending.Message += $"\n\nNo longer relevant: you have left {oldClub.Name}.";
         }
     }
+
+    // A cancelled build's money goes back to the club that paid for it. The stadium and academy
+    // don't change until the work finishes, so the price is the same as when it was approved.
+    private static int RefundFor(IEvent @event, ClubModel club) => @event switch
+    {
+        StadiumExpansionEvent => StadiumRules.UpgradeCost(club.StadiumSize),
+        AcademyUpgradeEvent when club.AcademyRating < AcademyRules.Max => AcademyRules.UpgradeCost(club.AcademyRating + 1),
+        _ => 0
+    };
 
     public void DeclineJobOffer(NotificationModel notification)
     {

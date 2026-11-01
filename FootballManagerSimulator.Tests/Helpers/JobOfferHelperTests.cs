@@ -292,6 +292,25 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void LeavingAClub_RefundsItsUnfinishedBuilds()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 3);
+        club.TransferBudget = 1_000_000;
+        club.StadiumSize = 10_000;
+        club.AcademyRating = 4;
+        var stadium = new StadiumExpansionEvent(_state, _notifications, _state.Date.AddMonths(6), false);
+        var academy = new AcademyUpgradeEvent(_state, _notifications, _state.Date.AddMonths(1), false);
+        var finished = new StadiumExpansionEvent(_state, _notifications, _state.Date.AddMonths(-1), true);
+        _state.Events.AddRange([stadium, academy, finished]);
+
+        _helper.JoinClub(5);
+
+        Assert.Equal(1_000_000 + StadiumRules.UpgradeCost(10_000) + AcademyRules.UpgradeCost(5), club.TransferBudget);
+        Assert.True(stadium.IsCompleted);
+        Assert.Equal(10_000, club.StadiumSize);
+    }
+
+    [Fact]
     public void ResignUser_LeavesMeWithoutAClub()
     {
         var club = _state.Clubs.Single(p => p.Id == 3);
