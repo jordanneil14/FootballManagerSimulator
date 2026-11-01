@@ -215,10 +215,11 @@ else
                         var liveAway = f.AwayScorers.Count(g => g.Minute <= _currentMinute);
                         <div class="fixture-row">
                             <div class="fixture-row-border"></div>
-                            <div class="fixture-row-inner">
+                            <div class="fixture-row-inner live">
                                 <span class="fixture-team home">@f.HomeClub.Name</span>
                                 <span class="fixture-score"><strong>@liveHome - @liveAway</strong></span>
                                 <span class="fixture-team away">@f.AwayClub.Name</span>
+                                <span class="live-minute">@LiveMinuteCaption(f)</span>
                             </div>
                         </div>
                     }
@@ -599,6 +600,12 @@ else
             if (IsMyClub(_fixture.AwayClub)) StopForInjury(player, injury);
         }
 
+        // A skip reveals several minutes at once, added above one event type at a time, so put the
+        // feed back in minute order (a stable sort keeps same-minute events as they were).
+        var ordered = _eventFeed.OrderBy(e => e.Minute).ToList();
+        _eventFeed.Clear();
+        _eventFeed.AddRange(ordered);
+
         _displayedHomeGoals = _fixture.HomeScorers.Count(g => g.Minute <= _currentMinute);
         _displayedAwayGoals = _fixture.AwayScorers.Count(g => g.Minute <= _currentMinute);
     }
@@ -852,6 +859,15 @@ else
         MatchPhase.PenaltiesBreak => "Penalties",
         MatchPhase.Concluded => "Full Time",
         _ => ""
+    };
+
+    // The other games kick off with ours and run on the same clock. They are played out in full at
+    // kick-off, so a game's Minute is where it ends: 90, or 120 if it went to extra time.
+    private string LiveMinuteCaption(FixtureModel fixture) => _phase switch
+    {
+        MatchPhase.HalfTime => "HT",
+        _ when fixture.Concluded && _currentMinute >= fixture.Minute => "FT",
+        _ => $"{_currentMinute}'"
     };
 
     private static string Surname(string name)

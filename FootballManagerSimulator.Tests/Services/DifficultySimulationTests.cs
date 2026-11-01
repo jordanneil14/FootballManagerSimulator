@@ -282,7 +282,12 @@ public class DifficultySimulationTests : IDisposable
     public void UntilTitle_AverageDivision1Club_SigningThreePlayersASeason() =>
         Simulate(startRank: 1, int.TryParse(Environment.GetEnvironmentVariable("TITLE_SEASONS"), out var max) ? max : 15, stopWhenChampions: true);
 
-    private void Simulate(int startRank, int seasons, bool stopWhenChampions)
+    // Set DIFFICULTY_CLUB to the club to manage (default Manchester Reds, the richest Division 1 club).
+    [SimulationFact]
+    public void NamedDivision1Club_SigningThreePlayersASeason() =>
+        Simulate(startRank: 1, Seasons, stopWhenChampions: false, clubName: Environment.GetEnvironmentVariable("DIFFICULTY_CLUB") ?? "Manchester Reds");
+
+    private void Simulate(int startRank, int seasons, bool stopWhenChampions, string? clubName = null)
     {
         var engine = _host.Engine;
         engine.StartNewGame();
@@ -292,14 +297,22 @@ public class DifficultySimulationTests : IDisposable
         var startDivision = _host.Settings.Competitions.First(c => c.IsLeague && c.CountryId == 1 && c.Rank == startRank);
         var startDivisionClubs = engine.State.Clubs.Where(c => c.LeagueId == startDivision.Id).ToList();
         var leagueAverage = startDivisionClubs.Average(c => SquadStrength(engine, c.Id));
-        var club = startDivisionClubs.OrderBy(c => Math.Abs(SquadStrength(engine, c.Id) - leagueAverage)).First();
+        var club = clubName != null
+            ? startDivisionClubs.Single(c => c.Name == clubName)
+            : startDivisionClubs.OrderBy(c => Math.Abs(SquadStrength(engine, c.Id) - leagueAverage)).First();
+
+        // Every club in the starting league by squad strength, so the chosen club can be compared with its rivals.
+        File.WriteAllText(_logPath, "");
+        Log($"=== {startDivision.Name.ToUpperInvariant()} SQUAD STRENGTH AND BUDGET ON 1 JULY ===");
+        foreach (var c in startDivisionClubs.OrderByDescending(c => SquadStrength(engine, c.Id)))
+            Log($"{c.Name,-22} {SquadStrength(engine, c.Id),5:F1}  £{c.TransferBudget,13:n0}{(c.Id == club.Id ? "  <- us" : "")}");
+        Log();
 
         engine.SelectLeague(startDivision.Id);
         engine.SelectClub(club.Id);
         var state = engine.State;
         var startLeague = state.Competitions.OfType<LeagueModel>().Single(l => l.Id == startDivision.Id);
 
-        File.WriteAllText(_logPath, "");
         Log($"=== DIFFICULTY SIMULATION: {(stopWhenChampions ? $"UP TO {seasons} SEASONS OR THE TITLE" : $"{seasons} SEASONS")}, {SigningsPerSeason} SIGNINGS A SEASON, BEST-20 CONTRACTS RENEWED ===");
         Log($"Club: {club.Name} (ID {club.Id})");
         Log($"Starting League: {startDivision.Name} | League average strength {leagueAverage:F1}, ours {SquadStrength(engine, club.Id):F1} (rank {StrengthRank(engine, startLeague, club.Id)} of {startLeague.Clubs.Count})");

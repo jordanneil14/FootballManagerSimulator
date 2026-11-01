@@ -580,6 +580,15 @@ tr.injured td:nth-child(2) > .pname-text { color: var(--text-faint); text-decora
     font-size: .92rem;
     min-width: 4rem;
 }
+/* A live score on the match screen, with its clock in a column on the right. */
+.fixture-row-inner.live { grid-template-columns: 1fr auto 1fr 2.6rem; }
+.live-minute {
+    text-align: right;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: .78rem;
+}
 .fixture-time {
     color: var(--text-faint);
     font-weight: 600;
