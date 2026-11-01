@@ -626,7 +626,7 @@ public class ProcessHelper(
             State.Physios.Remove(physio);
             NotificationFactory.AddNotification(
                 State.Date,
-                $"{physio.Name} (Physio)",
+                "Assistant Manager",
                 "Physio Left",
                 $"{physio.Name} has left the club because there was not enough in the budget to pay their £{PhysioRules.MonthlyWage:n0} monthly wage.");
         }

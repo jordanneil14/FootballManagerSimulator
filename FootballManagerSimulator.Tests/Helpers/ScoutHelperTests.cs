@@ -318,6 +318,6 @@ public class ScoutHelperTests
         _helper.ProcessScouts();
 
         Assert.Empty(_state.Scouts);
-        Assert.Contains(_state.Notifications, n => n.Subject == "Scout Left");
+        Assert.Contains(_state.Notifications, n => n.Subject == "Scout Left" && n.Recipient == "Assistant Manager");
     }
 }

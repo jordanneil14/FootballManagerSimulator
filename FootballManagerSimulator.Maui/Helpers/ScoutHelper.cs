@@ -155,7 +155,7 @@ public class ScoutHelper(
             State.Scouts.Remove(scout);
             NotificationFactory.AddNotification(
                 State.Date,
-                $"{scout.Name} (Scout)",
+                "Assistant Manager",
                 "Scout Left",
                 $"{scout.Name} has left the club because there was not enough in the budget to pay their £{ScoutRules.MonthlyWage:n0} monthly wage.");
         }

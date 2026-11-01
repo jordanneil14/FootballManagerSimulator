@@ -527,7 +527,7 @@ public class ProcessHelperTests : IDisposable
         Assert.Empty(State.Physios);
         Assert.Equal(PhysioRules.MonthlyWage - 1, State.Clubs[0].TransferBudget);
         var notification = Assert.Single(State.Notifications, n => n.Subject == "Physio Left");
-        Assert.Equal($"{physio.Name} (Physio)", notification.Recipient);
+        Assert.Equal("Assistant Manager", notification.Recipient);
         Assert.Contains($"£{PhysioRules.MonthlyWage:n0}", notification.Message);
     }
 
