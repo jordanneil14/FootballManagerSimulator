@@ -280,16 +280,16 @@ public class TransferListHelperTests
     }
 
     [Fact]
-    public void AIFreeAgentSignings_SignsUpToFiveFreeAgentsADayBestFirst()
+    public void AIFreeAgentSignings_SignsUpToFourFreeAgentsADayBestFirst()
     {
-        // Squads' best 20 average about 62, so all eight (59-66) suit every AI club; only the best five sign today.
+        // Squads' best 20 average about 62, so all eight (59-66) suit every AI club; only the best four sign today.
         var freeAgents = Enumerable.Range(0, 8).Select(i => TestData.Player(5000 + i, clubId: null, rating: 66 - i)).ToList();
         _state.Players.AddRange(freeAgents);
 
         _helper.ProcessAIFreeAgentSignings();
 
-        Assert.All(freeAgents.Take(5), p => Assert.NotNull(p.Contract));
-        Assert.All(freeAgents.Skip(5), p => Assert.Null(p.Contract));
+        Assert.All(freeAgents.Take(4), p => Assert.NotNull(p.Contract));
+        Assert.All(freeAgents.Skip(4), p => Assert.Null(p.Contract));
     }
 
     [Fact]

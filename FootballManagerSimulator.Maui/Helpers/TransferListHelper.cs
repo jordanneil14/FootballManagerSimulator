@@ -148,7 +148,7 @@ public class TransferListHelper(
     }
 
     private const int MaxAISquadSize = SquadSizeRules.Maximum;
-    public const int MaxAIFreeAgentSigningsPerDay = 5;
+    public const int MaxAIFreeAgentSigningsPerDay = 4;
 
     // AI clubs pick up out-of-contract players every day, best first, so good players don't sit unsigned.
     // A player only joins a club he'd play for (the same rule as for the user's club: his rating no more
