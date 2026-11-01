@@ -8,10 +8,20 @@
 <div class="page-head">
     <div><h1>Tactics</h1><div class="subtitle">Formation @Engine.MyClub.Formation · click two players to swap them</div></div>
     <div class="page-actions">
-        <button class="btn btn-primary" @onclick="Engine.AutoPickTeam">🪄 Auto Pick</button>
-        <button class="btn" @onclick="Engine.ResetTactic">↺ Reset</button>
+        <button class="btn btn-primary" disabled="@Locked" @onclick="AutoPick">🪄 Auto Pick</button>
+        <button class="btn" disabled="@Locked" @onclick="Reset">↺ Reset</button>
     </div>
 </div>
+
+@if (Locked)
+{
+    <div class="feedback">
+        <div class="feedback-item warn">
+            Your match is in progress. Make changes from the match screen.
+            <a href="/match">Return to Match</a>
+        </div>
+    </div>
+}
 
 @{
     var slots = Engine.MyClub.TacticSlots;
@@ -24,9 +34,9 @@
         .ToList();
 }
 
-<div class="panel">
+<div class="panel" style="@LockedStyle">
     <h2>Formation</h2>
-    <select class="input" value="@Engine.MyClub.Formation" @onchange="e => ChangeFormation(e.Value?.ToString() ?? Engine.MyClub.Formation)">
+    <select class="input" value="@Engine.MyClub.Formation" disabled="@Locked" @onchange="e => ChangeFormation(e.Value?.ToString() ?? Engine.MyClub.Formation)">
         @foreach (var f in FootballManagerSimulator.Maui.Helpers.TacticHelper.Formations)
         {
             <option value="@f" selected="@(Engine.MyClub.Formation == f)">@f</option>
@@ -34,7 +44,7 @@
     </select>
 </div>
 
-<div class="panel">
+<div class="panel" style="@LockedStyle">
     <h2>Starting XI</h2>
     <div class="pitch">
         <div class="pitch-box-top"></div>
@@ -76,6 +86,21 @@
 @code {
     private int? _selected;
 
+    // Changes made here mid-match would skip the match screen's substitution rules (a reserve could
+    // walk straight into the XI), so the page is read-only until the match is over.
+    private bool Locked => Engine.State.MatchInProgress;
+    private string LockedStyle => Locked ? "opacity:.5;pointer-events:none" : "";
+
+    private void AutoPick()
+    {
+        if (!Locked) Engine.AutoPickTeam();
+    }
+
+    private void Reset()
+    {
+        if (!Locked) Engine.ResetTactic();
+    }
+
     private RenderFragment SlotRow(TacticSlotModel slot)
     {
         var slots = Engine.MyClub.TacticSlots;
@@ -103,6 +128,7 @@
 
     private void OnSlotClick(int index)
     {
+        if (Locked) return;
         if (_selected == null) { _selected = index; return; }
         if (_selected == index) { _selected = null; return; }
         Engine.SwapTacticSlots(_selected.Value, index);
@@ -111,6 +137,7 @@
 
     private void ChangeFormation(string formation)
     {
+        if (Locked) return;
         _selected = null;
         Engine.ChangeFormation(formation);
     }
