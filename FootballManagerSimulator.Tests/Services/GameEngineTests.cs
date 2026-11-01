@@ -683,7 +683,7 @@ public class GameEngineTests : IDisposable
 
         Assert.Equal("4-3-3", MyClub.Formation);
         Assert.Equal(before, MyClub.TacticSlots.Select(s => s.PlayerId));
-        Assert.Equal(TacticSlotType.RW, MyClub.TacticSlots[8].TacticSlotType);
+        Assert.Equal(TacticSlotType.ST, MyClub.TacticSlots[8].TacticSlotType);
     }
 
     // ----- Transfer window -------------------------------------------------------------

@@ -36,7 +36,7 @@ public class TacticHelperTests
     }
 
     [Theory]
-    [InlineData("4-3-3", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.RW, TacticSlotType.ST, TacticSlotType.LW })]
+    [InlineData("4-3-3", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.ST, TacticSlotType.ST, TacticSlotType.ST })]
     [InlineData("4-2-3-1", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.RW, TacticSlotType.CAM, TacticSlotType.LW, TacticSlotType.ST })]
     [InlineData("4-2-2-2", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.CDM, TacticSlotType.CDM, TacticSlotType.RW, TacticSlotType.LW, TacticSlotType.ST, TacticSlotType.ST })]
     [InlineData("4-4-1-1", new[] { TacticSlotType.GK, TacticSlotType.RB, TacticSlotType.CB, TacticSlotType.CB, TacticSlotType.LB, TacticSlotType.RM, TacticSlotType.CM, TacticSlotType.CM, TacticSlotType.LM, TacticSlotType.CAM, TacticSlotType.ST })]
@@ -115,7 +115,7 @@ public class TacticHelperTests
     [Fact]
     public void FillEmptyTacticSlots_FallsBackFromWingerToWideMidfielder()
     {
-        Club.Formation = "4-3-3";
+        Club.Formation = "4-2-3-1";
         // Remove the natural right winger so RW must be filled from a RM.
         _state.Players.RemoveAll(p => p.PreferredPosition == "RW");
         _helper.ResetTacticForClub(Club);

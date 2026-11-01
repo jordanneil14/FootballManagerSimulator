@@ -71,7 +71,7 @@ public class TacticHelper(
                     {
                         Id = 9,
                         PlayerId = null,
-                        TacticSlotType = TacticSlotType.RW
+                        TacticSlotType = TacticSlotType.ST
                     },
                     new TacticSlotModel
                     {
@@ -83,7 +83,7 @@ public class TacticHelper(
                     {
                         Id = 11,
                         PlayerId = null,
-                        TacticSlotType = TacticSlotType.LW
+                        TacticSlotType = TacticSlotType.ST
                     },
                     new TacticSlotModel
                     {
