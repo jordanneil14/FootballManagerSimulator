@@ -1,6 +1,7 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -13,12 +14,14 @@ public class RelegationPlayoffEvent(
     INotificationFactory notificationFactory,
     IEventManager eventManager,
     IServiceProvider serviceProvider,
+    IOptions<SettingsModel> settings,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
@@ -80,7 +83,7 @@ public class RelegationPlayoffEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{upper.Name} Relegation Play-off",
+            $"{Settings.LeagueHeading(upper)} Relegation Play-off",
             message);
     }
 

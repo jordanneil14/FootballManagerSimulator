@@ -53,7 +53,7 @@ public class CompetitionEndEvent(
         if (relegated.Count > 0)
             sections.Add($"Relegated:\n\t{string.Join("\n\t", relegated.Select(p => p.Name))}");
 
-        var leagueName = LeagueHeading(league);
+        var leagueName = Settings.LeagueHeading(league);
         NotificationFactory.AddNotification(
             State.Date,
             "Press Officer",
@@ -91,12 +91,6 @@ public class CompetitionEndEvent(
             "Press Officer",
             $"{cup.Name} Winners",
             $"{winner.Name} have won the {cup.Name}, beating {runnerUp.Name} in the final.");
-    }
-
-    private string LeagueHeading(LeagueModel league)
-    {
-        var country = Settings.Countries.FirstOrDefault(p => p.Id == league.CountryId);
-        return country != null ? $"{country.Name} - {league.Name}" : league.Name;
     }
 
     public override (bool success, string errorMessage) ValidateAdd()

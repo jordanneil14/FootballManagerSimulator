@@ -12,6 +12,10 @@ public class SettingsModel
     public IEnumerable<CompetitionModel> Competitions { get; set; } = new List<CompetitionModel>();
     public IEnumerable<IdNameModel> Countries { get; set; } = new List<IdNameModel>();
 
+    // "England - Division 1", so notifications say which country's league they mean.
+    public string LeagueHeading(LeagueModel league) =>
+        Countries.FirstOrDefault(p => p.Id == league.CountryId) is { } country ? $"{country.Name} - {league.Name}" : league.Name;
+
     public class IdNameModel
     {
         public string Name { get; set; } = string.Empty;

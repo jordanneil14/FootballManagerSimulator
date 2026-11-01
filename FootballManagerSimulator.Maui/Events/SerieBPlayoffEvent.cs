@@ -2,6 +2,7 @@ using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -14,6 +15,7 @@ public class SerieBPlayoffEvent(
     INotificationFactory notificationFactory,
     IEventManager eventManager,
     IServiceProvider serviceProvider,
+    IOptions<SettingsModel> settings,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
@@ -22,6 +24,7 @@ public class SerieBPlayoffEvent(
 
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
@@ -60,7 +63,7 @@ public class SerieBPlayoffEvent(
             league.Fixtures.Add(Fixture(home, away, round, date, new TimeOnly(15, 00), FixtureType.Playoff));
 
         Notify(league, "Play-offs",
-            $"The {league.Name} play-off preliminaries have been drawn:\n" +
+            $"The {Settings.LeagueHeading(league)} play-off preliminaries have been drawn:\n" +
             string.Join("\n", ties.Select(t => $"{t.Item1.Name} v {t.Item2.Name}")) +
             $"\nFixtures will be played on {date:d MMMM yyyy}");
 
@@ -79,7 +82,7 @@ public class SerieBPlayoffEvent(
         var ties = DrawTwoLeggedRound(league, [(table[0], Winner(sixthVSeventh)), (table[1], Winner(fifthVEighth))]);
 
         Notify(league, "Play-offs",
-            $"The {league.Name} play-off semi-finals have been drawn:\n" +
+            $"The {Settings.LeagueHeading(league)} play-off semi-finals have been drawn:\n" +
             string.Join("\n", ties.Select(t => $"{t.FirstLeg.HomeClub.Name} v {t.FirstLeg.AwayClub.Name}")) +
             $"\n1st Leg: {ties[0].FirstLeg.Date:d MMMM yyyy}\n2nd Leg: {ties[0].SecondLeg.Date:d MMMM yyyy}");
 
@@ -99,7 +102,7 @@ public class SerieBPlayoffEvent(
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, final.SecondLeg.Date, CompetitionId);
 
         Notify(league, "Play-off Final",
-            $"The {league.Name} play-off final has been set:\n" +
+            $"The {Settings.LeagueHeading(league)} play-off final has been set:\n" +
             $"{final.FirstLeg.HomeClub.Name} v {final.FirstLeg.AwayClub.Name}\n" +
             $"1st Leg: {final.FirstLeg.Date:d MMMM yyyy}\n2nd Leg: {final.SecondLeg.Date:d MMMM yyyy}");
     }
@@ -160,7 +163,7 @@ public class SerieBPlayoffEvent(
     }
 
     private void Notify(LeagueModel league, string subject, string message) =>
-        NotificationFactory.AddNotification(State.Date, "League", $"{league.Name} {subject}", message);
+        NotificationFactory.AddNotification(State.Date, "League", $"{Settings.LeagueHeading(league)} {subject}", message);
 
     public override (bool success, string errorMessage) ValidateAdd()
     {

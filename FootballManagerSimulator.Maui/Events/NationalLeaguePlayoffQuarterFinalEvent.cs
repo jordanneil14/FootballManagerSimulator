@@ -2,6 +2,7 @@ using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -10,12 +11,14 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
     INotificationFactory notificationFactory,
     IEventManager eventManager,
     IServiceProvider serviceProvider,
+    IOptions<SettingsModel> settings,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
@@ -69,7 +72,8 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
         competition.Fixtures.Add(eliminator1);
         competition.Fixtures.Add(eliminator2);
 
-        var message = $"The {competition.Name} play-off eliminators have been drawn:\n" +
+        var leagueName = Settings.LeagueHeading(league);
+        var message = $"The {leagueName} play-off eliminators have been drawn:\n" +
             $"{eliminator1.HomeClub.Name} v {eliminator1.AwayClub.Name}\n" +
             $"{eliminator2.HomeClub.Name} v {eliminator2.AwayClub.Name}\n" +
             $"Fixtures will be played on {nextSaturday:d MMMM yyyy}";
@@ -77,7 +81,7 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Play-offs",
+            $"{leagueName} Play-offs",
             message);
 
         var semiTriggerDate = nextSaturday.AddDays(1);

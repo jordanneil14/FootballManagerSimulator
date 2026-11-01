@@ -2,6 +2,7 @@ using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -10,12 +11,14 @@ public class EnglishFootballLeaguePlayoffEvent(
     INotificationFactory notificationFactory,
     IEventManager eventManager,
     IServiceProvider serviceProvider,
+    IOptions<SettingsModel> settings,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
@@ -93,7 +96,8 @@ public class EnglishFootballLeaguePlayoffEvent(
         competition.Fixtures.Add(semiFinal1Leg2);
         competition.Fixtures.Add(semiFinal2Leg2);
 
-        var message = $"The {competition.Name} play-off semi-finals have been drawn:\n" +
+        var leagueName = Settings.LeagueHeading(league);
+        var message = $"The {leagueName} play-off semi-finals have been drawn:\n" +
             $"{semiFinal1Leg1.HomeClub.Name} v {semiFinal1Leg1.AwayClub.Name}\n" +
             $"{semiFinal2Leg1.HomeClub.Name} v {semiFinal2Leg1.AwayClub.Name}\n" +
             $"1st Leg: {nextSaturday:d MMMM yyyy}\n" +
@@ -102,7 +106,7 @@ public class EnglishFootballLeaguePlayoffEvent(
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Play-offs",
+            $"{leagueName} Play-offs",
             message);
 
         var finalTriggerDate = nextTuesday.AddDays(1);

@@ -104,6 +104,20 @@ public class PlayoffEventTests : IDisposable
     }
 
     [Fact]
+    public void EflSemiFinals_NotificationNamesTheLeaguesCountry()
+    {
+        UseEnglishFootballLeagueFormat();
+        _league.CountryId = 7;
+        _host.Settings.Countries = [new SettingsModel.IdNameModel { Id = 7, Name = "England" }];
+
+        Run<EnglishFootballLeaguePlayoffEvent>();
+
+        var notification = Assert.Single(State.Notifications);
+        Assert.Equal("England - League 1 Play-offs", notification.Subject);
+        Assert.StartsWith("The England - League 1 play-off semi-finals", notification.Message);
+    }
+
+    [Fact]
     public void EflSemiFinals_OnASaturdayArePlayedThatDay()
     {
         UseEnglishFootballLeagueFormat();

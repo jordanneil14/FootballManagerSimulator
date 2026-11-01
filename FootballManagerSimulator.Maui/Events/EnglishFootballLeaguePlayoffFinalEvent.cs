@@ -1,6 +1,7 @@
 using FootballManagerSimulator.Maui.Enums;
 using FootballManagerSimulator.Maui.Interfaces;
 using FootballManagerSimulator.Maui.Models;
+using Microsoft.Extensions.Options;
 
 namespace FootballManagerSimulator.Maui.Events;
 
@@ -9,12 +10,14 @@ public class EnglishFootballLeaguePlayoffFinalEvent(
     INotificationFactory notificationFactory,
     IEventManager eventManager,
     IServiceProvider serviceProvider,
+    IOptions<SettingsModel> settings,
     DateOnly triggerDate,
     bool isCompleted,
     int competitionId) : Event(triggerDate, isCompleted)
 {
     private readonly IState State = state;
     private readonly INotificationFactory NotificationFactory = notificationFactory;
+    private readonly SettingsModel Settings = settings.Value;
     private readonly IEventManager EventManager = eventManager;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
     public int CompetitionId { get; } = competitionId;
@@ -69,14 +72,15 @@ public class EnglishFootballLeaguePlayoffFinalEvent(
         competition.Fixtures.Add(final);
         CompetitionEndEvent.Schedule(EventManager, ServiceProvider, final.Date, CompetitionId);
 
-        var message = $"The {competition.Name} play-off final has been set:\n" +
+        var leagueName = Settings.LeagueHeading((LeagueModel)competition);
+        var message = $"The {leagueName} play-off final has been set:\n" +
             $"{final.HomeClub.Name} v {final.AwayClub.Name}\n" +
             $"The match will be played on {nextSaturday:d MMMM yyyy}";
 
         NotificationFactory.AddNotification(
             State.Date,
             "League",
-            $"{competition.Name} Play-off Final",
+            $"{leagueName} Play-off Final",
             message);
     }
 
