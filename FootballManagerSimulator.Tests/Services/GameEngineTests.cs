@@ -636,6 +636,44 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void MatchSwap_RecordsWhoCameOnAndWentOffAndWhen()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var starter = MyClub.TacticSlots[pitch[1]].PlayerId!.Value;
+        var sub = MyClub.TacticSlots[bench[0]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 63);
+
+        Assert.Equal([63], _engine.SubbedOnMinutes(fixture, sub));
+        Assert.Equal([63], _engine.SubbedOffMinutes(fixture, starter));
+        Assert.Empty(_engine.SubbedOffMinutes(fixture, sub));
+        Assert.Empty(_engine.SubbedOnMinutes(fixture, starter));
+    }
+
+    [Fact]
+    public void MatchSwap_UndoingASubstitutionClearsItsArrows()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var sub = MyClub.TacticSlots[bench[0]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
+
+        Assert.Empty(_engine.SubbedOnMinutes(fixture, sub));
+    }
+
+    [Fact]
+    public void MatchSwap_FriendlySubstitutionsAreRecordedToo()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var sub = MyClub.TacticSlots[bench[0]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, new FriendlyModel(), pitch[1], bench[0], 46);
+
+        Assert.Equal([46], _engine.SubbedOnMinutes(fixture, sub));
+    }
+
+    [Fact]
     public void ChangeFormation_KeepsPlayersInTheSameSlotOrder()
     {
         _engine.AutoPickTeam();

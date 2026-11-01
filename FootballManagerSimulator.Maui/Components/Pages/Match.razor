@@ -142,7 +142,7 @@ else
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td>@(player?.Name ?? "— empty —")</td>
+                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)</td>
                             <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
                         </tr>
                     }
@@ -167,7 +167,7 @@ else
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
-                            <td>@(player?.Name ?? "— empty —")</td>
+                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)</td>
                             <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
                         </tr>
                     }
@@ -687,6 +687,20 @@ else
         _isPaused = !_isPaused;
         if (!_isPaused) _selectedSlot = null;
     }
+
+    // Green in-arrow for a player brought on, red out-arrow for one taken off, with the minute.
+    private RenderFragment SubArrows(PlayerModel? player) => __builder =>
+    {
+        if (player == null || _fixture == null) return;
+        foreach (var minute in Engine.SubbedOnMinutes(_fixture, player.Id))
+        {
+            <span class="sub-arrow sub-in" title="Substituted on">▲ @(minute)'</span>
+        }
+        foreach (var minute in Engine.SubbedOffMinutes(_fixture, player.Id))
+        {
+            <span class="sub-arrow sub-out" title="Substituted off">▼ @(minute)'</span>
+        }
+    };
 
     private bool MatchFinished => _phase is MatchPhase.FullTime or MatchPhase.Concluded;
 

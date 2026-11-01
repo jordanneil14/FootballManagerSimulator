@@ -505,23 +505,26 @@ public class GameEngine(
     public int SubstitutionsMade(FixtureModel fixture) =>
         _substitutionFixture == fixture ? _substitutions.Count : 0;
 
+    // The minutes a player was brought on or taken off in the match being played, for the tactics tab.
+    public List<int> SubbedOnMinutes(FixtureModel fixture, int playerId) =>
+        _substitutionFixture == fixture ? _substitutions.Where(s => s.OnId == playerId).Select(s => s.Minute).ToList() : [];
+
+    public List<int> SubbedOffMinutes(FixtureModel fixture, int playerId) =>
+        _substitutionFixture == fixture ? _substitutions.Where(s => s.OffId == playerId).Select(s => s.Minute).ToList() : [];
+
     /// <summary>
     /// Swaps two slots during a live match. In competitive matches bringing a bench player on
     /// uses one of <see cref="MaxSubstitutions"/> substitutions and a player taken off cannot
     /// return; swapping the same pair back at the same minute undoes the change. Friendlies have
-    /// no limits. Returns why the swap was refused, or null when it was made.
+    /// no limits, but their substitutions are still recorded. Returns why the swap was refused,
+    /// or null when it was made.
     /// </summary>
     public string? MatchSwap(FixtureModel fixture, ICompetition? competition, int fromIndex, int toIndex, int minute)
     {
         var slots = MyClub.TacticSlots;
         if (fromIndex < 0 || toIndex < 0 || fromIndex >= slots.Count || toIndex >= slots.Count) return null;
 
-        if (competition?.Type == CompetitionType.Friendly)
-        {
-            SwapTacticSlots(fromIndex, toIndex);
-            return null;
-        }
-
+        var friendly = competition?.Type == CompetitionType.Friendly;
         TrackSubstitutionsFor(fixture);
 
         var (from, to) = (slots[fromIndex], slots[toIndex]);
@@ -537,7 +540,12 @@ public class GameEngine(
         var comingOn = benchSlot.PlayerId;
 
         if (comingOn == null)
-            return "There is no player on the bench in that slot.";
+        {
+            if (!friendly)
+                return "There is no player on the bench in that slot.";
+            SwapTacticSlots(fromIndex, toIndex);
+            return null;
+        }
 
         var undo = _substitutions.FindIndex(s => s.OnId == goingOff && s.OffId == comingOn && s.Minute == minute);
         if (undo >= 0)
@@ -548,10 +556,10 @@ public class GameEngine(
             return null;
         }
 
-        if (_playersBeenOnPitch.Contains(comingOn.Value))
+        if (!friendly && _playersBeenOnPitch.Contains(comingOn.Value))
             return $"{GetPlayer(comingOn.Value)?.Name ?? "That player"} has already been substituted and cannot come back on.";
 
-        if (_substitutions.Count >= MaxSubstitutions)
+        if (!friendly && _substitutions.Count >= MaxSubstitutions)
             return $"You have already made all {MaxSubstitutions} substitutions.";
 
         _substitutions.Add((goingOff ?? 0, comingOn.Value, minute));
