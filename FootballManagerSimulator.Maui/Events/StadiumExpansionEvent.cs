@@ -22,7 +22,8 @@ public class StadiumExpansionEvent(
             State.Date,
             "Chairman",
             "Stadium Expansion",
-            $"Work on {myClub.Stadium} is complete. Capacity has increased by {seatsAdded:n0} to {myClub.StadiumSize:n0}.");
+            $"Work on {myClub.Stadium} is complete. Capacity has increased by {seatsAdded:n0} to {myClub.StadiumSize:n0}, " +
+            $"taking it to tier {StadiumRules.TierNumber(myClub.StadiumSize)} of {StadiumRules.Tiers.Count}.");
     }
 
     public override (bool success, string errorMessage) ValidateAdd()

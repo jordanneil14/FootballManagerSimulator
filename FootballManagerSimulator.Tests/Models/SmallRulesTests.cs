@@ -21,24 +21,54 @@ public class TransferBudgetRequestRulesTests
 public class StadiumRulesTests
 {
     [Theory]
-    [InlineData(10_000, 2_000)]
-    [InlineData(10_004, 2_000)]
-    [InlineData(50_000, 10_000)]
-    public void SeatsAdded_GrowsTheStadiumByAFifth(int capacity, int expected)
+    [InlineData(2_000, 10_000, 1)]
+    [InlineData(5_000, 10_000, 1)]
+    [InlineData(10_000, 15_000, 2)]
+    [InlineData(17_300, 20_000, 3)]
+    [InlineData(99_354, StadiumRules.MaxCapacity, 10)]
+    public void NextTier_IsTheFirstTierAboveTheCurrentCapacity(int capacity, int nextCapacity, int tierNumber)
     {
-        Assert.Equal(expected, StadiumRules.SeatsAdded(capacity));
-        Assert.Equal(expected * StadiumRules.CostPerSeat, StadiumRules.UpgradeCost(capacity));
+        Assert.Equal(nextCapacity, StadiumRules.NextTier(capacity)!.Capacity);
+        Assert.Equal(nextCapacity - capacity, StadiumRules.SeatsAdded(capacity));
+        Assert.Equal(tierNumber, StadiumRules.TierNumber(capacity));
     }
 
     [Theory]
-    [InlineData(90_000, 10_000)]
-    [InlineData(99_500, 500)]
-    [InlineData(StadiumRules.MaxCapacity, 0)]
-    [InlineData(StadiumRules.MaxCapacity + 1_000, 0)]
-    public void SeatsAdded_StopsAtTheMaximumCapacity(int capacity, int expected)
+    [InlineData(10_000, 1_500_000, 6)]
+    [InlineData(40_000, 15_000_000, 15)]
+    [InlineData(90_000, 70_000_000, 24)]
+    public void UpgradeCost_IsTheFullTierPriceFromATierBoundary(int capacity, int cost, int months)
     {
-        Assert.Equal(expected, StadiumRules.SeatsAdded(capacity));
-        Assert.Equal(expected * StadiumRules.CostPerSeat, StadiumRules.UpgradeCost(capacity));
+        Assert.Equal(cost, StadiumRules.UpgradeCost(capacity));
+        Assert.Equal(months, StadiumRules.UpgradeMonths(capacity));
+    }
+
+    [Theory]
+    [InlineData(17_300, 1_620_000)] // 2,700 of the tier's 5,000 seats
+    [InlineData(99_354, 4_520_000)] // rounded to £10k
+    [InlineData(19_900, StadiumRules.MinUpgradeCost)]
+    public void UpgradeCost_ChargesOnlyForTheShareOfTheTierStillToBuild(int capacity, int cost)
+    {
+        Assert.Equal(cost, StadiumRules.UpgradeCost(capacity));
+    }
+
+    [Theory]
+    [InlineData(2_000)]
+    [InlineData(4_999)]
+    public void UpgradeCost_IsTheFullFirstStepBelowTheFirstTier(int capacity)
+    {
+        Assert.Equal(750_000, StadiumRules.UpgradeCost(capacity));
+    }
+
+    [Theory]
+    [InlineData(StadiumRules.MaxCapacity)]
+    [InlineData(StadiumRules.MaxCapacity + 1_000)]
+    public void NothingIsLeftToBuildAtTheMaximumCapacity(int capacity)
+    {
+        Assert.Null(StadiumRules.NextTier(capacity));
+        Assert.Equal(0, StadiumRules.SeatsAdded(capacity));
+        Assert.Equal(0, StadiumRules.UpgradeCost(capacity));
+        Assert.Equal(StadiumRules.Tiers.Count, StadiumRules.TierNumber(capacity));
     }
 }
 

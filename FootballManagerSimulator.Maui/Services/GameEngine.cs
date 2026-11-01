@@ -843,7 +843,7 @@ public class GameEngine(
         if (cost > MyClub.TransferBudget)
             return $"The board cannot fund this. Expanding the stadium costs {Ui.Money(cost)}.";
 
-        var completionDate = State.Date.AddMonths(StadiumRules.UpgradeMonths);
+        var completionDate = State.Date.AddMonths(StadiumRules.UpgradeMonths(MyClub.StadiumSize));
         var expansion = ActivatorUtilities.CreateInstance<StadiumExpansionEvent>(serviceProvider, completionDate, false);
         var (success, errorMessage) = expansion.ValidateAdd();
         if (!success) return errorMessage;

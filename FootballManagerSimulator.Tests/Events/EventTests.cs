@@ -117,14 +117,14 @@ public class ClubRequestEventTests : IDisposable
     [Fact]
     public void ExpandStadium_ChargesTheBudgetAndSchedulesTheWork()
     {
-        _myClub.StadiumSize = 20_000;
+        _myClub.StadiumSize = 10_000;
 
         Assert.Contains("approved", _host.Engine.ExpandStadium());
 
-        Assert.Equal(5_000_000 - StadiumRules.UpgradeCost(20_000), _myClub.TransferBudget);
+        Assert.Equal(5_000_000 - 1_500_000, _myClub.TransferBudget);
         var build = Assert.Single(_host.State.Events.OfType<StadiumExpansionEvent>());
-        Assert.Equal(_host.State.Date.AddMonths(StadiumRules.UpgradeMonths), build.TriggerDate);
-        Assert.Equal(20_000, _myClub.StadiumSize); // not until the work is done
+        Assert.Equal(_host.State.Date.AddMonths(6), build.TriggerDate);
+        Assert.Equal(10_000, _myClub.StadiumSize); // not until the work is done
         Assert.Contains("already underway", _host.Engine.ExpandStadium());
     }
 
@@ -180,14 +180,16 @@ public class ClubRequestEventTests : IDisposable
     }
 
     [Fact]
-    public void StadiumExpansion_GrowsCapacityByTwentyPercent()
+    public void StadiumExpansion_GrowsCapacityToTheNextTier()
     {
         _myClub.StadiumSize = 12_345;
 
         Create<StadiumExpansionEvent>(_host.State.Date).Execute();
 
-        Assert.Equal(12_345 + (int)(12_345 * 0.2), _myClub.StadiumSize);
-        Assert.Equal("Stadium Expansion", Assert.Single(_host.State.Notifications).Subject);
+        Assert.Equal(15_000, _myClub.StadiumSize);
+        var notification = Assert.Single(_host.State.Notifications);
+        Assert.Equal("Stadium Expansion", notification.Subject);
+        Assert.Contains("tier 3 of 11", notification.Message);
     }
 
     [Fact]
