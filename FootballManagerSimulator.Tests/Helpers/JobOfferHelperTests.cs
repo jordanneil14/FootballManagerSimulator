@@ -311,6 +311,49 @@ public class JobOfferHelperTests
     }
 
     [Fact]
+    public void BeingSacked_RefundsAnUnfinishedStadiumBuild()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 3);
+        club.TransferBudget = 0;
+        club.StadiumSize = 17_300;
+        _state.Events.Add(new StadiumExpansionEvent(_state, _notifications, _state.Date.AddMonths(9), false));
+
+        _helper.SackUser();
+
+        Assert.Equal(1_620_000, club.TransferBudget);
+    }
+
+    [Fact]
+    public void LeavingAClub_RefundsNothingForABudgetRequest()
+    {
+        var club = _state.Clubs.Single(p => p.Id == 3);
+        club.TransferBudget = 1_000_000;
+        var request = new IncreaseTransferBudgetRequestEvent(_state, _notifications, _state.Date.AddDays(2), false);
+        _state.Events.Add(request);
+
+        _helper.ResignUser();
+
+        Assert.True(request.IsCompleted);
+        Assert.Equal(1_000_000, club.TransferBudget);
+    }
+
+    [Fact]
+    public void LeavingAClub_RefundsOnlyTheClubThatPaid()
+    {
+        var oldClub = _state.Clubs.Single(p => p.Id == 3);
+        var newClub = _state.Clubs.Single(p => p.Id == 5);
+        oldClub.StadiumSize = 10_000;
+        oldClub.TransferBudget = 1_000_000;
+        newClub.TransferBudget = 2_000_000;
+        _state.Events.Add(new StadiumExpansionEvent(_state, _notifications, _state.Date.AddMonths(6), false));
+
+        _helper.JoinClub(5);
+
+        Assert.Equal(2_000_000, newClub.TransferBudget);
+        Assert.Equal(1_000_000 + StadiumRules.UpgradeCost(10_000), oldClub.TransferBudget);
+    }
+
+    [Fact]
     public void LeavingAClub_LeavesItsPhysiosBehind()
     {
         _state.Physios.Add(new PhysioModel { Id = 1, Name = "Sam Physio", HiredDate = _state.Date });

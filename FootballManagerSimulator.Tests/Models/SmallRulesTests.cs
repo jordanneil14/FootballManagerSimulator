@@ -60,6 +60,41 @@ public class StadiumRulesTests
         Assert.Equal(750_000, StadiumRules.UpgradeCost(capacity));
     }
 
+    [Fact]
+    public void Tiers_RiseInCapacityAndInCostPerSeat()
+    {
+        var tiers = StadiumRules.Tiers;
+        Assert.Equal(StadiumRules.MaxCapacity, tiers[^1].Capacity);
+
+        var lastPerSeat = 0.0;
+        for (var i = 1; i < tiers.Count; i++)
+        {
+            Assert.True(tiers[i].Capacity > tiers[i - 1].Capacity);
+            Assert.True(tiers[i].Months > 0);
+
+            var perSeat = (double)tiers[i].Cost / (tiers[i].Capacity - tiers[i - 1].Capacity);
+            Assert.True(perSeat >= lastPerSeat, $"Tier {i + 1} is cheaper per seat than the one below");
+            lastPerSeat = perSeat;
+        }
+    }
+
+    [Fact]
+    public void UpgradeCost_NeverExceedsTheTierPriceAndFallsAsTheStadiumFillsTheTier()
+    {
+        var previous = (Tier: (StadiumRules.Tier?)null, Cost: int.MaxValue);
+        for (var capacity = 1_000; capacity < StadiumRules.MaxCapacity; capacity += 137)
+        {
+            var next = StadiumRules.NextTier(capacity)!;
+            var cost = StadiumRules.UpgradeCost(capacity);
+
+            Assert.InRange(cost, StadiumRules.MinUpgradeCost, next.Cost);
+            if (next == previous.Tier)
+                Assert.True(cost <= previous.Cost, $"{capacity:n0} seats costs more than a smaller stadium in the same tier");
+
+            previous = (next, cost);
+        }
+    }
+
     [Theory]
     [InlineData(StadiumRules.MaxCapacity)]
     [InlineData(StadiumRules.MaxCapacity + 1_000)]

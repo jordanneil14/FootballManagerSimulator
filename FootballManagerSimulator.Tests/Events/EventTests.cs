@@ -192,6 +192,32 @@ public class ClubRequestEventTests : IDisposable
         Assert.Contains("tier 3 of 11", notification.Message);
     }
 
+    [Theory]
+    [InlineData(17_300, 1_620_000, 9)]
+    [InlineData(40_000, 15_000_000, 15)]
+    [InlineData(90_000, 70_000_000, 24)]
+    public void ExpandStadium_ChargesTheTierPriceAndTakesTheTiersBuildTime(int capacity, int cost, int months)
+    {
+        _myClub.StadiumSize = capacity;
+        _myClub.TransferBudget = 100_000_000;
+
+        Assert.Contains("approved", _host.Engine.ExpandStadium());
+
+        Assert.Equal(100_000_000 - cost, _myClub.TransferBudget);
+        Assert.Equal(_host.State.Date.AddMonths(months), Assert.Single(_host.State.Events).TriggerDate);
+    }
+
+    [Fact]
+    public void StadiumExpansion_BelowTheFirstTierBuildsStraightToTheSecond()
+    {
+        _myClub.StadiumSize = 3_000;
+
+        Create<StadiumExpansionEvent>(_host.State.Date).Execute();
+
+        Assert.Equal(10_000, _myClub.StadiumSize);
+        Assert.Contains("tier 2 of 11", Assert.Single(_host.State.Notifications).Message);
+    }
+
     [Fact]
     public void StadiumExpansion_StopsAtTheMaximumCapacity()
     {
