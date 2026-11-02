@@ -42,7 +42,7 @@ public class ScottishPremiershipSplitEvent(
             $"The {league.Name} has split. Each half plays the other clubs in it once more, and no club can move between the halves.\n" +
             $"Top half:\n\t{string.Join("\n\t", top)}\n" +
             $"Bottom half:\n\t{string.Join("\n\t", bottom)}\n" +
-            $"The final match is on {lastMatchDate:d MMMM yyyy}");
+            $"The final match is on {lastMatchDate:d MMMM yyyy}.");
     }
 
     public override (bool success, string errorMessage) ValidateAdd()

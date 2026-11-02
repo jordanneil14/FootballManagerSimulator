@@ -35,7 +35,7 @@ public class EnglishLeagueCupFixtureDrawEvent(
         {
             var fixtures = competition.Fixtures.Where(p => p.Round == round);
 
-            var message = $"Fixtures have been drawn for the next round of the {competition.Name}";
+            var message = $"Fixtures have been drawn for the next round of the {competition.Name}.";
             var fixtureString = fixtures.Select(p => $"{p.HomeClub.Name} v {p.AwayClub.Name}");
             message += "\n" + string.Join("\n", fixtureString);
 

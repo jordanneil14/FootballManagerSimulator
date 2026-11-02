@@ -65,7 +65,7 @@ public class SerieBPlayoffEvent(
         Notify(league, "Play-offs",
             $"The {Settings.LeagueHeading(league)} play-off preliminaries have been drawn:\n" +
             string.Join("\n", ties.Select(t => $"{t.Item1.Name} v {t.Item2.Name}")) +
-            $"\nFixtures will be played on {date:d MMMM yyyy}");
+            $"\nFixtures will be played on {date:d MMMM yyyy}.");
 
         ScheduleNextRound(date);
     }

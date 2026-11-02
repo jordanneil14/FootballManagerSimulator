@@ -58,7 +58,7 @@ public class GameFactory(
 			State.Date,
 			"Chairman",
 			$"Welcome to {State.Clubs.First(p => p.Id == State.MyClubId).Name}",
-			"Everyone at the club wishes you a successful reign as manager");
+			"Everyone at the club wishes you a successful reign as manager.");
 
 		NotificationFactory.AddNotification(
 			State.Date,
@@ -78,7 +78,7 @@ public class GameFactory(
 			State.Date.AddDays(1),
 			"Scout",
 			"Players With Expired Contracts",
-			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here is a small list of players you may be interested in:\n\t{string.Join("\n\t", freeAgents.Select(p => p.Name))}{Environment.NewLine}Free agents can be found on the Scout page, where you can also hire scouts to find more players");
+			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here is a small list of players you may be interested in:\n\t{string.Join("\n\t", freeAgents.Select(p => p.Name))}{Environment.NewLine}Free agents can be found on the Scout page, where you can also hire scouts to find more players.");
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{

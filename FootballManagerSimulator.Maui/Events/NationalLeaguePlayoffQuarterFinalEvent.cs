@@ -76,7 +76,7 @@ public class NationalLeaguePlayoffQuarterFinalEvent(
         var message = $"The {leagueName} play-off eliminators have been drawn:\n" +
             $"{eliminator1.HomeClub.Name} v {eliminator1.AwayClub.Name}\n" +
             $"{eliminator2.HomeClub.Name} v {eliminator2.AwayClub.Name}\n" +
-            $"Fixtures will be played on {nextSaturday:d MMMM yyyy}";
+            $"Fixtures will be played on {nextSaturday:d MMMM yyyy}.";
 
         NotificationFactory.AddNotification(
             State.Date,

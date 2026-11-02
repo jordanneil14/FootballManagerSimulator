@@ -80,7 +80,7 @@ public class NationalLeaguePlayoffSemiFinalEvent(
         var message = $"The {leagueName} play-off semi-finals:\n" +
             $"{semi1.HomeClub.Name} v {semi1.AwayClub.Name}\n" +
             $"{semi2.HomeClub.Name} v {semi2.AwayClub.Name}\n" +
-            $"Fixtures will be played on {nextTuesday:d MMMM yyyy}";
+            $"Fixtures will be played on {nextTuesday:d MMMM yyyy}.";
 
         NotificationFactory.AddNotification(
             State.Date,

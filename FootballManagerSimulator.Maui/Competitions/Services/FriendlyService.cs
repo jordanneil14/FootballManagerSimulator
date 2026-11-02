@@ -55,6 +55,6 @@ public class FriendlyService(
             State.Date,
             "Assistant Manager",
             "Pre-Match Report",
-            $"You have a friendly versus {oppositionClub.Name} tomorrow");
+            $"You have a friendly versus {oppositionClub.Name} tomorrow.");
     }
 }

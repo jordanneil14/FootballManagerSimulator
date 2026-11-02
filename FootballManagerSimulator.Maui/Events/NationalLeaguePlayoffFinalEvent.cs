@@ -63,7 +63,7 @@ public class NationalLeaguePlayoffFinalEvent(
         var leagueName = Settings.LeagueHeading((LeagueModel)competition);
         var message = $"The {leagueName} promotion final has been set:\n" +
             $"{final.HomeClub.Name} v {final.AwayClub.Name}\n" +
-            $"The match will be played on {nextSaturday:d MMMM yyyy}";
+            $"The match will be played on {nextSaturday:d MMMM yyyy}.";
 
         NotificationFactory.AddNotification(
             State.Date,

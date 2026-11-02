@@ -30,7 +30,7 @@ public class EnglishCommunityShieldFixtureDrawEvent(
         var homeClub = competition.Fixtures.First().HomeClub;
         var awayClub = competition.Fixtures.First().AwayClub;
 
-        var message = $"The {competition.Name} fixture between {homeClub.Name} and {awayClub.Name} will take place on {competition.DrawSettings.First().FixtureDate}";
+        var message = $"The {competition.Name} fixture between {homeClub.Name} and {awayClub.Name} will take place on {competition.DrawSettings.First().FixtureDate}.";
         NotificationFactory.AddNotification(
             State.Date,
             "Journalist",
