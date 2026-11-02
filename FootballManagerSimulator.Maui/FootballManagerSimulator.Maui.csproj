@@ -28,8 +28,8 @@
         <ApplicationId>com.jordanneil.pocketgaffer</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.10</ApplicationDisplayVersion>
-        <ApplicationVersion>14</ApplicationVersion>
+        <ApplicationDisplayVersion>1.11</ApplicationDisplayVersion>
+        <ApplicationVersion>15</ApplicationVersion>
 
         <!-- Partial trimming keeps our assemblies intact so reflection-based DI
              (NetCore.AutoRegisterDi) and Newtonsoft.Json TypeNameHandling work at runtime. -->
