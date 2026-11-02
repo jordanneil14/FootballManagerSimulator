@@ -66,21 +66,19 @@ public class GameFactory(
 			"Budget",
 			$"Your budget for the upcoming season is {State.Clubs.First(p => p.Id == State.MyClubId).TransferBudgetFriendly}");
 
+		ScoutHelper.SeedDiscoveredPlayers();
+
 		var freeAgents = State.Players
-			.Where(p => p.Contract == null)
+			.Where(p => p.Contract == null && State.DiscoveredPlayerIds.Contains(p.Id))
 			.OrderByDescending(p => p.Rating)
 			.Take(4)
 			.ToList();
-
-		// The free agents named below must be on the Scout page too.
-		ScoutHelper.SeedDiscoveredPlayers();
-		State.DiscoveredPlayerIds.AddRange(freeAgents.Select(p => p.Id).Except(State.DiscoveredPlayerIds).ToList());
 
 		NotificationFactory.AddNotification(
 			State.Date.AddDays(1),
 			"Scout",
 			"Players With Expired Contracts",
-			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here are small list of players which you may be interested in:\n\t{string.Join("\n\t", freeAgents.Select(p => p.Name))}{Environment.NewLine}Free agents can be found on the Scout page, where you can also hire scouts to find more players");
+			$"Congratulations on your new job! There are lots of free agents on the marketplace at the minute. Here is a small list of players you may be interested in:\n\t{string.Join("\n\t", freeAgents.Select(p => p.Name))}{Environment.NewLine}Free agents can be found on the Scout page, where you can also hire scouts to find more players");
 
 		foreach (var competition in State.Competitions.Where(p => p.Type == Enums.CompetitionType.Friendly))
 		{
