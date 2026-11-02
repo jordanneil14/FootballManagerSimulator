@@ -207,6 +207,7 @@ public class GameEngine(
             processHelper.Process();
             // A new day has started, so yesterday's match is over however the user left it.
             State.MatchInProgress = false;
+            _preparedDate = null;
             // Saves are large, so quiet days only autosave once a week; match days save at full time.
             if (State.Date.DayOfWeek == AutosaveDay)
                 AutoSave();
@@ -228,6 +229,8 @@ public class GameEngine(
 
     public enum TodaysFixturesResult { PreMatch, Results }
 
+    private DateOnly? _preparedDate;
+
     /// <summary>Reproduces the old Fixture screen "Advance" action.</summary>
     public TodaysFixturesResult AdvanceTodaysFixtures()
     {
@@ -237,25 +240,41 @@ public class GameEngine(
 
         if (includesMyClub)
         {
-            foreach (var fixture in TodaysFixtures())
-                MatchSimulator.PrepareMatch(fixture);
+            if (_preparedDate != State.Date)
+            {
+                PrepareAllFixtures();
+                _preparedDate = State.Date;
+            }
 
             NotifyChanged();
             return TodaysFixturesResult.PreMatch;
         }
 
+        PrepareAllFixtures();
         foreach (var competition in State.Competitions)
-        {
             foreach (var fixture in competition.Fixtures.Where(p => p.Date == State.Date))
-            {
-                MatchSimulator.PrepareMatch(fixture);
                 MatchSimulator.ConcludeFixture(fixture, competition);
-            }
-        }
 
+        _preparedDate = null;
         PayCupPrizeMoney();
         NotifyChanged();
         return TodaysFixturesResult.Results;
+    }
+
+    private void PrepareAllFixtures()
+    {
+        var clubIds = new HashSet<int>();
+        foreach (var fixture in TodaysFixtures())
+        {
+            clubIds.Add(fixture.HomeClub.Id);
+            clubIds.Add(fixture.AwayClub.Id);
+        }
+
+        if (State.MyClubId != null)
+            clubIds.Remove(State.MyClubId.Value);
+
+        foreach (var clubId in clubIds)
+            MatchSimulator.PrepareClub(clubId);
     }
 
     /// <summary>

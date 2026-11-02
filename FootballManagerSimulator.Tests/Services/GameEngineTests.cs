@@ -236,7 +236,7 @@ public class GameEngineTests : IDisposable
         AddFixtureToday(MyClub, _state.Clubs[1]);
 
         Assert.Equal(GameEngine.TodaysFixturesResult.PreMatch, _engine.AdvanceTodaysFixtures());
-        _match.Verify(m => m.PrepareMatch(It.IsAny<FixtureModel>()), Times.Once);
+        _match.Verify(m => m.PrepareClub(It.IsAny<int>()), Times.Once);
         _match.Verify(m => m.ConcludeFixture(It.IsAny<FixtureModel>(), It.IsAny<ICompetition>()), Times.Never);
     }
 
