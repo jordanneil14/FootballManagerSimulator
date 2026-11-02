@@ -28,7 +28,7 @@ public class AcademyRulesTests
             .ToList();
 
         Assert.Equal(costs.OrderBy(c => c).Distinct(), costs);
-        Assert.Equal(250_000, costs.First());
+        Assert.Equal(125_000, costs.First());
         Assert.Equal(18_000_000, costs.Last());
     }
 }

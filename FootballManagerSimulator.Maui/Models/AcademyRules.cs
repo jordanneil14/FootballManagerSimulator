@@ -25,10 +25,10 @@ public static class AcademyRules
     // What it costs to take the academy up to the given rating.
     public static int UpgradeCost(int targetRating) => targetRating switch
     {
-        <= 2 => 250_000,
-        3 => 500_000,
-        4 => 1_000_000,
-        5 => 2_000_000,
+        <= 2 => 125_000,
+        3 => 250_000,
+        4 => 500_000,
+        5 => 1_000_000,
         6 => 3_500_000,
         7 => 5_000_000,
         8 => 8_000_000,
