@@ -85,7 +85,7 @@
     },
     {
       "ID": 3,
-      "Name": "Manchester Blues",
+      "Name": "Man Blue",
       "Stadium": "Beswick Fields",
       "LeagueId": 1,
       "Colour": "Sky Blue",
@@ -93,7 +93,7 @@
     },
     {
       "ID": 6,
-      "Name": "Manchester Reds",
+      "Name": "Man Red",
       "Stadium": "Ship Canal Park",
       "LeagueId": 1,
       "Colour": "Red",

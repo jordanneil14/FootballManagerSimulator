@@ -282,10 +282,10 @@ public class DifficultySimulationTests : IDisposable
     public void UntilTitle_AverageDivision1Club_SigningThreePlayersASeason() =>
         Simulate(startRank: 1, int.TryParse(Environment.GetEnvironmentVariable("TITLE_SEASONS"), out var max) ? max : 15, stopWhenChampions: true);
 
-    // Set DIFFICULTY_CLUB to the club to manage (default Manchester Reds, the richest Division 1 club).
+    // Set DIFFICULTY_CLUB to the club to manage (default Man Red, the richest Division 1 club).
     [SimulationFact]
     public void NamedDivision1Club_SigningThreePlayersASeason() =>
-        Simulate(startRank: 1, Seasons, stopWhenChampions: false, clubName: Environment.GetEnvironmentVariable("DIFFICULTY_CLUB") ?? "Manchester Reds");
+        Simulate(startRank: 1, Seasons, stopWhenChampions: false, clubName: Environment.GetEnvironmentVariable("DIFFICULTY_CLUB") ?? "Man Red");
 
     private void Simulate(int startRank, int seasons, bool stopWhenChampions, string? clubName = null)
     {
