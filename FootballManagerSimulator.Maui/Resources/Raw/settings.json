@@ -14,7 +14,7 @@
     {
       "ID": 30,
       "Name": "Middlesex Reds",
-      "Stadium": "Brentford Community Fields",
+      "Stadium": "Kew Bridge Fields",
       "LeagueId": 1,
       "Colour": "Red/White",
       "StadiumSize": 17000
@@ -46,7 +46,7 @@
     {
       "ID": 26,
       "Name": "West London Whites",
-      "Stadium": "Craven Fields",
+      "Stadium": "Bishops Park Fields",
       "LeagueId": 1,
       "Colour": "White/Black",
       "StadiumSize": 25700
@@ -62,7 +62,7 @@
     {
       "ID": 36,
       "Name": "Suffolk Blues",
-      "Stadium": "Portman Road Grounds",
+      "Stadium": "Gipping Fields",
       "LeagueId": 1,
       "Colour": "Blue",
       "StadiumSize": 30000
@@ -70,7 +70,7 @@
     {
       "ID": 27,
       "Name": "Yorkshire Whites",
-      "Stadium": "Elland Road Grounds",
+      "Stadium": "Beeston Grounds",
       "LeagueId": 1,
       "Colour": "White",
       "StadiumSize": 37890
@@ -85,8 +85,8 @@
     },
     {
       "ID": 3,
-      "Name": "Manchester Blue",
-      "Stadium": "City of Manchester Fields",
+      "Name": "Manchester Blues",
+      "Stadium": "Beswick Fields",
       "LeagueId": 1,
       "Colour": "Sky Blue",
       "StadiumSize": 53400
@@ -102,7 +102,7 @@
     {
       "ID": 7,
       "Name": "Merseyside Blues",
-      "Stadium": "Goodison Fields",
+      "Stadium": "Walton Fields",
       "LeagueId": 1,
       "Colour": "Blue",
       "StadiumSize": 39600
@@ -110,7 +110,7 @@
     {
       "ID": 21,
       "Name": "Tyneside Stripes",
-      "Stadium": "St James Fields",
+      "Stadium": "Leazes Fields",
       "LeagueId": 1,
       "Colour": "Black/White",
       "StadiumSize": 52300
@@ -118,7 +118,7 @@
     {
       "ID": 5,
       "Name": "North London Reds",
-      "Stadium": "Highbury Lane",
+      "Stadium": "Holloway Lane",
       "LeagueId": 1,
       "Colour": "Red/White",
       "StadiumSize": 60000
@@ -126,7 +126,7 @@
     {
       "ID": 41,
       "Name": "Nottingham Reds",
-      "Stadium": "City Ground Fields",
+      "Stadium": "West Bridgford Fields",
       "LeagueId": 1,
       "Colour": "Red",
       "StadiumSize": 30400
@@ -134,7 +134,7 @@
     {
       "ID": 14,
       "Name": "Croydon Eagles",
-      "Stadium": "Selhurst Fields",
+      "Stadium": "Norwood Fields",
       "LeagueId": 1,
       "Colour": "Red/Blue",
       "StadiumSize": 25500
@@ -166,7 +166,7 @@
     {
       "ID": 39,
       "Name": "Second City Blues",
-      "Stadium": "St Andrews Fields",
+      "Stadium": "Bordesley Fields",
       "LeagueId": 2,
       "Colour": "Blue",
       "StadiumSize": 30000
@@ -174,7 +174,7 @@
     {
       "ID": 42,
       "Name": "East Lancashire Blues",
-      "Stadium": "Ewood Park Grounds",
+      "Stadium": "Blakewater Grounds",
       "LeagueId": 2,
       "Colour": "Blue/White",
       "StadiumSize": 31400
@@ -190,7 +190,7 @@
     {
       "ID": 37,
       "Name": "Bristol Reds",
-      "Stadium": "Ashton Gate Fields",
+      "Stadium": "Bedminster Fields",
       "LeagueId": 2,
       "Colour": "Red",
       "StadiumSize": 27200
@@ -198,7 +198,7 @@
     {
       "ID": 16,
       "Name": "Pennine Clarets",
-      "Stadium": "Turf Moor Grounds",
+      "Stadium": "Brunshaw Grounds",
       "LeagueId": 2,
       "Colour": "Claret/Blue",
       "StadiumSize": 21900
@@ -214,7 +214,7 @@
     {
       "ID": 67,
       "Name": "South East London Reds",
-      "Stadium": "The Valley",
+      "Stadium": "Maryon Park Fields",
       "LeagueId": 2,
       "Colour": "Red/White",
       "StadiumSize": 32700
@@ -222,7 +222,7 @@
     {
       "ID": 29,
       "Name": "Derbyshire Whites",
-      "Stadium": "Pride Park Grounds",
+      "Stadium": "Wyvern Grounds",
       "LeagueId": 2,
       "Colour": "White/Black",
       "StadiumSize": 33600
@@ -230,7 +230,7 @@
     {
       "ID": 51,
       "Name": "Lincolnshire Reds",
-      "Stadium": "Sincil Bank Fields",
+      "Stadium": "Witham Fields",
       "LeagueId": 2,
       "Colour": "Red/White",
       "StadiumSize": 12100
@@ -238,7 +238,7 @@
     {
       "ID": 11,
       "Name": "London Claret & Blues",
-      "Stadium": "Olympic East Stadium",
+      "Stadium": "Stratford Arena",
       "LeagueId": 2,
       "Colour": "Claret/Blue",
       "StadiumSize": 60000
@@ -246,7 +246,7 @@
     {
       "ID": 19,
       "Name": "Teesside Reds",
-      "Stadium": "Riverside Fields",
+      "Stadium": "Middlehaven Fields",
       "LeagueId": 2,
       "Colour": "Red",
       "StadiumSize": 34700
@@ -254,7 +254,7 @@
     {
       "ID": 50,
       "Name": "Docklands Blues",
-      "Stadium": "The Den Grounds",
+      "Stadium": "Bermondsey Grounds",
       "LeagueId": 2,
       "Colour": "Blue",
       "StadiumSize": 21700
@@ -262,7 +262,7 @@
     {
       "ID": 28,
       "Name": "Norfolk Yellows",
-      "Stadium": "Carrow Road Grounds",
+      "Stadium": "Wensum Grounds",
       "LeagueId": 2,
       "Colour": "Yellow/Green",
       "StadiumSize": 27200
@@ -270,7 +270,7 @@
     {
       "ID": 69,
       "Name": "Solent Blues",
-      "Stadium": "Fratton Fields",
+      "Stadium": "Eastney Fields",
       "LeagueId": 2,
       "Colour": "Blue",
       "StadiumSize": 21100
@@ -278,7 +278,7 @@
     {
       "ID": 31,
       "Name": "Ribble Whites",
-      "Stadium": "Deepdale Grounds",
+      "Stadium": "Moor Park Grounds",
       "LeagueId": 2,
       "Colour": "White/Navy",
       "StadiumSize": 23400
@@ -286,15 +286,15 @@
     {
       "ID": 38,
       "Name": "Shepherds Bush Hoops",
-      "Stadium": "Loftus Road Grounds",
+      "Stadium": "Wood Lane Grounds",
       "LeagueId": 2,
       "Colour": "Blue/White",
       "StadiumSize": 18100
     },
     {
       "ID": 45,
-      "Name": "Sheffield Blades",
-      "Stadium": "Bramall Lane Grounds",
+      "Name": "Sheffield Reds",
+      "Stadium": "Sharrow Grounds",
       "LeagueId": 2,
       "Colour": "Red/White",
       "StadiumSize": 32700
@@ -302,7 +302,7 @@
     {
       "ID": 8,
       "Name": "Solent Reds",
-      "Stadium": "St Marys Ground",
+      "Stadium": "Northam Fields",
       "LeagueId": 2,
       "Colour": "Red/White",
       "StadiumSize": 32000
@@ -310,7 +310,7 @@
     {
       "ID": 13,
       "Name": "Potteries Stripes",
-      "Stadium": "The Britannia Fields",
+      "Stadium": "Sideway Fields",
       "LeagueId": 2,
       "Colour": "Red/White",
       "StadiumSize": 27700
@@ -318,7 +318,7 @@
     {
       "ID": 15,
       "Name": "South Wales Whites",
-      "Stadium": "Liberty Fields",
+      "Stadium": "Landore Fields",
       "LeagueId": 2,
       "Colour": "White",
       "StadiumSize": 21000
@@ -326,7 +326,7 @@
     {
       "ID": 17,
       "Name": "Hertfordshire Yellows",
-      "Stadium": "Vicarage Fields",
+      "Stadium": "Cassiobury Fields",
       "LeagueId": 2,
       "Colour": "Yellow/Black",
       "StadiumSize": 22000
@@ -334,7 +334,7 @@
     {
       "ID": 10,
       "Name": "Black Country Stripes",
-      "Stadium": "The Hawthorns Grounds",
+      "Stadium": "Smethwick Grounds",
       "LeagueId": 2,
       "Colour": "Navy/White",
       "StadiumSize": 26700
@@ -342,7 +342,7 @@
     {
       "ID": 35,
       "Name": "Black Country Golds",
-      "Stadium": "Molineux Grounds",
+      "Stadium": "Waterloo Road Grounds",
       "LeagueId": 2,
       "Colour": "Gold/Black",
       "StadiumSize": 32050
@@ -350,7 +350,7 @@
     {
       "ID": 47,
       "Name": "North Wales Reds",
-      "Stadium": "Racecourse Grounds",
+      "Stadium": "Acton Park Grounds",
       "LeagueId": 2,
       "Colour": "Red",
       "StadiumSize": 15500
@@ -358,7 +358,7 @@
     {
       "ID": 34,
       "Name": "South Yorkshire Reds",
-      "Stadium": "Oakwell Fields",
+      "Stadium": "Dearne Fields",
       "LeagueId": 3,
       "Colour": "Red",
       "StadiumSize": 23300
@@ -366,7 +366,7 @@
     {
       "ID": 75,
       "Name": "Seaside Tangerines",
-      "Stadium": "Bloomfield Road Grounds",
+      "Stadium": "Promenade Fields",
       "LeagueId": 3,
       "Colour": "Tangerine",
       "StadiumSize": 16700
@@ -374,7 +374,7 @@
     {
       "ID": 49,
       "Name": "West Riding Clarets",
-      "Stadium": "Valley Parade Grounds",
+      "Stadium": "Manningham Grounds",
       "LeagueId": 3,
       "Colour": "Claret/Amber",
       "StadiumSize": 25100
@@ -382,7 +382,7 @@
     {
       "ID": 63,
       "Name": "South London Whites",
-      "Stadium": "Hayes Lane Fields",
+      "Stadium": "Ravensbourne Fields",
       "LeagueId": 3,
       "Colour": "White/Blue",
       "StadiumSize": 12000
@@ -390,7 +390,7 @@
     {
       "ID": 40,
       "Name": "Staffordshire Yellows",
-      "Stadium": "Brewers Fields",
+      "Stadium": "Shobnall Fields",
       "LeagueId": 3,
       "Colour": "Yellow/Black",
       "StadiumSize": 6900
@@ -398,7 +398,7 @@
     {
       "ID": 79,
       "Name": "Fenland Ambers",
-      "Stadium": "Abbey Fields",
+      "Stadium": "Barnwell Fields",
       "LeagueId": 3,
       "Colour": "Amber/Black",
       "StadiumSize": 8000
@@ -430,7 +430,7 @@
     {
       "ID": 92,
       "Name": "East London Reds",
-      "Stadium": "Brisbane Road Fields",
+      "Stadium": "Walthamstow Marsh Fields",
       "LeagueId": 3,
       "Colour": "Red",
       "StadiumSize": 9300
@@ -438,7 +438,7 @@
     {
       "ID": 72,
       "Name": "Bedfordshire Oranges",
-      "Stadium": "Kenilworth Road Grounds",
+      "Stadium": "Wardown Grounds",
       "LeagueId": 3,
       "Colour": "Orange/White",
       "StadiumSize": 10200
@@ -454,7 +454,7 @@
     {
       "ID": 84,
       "Name": "Nottingham Stripes",
-      "Stadium": "Meadow Lane Grounds",
+      "Stadium": "Sneinton Grounds",
       "LeagueId": 3,
       "Colour": "Black/White",
       "StadiumSize": 20200
@@ -478,7 +478,7 @@
     {
       "ID": 70,
       "Name": "Devon Greens",
-      "Stadium": "Home Park Grounds",
+      "Stadium": "Pennycross Grounds",
       "LeagueId": 3,
       "Colour": "Green",
       "StadiumSize": 18600
@@ -494,7 +494,7 @@
     {
       "ID": 24,
       "Name": "Sheffield Blues",
-      "Stadium": "Hillsborough Grounds",
+      "Stadium": "Middlewood Grounds",
       "LeagueId": 3,
       "Colour": "Blue/White",
       "StadiumSize": 32700
@@ -510,7 +510,7 @@
     {
       "ID": 57,
       "Name": "Cheshire Reds",
-      "Stadium": "The Valley Grounds",
+      "Stadium": "Dane Valley Grounds",
       "LeagueId": 3,
       "Colour": "Red",
       "StadiumSize": 27100
@@ -526,7 +526,7 @@
     {
       "ID": 43,
       "Name": "West Lancashire Blues",
-      "Stadium": "Springfield Park Fields",
+      "Stadium": "Haigh Fields",
       "LeagueId": 3,
       "Colour": "Blue/White",
       "StadiumSize": 25100
@@ -534,7 +534,7 @@
     {
       "ID": 59,
       "Name": "Merton Blues",
-      "Stadium": "Plough Lane Grounds",
+      "Stadium": "Wandle Grounds",
       "LeagueId": 3,
       "Colour": "Blue/Yellow",
       "StadiumSize": 9300
@@ -542,7 +542,7 @@
     {
       "ID": 77,
       "Name": "Chiltern Quarters",
-      "Stadium": "Adams Park Grounds",
+      "Stadium": "Sands Grounds",
       "LeagueId": 3,
       "Colour": "Navy/Light Blue",
       "StadiumSize": 10000
@@ -550,7 +550,7 @@
     {
       "ID": 81,
       "Name": "Hyndburn Reds",
-      "Stadium": "Crown Ground Fields",
+      "Stadium": "Oakhill Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 5450
@@ -558,7 +558,7 @@
     {
       "ID": 83,
       "Name": "Edgware Ambers",
-      "Stadium": "The Hive Grounds",
+      "Stadium": "Canons Park Grounds",
       "LeagueId": 4,
       "Colour": "Amber/Black",
       "StadiumSize": 6500
@@ -566,7 +566,7 @@
     {
       "ID": 54,
       "Name": "Bristol Blues",
-      "Stadium": "Memorial Fields",
+      "Stadium": "Horfield Fields",
       "LeagueId": 4,
       "Colour": "Blue/White",
       "StadiumSize": 11900
@@ -574,7 +574,7 @@
     {
       "ID": 89,
       "Name": "Cotswold Reds",
-      "Stadium": "Whaddon Road Grounds",
+      "Stadium": "Pittville Grounds",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 7066
@@ -582,7 +582,7 @@
     {
       "ID": 68,
       "Name": "Derbyshire Blues",
-      "Stadium": "Spireite Fields",
+      "Stadium": "Rother Fields",
       "LeagueId": 4,
       "Colour": "Blue",
       "StadiumSize": 10400
@@ -598,7 +598,7 @@
     {
       "ID": 87,
       "Name": "West Sussex Reds",
-      "Stadium": "Broadfield Fields",
+      "Stadium": "Tilgate Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 6000
@@ -606,7 +606,7 @@
     {
       "ID": 85,
       "Name": "South Cheshire Reds",
-      "Stadium": "Alexandra Fields",
+      "Stadium": "Wistaston Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 10100
@@ -614,7 +614,7 @@
     {
       "ID": 73,
       "Name": "Devon Reds",
-      "Stadium": "St James Park Fields",
+      "Stadium": "Longbrook Fields",
       "LeagueId": 4,
       "Colour": "Red/White",
       "StadiumSize": 8830
@@ -622,7 +622,7 @@
     {
       "ID": 48,
       "Name": "Wyre Reds",
-      "Stadium": "Highbury Fields",
+      "Stadium": "Rossall Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 5300
@@ -630,7 +630,7 @@
     {
       "ID": 64,
       "Name": "Medway Blues",
-      "Stadium": "Priestfield Fields",
+      "Stadium": "Great Lines Fields",
       "LeagueId": 4,
       "Colour": "Blue",
       "StadiumSize": 11500
@@ -638,7 +638,7 @@
     {
       "ID": 82,
       "Name": "North East Lincs Stripes",
-      "Stadium": "Blundell Park Grounds",
+      "Stadium": "Clee Grounds",
       "LeagueId": 4,
       "Colour": "Black/White",
       "StadiumSize": 9000
@@ -646,7 +646,7 @@
     {
       "ID": 91,
       "Name": "Headland Blues",
-      "Stadium": "Victoria Park Fields",
+      "Stadium": "Seaton Fields",
       "LeagueId": 4,
       "Colour": "Blue/White",
       "StadiumSize": 7856
@@ -654,7 +654,7 @@
     {
       "ID": 86,
       "Name": "Bay Reds",
-      "Stadium": "Globe Arena Fields",
+      "Stadium": "Westgate Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 6476
@@ -662,7 +662,7 @@
     {
       "ID": 90,
       "Name": "Gwent Ambers",
-      "Stadium": "Rodney Parade Fields",
+      "Stadium": "Usk Fields",
       "LeagueId": 4,
       "Colour": "Amber/Black",
       "StadiumSize": 7800
@@ -670,7 +670,7 @@
     {
       "ID": 60,
       "Name": "Northants Clarets",
-      "Stadium": "Sixfields Fields",
+      "Stadium": "Duston Fields",
       "LeagueId": 4,
       "Colour": "Claret",
       "StadiumSize": 7800
@@ -678,7 +678,7 @@
     {
       "ID": 61,
       "Name": "Saddleworth Blues",
-      "Stadium": "Boundary Park Fields",
+      "Stadium": "Werneth Fields",
       "LeagueId": 4,
       "Colour": "Blue",
       "StadiumSize": 13500
@@ -686,7 +686,7 @@
     {
       "ID": 53,
       "Name": "Roch Valley Blues",
-      "Stadium": "Spotland Grounds",
+      "Stadium": "Denehurst Grounds",
       "LeagueId": 4,
       "Colour": "Blue",
       "StadiumSize": 6700
@@ -694,7 +694,7 @@
     {
       "ID": 62,
       "Name": "Shropshire Blues",
-      "Stadium": "Montgomery Fields",
+      "Stadium": "Meole Brace Fields",
       "LeagueId": 4,
       "Colour": "Blue/Amber",
       "StadiumSize": 9875
@@ -702,7 +702,7 @@
     {
       "ID": 66,
       "Name": "Wiltshire Reds",
-      "Stadium": "County Ground Fields",
+      "Stadium": "Coate Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 15700
@@ -710,7 +710,7 @@
     {
       "ID": 74,
       "Name": "Wirral Whites",
-      "Stadium": "Prenton Park Grounds",
+      "Stadium": "Birkenhead Park Grounds",
       "LeagueId": 4,
       "Colour": "White/Blue",
       "StadiumSize": 12700
@@ -718,7 +718,7 @@
     {
       "ID": 58,
       "Name": "Black Country Reds",
-      "Stadium": "Bescot Fields",
+      "Stadium": "Arboretum Fields",
       "LeagueId": 4,
       "Colour": "Red",
       "StadiumSize": 10800
@@ -726,7 +726,7 @@
     {
       "ID": 65,
       "Name": "West Midland Whites",
-      "Stadium": "Vale Park Grounds",
+      "Stadium": "Burslem Grounds",
       "LeagueId": 4,
       "Colour": "White/Black",
       "StadiumSize": 8000
@@ -742,7 +742,7 @@
     {
       "ID": 108,
       "Name": "Gasteiz Blues",
-      "Stadium": "Mendizorroza Fields",
+      "Stadium": "Zadorra Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
       "StadiumSize": 19840
@@ -750,7 +750,7 @@
     {
       "ID": 95,
       "Name": "Manzanares Stripes",
-      "Stadium": "Metropolitano Fields",
+      "Stadium": "San Blas Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
       "StadiumSize": 68000
@@ -766,7 +766,7 @@
     {
       "ID": 107,
       "Name": "Seville Greens",
-      "Stadium": "Villamarin Fields",
+      "Stadium": "Heliopolis Fields",
       "LeagueId": 5,
       "Colour": "Green/White",
       "StadiumSize": 60720
@@ -774,7 +774,7 @@
     {
       "ID": 99,
       "Name": "Biscay Reds",
-      "Stadium": "San Mames Fields",
+      "Stadium": "Basurto Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
       "StadiumSize": 53289
@@ -782,7 +782,7 @@
     {
       "ID": 102,
       "Name": "Deba Valley Blues",
-      "Stadium": "Ipurua Fields",
+      "Stadium": "Arrate Fields",
       "LeagueId": 5,
       "Colour": "Blue/Red",
       "StadiumSize": 7500
@@ -798,7 +798,7 @@
     {
       "ID": 101,
       "Name": "Galician Blues",
-      "Stadium": "Riazor Fields",
+      "Stadium": "Orzan Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
       "StadiumSize": 29000
@@ -806,7 +806,7 @@
     {
       "ID": 110,
       "Name": "Asturias Reds",
-      "Stadium": "El Molinon Fields",
+      "Stadium": "San Lorenzo Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
       "StadiumSize": 30500
@@ -814,15 +814,15 @@
     {
       "ID": 112,
       "Name": "Alhambra Reds",
-      "Stadium": "Nuevo Los Carmenes Fields",
+      "Stadium": "Genil Fields",
       "LeagueId": 5,
       "Colour": "Red/White",
       "StadiumSize": 22524
     },
     {
       "ID": 109,
-      "Name": "Butarque Blues",
-      "Stadium": "Butarque Fields",
+      "Name": "Leganes Blues",
+      "Stadium": "Zarzaquemada Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
       "StadiumSize": 11454
@@ -838,7 +838,7 @@
     {
       "ID": 103,
       "Name": "Costa Blues",
-      "Stadium": "La Rosaleda Fields",
+      "Stadium": "Malagueta Fields",
       "LeagueId": 5,
       "Colour": "Blue/White",
       "StadiumSize": 30000
@@ -846,7 +846,7 @@
     {
       "ID": 104,
       "Name": "Turia Whites",
-      "Stadium": "Mestalla Fields",
+      "Stadium": "Benimaclet Fields",
       "LeagueId": 5,
       "Colour": "White/Orange",
       "StadiumSize": 49500
@@ -854,7 +854,7 @@
     {
       "ID": 111,
       "Name": "Navarre Reds",
-      "Stadium": "El Sadar Fields",
+      "Stadium": "Arga Fields",
       "LeagueId": 5,
       "Colour": "Red/Navy",
       "StadiumSize": 23576
@@ -862,7 +862,7 @@
     {
       "ID": 106,
       "Name": "Balearic Reds",
-      "Stadium": "Son Moix Fields",
+      "Stadium": "Bellver Fields",
       "LeagueId": 5,
       "Colour": "Red/Black",
       "StadiumSize": 23142
@@ -870,7 +870,7 @@
     {
       "ID": 96,
       "Name": "Seville Whites",
-      "Stadium": "Nervion Fields",
+      "Stadium": "Guadalquivir Fields",
       "LeagueId": 5,
       "Colour": "White",
       "StadiumSize": 43883
@@ -886,7 +886,7 @@
     {
       "ID": 105,
       "Name": "Galician Sky Blues",
-      "Stadium": "Balaidos Fields",
+      "Stadium": "Cies Fields",
       "LeagueId": 5,
       "Colour": "Sky Blue",
       "StadiumSize": 29000
@@ -894,7 +894,7 @@
     {
       "ID": 97,
       "Name": "Plana Yellows",
-      "Stadium": "Estadio de Ceramica",
+      "Stadium": "Mijares Fields",
       "LeagueId": 5,
       "Colour": "Yellow",
       "StadiumSize": 23500
@@ -966,7 +966,7 @@
     {
       "ID": 122,
       "Name": "Elbe Blues",
-      "Stadium": "Volksparkstadion Fields",
+      "Stadium": "Bahrenfeld Fields",
       "LeagueId": 6,
       "Colour": "Blue/White",
       "StadiumSize": 57000
@@ -982,7 +982,7 @@
     {
       "ID": 119,
       "Name": "Berlin Blues",
-      "Stadium": "Olympiastadion Fields",
+      "Stadium": "Charlottenburg Fields",
       "LeagueId": 22,
       "Colour": "Blue/White",
       "StadiumSize": 74244
@@ -1086,7 +1086,7 @@
     {
       "ID": 134,
       "Name": "Lake Blues",
-      "Stadium": "Sinigaglia Fields",
+      "Stadium": "Lario Fields",
       "LeagueId": 7,
       "Colour": "Blue/White",
       "StadiumSize": 13602
@@ -1102,7 +1102,7 @@
     {
       "ID": 137,
       "Name": "Ligurian Reds",
-      "Stadium": "Marassi Fields",
+      "Stadium": "Bisagno Fields",
       "LeagueId": 7,
       "Colour": "Red/Blue",
       "StadiumSize": 36600
@@ -1126,7 +1126,7 @@
     {
       "ID": 140,
       "Name": "Rome Sky Blues",
-      "Stadium": "Olimpico Nord Fields",
+      "Stadium": "Foro Nord Fields",
       "LeagueId": 7,
       "Colour": "Sky Blue/White",
       "StadiumSize": 72698
@@ -1134,7 +1134,7 @@
     {
       "ID": 141,
       "Name": "Salento Yellows",
-      "Stadium": "Via del Mare Fields",
+      "Stadium": "Rudiae Fields",
       "LeagueId": 7,
       "Colour": "Yellow/Red",
       "StadiumSize": 33876
@@ -1158,7 +1158,7 @@
     {
       "ID": 145,
       "Name": "Emilia Yellows",
-      "Stadium": "Tardini Fields",
+      "Stadium": "Parma Fields",
       "LeagueId": 7,
       "Colour": "Yellow/Blue",
       "StadiumSize": 22352
@@ -1166,7 +1166,7 @@
     {
       "ID": 146,
       "Name": "Rome Reds",
-      "Stadium": "Olimpico Sud Fields",
+      "Stadium": "Foro Sud Fields",
       "LeagueId": 7,
       "Colour": "Red/Yellow",
       "StadiumSize": 72698
@@ -1182,7 +1182,7 @@
     {
       "ID": 148,
       "Name": "Turin Maroons",
-      "Stadium": "Grande Torino Fields",
+      "Stadium": "Santa Rita Fields",
       "LeagueId": 7,
       "Colour": "Maroon/White",
       "StadiumSize": 28140
@@ -1198,7 +1198,7 @@
     {
       "ID": 150,
       "Name": "Lagoon Greens",
-      "Stadium": "Penzo Fields",
+      "Stadium": "Sant'Elena Fields",
       "LeagueId": 7,
       "Colour": "Black/Green/Orange",
       "StadiumSize": 11150
@@ -1230,7 +1230,7 @@
     {
       "ID": 155,
       "Name": "Normandy Sky Blues",
-      "Stadium": "Oceane Fields",
+      "Stadium": "Estuaire Fields",
       "LeagueId": 10,
       "Colour": "Sky Blue/Navy",
       "StadiumSize": 25178
@@ -1246,7 +1246,7 @@
     {
       "ID": 157,
       "Name": "Artois Reds",
-      "Stadium": "Bollaert Fields",
+      "Stadium": "Lens Fields",
       "LeagueId": 10,
       "Colour": "Red/Yellow",
       "StadiumSize": 38223
@@ -1262,7 +1262,7 @@
     {
       "ID": 159,
       "Name": "Morbihan Oranges",
-      "Stadium": "Moustoir Fields",
+      "Stadium": "Scorff Fields",
       "LeagueId": 10,
       "Colour": "Orange/Black",
       "StadiumSize": 18500
@@ -1278,7 +1278,7 @@
     {
       "ID": 161,
       "Name": "Provence Whites",
-      "Stadium": "Velodrome Fields",
+      "Stadium": "Prado Fields",
       "LeagueId": 10,
       "Colour": "White/Blue",
       "StadiumSize": 67394
@@ -1286,7 +1286,7 @@
     {
       "ID": 162,
       "Name": "Principality Reds",
-      "Stadium": "Louis II Fields",
+      "Stadium": "Fontvieille Fields",
       "LeagueId": 10,
       "Colour": "Red/White",
       "StadiumSize": 18523
@@ -1294,7 +1294,7 @@
     {
       "ID": 151,
       "Name": "Loire Yellows",
-      "Stadium": "Beaujoire Fields",
+      "Stadium": "Erdre Fields",
       "LeagueId": 10,
       "Colour": "Yellow/Green",
       "StadiumSize": 38285
@@ -1310,7 +1310,7 @@
     {
       "ID": 165,
       "Name": "Parisian Blues",
-      "Stadium": "Princes Park",
+      "Stadium": "Chaillot Fields",
       "LeagueId": 10,
       "Colour": "Blue/Red",
       "StadiumSize": 47929
@@ -1318,7 +1318,7 @@
     {
       "ID": 164,
       "Name": "Seine Blues",
-      "Stadium": "Jean Bouin Fields",
+      "Stadium": "Auteuil Fields",
       "LeagueId": 10,
       "Colour": "Blue/White",
       "StadiumSize": 13500
@@ -1334,7 +1334,7 @@
     {
       "ID": 166,
       "Name": "Breton Reds",
-      "Stadium": "Roazhon Fields",
+      "Stadium": "Vilaine Fields",
       "LeagueId": 10,
       "Colour": "Red/Black",
       "StadiumSize": 29778
@@ -1342,7 +1342,7 @@
     {
       "ID": 167,
       "Name": "Alsace Blues",
-      "Stadium": "Meinau Fields",
+      "Stadium": "Neudorf Fields",
       "LeagueId": 10,
       "Colour": "Blue/White",
       "StadiumSize": 29229
@@ -1366,7 +1366,7 @@
     {
       "ID": 188,
       "Name": "Viseu Blacks",
-      "Stadium": "Fontelo Fields",
+      "Stadium": "Pavia Fields",
       "LeagueId": 11,
       "Colour": "Black",
       "StadiumSize": 9000
@@ -1398,7 +1398,7 @@
     {
       "ID": 180,
       "Name": "Cascais Yellows",
-      "Stadium": "Coimbra da Mota Fields",
+      "Stadium": "Tamariz Fields",
       "LeagueId": 11,
       "Colour": "Yellow",
       "StadiumSize": 5000
@@ -1406,7 +1406,7 @@
     {
       "ID": 184,
       "Name": "Amadora Reds",
-      "Stadium": "Jose Gomes Fields",
+      "Stadium": "Reboleira Fields",
       "LeagueId": 11,
       "Colour": "Red",
       "StadiumSize": 6750
@@ -1438,7 +1438,7 @@
     {
       "ID": 173,
       "Name": "Douro Blues",
-      "Stadium": "Dragao Fields",
+      "Stadium": "Campanha Fields",
       "LeagueId": 11,
       "Colour": "Blue",
       "StadiumSize": 50033
@@ -1454,7 +1454,7 @@
     {
       "ID": 187,
       "Name": "Madeira Greens",
-      "Stadium": "Maritimo Fields",
+      "Stadium": "Monte Fields",
       "LeagueId": 11,
       "Colour": "Green",
       "StadiumSize": 10932
@@ -1462,7 +1462,7 @@
     {
       "ID": 178,
       "Name": "Moreira Greens",
-      "Stadium": "Comendador Fields",
+      "Stadium": "Lameiras Fields",
       "LeagueId": 11,
       "Colour": "Green",
       "StadiumSize": 6500
@@ -1470,7 +1470,7 @@
     {
       "ID": 181,
       "Name": "Vila do Conde Greens",
-      "Stadium": "Rio Ave Fields",
+      "Stadium": "Caxinas Fields",
       "LeagueId": 11,
       "Colour": "Green",
       "StadiumSize": 10900
@@ -1494,7 +1494,7 @@
     {
       "ID": 172,
       "Name": "Lisbon Greens",
-      "Stadium": "Alvalade Fields",
+      "Stadium": "Lumiar Fields",
       "LeagueId": 11,
       "Colour": "Green",
       "StadiumSize": 50095
@@ -1502,7 +1502,7 @@
     {
       "ID": 175,
       "Name": "Guimaraes Whites",
-      "Stadium": "Afonso Henriques Fields",
+      "Stadium": "Penha Fields",
       "LeagueId": 11,
       "Colour": "White",
       "StadiumSize": 30000
@@ -1518,7 +1518,7 @@
     {
       "ID": 194,
       "Name": "Bowdon Reds",
-      "Stadium": "Moss Lane Fields",
+      "Stadium": "Hale Fields",
       "LeagueId": 13,
       "Colour": "Red/White",
       "StadiumSize": 6085
@@ -1526,7 +1526,7 @@
     {
       "ID": 193,
       "Name": "Furness Blues",
-      "Stadium": "Holker Street Fields",
+      "Stadium": "Walney Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 5000
@@ -1534,7 +1534,7 @@
     {
       "ID": 208,
       "Name": "Elstree Whites",
-      "Stadium": "Meadow Park Fields",
+      "Stadium": "Aldenham Fields",
       "LeagueId": 13,
       "Colour": "White/Black",
       "StadiumSize": 4500
@@ -1542,7 +1542,7 @@
     {
       "ID": 209,
       "Name": "Wash Ambers",
-      "Stadium": "York Street Fields",
+      "Stadium": "Skirbeck Fields",
       "LeagueId": 13,
       "Colour": "Amber/Black",
       "StadiumSize": 6500
@@ -1550,7 +1550,7 @@
     {
       "ID": 202,
       "Name": "Cumbrian Blues",
-      "Stadium": "Brunton Fields",
+      "Stadium": "Eden Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 6500
@@ -1558,7 +1558,7 @@
     {
       "ID": 199,
       "Name": "Itchen Blues",
-      "Stadium": "Ten Acres Fields",
+      "Stadium": "Fleming Park Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 5150
@@ -1566,7 +1566,7 @@
     {
       "ID": 212,
       "Name": "Gloucestershire Greens",
-      "Stadium": "New Lawn Fields",
+      "Stadium": "Nailsworth Fields",
       "LeagueId": 13,
       "Colour": "Green/Black",
       "StadiumSize": 4000
@@ -1574,7 +1574,7 @@
     {
       "ID": 214,
       "Name": "Kirkham Whites",
-      "Stadium": "Mill Farm Fields",
+      "Stadium": "Wesham Fields",
       "LeagueId": 13,
       "Colour": "White/Navy",
       "StadiumSize": 6000
@@ -1582,7 +1582,7 @@
     {
       "ID": 195,
       "Name": "Tyne Bridge Stripes",
-      "Stadium": "International Fields",
+      "Stadium": "Felling Fields",
       "LeagueId": 13,
       "Colour": "Black/White",
       "StadiumSize": 11750
@@ -1590,7 +1590,7 @@
     {
       "ID": 197,
       "Name": "Calderdale Blues",
-      "Stadium": "Shay Fields",
+      "Stadium": "Shibden Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 5000
@@ -1598,7 +1598,7 @@
     {
       "ID": 196,
       "Name": "Spa Town Yellows",
-      "Stadium": "Wetherby Road Fields",
+      "Stadium": "Stray Fields",
       "LeagueId": 13,
       "Colour": "Yellow/Black",
       "StadiumSize": 8000
@@ -1606,7 +1606,7 @@
     {
       "ID": 215,
       "Name": "Havering Reds",
-      "Stadium": "Bridge Avenue Fields",
+      "Stadium": "Upminster Fields",
       "LeagueId": 13,
       "Colour": "Red/White",
       "StadiumSize": 4400
@@ -1614,7 +1614,7 @@
     {
       "ID": 211,
       "Name": "Worcestershire Reds",
-      "Stadium": "Aggborough Fields",
+      "Stadium": "Stour Fields",
       "LeagueId": 13,
       "Colour": "Red/White",
       "StadiumSize": 8000
@@ -1622,7 +1622,7 @@
     {
       "ID": 204,
       "Name": "Harrow Blues",
-      "Stadium": "Grosvenor Vale Fields",
+      "Stadium": "Ruislip Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 4500
@@ -1630,7 +1630,7 @@
     {
       "ID": 203,
       "Name": "North Lincs Clarets",
-      "Stadium": "Glanford Fields",
+      "Stadium": "Ashby Fields",
       "LeagueId": 13,
       "Colour": "Claret/Blue",
       "StadiumSize": 9183
@@ -1638,7 +1638,7 @@
     {
       "ID": 201,
       "Name": "Meriden Yellows",
-      "Stadium": "Damson Park Fields",
+      "Stadium": "Elmdon Fields",
       "LeagueId": 13,
       "Colour": "Yellow/Blue",
       "StadiumSize": 5200
@@ -1646,7 +1646,7 @@
     {
       "ID": 210,
       "Name": "Thames Estuary Blues",
-      "Stadium": "Roots Hall Fields",
+      "Stadium": "Prittlewell Fields",
       "LeagueId": 13,
       "Colour": "Blue",
       "StadiumSize": 3000
@@ -1654,7 +1654,7 @@
     {
       "ID": 192,
       "Name": "Mersey Valley Blues",
-      "Stadium": "Edgeley Fields",
+      "Stadium": "Cheadle Heath Fields",
       "LeagueId": 13,
       "Colour": "Blue/White",
       "StadiumSize": 10800
@@ -1662,7 +1662,7 @@
     {
       "ID": 213,
       "Name": "Surrey Ambers",
-      "Stadium": "Gander Green Fields",
+      "Stadium": "Cheam Fields",
       "LeagueId": 13,
       "Colour": "Amber/Black",
       "StadiumSize": 4200
@@ -1670,7 +1670,7 @@
     {
       "ID": 207,
       "Name": "Tame Valley Reds",
-      "Stadium": "Lamb Ground Fields",
+      "Stadium": "Kettlebrook Fields",
       "LeagueId": 13,
       "Colour": "Red",
       "StadiumSize": 4000
@@ -1678,7 +1678,7 @@
     {
       "ID": 198,
       "Name": "West Surrey Reds",
-      "Stadium": "Kingfield Fields",
+      "Stadium": "Horsell Fields",
       "LeagueId": 13,
       "Colour": "Red/White",
       "StadiumSize": 6400
@@ -1694,7 +1694,7 @@
     {
       "ID": 200,
       "Name": "Somerset Greens",
-      "Stadium": "Huish Park Grounds",
+      "Stadium": "Brympton Fields",
       "LeagueId": 13,
       "Colour": "Green/White",
       "StadiumSize": 7500
@@ -1702,7 +1702,7 @@
     {
       "ID": 216,
       "Name": "Peak District Blues",
-      "Stadium": "Silverlands Fields",
+      "Stadium": "Pavilion Gardens Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 5200
@@ -1710,7 +1710,7 @@
     {
       "ID": 217,
       "Name": "Deva Blues",
-      "Stadium": "Deva Fields",
+      "Stadium": "Dee Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 5400
@@ -1718,7 +1718,7 @@
     {
       "ID": 218,
       "Name": "Lancashire Magpies",
-      "Stadium": "Victory Park Fields",
+      "Stadium": "Astley Fields",
       "LeagueId": 14,
       "Colour": "Black/White",
       "StadiumSize": 4100
@@ -1726,7 +1726,7 @@
     {
       "ID": 219,
       "Name": "Tameside Blues",
-      "Stadium": "Tameside Fields",
+      "Stadium": "Ashton Moss Fields",
       "LeagueId": 14,
       "Colour": "Blue",
       "StadiumSize": 4000
@@ -1734,7 +1734,7 @@
     {
       "ID": 220,
       "Name": "Quaker Blacks",
-      "Stadium": "Blackwell Meadows Fields",
+      "Stadium": "Skerne Fields",
       "LeagueId": 14,
       "Colour": "Black/White",
       "StadiumSize": 5000
@@ -1742,7 +1742,7 @@
     {
       "ID": 221,
       "Name": "Wye Valley Whites",
-      "Stadium": "Edgar Street Fields",
+      "Stadium": "Bishops Meadow Fields",
       "LeagueId": 14,
       "Colour": "White/Black",
       "StadiumSize": 4900
@@ -1750,7 +1750,7 @@
     {
       "ID": 222,
       "Name": "West Norfolk Blues",
-      "Stadium": "The Walks Fields",
+      "Stadium": "Gaywood Fields",
       "LeagueId": 14,
       "Colour": "Blue/Yellow",
       "StadiumSize": 8200
@@ -1758,7 +1758,7 @@
     {
       "ID": 223,
       "Name": "Warwickshire Golds",
-      "Stadium": "New Windmill Fields",
+      "Stadium": "Jephson Fields",
       "LeagueId": 14,
       "Colour": "Gold/Black",
       "StadiumSize": 2300
@@ -1766,7 +1766,7 @@
     {
       "ID": 224,
       "Name": "Silk Town Blues",
-      "Stadium": "Moss Rose Fields",
+      "Stadium": "Bollin Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 5300
@@ -1774,7 +1774,7 @@
     {
       "ID": 225,
       "Name": "Crosby Whites",
-      "Stadium": "Rossett Park Fields",
+      "Stadium": "Blundellsands Fields",
       "LeagueId": 14,
       "Colour": "White/Black",
       "StadiumSize": 3200
@@ -1782,7 +1782,7 @@
     {
       "ID": 226,
       "Name": "Taff Valley Whites",
-      "Stadium": "Penydarren Fields",
+      "Stadium": "Cyfarthfa Fields",
       "LeagueId": 14,
       "Colour": "White/Black",
       "StadiumSize": 4000
@@ -1790,7 +1790,7 @@
     {
       "ID": 227,
       "Name": "Nene Valley Blues",
-      "Stadium": "Lincoln Road Fields",
+      "Stadium": "Werrington Fields",
       "LeagueId": 14,
       "Colour": "Blue/Black",
       "StadiumSize": 2300
@@ -1798,7 +1798,7 @@
     {
       "ID": 228,
       "Name": "Irwell Blues",
-      "Stadium": "Stainton Park Fields",
+      "Stadium": "Outwood Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 3500
@@ -1806,7 +1806,7 @@
     {
       "ID": 229,
       "Name": "North Yorkshire Reds",
-      "Stadium": "Seamer Road Fields",
+      "Stadium": "Olivers Mount Fields",
       "LeagueId": 14,
       "Colour": "Red",
       "StadiumSize": 2800
@@ -1814,7 +1814,7 @@
     {
       "ID": 230,
       "Name": "South Tyneside Clarets",
-      "Stadium": "Mariners Park Fields",
+      "Stadium": "Marsden Fields",
       "LeagueId": 14,
       "Colour": "Claret/Blue",
       "StadiumSize": 4000
@@ -1822,7 +1822,7 @@
     {
       "ID": 231,
       "Name": "Sandgrounder Yellows",
-      "Stadium": "Haig Avenue Fields",
+      "Stadium": "Marine Lake Fields",
       "LeagueId": 14,
       "Colour": "Yellow/Black",
       "StadiumSize": 6000
@@ -1830,7 +1830,7 @@
     {
       "ID": 232,
       "Name": "Durham Moors Stripes",
-      "Stadium": "Brewery Fields",
+      "Stadium": "Tudhoe Fields",
       "LeagueId": 14,
       "Colour": "Black/White",
       "StadiumSize": 3000
@@ -1838,7 +1838,7 @@
     {
       "ID": 233,
       "Name": "Wrekin Whites",
-      "Stadium": "New Bucks Head Fields",
+      "Stadium": "Wellington Fields",
       "LeagueId": 14,
       "Colour": "White/Blue",
       "StadiumSize": 6300
@@ -1846,7 +1846,7 @@
     {
       "ID": 234,
       "Name": "Bassetlaw Ambers",
-      "Stadium": "Sandy Lane Fields",
+      "Stadium": "Clumber Fields",
       "LeagueId": 14,
       "Colour": "Amber/Black",
       "StadiumSize": 3000
@@ -1854,7 +1854,7 @@
     {
       "ID": 235,
       "Name": "Derwent Reds",
-      "Stadium": "North Street Fields",
+      "Stadium": "Swanwick Fields",
       "LeagueId": 14,
       "Colour": "Red/White",
       "StadiumSize": 3600
@@ -1862,7 +1862,7 @@
     {
       "ID": 236,
       "Name": "Trent Blues",
-      "Stadium": "Northolme Fields",
+      "Stadium": "Morton Fields",
       "LeagueId": 14,
       "Colour": "Blue",
       "StadiumSize": 4300
@@ -1870,7 +1870,7 @@
     {
       "ID": 237,
       "Name": "Cannock Chase Whites",
-      "Stadium": "Keys Park Fields",
+      "Stadium": "Rawnsley Fields",
       "LeagueId": 14,
       "Colour": "White/Black",
       "StadiumSize": 6000
@@ -1878,7 +1878,7 @@
     {
       "ID": 238,
       "Name": "Anker Blues",
-      "Stadium": "Liberty Way Fields",
+      "Stadium": "Weddington Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 4600
@@ -1886,7 +1886,7 @@
     {
       "ID": 239,
       "Name": "Great Ouse Eagles",
-      "Stadium": "Eyrie Fields",
+      "Stadium": "Embankment Fields",
       "LeagueId": 14,
       "Colour": "Blue/White",
       "StadiumSize": 3000
@@ -1894,7 +1894,7 @@
     {
       "ID": 240,
       "Name": "Avon Stripes",
-      "Stadium": "Twerton Park Fields",
+      "Stadium": "Lansdown Fields",
       "LeagueId": 15,
       "Colour": "Black/White",
       "StadiumSize": 8800
@@ -1902,7 +1902,7 @@
     {
       "ID": 241,
       "Name": "Chelmer Clarets",
-      "Stadium": "Melbourne Park Fields",
+      "Stadium": "Springfield Fields",
       "LeagueId": 15,
       "Colour": "Claret/White",
       "StadiumSize": 3000
@@ -1918,7 +1918,7 @@
     {
       "ID": 243,
       "Name": "North Wiltshire Blues",
-      "Stadium": "Hardenhuish Fields",
+      "Stadium": "Monkton Fields",
       "LeagueId": 15,
       "Colour": "Blue/White",
       "StadiumSize": 3000
@@ -1926,7 +1926,7 @@
     {
       "ID": 244,
       "Name": "Mole Valley Reds",
-      "Stadium": "Meadowbank Fields",
+      "Stadium": "Box Hill Fields",
       "LeagueId": 15,
       "Colour": "Red/White",
       "StadiumSize": 3000
@@ -1934,7 +1934,7 @@
     {
       "ID": 245,
       "Name": "White Cliffs Whites",
-      "Stadium": "Crabble Fields",
+      "Stadium": "Kearsney Fields",
       "LeagueId": 15,
       "Colour": "White/Black",
       "StadiumSize": 5700
@@ -1942,7 +1942,7 @@
     {
       "ID": 246,
       "Name": "Langney Reds",
-      "Stadium": "Priory Lane Fields",
+      "Stadium": "Pevensey Fields",
       "LeagueId": 15,
       "Colour": "Red/Black",
       "StadiumSize": 4000
@@ -1950,7 +1950,7 @@
     {
       "ID": 247,
       "Name": "Thames Gateway Reds",
-      "Stadium": "Stonebridge Road Fields",
+      "Stadium": "Northfleet Fields",
       "LeagueId": 15,
       "Colour": "Red/White",
       "StadiumSize": 4800
@@ -1966,7 +1966,7 @@
     {
       "ID": 249,
       "Name": "North East Hants Yellows",
-      "Stadium": "Cherrywood Road Fields",
+      "Stadium": "Cove Fields",
       "LeagueId": 15,
       "Colour": "Yellow/Blue",
       "StadiumSize": 2600
@@ -1974,7 +1974,7 @@
     {
       "ID": 250,
       "Name": "Richmond Reds",
-      "Stadium": "Beveree Fields",
+      "Stadium": "Bushy Park Fields",
       "LeagueId": 15,
       "Colour": "Red/Blue",
       "StadiumSize": 3500
@@ -1982,7 +1982,7 @@
     {
       "ID": 251,
       "Name": "Gade Valley Reds",
-      "Stadium": "Vauxhall Road Fields",
+      "Stadium": "Gadebridge Fields",
       "LeagueId": 15,
       "Colour": "Red/White",
       "StadiumSize": 3100
@@ -1990,7 +1990,7 @@
     {
       "ID": 252,
       "Name": "Thames Valley Magpies",
-      "Stadium": "York Road Fields",
+      "Stadium": "Boulters Fields",
       "LeagueId": 15,
       "Colour": "Black/White",
       "StadiumSize": 4000
@@ -1998,7 +1998,7 @@
     {
       "ID": 253,
       "Name": "Mid Kent Ambers",
-      "Stadium": "Gallagher Fields",
+      "Stadium": "Mote Park Fields",
       "LeagueId": 15,
       "Colour": "Amber/Black",
       "StadiumSize": 4200
@@ -2006,7 +2006,7 @@
     {
       "ID": 254,
       "Name": "East Berkshire Ambers",
-      "Stadium": "Arbour Park Fields",
+      "Stadium": "Salt Hill Fields",
       "LeagueId": 15,
       "Colour": "Amber/Navy",
       "StadiumSize": 2000
@@ -2014,7 +2014,7 @@
     {
       "ID": 255,
       "Name": "Weald Blues",
-      "Stadium": "Longmead Fields",
+      "Stadium": "Haysden Fields",
       "LeagueId": 15,
       "Colour": "Blue/White",
       "StadiumSize": 3000
@@ -2022,7 +2022,7 @@
     {
       "ID": 256,
       "Name": "English Riviera Yellows",
-      "Stadium": "Plainmoor Fields",
+      "Stadium": "Babbacombe Fields",
       "LeagueId": 15,
       "Colour": "Yellow/Blue",
       "StadiumSize": 6200
@@ -2038,7 +2038,7 @@
     {
       "ID": 258,
       "Name": "North Somerset Whites",
-      "Stadium": "Woodspring Fields",
+      "Stadium": "Uphill Fields",
       "LeagueId": 15,
       "Colour": "White/Black",
       "StadiumSize": 3500
@@ -2046,7 +2046,7 @@
     {
       "ID": 259,
       "Name": "Adur Reds",
-      "Stadium": "Woodside Road Fields",
+      "Stadium": "Broadwater Fields",
       "LeagueId": 15,
       "Colour": "Red/White",
       "StadiumSize": 4000
@@ -2062,7 +2062,7 @@
     {
       "ID": 261,
       "Name": "New Forest Blues",
-      "Stadium": "Testwood Fields",
+      "Stadium": "Eling Fields",
       "LeagueId": 15,
       "Colour": "Blue/White",
       "StadiumSize": 3000
@@ -2070,7 +2070,7 @@
     {
       "ID": 262,
       "Name": "Isis Hoops",
-      "Stadium": "Court Place Fields",
+      "Stadium": "Marston Fields",
       "LeagueId": 15,
       "Colour": "Blue/White",
       "StadiumSize": 2000
@@ -2078,7 +2078,7 @@
     {
       "ID": 263,
       "Name": "Darent Valley Whites",
-      "Stadium": "Princes Park Fields",
+      "Stadium": "Darenth Fields",
       "LeagueId": 15,
       "Colour": "White/Black",
       "StadiumSize": 4100
@@ -2086,7 +2086,7 @@
     {
       "ID": 264,
       "Name": "Glasgow Hoops",
-      "Stadium": "Parkhead Fields",
+      "Stadium": "Dalmarnock Fields",
       "LeagueId": 16,
       "Colour": "Green/White",
       "StadiumSize": 60400
@@ -2094,7 +2094,7 @@
     {
       "ID": 265,
       "Name": "Glasgow Blues",
-      "Stadium": "Ibrox Fields",
+      "Stadium": "Govan Fields",
       "LeagueId": 16,
       "Colour": "Blue/White",
       "StadiumSize": 50800
@@ -2102,7 +2102,7 @@
     {
       "ID": 266,
       "Name": "Granite City Reds",
-      "Stadium": "Pittodrie Fields",
+      "Stadium": "Links Road Fields",
       "LeagueId": 16,
       "Colour": "Red",
       "StadiumSize": 20800
@@ -2110,7 +2110,7 @@
     {
       "ID": 267,
       "Name": "Edinburgh Maroons",
-      "Stadium": "Tynecastle Fields",
+      "Stadium": "Gorgie Fields",
       "LeagueId": 16,
       "Colour": "Maroon/White",
       "StadiumSize": 19800
@@ -2118,7 +2118,7 @@
     {
       "ID": 268,
       "Name": "Leith Greens",
-      "Stadium": "Easter Road Fields",
+      "Stadium": "Lochend Fields",
       "LeagueId": 16,
       "Colour": "Green/White",
       "StadiumSize": 20400
@@ -2126,7 +2126,7 @@
     {
       "ID": 269,
       "Name": "Tayside Tangerines",
-      "Stadium": "Tannadice Fields",
+      "Stadium": "Clepington Fields",
       "LeagueId": 16,
       "Colour": "Tangerine/Black",
       "StadiumSize": 14200
@@ -2134,7 +2134,7 @@
     {
       "ID": 270,
       "Name": "Tayside Navy",
-      "Stadium": "Dens Park Fields",
+      "Stadium": "Hilltown Fields",
       "LeagueId": 16,
       "Colour": "Navy/White",
       "StadiumSize": 11500
@@ -2142,7 +2142,7 @@
     {
       "ID": 271,
       "Name": "Lanarkshire Ambers",
-      "Stadium": "Fir Park Fields",
+      "Stadium": "Dalziel Fields",
       "LeagueId": 16,
       "Colour": "Amber/Claret",
       "StadiumSize": 13700
@@ -2150,7 +2150,7 @@
     {
       "ID": 272,
       "Name": "Ayrshire Blues",
-      "Stadium": "Rugby Park Fields",
+      "Stadium": "Kay Park Fields",
       "LeagueId": 16,
       "Colour": "Blue/White",
       "StadiumSize": 15000
@@ -2158,7 +2158,7 @@
     {
       "ID": 273,
       "Name": "Paisley Saints",
-      "Stadium": "Love Street Fields",
+      "Stadium": "Gleniffer Fields",
       "LeagueId": 16,
       "Colour": "Black/White",
       "StadiumSize": 8000
@@ -2166,7 +2166,7 @@
     {
       "ID": 274,
       "Name": "Forth Valley Bairns",
-      "Stadium": "Westfield Fields",
+      "Stadium": "Grangemouth Fields",
       "LeagueId": 16,
       "Colour": "Navy/White",
       "StadiumSize": 7900
@@ -2174,7 +2174,7 @@
     {
       "ID": 275,
       "Name": "West Lothian Ambers",
-      "Stadium": "Almondvale Fields",
+      "Stadium": "Howden Fields",
       "LeagueId": 16,
       "Colour": "Amber/Black",
       "StadiumSize": 9700
@@ -2182,7 +2182,7 @@
     {
       "ID": 276,
       "Name": "Bruges Blues",
-      "Stadium": "Jan Breydel Fields",
+      "Stadium": "Minnewater Fields",
       "LeagueId": 17,
       "Colour": "Blue/Black",
       "StadiumSize": 29000
@@ -2190,7 +2190,7 @@
     {
       "ID": 277,
       "Name": "Brussels Purples",
-      "Stadium": "Astrid Park Fields",
+      "Stadium": "Scheut Fields",
       "LeagueId": 17,
       "Colour": "Purple/White",
       "StadiumSize": 22500
@@ -2198,7 +2198,7 @@
     {
       "ID": 278,
       "Name": "Limburg Blues",
-      "Stadium": "Waterschei Fields",
+      "Stadium": "Bokrijk Fields",
       "LeagueId": 17,
       "Colour": "Blue/White",
       "StadiumSize": 23700
@@ -2206,7 +2206,7 @@
     {
       "ID": 279,
       "Name": "Ghent Buffaloes",
-      "Stadium": "Artevelde Fields",
+      "Stadium": "Leie Fields",
       "LeagueId": 17,
       "Colour": "Blue/White",
       "StadiumSize": 20000
@@ -2214,7 +2214,7 @@
     {
       "ID": 280,
       "Name": "Antwerp Reds",
-      "Stadium": "Bosuil Fields",
+      "Stadium": "Deurne Fields",
       "LeagueId": 17,
       "Colour": "Red/White",
       "StadiumSize": 16100
@@ -2222,7 +2222,7 @@
     {
       "ID": 281,
       "Name": "Brussels Golds",
-      "Stadium": "Joseph Marien Fields",
+      "Stadium": "Vorst Fields",
       "LeagueId": 17,
       "Colour": "Yellow/Blue",
       "StadiumSize": 9400
@@ -2230,7 +2230,7 @@
     {
       "ID": 282,
       "Name": "Liege Reds",
-      "Stadium": "Sclessin Fields",
+      "Stadium": "Meuse Fields",
       "LeagueId": 17,
       "Colour": "Red/White",
       "StadiumSize": 27600
@@ -2238,7 +2238,7 @@
     {
       "ID": 283,
       "Name": "Bruges Greens",
-      "Stadium": "Olympia Park Fields",
+      "Stadium": "Sint-Andries Fields",
       "LeagueId": 17,
       "Colour": "Green/Black",
       "StadiumSize": 29000
@@ -2246,7 +2246,7 @@
     {
       "ID": 284,
       "Name": "Mechelen Yellows",
-      "Stadium": "Achter de Kazerne Fields",
+      "Stadium": "Dijle Fields",
       "LeagueId": 17,
       "Colour": "Yellow/Red",
       "StadiumSize": 16700
@@ -2254,7 +2254,7 @@
     {
       "ID": 285,
       "Name": "Charleroi Zebras",
-      "Stadium": "Mambourg Fields",
+      "Stadium": "Sambre Fields",
       "LeagueId": 17,
       "Colour": "Black/White",
       "StadiumSize": 14000
@@ -2262,7 +2262,7 @@
     {
       "ID": 286,
       "Name": "Kempen Yellows",
-      "Stadium": "Kuipje Fields",
+      "Stadium": "Nete Fields",
       "LeagueId": 17,
       "Colour": "Yellow/Blue",
       "StadiumSize": 8000
@@ -2270,7 +2270,7 @@
     {
       "ID": 287,
       "Name": "Leuven Reds",
-      "Stadium": "Den Dreef Fields",
+      "Stadium": "Heverlee Fields",
       "LeagueId": 17,
       "Colour": "Red/White",
       "StadiumSize": 10000
@@ -2278,7 +2278,7 @@
     {
       "ID": 288,
       "Name": "Haspengouw Canaries",
-      "Stadium": "Stayen Fields",
+      "Stadium": "Brustem Fields",
       "LeagueId": 17,
       "Colour": "Yellow/Blue",
       "StadiumSize": 14600
@@ -2286,7 +2286,7 @@
     {
       "ID": 289,
       "Name": "Waregem Reds",
-      "Stadium": "Regenboog Fields",
+      "Stadium": "Gaver Fields",
       "LeagueId": 17,
       "Colour": "Red/Green",
       "StadiumSize": 12500
@@ -2294,7 +2294,7 @@
     {
       "ID": 290,
       "Name": "Dender Reds",
-      "Stadium": "Van Roy Fields",
+      "Stadium": "Liedekerke Fields",
       "LeagueId": 17,
       "Colour": "Red/White",
       "StadiumSize": 6400
@@ -2302,7 +2302,7 @@
     {
       "ID": 291,
       "Name": "Hainaut Greens",
-      "Stadium": "Tivoli Fields",
+      "Stadium": "Strepy Fields",
       "LeagueId": 17,
       "Colour": "Green/White",
       "StadiumSize": 8000
@@ -2310,7 +2310,7 @@
     {
       "ID": 292,
       "Name": "Eindhoven Reds",
-      "Stadium": "Philips Park Fields",
+      "Stadium": "Dommel Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 35000
@@ -2326,7 +2326,7 @@
     {
       "ID": 294,
       "Name": "Rotterdam Reds",
-      "Stadium": "De Kuip Fields",
+      "Stadium": "Maasbank Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 47500
@@ -2334,7 +2334,7 @@
     {
       "ID": 295,
       "Name": "Alkmaar Reds",
-      "Stadium": "Alkmaarderhout Fields",
+      "Stadium": "Schermer Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 19500
@@ -2342,7 +2342,7 @@
     {
       "ID": 296,
       "Name": "Enschede Reds",
-      "Stadium": "Grolsch Veste Fields",
+      "Stadium": "Dinkel Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 30200
@@ -2350,7 +2350,7 @@
     {
       "ID": 297,
       "Name": "Utrecht Reds",
-      "Stadium": "Galgenwaard Fields",
+      "Stadium": "Vecht Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 23700
@@ -2358,7 +2358,7 @@
     {
       "ID": 298,
       "Name": "Nijmegen Reds",
-      "Stadium": "Goffert Fields",
+      "Stadium": "Waal Fields",
       "LeagueId": 18,
       "Colour": "Red/Green",
       "StadiumSize": 12500
@@ -2366,7 +2366,7 @@
     {
       "ID": 299,
       "Name": "Deventer Eagles",
-      "Stadium": "Adelaarshorst Fields",
+      "Stadium": "IJssel Fields",
       "LeagueId": 18,
       "Colour": "Red/Yellow",
       "StadiumSize": 10400
@@ -2374,7 +2374,7 @@
     {
       "ID": 300,
       "Name": "Friesland Blues",
-      "Stadium": "Abe Lenstra Fields",
+      "Stadium": "Tjeukemeer Fields",
       "LeagueId": 18,
       "Colour": "Blue/White",
       "StadiumSize": 27200
@@ -2382,7 +2382,7 @@
     {
       "ID": 301,
       "Name": "Spangen Reds",
-      "Stadium": "Het Kasteel Fields",
+      "Stadium": "Schie Fields",
       "LeagueId": 18,
       "Colour": "Red/White",
       "StadiumSize": 11000
@@ -2406,7 +2406,7 @@
     {
       "ID": 304,
       "Name": "Groningen Greens",
-      "Stadium": "Euroborg Fields",
+      "Stadium": "Hunze Fields",
       "LeagueId": 18,
       "Colour": "Green/White",
       "StadiumSize": 22500
@@ -2414,7 +2414,7 @@
     {
       "ID": 305,
       "Name": "Almelo Blacks",
-      "Stadium": "Polman Fields",
+      "Stadium": "Regge Fields",
       "LeagueId": 18,
       "Colour": "Black/White",
       "StadiumSize": 12100
@@ -2422,7 +2422,7 @@
     {
       "ID": 306,
       "Name": "Breda Yellows",
-      "Stadium": "Rat Verlegh Fields",
+      "Stadium": "Mastbos Fields",
       "LeagueId": 18,
       "Colour": "Yellow/Black",
       "StadiumSize": 19000
@@ -2430,7 +2430,7 @@
     {
       "ID": 307,
       "Name": "Kralingen Reds",
-      "Stadium": "Woudestein Fields",
+      "Stadium": "Kralingse Bos Fields",
       "LeagueId": 18,
       "Colour": "Red/Black",
       "StadiumSize": 4500
@@ -2446,7 +2446,7 @@
     {
       "ID": 309,
       "Name": "Volendam Oranges",
-      "Stadium": "Kras Fields",
+      "Stadium": "Markermeer Fields",
       "LeagueId": 18,
       "Colour": "Orange/Black",
       "StadiumSize": 7400
@@ -2454,7 +2454,7 @@
     {
       "ID": 310,
       "Name": "Istanbul Lions",
-      "Stadium": "Seyrantepe Fields",
+      "Stadium": "Maslak Fields",
       "LeagueId": 19,
       "Colour": "Yellow/Red",
       "StadiumSize": 52200
@@ -2486,7 +2486,7 @@
     {
       "ID": 314,
       "Name": "Istanbul Owls",
-      "Stadium": "Basaksehir Fields",
+      "Stadium": "Kayabasi Fields",
       "LeagueId": 19,
       "Colour": "Orange/Navy",
       "StadiumSize": 17300
@@ -2502,7 +2502,7 @@
     {
       "ID": 316,
       "Name": "Izmir Yellows",
-      "Stadium": "Gursel Aksel Fields",
+      "Stadium": "Inciralti Fields",
       "LeagueId": 19,
       "Colour": "Yellow/Red",
       "StadiumSize": 19700
@@ -2510,7 +2510,7 @@
     {
       "ID": 317,
       "Name": "Golden Horn Purples",
-      "Stadium": "Eyup Fields",
+      "Stadium": "Alibeykoy Fields",
       "LeagueId": 19,
       "Colour": "Purple/Yellow",
       "StadiumSize": 3000
@@ -2518,7 +2518,7 @@
     {
       "ID": 318,
       "Name": "Bosphorus Navy",
-      "Stadium": "Kasimpasa Fields",
+      "Stadium": "Piyalepasa Fields",
       "LeagueId": 19,
       "Colour": "Navy/White",
       "StadiumSize": 14200
@@ -2526,7 +2526,7 @@
     {
       "ID": 319,
       "Name": "Riviera Reds",
-      "Stadium": "Corendon Fields",
+      "Stadium": "Lara Fields",
       "LeagueId": 19,
       "Colour": "Red/White",
       "StadiumSize": 32500
@@ -2550,7 +2550,7 @@
     {
       "ID": 322,
       "Name": "Gaziantep Reds",
-      "Stadium": "Kalyon Fields",
+      "Stadium": "Zeugma Fields",
       "LeagueId": 19,
       "Colour": "Red/Black",
       "StadiumSize": 33500
@@ -2558,7 +2558,7 @@
     {
       "ID": 323,
       "Name": "Rize Tea Greens",
-      "Stadium": "Caykur Fields",
+      "Stadium": "Kackar Fields",
       "LeagueId": 19,
       "Colour": "Green/Blue",
       "StadiumSize": 15300
@@ -2566,7 +2566,7 @@
     {
       "ID": 324,
       "Name": "Kayseri Yellows",
-      "Stadium": "Erciyes Fields",
+      "Stadium": "Talas Fields",
       "LeagueId": 19,
       "Colour": "Yellow/Red",
       "StadiumSize": 32800
@@ -2590,7 +2590,7 @@
     {
       "ID": 327,
       "Name": "Fatih Reds",
-      "Stadium": "Karagumruk Fields",
+      "Stadium": "Edirnekapi Fields",
       "LeagueId": 19,
       "Colour": "Red/Black",
       "StadiumSize": 5000
@@ -2598,7 +2598,7 @@
     {
       "ID": 328,
       "Name": "Madrid South Blues",
-      "Stadium": "Coliseum Fields",
+      "Stadium": "Perales Fields",
       "LeagueId": 21,
       "Colour": "Blue",
       "StadiumSize": 16500
@@ -2606,7 +2606,7 @@
     {
       "ID": 329,
       "Name": "Vallecas Stripes",
-      "Stadium": "Vallecas Fields",
+      "Stadium": "Entrevias Fields",
       "LeagueId": 21,
       "Colour": "White/Red",
       "StadiumSize": 14700
@@ -2614,7 +2614,7 @@
     {
       "ID": 330,
       "Name": "Girona Reds",
-      "Stadium": "Montilivi Fields",
+      "Stadium": "Onyar Fields",
       "LeagueId": 21,
       "Colour": "Red/White",
       "StadiumSize": 14600
@@ -2622,7 +2622,7 @@
     {
       "ID": 331,
       "Name": "Oviedo Blues",
-      "Stadium": "Tartiere Fields",
+      "Stadium": "Naranco Fields",
       "LeagueId": 21,
       "Colour": "Blue",
       "StadiumSize": 30500
@@ -2630,14 +2630,14 @@
     {
       "ID": 332,
       "Name": "Elche Greens",
-      "Stadium": "Valero Fields",
+      "Stadium": "Vinalopo Fields",
       "LeagueId": 21,
       "Colour": "White/Green",
       "StadiumSize": 31300
     },
     {
       "ID": 333,
-      "Name": "Levante Frogs",
+      "Name": "Orriols Frogs",
       "Stadium": "Orriols Fields",
       "LeagueId": 21,
       "Colour": "Blue/Red",
@@ -2646,7 +2646,7 @@
     {
       "ID": 334,
       "Name": "Almeria Reds",
-      "Stadium": "Mediterranean Fields",
+      "Stadium": "Alcazaba Fields",
       "LeagueId": 21,
       "Colour": "Red/White",
       "StadiumSize": 15300
@@ -2662,7 +2662,7 @@
     {
       "ID": 336,
       "Name": "Pucela Violets",
-      "Stadium": "Zorrilla Fields",
+      "Stadium": "Pisuerga Fields",
       "LeagueId": 21,
       "Colour": "Violet/White",
       "StadiumSize": 26500
@@ -2670,7 +2670,7 @@
     {
       "ID": 337,
       "Name": "Cadiz Yellows",
-      "Stadium": "Carranza Fields",
+      "Stadium": "Caleta Fields",
       "LeagueId": 21,
       "Colour": "Yellow/Blue",
       "StadiumSize": 20700
@@ -2678,7 +2678,7 @@
     {
       "ID": 338,
       "Name": "Cantabria Greens",
-      "Stadium": "Sardinero Fields",
+      "Stadium": "Magdalena Fields",
       "LeagueId": 21,
       "Colour": "Green/White",
       "StadiumSize": 22200
@@ -2686,7 +2686,7 @@
     {
       "ID": 339,
       "Name": "Aragon Whites",
-      "Stadium": "Romareda Fields",
+      "Stadium": "Ebro Fields",
       "LeagueId": 21,
       "Colour": "White/Blue",
       "StadiumSize": 20000
@@ -2694,7 +2694,7 @@
     {
       "ID": 340,
       "Name": "Huesca Reds",
-      "Stadium": "Alcoraz Fields",
+      "Stadium": "Isuela Fields",
       "LeagueId": 21,
       "Colour": "Blue/Red",
       "StadiumSize": 9100
@@ -2702,7 +2702,7 @@
     {
       "ID": 341,
       "Name": "La Mancha Whites",
-      "Stadium": "Belmonte Fields",
+      "Stadium": "Chinchilla Fields",
       "LeagueId": 21,
       "Colour": "White",
       "StadiumSize": 17500
@@ -2710,7 +2710,7 @@
     {
       "ID": 342,
       "Name": "Burgos Blacks",
-      "Stadium": "Plantio Fields",
+      "Stadium": "Arlanzon Fields",
       "LeagueId": 21,
       "Colour": "Black/White",
       "StadiumSize": 12200
@@ -2718,7 +2718,7 @@
     {
       "ID": 343,
       "Name": "Castellon Stripes",
-      "Stadium": "Castalia Fields",
+      "Stadium": "Grao Fields",
       "LeagueId": 21,
       "Colour": "Black/White",
       "StadiumSize": 15500
@@ -2726,7 +2726,7 @@
     {
       "ID": 344,
       "Name": "Cordoba Greens",
-      "Stadium": "Arcangel Fields",
+      "Stadium": "Mezquita Fields",
       "LeagueId": 21,
       "Colour": "Green/White",
       "StadiumSize": 21800
@@ -2734,7 +2734,7 @@
     {
       "ID": 345,
       "Name": "Miranda Reds",
-      "Stadium": "Anduva Fields",
+      "Stadium": "Bayas Fields",
       "LeagueId": 21,
       "Colour": "Red",
       "StadiumSize": 5700
@@ -2742,7 +2742,7 @@
     {
       "ID": 346,
       "Name": "Pyrenees Blues",
-      "Stadium": "Prada Fields",
+      "Stadium": "Valira Fields",
       "LeagueId": 21,
       "Colour": "Blue/Red",
       "StadiumSize": 3300
@@ -2750,7 +2750,7 @@
     {
       "ID": 347,
       "Name": "Tenerife Blues",
-      "Stadium": "Heliodoro Fields",
+      "Stadium": "Anaga Fields",
       "LeagueId": 21,
       "Colour": "White/Blue",
       "StadiumSize": 22800
@@ -2758,7 +2758,7 @@
     {
       "ID": 348,
       "Name": "Ceuta Whites",
-      "Stadium": "Murube Fields",
+      "Stadium": "Hacho Fields",
       "LeagueId": 21,
       "Colour": "White/Black",
       "StadiumSize": 6500
@@ -2766,7 +2766,7 @@
     {
       "ID": 349,
       "Name": "Leonesa Whites",
-      "Stadium": "Reino Fields",
+      "Stadium": "Bernesga Fields",
       "LeagueId": 21,
       "Colour": "White",
       "StadiumSize": 13300
@@ -2782,7 +2782,7 @@
     {
       "ID": 352,
       "Name": "Palatinate Devils",
-      "Stadium": "Betzenberg Fields",
+      "Stadium": "Pfalzerwald Fields",
       "LeagueId": 22,
       "Colour": "Red/White",
       "StadiumSize": 49850
@@ -2790,7 +2790,7 @@
     {
       "ID": 353,
       "Name": "Harbour Browns",
-      "Stadium": "Millerntor Fields",
+      "Stadium": "Heiligengeist Fields",
       "LeagueId": 22,
       "Colour": "Brown/White",
       "StadiumSize": 29500
@@ -2910,7 +2910,7 @@
     {
       "ID": 369,
       "Name": "Brianza Reds",
-      "Stadium": "Brianteo Fields",
+      "Stadium": "Lambro Fields",
       "LeagueId": 7,
       "Colour": "Red/White",
       "StadiumSize": 17100
@@ -2926,7 +2926,7 @@
     {
       "ID": 371,
       "Name": "Piceno Stripes",
-      "Stadium": "Del Duca Fields",
+      "Stadium": "Tronto Fields",
       "LeagueId": 23,
       "Colour": "Black/White",
       "StadiumSize": 12500
@@ -2934,7 +2934,7 @@
     {
       "ID": 372,
       "Name": "Irpinia Greens",
-      "Stadium": "Partenio Fields",
+      "Stadium": "Sabato Fields",
       "LeagueId": 23,
       "Colour": "Green/White",
       "StadiumSize": 26000
@@ -2958,7 +2958,7 @@
     {
       "ID": 375,
       "Name": "Calabrian Eagles",
-      "Stadium": "Ceravolo Fields",
+      "Stadium": "Catanzaro Fields",
       "LeagueId": 23,
       "Colour": "Yellow/Red",
       "StadiumSize": 14700
@@ -2966,7 +2966,7 @@
     {
       "ID": 376,
       "Name": "Romagna Seahorses",
-      "Stadium": "Manuzzi Fields",
+      "Stadium": "Savio Fields",
       "LeagueId": 23,
       "Colour": "White/Black",
       "StadiumSize": 20200
@@ -2974,7 +2974,7 @@
     {
       "ID": 377,
       "Name": "Cremona Greys",
-      "Stadium": "Zini Fields",
+      "Stadium": "Cremona Fields",
       "LeagueId": 23,
       "Colour": "Grey/Red",
       "StadiumSize": 20600
@@ -2990,7 +2990,7 @@
     {
       "ID": 379,
       "Name": "Scaligeri Yellows",
-      "Stadium": "Bentegodi Fields",
+      "Stadium": "Adige Fields",
       "LeagueId": 23,
       "Colour": "Yellow/Blue",
       "StadiumSize": 39200
@@ -3014,7 +3014,7 @@
     {
       "ID": 382,
       "Name": "Modena Canaries",
-      "Stadium": "Braglia Fields",
+      "Stadium": "Modena Fields",
       "LeagueId": 23,
       "Colour": "Yellow/Blue",
       "StadiumSize": 21200
@@ -3030,7 +3030,7 @@
     {
       "ID": 384,
       "Name": "Conca d'Oro Pinks",
-      "Stadium": "Barbera Fields",
+      "Stadium": "Mondello Fields",
       "LeagueId": 23,
       "Colour": "Pink/Black",
       "StadiumSize": 36400
@@ -3038,7 +3038,7 @@
     {
       "ID": 385,
       "Name": "Tower Blacks",
-      "Stadium": "Garibaldi Fields",
+      "Stadium": "Pisa Fields",
       "LeagueId": 23,
       "Colour": "Black/Blue",
       "StadiumSize": 12500
@@ -3046,7 +3046,7 @@
     {
       "ID": 386,
       "Name": "Ligurian Blues",
-      "Stadium": "Marassi Fields",
+      "Stadium": "Bisagno Fields",
       "LeagueId": 23,
       "Colour": "Blue/White/Red/Black",
       "StadiumSize": 33200
@@ -3070,7 +3070,7 @@
     {
       "ID": 389,
       "Name": "Chiavari Blues",
-      "Stadium": "Entella Fields",
+      "Stadium": "Chiavari Fields",
       "LeagueId": 23,
       "Colour": "White/Blue",
       "StadiumSize": 5500

@@ -112,7 +112,7 @@ public class FullGameTests : IDisposable
         Assert.Equal(7, state.Events.OfType<EnglishLeagueCupFixtureDrawEvent>().Count());
         Assert.Equal(FACupRules.Rounds, state.Events.OfType<EnglishFACupFixtureDrawEvent>().Count());
         Assert.Single(state.Events.OfType<EnglishCommunityShieldFixtureDrawEvent>());
-        Assert.Equal(["Manchester Blue", "North London Reds"],
+        Assert.Equal(["Manchester Blues", "North London Reds"],
             state.Competitions.Single(c => c.Type == CompetitionType.EnglishCommunityShield).Clubs.Select(c => c.Name));
         Assert.Equal(4, state.Events.OfType<EnglishFootballLeaguePlayoffEvent>().Count()); // English Divisions 2-4 and Spain Division 2
         Assert.Single(state.Events.OfType<RelegationPlayoffEvent>()); // Germany Division 1 v Division 2
