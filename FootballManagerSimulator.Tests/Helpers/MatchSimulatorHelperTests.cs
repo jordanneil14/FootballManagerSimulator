@@ -396,6 +396,7 @@ public class MatchSimulatorHelperTests
     [Fact]
     public void FinaliseMatch_AiClubDroppingBelowTenSacksItsManagerAndGoesVacant()
     {
+        _state.ShowManagerNotifications = true;
         Away.JobSecurity = 12;
 
         for (var i = 0; i < 2; i++)

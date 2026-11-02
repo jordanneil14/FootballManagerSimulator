@@ -104,6 +104,19 @@ public class PlayerGeneratorTests
     }
 
     [Fact]
+    public void GenerateSquad_CoversEveryPositionsMinimum()
+    {
+        var generator = new PlayerGenerator(21);
+
+        // Many squads at the sizes a new game uses, so a random gap would show up.
+        foreach (var size in Enumerable.Range(25, 6).SelectMany(s => Enumerable.Repeat(s, 40)))
+        {
+            var squad = generator.GenerateSquad("Club", size, "2026-07-01", 1);
+            Assert.Empty(PlayerGenerator.MissingPositions(squad.Select(p => p.ClubPosition)));
+        }
+    }
+
+    [Fact]
     public void GenerateSquad_GivesEveryPlayerADifferentShirtNumber()
     {
         var squad = new PlayerGenerator(3).GenerateSquad("Club", 33, "2026-07-01", 1);

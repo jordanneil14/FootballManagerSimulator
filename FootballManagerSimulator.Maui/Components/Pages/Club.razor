@@ -68,7 +68,7 @@ else
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th class="num">#</th><th>Pos</th><th>Name</th><th class="num">Rating</th><th class="num">Value</th><th>Contract</th></tr>
+                    <tr><th class="num">#</th><th>Pos</th><th>Name</th><th class="center">Nat</th><th class="num">Age</th><th class="num">Rating</th><th class="num">Value</th><th>Contract</th></tr>
                 </thead>
                 <tbody>
                     @foreach (var player in squad.OrderBy(p => Ui.PositionSortOrder(p.PreferredPosition)).ThenByDescending(p => p.Rating))
@@ -77,6 +77,8 @@ else
                             <td class="num">@player.ShirtNumber</td>
                             <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
                             <td><strong>@player.Name</strong></td>
+                            <td class="center" title="@player.Nationality">@Ui.CountryFlag(player.Nationality)</td>
+                            <td class="num">@player.GetAge(Engine.State.Date)</td>
                             <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
                             <td class="num">@Ui.Money(Engine.GetTransferValue(player))</td>
                             <td class="muted">@player.Contract!.ExpiryDate.ToString("MMM yyyy")</td>

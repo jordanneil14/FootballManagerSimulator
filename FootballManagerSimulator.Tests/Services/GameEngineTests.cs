@@ -88,6 +88,8 @@ public class GameEngineTests : IDisposable
     {
         _state.Notifications.Add(new NotificationModel());
         _state.TransferListItems.Add(new TransferListItemModel());
+        _state.Scouts.Add(new ScoutModel());
+        _state.Physios.Add(new PhysioModel());
 
         _engine.StartNewGame();
 
@@ -96,6 +98,8 @@ public class GameEngineTests : IDisposable
         Assert.Empty(_state.Players);
         Assert.Empty(_state.Notifications);
         Assert.Empty(_state.TransferListItems);
+        Assert.Empty(_state.Scouts);
+        Assert.Empty(_state.Physios);
         _gameFactory.Verify(f => f.IntitialiseGameState(), Times.Once);
         Assert.False(_engine.GameInProgress);
     }
@@ -1169,17 +1173,17 @@ public class GameEngineTests : IDisposable
         _state.CareerId = "career1";
         _state.MatchSpeedMs = 250;
         _state.AutoSaveEnabled = false;
-        _state.ShowTransferNotifications = false;
-        _state.ShowManagerNotifications = false;
+        _state.ShowTransferNotifications = true;
+        _state.ShowManagerNotifications = true;
         _engine.SaveGame("settings");
         (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled) = ("other", 1000, true);
-        (_state.ShowTransferNotifications, _state.ShowManagerNotifications) = (true, true);
+        (_state.ShowTransferNotifications, _state.ShowManagerNotifications) = (false, false);
 
         Assert.Null(_engine.LoadGame("settings.fms"));
 
         Assert.Equal(("career1", 250, false), (_state.CareerId, _state.MatchSpeedMs, _state.AutoSaveEnabled));
-        Assert.False(_state.ShowTransferNotifications);
-        Assert.False(_state.ShowManagerNotifications);
+        Assert.True(_state.ShowTransferNotifications);
+        Assert.True(_state.ShowManagerNotifications);
     }
 
     [Fact]

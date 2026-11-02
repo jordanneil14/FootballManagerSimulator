@@ -162,6 +162,7 @@ public class TransferListHelperTests
     [Fact]
     public void AIFreeAgentSignings_AIClubsSignSuitableFreeAgents()
     {
+        _state.ShowTransferNotifications = true;
         // Squads average a rating of about 62, so a 62-rated free agent suits every AI club.
         var freeAgent = TestData.Player(5000, clubId: null, rating: 62);
         _state.Players.Add(freeAgent);

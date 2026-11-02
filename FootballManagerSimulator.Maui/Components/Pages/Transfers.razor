@@ -46,6 +46,16 @@
                 <input class="input" style="width:240px" placeholder="Search…" value="@_search" @oninput="OnSearch" />
             </div>
             <div class="field">
+                <label>Position</label>
+                <select class="input" style="width:140px" value="@_position" @onchange="OnPositionChanged">
+                    <option value="">Any</option>
+                    @foreach (var position in Positions())
+                    {
+                        <option value="@position">@position</option>
+                    }
+                </select>
+            </div>
+            <div class="field">
                 <label>&nbsp;</label>
                 <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
                     <input type="checkbox" checked="@_onlyAffordable" @onchange="OnOnlyAffordableChanged" />
@@ -70,6 +80,7 @@
         .Select(t => new { Item = t, Player = Engine.GetPlayer(t.PlayerId) })
         .Where(x => x.Player != null)
         .Where(x => !_onlyWillSign || Engine.SigningLevelRefusal(x.Player!) == null)
+        .Where(x => _position == "" || PlaysIn(x.Player!, _position))
         .OrderByDescending(x => x.Player!.Rating)
         .ToList();
 
@@ -168,12 +179,30 @@ else
     private string _search = "";
     private bool _onlyAffordable = true;
     private bool _onlyWillSign = true;
+    private string _position = "";
     private int _page = 1;
     private const int PageSize = 20;
+
+    // Players can have several positions ("CAM/CM"), so a player shows under each of them.
+    private static string[] PositionsOf(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private static bool PlaysIn(PlayerModel player, string position) => PositionsOf(player).Contains(position);
+
+    private IEnumerable<string> Positions() => Engine.State.Players
+        .SelectMany(PositionsOf)
+        .Distinct()
+        .OrderBy(Ui.PositionSortOrder);
 
     private void OnSearch(ChangeEventArgs e)
     {
         _search = e.Value?.ToString() ?? "";
+        _page = 1;
+    }
+
+    private void OnPositionChanged(ChangeEventArgs e)
+    {
+        _position = e.Value?.ToString() ?? "";
         _page = 1;
     }
 

@@ -205,6 +205,7 @@ public class JobOfferHelperTests
     [Fact]
     public void ProcessVacancies_AppointsAReplacementOnceTheVacancyEnds()
     {
+        _state.ShowManagerNotifications = true;
         var club = _state.Clubs.Single(p => p.Id == 6);
         club.JobSecurity = 4;
         club.VacantUntil = _state.Date.AddDays(1);

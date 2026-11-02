@@ -27,15 +27,22 @@ public class PlayerGenerator
         var players = new List<GeneratedPlayer>(squadSize);
 
         var (gkCount, defCount, midCount, fwdCount) = SquadShape(squadSize);
+        int[] lineCounts = [gkCount, defCount, midCount, fwdCount];
+        string[][] linePositions = [["GK"], DefenderPositions, MidfielderPositions, ForwardPositions];
 
-        for (int i = 0; i < gkCount; i++)
-            players.Add(GeneratePlayerForClub(clubName, "GK", startDate, leagueRank));
-        for (int i = 0; i < defCount; i++)
-            players.Add(GeneratePlayerForClub(clubName, PickRandom(DefenderPositions), startDate, leagueRank));
-        for (int i = 0; i < midCount; i++)
-            players.Add(GeneratePlayerForClub(clubName, PickRandom(MidfielderPositions), startDate, leagueRank));
-        for (int i = 0; i < fwdCount; i++)
-            players.Add(GeneratePlayerForClub(clubName, PickRandom(ForwardPositions), startDate, leagueRank));
+        // Each line covers its minimums first (e.g. two left backs), then fills the rest at random.
+        for (int line = 0; line < 4; line++)
+        {
+            var minimums = MinimumPerPosition
+                .Where(p => PositionGroup(p.Position) == line)
+                .SelectMany(p => Enumerable.Repeat(p.Position, p.Minimum))
+                .Take(lineCounts[line])
+                .ToList();
+            foreach (var position in minimums)
+                players.Add(GeneratePlayerForClub(clubName, position, startDate, leagueRank));
+            for (int i = minimums.Count; i < lineCounts[line]; i++)
+                players.Add(GeneratePlayerForClub(clubName, PickRandom(linePositions[line]), startDate, leagueRank));
+        }
 
         AssignSquadNumbers(players);
         return players;

@@ -64,7 +64,7 @@
             <div class="pitch-player @(isSuspended ? "suspended" : isInjured ? "injured" : "")" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)"
                  title="@(isSuspended ? $"Suspended for {player!.SuspensionMatches} more match(es)" : isInjured ? $"{player!.InjuryDescription} — back {player.InjuryEndDate:d MMM}" : null)">
                 <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
-                <div class="pname">@(isSuspended ? "🟥 " : isInjured ? "🏥 " : "")@(player?.Name ?? "—")</div>
+                <div class="pname">@(isSuspended ? "🟥 " : isInjured ? "🤕 " : "")@(player?.Name ?? "—")</div>
             </div>
         }
     </div>
@@ -118,7 +118,7 @@
                 }
                 else if (injured)
                 {
-                    <span class="inj-chip" title="@player!.InjuryDescription — back @player.InjuryEndDate?.ToString("d MMM")">🏥</span>
+                    <span class="inj-chip" title="@player!.InjuryDescription — back @player.InjuryEndDate?.ToString("d MMM")">🤕 @(player.InjuryEndDate!.Value.DayNumber - Engine.State.Date.DayNumber)d</span>
                 }
             </td>
             <td class="num" style="width:50px">@(player != null ? player.PreferredPosition : "")</td>

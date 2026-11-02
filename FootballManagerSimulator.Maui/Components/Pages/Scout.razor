@@ -72,6 +72,16 @@
                 </select>
             </div>
             <div class="field">
+                <label>Position</label>
+                <select class="input" style="width:140px" value="@_position" @onchange="OnPositionChanged">
+                    <option value="">Any</option>
+                    @foreach (var position in Positions())
+                    {
+                        <option value="@position">@position</option>
+                    }
+                </select>
+            </div>
+            <div class="field">
                 <label>&nbsp;</label>
                 <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
                     <input type="checkbox" checked="@_onlyWillSign" @onchange="OnOnlyWillSignChanged" />
@@ -208,6 +218,7 @@
     private int _page = 1;
     private string _search = "";
     private string _contractFilter = "All";
+    private string _position = "";
     private bool _onlyWillSign = true;
     private const int PageSize = 20;
 
@@ -230,10 +241,13 @@
     }
 
     // Players can have several positions ("CAM/CM"), so list each one on its own.
+    private static string[] PositionsOf(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
     private IEnumerable<string> Positions() => Engine.State.Players
-        .SelectMany(p => p.PreferredPosition.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        .SelectMany(PositionsOf)
         .Distinct()
-        .OrderBy(p => p);
+        .OrderBy(Ui.PositionSortOrder);
 
     private void DismissScout()
     {
@@ -317,10 +331,17 @@
         _page = 1;
     }
 
+    private void OnPositionChanged(ChangeEventArgs e)
+    {
+        _position = e.Value?.ToString() ?? "";
+        _page = 1;
+    }
+
     private List<PlayerModel> BuildPlayerList()
     {
         var discovered = Scouts.DiscoveredPlayers()
             .Where(p => !_onlyWillSign || Engine.SigningLevelRefusal(p) == null)
+            .Where(p => _position == "" || PositionsOf(p).Contains(_position))
             .ToList();
 
         var freeAgents = discovered

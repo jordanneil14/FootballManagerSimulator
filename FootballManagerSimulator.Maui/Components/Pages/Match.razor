@@ -418,12 +418,12 @@ else
         foreach (var i in _fixture.HomeInjuries.Where(i => i.Minute <= _currentMinute))
         {
             var player = Engine.GetPlayer(i.PlayerId);
-            events.Add((i.Minute, new MatchEvent(i.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {i.Description}", "event-injury")));
+            events.Add((i.Minute, new MatchEvent(i.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {i.Description}", "event-injury")));
         }
         foreach (var i in _fixture.AwayInjuries.Where(i => i.Minute <= _currentMinute))
         {
             var player = Engine.GetPlayer(i.PlayerId);
-            events.Add((i.Minute, new MatchEvent(i.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
+            events.Add((i.Minute, new MatchEvent(i.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
         }
 
         foreach (var e in events.OrderBy(e => e.Minute))
@@ -581,7 +581,7 @@ else
         foreach (var injury in homeInjuriesToReveal)
         {
             var player = Engine.GetPlayer(injury.PlayerId);
-            _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
+            _eventFeed.Add(new MatchEvent(injury.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
             _revealedHomeInjuries++;
             if (IsMyClub(_fixture.HomeClub)) StopForInjury(player, injury);
         }
@@ -595,7 +595,7 @@ else
         foreach (var injury in awayInjuriesToReveal)
         {
             var player = Engine.GetPlayer(injury.PlayerId);
-            _eventFeed.Add(new MatchEvent(injury.Minute, "🏥", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
+            _eventFeed.Add(new MatchEvent(injury.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
             _revealedAwayInjuries++;
             if (IsMyClub(_fixture.AwayClub)) StopForInjury(player, injury);
         }
@@ -727,7 +727,7 @@ else
     private void StopForInjury(PlayerModel? player, InjuryModel injury)
     {
         _isPaused = true;
-        _stoppageReason = $"🏥 {player?.Name ?? "A player"} is injured ({injury.Description.ToLower()}). Substitute him from the Tactics tab, then resume.";
+        _stoppageReason = $"🤕 {player?.Name ?? "A player"} is injured ({injury.Description.ToLower()}). Substitute him from the Tactics tab, then resume.";
     }
 
     // The user's injured players still in the starting XI, who leave the side a player short.

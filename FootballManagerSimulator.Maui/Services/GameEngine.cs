@@ -183,6 +183,7 @@ public class GameEngine(
         State.BoardConfidence = BoardConfidenceRules.Starting;
         State.ManagerHistory = new ManagerHistoryModel();
         State.Scouts.Clear();
+        State.Physios.Clear();
         State.DiscoveredPlayerIds.Clear();
         State.CareerId = NewCareerId();
     }

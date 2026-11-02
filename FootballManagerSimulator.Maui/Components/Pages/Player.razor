@@ -72,7 +72,7 @@ else
         var daysLeft = player.InjuryEndDate.Value.DayNumber - Engine.State.Date.DayNumber;
         <div class="feedback">
             <div class="feedback-item warn">
-                🏥 <strong>Injured</strong> — @player.InjuryDescription.
+                🤕 <strong>Injured</strong> — @player.InjuryDescription.
                 Expected return: @player.InjuryEndDate.Value.ToString("dd MMM yyyy") (@daysLeft @(daysLeft == 1 ? "day" : "days") remaining).
                 @if (playsForMe && Engine.State.Physios.Count > 0)
                 {
