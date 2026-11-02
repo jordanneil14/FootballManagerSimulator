@@ -671,23 +671,48 @@ public class TacticHelper(
         }
     }
 
-    private HashSet<int> GetUnavailablePlayerIds(int clubId)
+    // The club's contracted players, gathered in one pass over State.Players so team selection
+    // doesn't rescan every player in the game for each slot it fills.
+    private sealed class Squad
     {
-        return State.Players
-            .Where(p => p.Contract != null && p.Contract.ClubId == clubId
-                && (p.SuspensionMatches > 0 || p.IsInjured(State.Date)))
-            .Select(p => p.Id)
-            .ToHashSet();
+        public required ClubModel Club { get; init; }
+        public required List<PlayerModel> Players { get; init; }
+        public required Dictionary<int, PlayerModel> PlayersById { get; init; }
+        public required HashSet<int> UnavailableIds { get; init; }
     }
 
-    private void FillEmptyFirstElevenTacticSlotsByClubId(int clubId)
+    private Squad LoadSquad(int clubId)
     {
-        var unavailableIds = GetUnavailablePlayerIds(clubId);
-        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId && !unavailableIds.Contains(p.Id));
+        var players = State.Players.Where(p => p.Contract != null && p.Contract.ClubId == clubId).ToList();
+        // TryAdd keeps the first player on a duplicate id, matching GetPlayerById.
+        var playersById = new Dictionary<int, PlayerModel>();
+        foreach (var player in players)
+            playersById.TryAdd(player.Id, player);
+
+        return new Squad
+        {
+            Club = State.Clubs.First(p => p.Id == clubId),
+            Players = players,
+            PlayersById = playersById,
+            UnavailableIds = players
+                .Where(p => p.SuspensionMatches > 0 || p.IsInjured(State.Date))
+                .Select(p => p.Id)
+                .ToHashSet()
+        };
+    }
+
+    // Slots can hold a player who has since left the club, so fall back to a full lookup.
+    private PlayerModel? FindPlayer(Squad squad, int playerId) =>
+        squad.PlayersById.TryGetValue(playerId, out var player) ? player : PlayerHelper.GetPlayerById(playerId);
+
+    private void FillEmptyFirstElevenTacticSlots(Squad squad)
+    {
+        var unavailableIds = squad.UnavailableIds;
+        var club = squad.Club;
+        var players = squad.Players.Where(p => !unavailableIds.Contains(p.Id)).ToList();
 
         // Move players from the reserves into the starting 11
-        var tacticSlots = State.Clubs
-            .First(p => p.Id == clubId)
+        var tacticSlots = club
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
@@ -702,8 +727,7 @@ public class TacticHelper(
             preferredPlayers.AddRange(secondaryPlayers);
             if (!preferredPlayers.Any()) continue;
 
-            var reserves = State.Clubs
-                .First(p => p.Id == clubId)
+            var reserves = club
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value));
 
@@ -716,44 +740,40 @@ public class TacticHelper(
 
             if (selectedPlayer == null) continue;
 
-            State.Clubs
-                .First(p => p.Id == clubId)
+            club
                 .TacticSlots
                 .First(p => p.Id == slot.Id)
                 .PlayerId = selectedPlayer.PlayerId;
 
-            State.Clubs.First(p => p.Id == clubId)
+            club
                 .TacticSlots
                 .Where(p => p.PlayerId == slot.PlayerId)
                 .Skip(1)
                 .First().PlayerId = null;
         }
 
-        var emptySlots = State.Clubs
-            .First(p => p.Id == clubId)
+        var emptySlots = club
             .TacticSlots
             .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
 
         foreach (var emptySlot in emptySlots)
         {
             var isGkSlot = emptySlot.TacticSlotType == TacticSlotType.GK;
-            var selectedPlayer = State.Clubs
-                .First(p => p.Id == clubId)
+            var selectedPlayer = club
                 .TacticSlots
                 .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value))
-                .Select(p => new { Slot = p, Player = PlayerHelper.GetPlayerById(p.PlayerId!.Value) })
+                .Select(p => new { Slot = p, Player = FindPlayer(squad, p.PlayerId!.Value) })
                 .Where(p => p.Player != null && (isGkSlot ? p.Player.PreferredPosition == "GK" : p.Player.PreferredPosition != "GK"))
                 .OrderByDescending(p => p.Player!.Rating)
                 .FirstOrDefault();
             if (selectedPlayer == null) continue;
 
-            State.Clubs
-                .First(p => p.Id == clubId)
+            club
                 .TacticSlots
                 .First(p => p.Id == emptySlot.Id)
                 .PlayerId = selectedPlayer.Slot.PlayerId;
 
-            State.Clubs.First(p => p.Id == clubId)
+            club
                 .TacticSlots
                 .Where(p => p.PlayerId == emptySlot.PlayerId)
                 .Skip(1)
@@ -761,10 +781,10 @@ public class TacticHelper(
         }
     }
 
-    private void FillEmptySubTacticSlotsByClubId(int clubId)
+    private void FillEmptySubTacticSlots(Squad squad)
     {
-        var unavailableIds = GetUnavailablePlayerIds(clubId);
-        var club = State.Clubs.First(p => p.Id == clubId);
+        var unavailableIds = squad.UnavailableIds;
+        var club = squad.Club;
 
         var subSlots = club.TacticSlots
             .Where(p => p.TacticSlotType == TacticSlotType.SUB && p.PlayerId == null)
@@ -780,7 +800,7 @@ public class TacticHelper(
             var emptySlot = subSlots.FirstOrDefault(s => !s.PlayerId.HasValue);
             if (emptySlot == null) break;
 
-            var bestPlayer = AvailableReserves(club, unavailableIds, assignedIds)
+            var bestPlayer = AvailableReserves(squad, assignedIds)
                 .Where(p => GetPositionGroup(p.Player.PreferredPosition) == group)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
@@ -794,7 +814,7 @@ public class TacticHelper(
 
         foreach (var emptySlot in subSlots.Where(s => !s.PlayerId.HasValue).ToList())
         {
-            var bestRemaining = AvailableReserves(club, unavailableIds, assignedIds)
+            var bestRemaining = AvailableReserves(squad, assignedIds)
                 .OrderByDescending(p => p.Player.Rating)
                 .FirstOrDefault();
 
@@ -807,14 +827,14 @@ public class TacticHelper(
     }
 
     // Reserves who can be named as a substitute: not suspended and not already picked.
-    private IEnumerable<ReserveCandidate> AvailableReserves(ClubModel club, HashSet<int> unavailableIds, HashSet<int> assignedIds)
+    private IEnumerable<ReserveCandidate> AvailableReserves(Squad squad, HashSet<int> assignedIds)
     {
-        foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES))
+        foreach (var slot in squad.Club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES))
         {
-            if (slot.PlayerId is not { } playerId || unavailableIds.Contains(playerId) || assignedIds.Contains(playerId))
+            if (slot.PlayerId is not { } playerId || squad.UnavailableIds.Contains(playerId) || assignedIds.Contains(playerId))
                 continue;
 
-            if (PlayerHelper.GetPlayerById(playerId) is { } player)
+            if (FindPlayer(squad, playerId) is { } player)
                 yield return new ReserveCandidate(slot, player);
         }
     }
@@ -869,8 +889,9 @@ public class TacticHelper(
 
     public void FillEmptyTacticSlotsByClubId(int clubId)
     {
-        FillEmptyFirstElevenTacticSlotsByClubId(clubId);
-        FillEmptySubTacticSlotsByClubId(clubId);
+        var squad = LoadSquad(clubId);
+        FillEmptyFirstElevenTacticSlots(squad);
+        FillEmptySubTacticSlots(squad);
         FillEmptyReserveSlotsByClubId(clubId);
     }
 
