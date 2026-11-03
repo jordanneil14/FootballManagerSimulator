@@ -14,7 +14,7 @@
 else
 {
     <div class="page-head">
-        <div><h1>Live Match</h1><div class="subtitle">@(_competition != null ? CompetitionHeading(_competition) : Engine.State.DateFriendly)</div></div>
+        <div><h1>Live Match</h1>@if (_competition != null) {<div class="subtitle">@CompetitionHeading(_competition)</div>}</div>
         <div class="page-actions">
             @if (_phase == MatchPhase.HalfTime)
             {
