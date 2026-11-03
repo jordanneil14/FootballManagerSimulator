@@ -651,8 +651,8 @@ public class PlayerGenerator
                 < 20 => _random.Next(58, 65),
                 < 50 => _random.Next(65, 72),
                 < 80 => _random.Next(72, 78),
-                < 95 => _random.Next(78, 83),
-                _ => _random.Next(83, 87)
+                < 95 => _random.Next(78, 82),
+                _ => _random.Next(82, 84)
             },
             3 => roll switch
             {
@@ -660,8 +660,8 @@ public class PlayerGenerator
                 < 25 => _random.Next(53, 60),
                 < 55 => _random.Next(60, 67),
                 < 82 => _random.Next(67, 73),
-                < 96 => _random.Next(73, 78),
-                _ => _random.Next(78, 82)
+                < 96 => _random.Next(73, 77),
+                _ => _random.Next(77, 79)
             },
             4 => roll switch
             {
@@ -669,8 +669,8 @@ public class PlayerGenerator
                 < 30 => _random.Next(48, 55),
                 < 60 => _random.Next(55, 62),
                 < 85 => _random.Next(62, 68),
-                < 97 => _random.Next(68, 73),
-                _ => _random.Next(73, 77)
+                < 97 => _random.Next(68, 72),
+                _ => _random.Next(72, 74)
             },
             5 => roll switch
             {
@@ -678,8 +678,8 @@ public class PlayerGenerator
                 < 35 => _random.Next(43, 50),
                 < 65 => _random.Next(50, 56),
                 < 88 => _random.Next(56, 62),
-                < 98 => _random.Next(62, 67),
-                _ => _random.Next(67, 71)
+                < 98 => _random.Next(62, 66),
+                _ => _random.Next(66, 68)
             },
             _ => roll switch
             {
@@ -687,8 +687,8 @@ public class PlayerGenerator
                 < 38 => _random.Next(38, 45),
                 < 68 => _random.Next(45, 51),
                 < 90 => _random.Next(51, 57),
-                < 98 => _random.Next(57, 62),
-                _ => _random.Next(62, 66)
+                < 98 => _random.Next(57, 61),
+                _ => _random.Next(61, 63)
             }
         };
     }
