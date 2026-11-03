@@ -55,10 +55,39 @@ else
     <p class="muted">No fixtures scheduled today. Advance to continue.</p>
 }
 
-@foreach (var competition in Engine.State.Competitions)
+@{
+    var todaysCompetitions = Engine.State.Competitions
+        .Where(c => c.Fixtures.Any(f => f.Date == Engine.State.Date))
+        .ToList();
+    var countries = todaysCompetitions
+        .Select(CountryName)
+        .Distinct()
+        .OrderBy(c => c == OtherCountry)
+        .ThenBy(c => c)
+        .ToList();
+    if (_selectedCountry == null || !countries.Contains(_selectedCountry))
+    {
+        var myCompetition = myFixture == null ? null : todaysCompetitions.FirstOrDefault(c => c.Fixtures.Contains(myFixture));
+        _selectedCountry = myCompetition != null ? CountryName(myCompetition) : countries.FirstOrDefault();
+    }
+}
+
+@if (countries.Count > 1)
+{
+    <div class="day-tabs">
+        @foreach (var country in countries)
+        {
+            <button class="day-tab country-tab @(country == _selectedCountry ? "active" : "")"
+                    @onclick="@(() => _selectedCountry = country)">
+                @country
+            </button>
+        }
+    </div>
+}
+
+@foreach (var competition in todaysCompetitions.Where(c => CountryName(c) == _selectedCountry))
 {
     var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
-    if (!fixtures.Any()) continue;
 
     <div class="fixture-block">
         <div class="fixture-block-head">@CompetitionHeading(competition) <span style="font-weight:400;color:var(--text-faint);margin-left:.5rem">Round @fixtures.First().Round</span></div>
@@ -103,6 +132,15 @@ else
 @code {
     private SettingsModel Settings => SettingsOptions.Value;
     private string? _error;
+    private string? _selectedCountry;
+    private const string OtherCountry = "Other";
+
+    private string CountryName(ICompetition competition)
+    {
+        var config = Settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
+        if (config == null || config.CountryId == 0) return OtherCountry;
+        return Settings.Countries.FirstOrDefault(p => p.Id == config.CountryId)?.Name ?? OtherCountry;
+    }
 
     private void Resume()
     {

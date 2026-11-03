@@ -526,6 +526,7 @@ tr.injured td:nth-child(2) > .pname-text { color: var(--text-faint); text-decora
 .day-tab.today:not(.active) { border-color: var(--accent); }
 .day-tab-name { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
 .day-tab-num { font-size: 1.05rem; font-weight: 800; font-family: var(--mono); }
+.country-tab { min-width: auto; padding: .6rem .9rem; font-size: .85rem; font-weight: 700; }
 
 /* ---------- Fixtures: Grouped blocks ---------- */
 .fixture-block {
