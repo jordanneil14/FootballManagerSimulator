@@ -47,6 +47,7 @@ public class ProcessHelper(
         ValidateProcess();
         State.Date = State.Date.AddDays(1);
         State.Weather = WeatherHelper.GetTodaysWeather();
+        NotifyInjuryReturns();
 
         // Checked the day after a result so the match day itself plays out normally.
         if (State.MyClubId != null && State.BoardConfidence < BoardConfidenceRules.UserSackedBelow)
@@ -610,6 +611,17 @@ public class ProcessHelper(
 
         if (existsOutstandingFixtures)
             throw new ProcessException(ScreenType.Fixture);
+    }
+
+    private void NotifyInjuryReturns()
+    {
+        if (State.MyClubId == null) return;
+        var returned = State.Players
+            .Where(p => p.InjuryEndDate == State.Date && p.Contract?.ClubId == State.MyClubId);
+        foreach (var player in returned)
+            NotificationFactory.AddNotification(State.Date, "Medical Team",
+                "Player Recovered",
+                $"{player.Name} has recovered from injury and is available for selection.");
     }
 
     private void ProcessPhysios()

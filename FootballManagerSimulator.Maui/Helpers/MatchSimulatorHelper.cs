@@ -8,12 +8,14 @@ public class MatchSimulatorHelper(
     IClubHelper clubHelper,
     ITacticHelper tacticHelper,
     IPlayerHelper playerHelper,
-    IState state) : IMatchSimulatorHelper
+    IState state,
+    INotificationFactory notificationFactory) : IMatchSimulatorHelper
 {
     private readonly IClubHelper ClubHelper = clubHelper;
     private readonly ITacticHelper TacticHelper = tacticHelper;
     private readonly IPlayerHelper PlayerHelper = playerHelper;
     private readonly IState State = state;
+    private readonly INotificationFactory NotificationFactory = notificationFactory;
 
     public void ProcessMatch(FixtureModel fixture, ICompetition competition)
     {
@@ -371,7 +373,13 @@ public class MatchSimulatorHelper(
             .Where(p => p.SuspensionMatches > 0 && p.Contract != null && clubIds.Contains(p.Contract.ClubId));
 
         foreach (var player in suspendedPlayers)
+        {
             player.SuspensionMatches--;
+            if (player.SuspensionMatches == 0 && player.Contract?.ClubId == State.MyClubId)
+                NotificationFactory.AddNotification(State.Date, "Club Secretary",
+                    "Suspension Served",
+                    $"{player.Name} has served their suspension and is available for selection.");
+        }
     }
 
     private void EndFixture(FixtureModel fixture, ICompetition competition)

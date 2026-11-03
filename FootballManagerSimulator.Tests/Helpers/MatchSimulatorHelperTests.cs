@@ -20,7 +20,7 @@ public class MatchSimulatorHelperTests
     {
         var players = new PlayerHelper(_state);
         _tactics = new TacticHelper(_state, players);
-        _simulator = new MatchSimulatorHelper(new ClubHelper(_state), _tactics, players, _state);
+        _simulator = new MatchSimulatorHelper(new ClubHelper(_state), _tactics, players, _state, new RecordingNotifications { Now = _state.Date });
         foreach (var club in _state.Clubs)
         {
             _tactics.ResetTacticForClub(club);
