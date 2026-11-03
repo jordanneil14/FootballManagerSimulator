@@ -16,16 +16,27 @@ public class IncreaseTransferBudgetRequestEvent(
     {
         var myClub = State.Clubs.First(p => p.Id == State.MyClubId);
         var leagueRank = State.Competitions.OfType<LeagueModel>().FirstOrDefault(p => p.Id == myClub.LeagueId)?.Rank;
-        var amount = TransferBudgetRequestRules.AmountForLeagueRank(leagueRank);
+        var fullAmount = TransferBudgetRequestRules.AmountForLeagueRank(leagueRank);
+        var confidence = State.BoardConfidence;
 
+        if (confidence < BoardConfidenceRules.StableFrom)
+        {
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Chairman",
+                "Budget Request Denied",
+                "The board doesn't feel results justify extra spending right now. Improve your form and try again.");
+            return;
+        }
+
+        var amount = confidence >= BoardConfidenceRules.SecureFrom ? fullAmount : fullAmount / 2;
         myClub.TransferBudget += amount;
 
-        NotificationFactory.AddNotification(
-            State.Date,
-            "Chairman",
-            "Budget Request",
-            $"The chairman has responded to your budget request and has granted you an extra £{amount:n0} to spend.");
+        var message = confidence >= BoardConfidenceRules.SecureFrom
+            ? $"The chairman is delighted with your progress and has granted you an extra £{amount:n0} to spend."
+            : $"The chairman has partially approved your request and has granted you £{amount:n0}. Continued good results could unlock the full amount next time.";
 
+        NotificationFactory.AddNotification(State.Date, "Chairman", "Budget Request", message);
     }
 
     public override (bool success, string errorMessage) ValidateAdd()

@@ -80,8 +80,9 @@ public class ClubRequestEventTests : IDisposable
     [InlineData(3, 1_000_000)]
     [InlineData(4, 150_000)]
     [InlineData(5, 50_000)]
-    public void IncreaseTransferBudgetRequest_GrantsAnAmountForTheLeagueRankAndNotifies(int rank, int amount)
+    public void IncreaseTransferBudgetRequest_GrantsFullAmountWhenBoardIsSecure(int rank, int amount)
     {
+        _host.State.BoardConfidence = BoardConfidenceRules.SecureFrom;
         var league = TestData.League(1, [_myClub]);
         league.Rank = rank;
         _host.State.Competitions.Add(league);
@@ -92,6 +93,37 @@ public class ClubRequestEventTests : IDisposable
         var notification = Assert.Single(_host.State.Notifications);
         Assert.Equal("Budget Request", notification.Subject);
         Assert.Contains($"£{amount:n0}", notification.Message);
+    }
+
+    [Fact]
+    public void IncreaseTransferBudgetRequest_GrantsHalfAmountWhenBoardIsStable()
+    {
+        _host.State.BoardConfidence = BoardConfidenceRules.StableFrom;
+        var league = TestData.League(1, [_myClub]);
+        league.Rank = 1;
+        _host.State.Competitions.Add(league);
+
+        Create<IncreaseTransferBudgetRequestEvent>(_host.State.Date).Execute();
+
+        Assert.Equal(5_000_000 + 5_000_000, _myClub.TransferBudget);
+        var notification = Assert.Single(_host.State.Notifications);
+        Assert.Equal("Budget Request", notification.Subject);
+        Assert.Contains("partially approved", notification.Message);
+    }
+
+    [Fact]
+    public void IncreaseTransferBudgetRequest_DeniedWhenBoardConfidenceIsLow()
+    {
+        _host.State.BoardConfidence = BoardConfidenceRules.StableFrom - 1;
+        var league = TestData.League(1, [_myClub]);
+        league.Rank = 1;
+        _host.State.Competitions.Add(league);
+
+        Create<IncreaseTransferBudgetRequestEvent>(_host.State.Date).Execute();
+
+        Assert.Equal(5_000_000, _myClub.TransferBudget);
+        var notification = Assert.Single(_host.State.Notifications);
+        Assert.Equal("Budget Request Denied", notification.Subject);
     }
 
     [Fact]
