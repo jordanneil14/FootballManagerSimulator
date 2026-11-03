@@ -144,6 +144,8 @@ else
             @{
                 var starters = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB && s.TacticSlotType != TacticSlotType.RES).ToList();
                 var subs = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
+                var injuredIds = InjuredOnPitch().Select(p => p.Id).ToHashSet();
+                var sentOffIds = MySentOffIds();
             }
             <table class="data">
                 <tbody>
@@ -152,10 +154,12 @@ else
                         var idx = Engine.MyClub.TacticSlots.IndexOf(starters[i]);
                         var slot = starters[i];
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
+                        var sentOff = player != null && sentOffIds.Contains(player.Id);
+                        var injured = player != null && !sentOff && injuredIds.Contains(player.Id);
+                        <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "") @(sentOff ? "row-injured" : injured ? "row-injured" : "")"
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)</td>
+                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
                             <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
                         </tr>
                     }
@@ -231,6 +235,10 @@ else
     {
         var homeClub = Engine.GetClub(_fixture.HomeClub.Id);
         var awayClub = Engine.GetClub(_fixture.AwayClub.Id);
+        var homeInjuredIds = _fixture.HomeInjuries.Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
+        var awayInjuredIds = _fixture.AwayInjuries.Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
+        var homeSentOffIds = _fixture.HomeCards.Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
+        var awaySentOffIds = _fixture.AwayCards.Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
 
         <div class="panel">
             <h2>@_fixture.HomeClub.Name</h2>
@@ -249,9 +257,11 @@ else
                         var slot = homeStarters[i];
                         var (x, y) = PitchLayout.Position(homeStarters, i);
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        <div class="pitch-player" style="left:@(x)%;top:@(y)%">
+                        var sentOff = player != null && homeSentOffIds.Contains(player.Id);
+                        var injured = player != null && !sentOff && homeInjuredIds.Contains(player.Id);
+                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : "")" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
-                            <div class="pname">@(player != null ? Surname(player.Name) : "—")</div>
+                            <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
                         </div>
                     }
                 </div>
@@ -273,9 +283,11 @@ else
                         var slot = awayStarters[i];
                         var (x, y) = PitchLayout.Position(awayStarters, i);
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        <div class="pitch-player" style="left:@(x)%;top:@(y)%">
+                        var sentOff = player != null && awaySentOffIds.Contains(player.Id);
+                        var injured = player != null && !sentOff && awayInjuredIds.Contains(player.Id);
+                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : "")" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
-                            <div class="pname">@(player != null ? Surname(player.Name) : "—")</div>
+                            <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
                         </div>
                     }
                 </div>
@@ -418,12 +430,12 @@ else
         foreach (var i in _fixture.HomeInjuries.Where(i => i.Minute <= _currentMinute))
         {
             var player = Engine.GetPlayer(i.PlayerId);
-            events.Add((i.Minute, new MatchEvent(i.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {i.Description}", "event-injury")));
+            events.Add((i.Minute, new MatchEvent(i.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {i.Description}", "event-injury")));
         }
         foreach (var i in _fixture.AwayInjuries.Where(i => i.Minute <= _currentMinute))
         {
             var player = Engine.GetPlayer(i.PlayerId);
-            events.Add((i.Minute, new MatchEvent(i.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
+            events.Add((i.Minute, new MatchEvent(i.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
         }
 
         foreach (var e in events.OrderBy(e => e.Minute))
@@ -581,7 +593,7 @@ else
         foreach (var injury in homeInjuriesToReveal)
         {
             var player = Engine.GetPlayer(injury.PlayerId);
-            _eventFeed.Add(new MatchEvent(injury.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
+            _eventFeed.Add(new MatchEvent(injury.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name}) - {injury.Description}", "event-injury"));
             _revealedHomeInjuries++;
             if (IsMyClub(_fixture.HomeClub)) StopForInjury(player, injury);
         }
@@ -595,7 +607,7 @@ else
         foreach (var injury in awayInjuriesToReveal)
         {
             var player = Engine.GetPlayer(injury.PlayerId);
-            _eventFeed.Add(new MatchEvent(injury.Minute, "🤕", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
+            _eventFeed.Add(new MatchEvent(injury.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
             _revealedAwayInjuries++;
             if (IsMyClub(_fixture.AwayClub)) StopForInjury(player, injury);
         }
