@@ -102,7 +102,7 @@
 <div class="table-wrap">
     <table class="data">
         <thead>
-            <tr><th>Pos</th><th>Name</th><th class="num">Age</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
+            <tr><th>Pos</th><th>Name</th><th class="center">Nat</th><th class="num">Age</th><th class="num">Rating</th><th>Club</th><th class="num">Value</th></tr>
         </thead>
         <tbody>
             @foreach (var player in pagePlayers)
@@ -110,6 +110,7 @@
                 <tr class="clickable" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
                     <td><span class="pos-chip @Ui.PositionCssClass(player.PreferredPosition)">@player.PreferredPosition</span></td>
                     <td><strong>@player.Name</strong></td>
+                    <td class="center" title="@player.Nationality">@Ui.CountryFlag(player.Nationality)</td>
                     <td class="num">@player.GetAge(Engine.State.Date)</td>
                     <td class="num"><span class="@Ui.RatingCssClass(player.Rating)">@player.Rating</span></td>
                     <td>
@@ -124,7 +125,7 @@
             }
             @if (!pagePlayers.Any())
             {
-                <tr><td colspan="6" class="center muted">No players match your filters.</td></tr>
+                <tr><td colspan="7" class="center muted">No players match your filters.</td></tr>
             }
         </tbody>
     </table>
