@@ -344,24 +344,13 @@
             .Where(p => _position == "" || PositionsOf(p).Contains(_position))
             .ToList();
 
-        var freeAgents = discovered
-            .Where(p => p.Contract == null)
-            .OrderByDescending(p => p.Rating);
-
-        var contracted = discovered
-            .Where(p => p.Contract != null);
-
         IEnumerable<PlayerModel> players = _contractFilter switch
         {
-            "Contracted" => contracted
-                .OrderBy(p => p.Contract!.ClubName)
-                .ThenByDescending(p => p.Rating),
-            "FreeAgent" => freeAgents,
-            _ => contracted
-                .OrderBy(p => p.Contract!.ClubName)
-                .ThenByDescending(p => p.Rating)
-                .Concat(freeAgents)
+            "Contracted" => discovered.Where(p => p.Contract != null),
+            "FreeAgent" => discovered.Where(p => p.Contract == null),
+            _ => discovered
         };
+        players = players.OrderByDescending(p => p.Rating);
 
         if (!string.IsNullOrWhiteSpace(_search))
         {
