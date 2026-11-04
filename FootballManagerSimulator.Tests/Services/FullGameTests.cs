@@ -435,7 +435,8 @@ public class FullGameTests : IDisposable
         PlayUntil(engine, engine.State.Date.AddDays(2));
 
         // Bids for my players are all rejected, so the grant is the only change to my budget.
-        Assert.Equal(budget + 10_000_000, engine.MyClub.TransferBudget);
+        // A new game starts with a stable board, which grants half the full £10m.
+        Assert.Equal(budget + 5_000_000, engine.MyClub.TransferBudget);
         Assert.Contains(engine.State.Notifications, n => n.Subject == "Budget Request");
     }
 }
