@@ -142,6 +142,8 @@ else if (league != null)
         <span class="tag" style="background:rgba(72,146,229,.18);color:#7fb2ff">Play-offs</span>
         <span class="tag red">Relegation</span>
     </div>
+
+    @SeasonStats(league)
 }
 else if (cup != null)
 {
@@ -326,4 +328,65 @@ else
         if (position > cfg.Places - cfg.RelegationPlaces - cfg.RelegationPlayoffPlaces) return "zone-playoff";
         return "";
     }
+
+    private const int StatLimit = 5;
+
+    private RenderFragment SeasonStats(LeagueModel league) => __builder =>
+    {
+        var played = league.Fixtures.Where(f => f.Concluded).ToList();
+        var cards = played.SelectMany(f => f.HomeCards.Concat(f.AwayCards)).ToList();
+
+        <div class="panel" style="margin-top:1.4rem">
+            <h2>📊 Season Stats</h2>
+            <div class="grid grid-2" style="margin-bottom:0">
+                @StatTable("⚽ Top Goalscorers", "Goals", TopFive(played.SelectMany(f => f.HomeScorers.Concat(f.AwayScorers)).Where(g => g.Minute <= 120).Select(g => g.PlayerId)))
+                @StatTable("👕 Most Appearances", "Apps", TopFive(played.SelectMany(f => f.HomePlayerIds.Concat(f.AwayPlayerIds))))
+                @StatTable("🟨 Most Yellow Cards", "Yellows", TopFive(cards.Where(c => !c.IsRed).Select(c => c.PlayerId)))
+                @StatTable("🟥 Most Red Cards", "Reds", TopFive(cards.Where(c => c.IsRed).Select(c => c.PlayerId)))
+            </div>
+        </div>
+    };
+
+    // Players no longer in the game (retired) are skipped.
+    private List<(PlayerModel Player, int Count)> TopFive(IEnumerable<int> playerIds) =>
+        playerIds
+            .GroupBy(id => id)
+            .Select(g => (Player: Engine.GetPlayer(g.Key), Count: g.Count()))
+            .Where(x => x.Player != null)
+            .OrderByDescending(x => x.Count)
+            .ThenBy(x => x.Player!.Name)
+            .Take(StatLimit)
+            .Select(x => (x.Player!, x.Count))
+            .ToList();
+
+    private RenderFragment StatTable(string title, string countLabel, List<(PlayerModel Player, int Count)> rows) => __builder =>
+    {
+        <div>
+            <h3 style="font-size:.9rem;margin-bottom:.6rem">@title</h3>
+            @if (!rows.Any())
+            {
+                <p class="muted">None yet.</p>
+            }
+            else
+            {
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead><tr><th class="num">#</th><th>Player</th><th>Club</th><th class="num">@countLabel</th></tr></thead>
+                        <tbody>
+                            @for (var i = 0; i < rows.Count; i++)
+                            {
+                                var (player, count) = rows[i];
+                                <tr class="clickable @(player.Contract?.ClubId == Engine.State.MyClubId ? "highlight" : "")" @onclick='() => Nav.NavigateTo($"/player/{player.Id}")'>
+                                    <td class="num">@(i + 1)</td>
+                                    <td><strong>@player.Name</strong></td>
+                                    <td>@(player.Contract?.ClubName ?? "Free Agent")</td>
+                                    <td class="num"><strong>@count</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    };
 }
