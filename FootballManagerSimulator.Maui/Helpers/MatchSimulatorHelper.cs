@@ -805,7 +805,7 @@ public class MatchSimulatorHelper(
         var current = CurrentPressing(fixture, isHome);
         var pressed = PressingLog.MinutesPressedHigh(log, end, current) - PressingLog.MinutesPressedHigh(log, on, current);
 
-        var drain = FitnessRules.Drain(player.Stamina, end - on, pressed, FitnessRules.IsGoalkeeper(player));
+        var drain = FitnessRules.Drain(player.Stamina, end - on, pressed, FitnessRules.RoleDrainMultiplier(player));
         return Math.Clamp(player.Fitness - drain, 0, FitnessRules.Max);
     }
 

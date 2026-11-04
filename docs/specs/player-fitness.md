@@ -16,6 +16,8 @@ Every player has **fitness from 0 to 100** (`PlayerModel.Fitness`). New players 
 - At an average Stamina of 65: **37** lost over 90 minutes (about 46 when pressing high all game).
 - **Goalkeepers** (GK among their listed positions) tire at **a third of the rate**: about 12 over 90 minutes.
   This goes by the player, so a keeper is still treated as a keeper if he's played outfield.
+- **Centre-backs** (CB among their listed positions, and not a keeper) tire **a third slower**:
+  about 25 over 90 minutes. Like keepers, this goes by the player, not the slot he's in.
 - Fitness is charged at full time (`ApplyFitness`). During the match, `FitnessAt(fixture, player, minute)`
   works out the live value, which the match screen shows.
 

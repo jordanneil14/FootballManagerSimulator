@@ -13,8 +13,15 @@ public class FitnessRulesTests
     [Fact]
     public void GoalkeepersTireAtAThirdOfTheRate()
     {
-        Assert.Equal(37.0 / 3, FitnessRules.Drain(FitnessRules.StaminaReference, 90, 0, goalkeeper: true), 6);
-        Assert.Equal(FitnessRules.Drain(45, 90, 90) / 3, FitnessRules.Drain(45, 90, 90, goalkeeper: true), 6);
+        Assert.Equal(37.0 / 3, FitnessRules.Drain(FitnessRules.StaminaReference, 90, 0, FitnessRules.GoalkeeperDrainMultiplier), 6);
+        Assert.Equal(FitnessRules.Drain(45, 90, 90) / 3, FitnessRules.Drain(45, 90, 90, FitnessRules.GoalkeeperDrainMultiplier), 6);
+    }
+
+    [Fact]
+    public void CentreBacksTireAThirdSlower()
+    {
+        Assert.Equal(37.0 * 2 / 3, FitnessRules.Drain(FitnessRules.StaminaReference, 90, 0, FitnessRules.CentreBackDrainMultiplier), 6);
+        Assert.Equal(FitnessRules.Drain(45, 90, 90) * 2 / 3, FitnessRules.Drain(45, 90, 90, FitnessRules.CentreBackDrainMultiplier), 6);
     }
 
     [Theory]
@@ -25,6 +32,18 @@ public class FitnessRulesTests
     public void IsGoalkeeper_GoesByListedPositions(string positions, bool expected)
     {
         Assert.Equal(expected, FitnessRules.IsGoalkeeper(new PlayerModel { PreferredPosition = positions }));
+    }
+
+    [Theory]
+    [InlineData("GK", FitnessRules.GoalkeeperDrainMultiplier)]
+    [InlineData("GK/CB", FitnessRules.GoalkeeperDrainMultiplier)]
+    [InlineData("CB", FitnessRules.CentreBackDrainMultiplier)]
+    [InlineData("RB/CB", FitnessRules.CentreBackDrainMultiplier)]
+    [InlineData("CDM", 1.0)]
+    [InlineData("", 1.0)]
+    public void RoleDrainMultiplier_GoesByListedPositions(string positions, double expected)
+    {
+        Assert.Equal(expected, FitnessRules.RoleDrainMultiplier(new PlayerModel { PreferredPosition = positions }), 6);
     }
 
     [Fact]

@@ -17,6 +17,8 @@ public static class FitnessRules
     public const double HighPressDrainMultiplier = 1.25;
     // Goalkeepers cover far less ground, so they tire at a third of the rate (two-thirds less).
     public const double GoalkeeperDrainMultiplier = 1.0 / 3;
+    // Centre-backs hold their position more than other outfielders, so they tire a third slower.
+    public const double CentreBackDrainMultiplier = 2.0 / 3;
 
     // Daily recovery for a player of reference Stamina, plus this much per Stamina point above it.
     public const double RecoveryPerDay = 8;
@@ -36,17 +38,27 @@ public static class FitnessRules
         Math.Clamp(1 + (StaminaReference - stamina) / StaminaRange, MinDrainFactor, MaxDrainFactor);
 
     // Fitness lost over minutesOnPitch, pressedHighMinutes of which his side spent pressing high.
-    public static double Drain(double stamina, int minutesOnPitch, int pressedHighMinutes, bool goalkeeper = false)
+    // roleMultiplier: see RoleDrainMultiplier.
+    public static double Drain(double stamina, int minutesOnPitch, int pressedHighMinutes, double roleMultiplier = 1)
     {
         var pressed = Math.Clamp(pressedHighMinutes, 0, Math.Max(0, minutesOnPitch));
         var effectiveMinutes = minutesOnPitch + (HighPressDrainMultiplier - 1) * pressed;
-        var role = goalkeeper ? GoalkeeperDrainMultiplier : 1;
-        return Math.Max(0, DrainPerMinute * DrainFactor(stamina) * effectiveMinutes * role);
+        return Math.Max(0, DrainPerMinute * DrainFactor(stamina) * effectiveMinutes * roleMultiplier);
     }
 
-    // A keeper by trade (GK among his listed positions) tires at the goalkeeper rate wherever he plays.
-    public static bool IsGoalkeeper(PlayerModel player) =>
-        player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Contains("GK");
+    // Goes by the player's listed positions, so it applies wherever he plays. A keeper who is also
+    // listed at CB tires at the goalkeeper rate.
+    public static double RoleDrainMultiplier(PlayerModel player) =>
+        IsGoalkeeper(player) ? GoalkeeperDrainMultiplier
+        : IsCentreBack(player) ? CentreBackDrainMultiplier
+        : 1;
+
+    public static bool IsGoalkeeper(PlayerModel player) => ListedPositions(player).Contains("GK");
+
+    public static bool IsCentreBack(PlayerModel player) => ListedPositions(player).Contains("CB");
+
+    private static string[] ListedPositions(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries);
 
     // Fitness regained in a day. Physios speed it up by the same share they cut injury lay-offs.
     public static double Recovery(double stamina, int physioCount = 0) =>

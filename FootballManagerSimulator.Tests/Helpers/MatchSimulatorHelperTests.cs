@@ -1235,10 +1235,10 @@ public class MatchSimulatorHelperTests
 
         var sentOff = fixture.HomeCards.Concat(fixture.AwayCards).Where(c => c.IsRed).Select(c => c.PlayerId).ToHashSet();
         Assert.All(StartersOf(Home).Concat(StartersOf(Away)).Where(p => !sentOff.Contains(p.Id)),
-            p => Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.IsGoalkeeper(p)), p.Fitness, 6));
+            p => Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.RoleDrainMultiplier(p)), p.Fitness, 6));
         // Keepers tire at a third of the rate.
         var keeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
-        var outfielder = StartersOf(Home).First(p => p.PreferredPosition != "GK" && !sentOff.Contains(p.Id));
+        var outfielder = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1 && !sentOff.Contains(p.Id));
         Assert.Equal((FitnessRules.Max - outfielder.Fitness) / 3, FitnessRules.Max - keeper.Fitness, 6);
         Assert.All(bench, p => Assert.Equal(FitnessRules.Max, p.Fitness));
         Assert.True(fixture.FitnessApplied);
@@ -1255,8 +1255,8 @@ public class MatchSimulatorHelperTests
 
         var homeKeeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
         var awayKeeper = StartersOf(Away).First(p => p.PreferredPosition == "GK");
-        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 90, goalkeeper: true), homeKeeper.Fitness, 6);
-        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, goalkeeper: true), awayKeeper.Fitness, 6);
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 90, FitnessRules.GoalkeeperDrainMultiplier), homeKeeper.Fitness, 6);
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.GoalkeeperDrainMultiplier), awayKeeper.Fitness, 6);
     }
 
     [Fact]
@@ -1265,10 +1265,10 @@ public class MatchSimulatorHelperTests
         foreach (var player in _state.Players) player.Stamina = 65;
         var (fixture, _) = NewFixture(CompetitionType.League);
         _simulator.PreGenerateMatch(fixture);
-        var starter = StartersOf(Home).First(p => p.PreferredPosition != "GK");
+        var starter = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1);
         var sub = Home.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null)
             .Select(s => _state.Players.First(p => p.Id == s.PlayerId))
-            .First(p => !FitnessRules.IsGoalkeeper(p));
+            .First(p => FitnessRules.RoleDrainMultiplier(p) == 1);
         fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = 60, OffId = starter.Id, OnId = sub.Id });
         fixture.HomePlayerIds.Add(sub.Id);
 
@@ -1282,7 +1282,7 @@ public class MatchSimulatorHelperTests
     {
         foreach (var player in _state.Players) player.Stamina = 65;
         var (fixture, _) = NewFixture(CompetitionType.League);
-        var tired = StartersOf(Home).First(p => p.PreferredPosition != "GK");
+        var tired = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1);
         tired.Fitness = 70;
         _simulator.PreGenerateMatch(fixture);
 
