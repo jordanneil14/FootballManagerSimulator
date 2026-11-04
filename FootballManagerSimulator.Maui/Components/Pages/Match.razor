@@ -336,6 +336,8 @@ else
     private int _revealedAwayCards;
     private int _revealedHomeInjuries;
     private int _revealedAwayInjuries;
+    private int _revealedHomePenalties;
+    private int _revealedAwayPenalties;
     private int? _selectedSlot;
     private string? _swapError;
     private string? _stoppageReason;
@@ -364,6 +366,8 @@ else
             _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
             _revealedHomeInjuries = _fixture.HomeInjuries.Count(i => i.Minute <= _currentMinute);
             _revealedAwayInjuries = _fixture.AwayInjuries.Count(i => i.Minute <= _currentMinute);
+            _revealedHomePenalties = _fixture.HomePenalties.Count(p => p.Minute <= _currentMinute);
+            _revealedAwayPenalties = _fixture.AwayPenalties.Count(p => p.Minute <= _currentMinute);
 
             _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
             RebuildEventFeed();
@@ -413,16 +417,16 @@ else
 
         var events = new List<(int Minute, MatchEvent Event)>();
 
+        // Penalties go in before goals so that, after the stable sort, an award comes before the goal it led to.
+        foreach (var p in _fixture.HomePenalties.Where(p => p.Minute <= _currentMinute))
+            events.AddRange(PenaltyEvents(p, _fixture.HomeClub, _fixture.AwayClub).Select(e => (e.Minute, e)));
+        foreach (var p in _fixture.AwayPenalties.Where(p => p.Minute <= _currentMinute))
+            events.AddRange(PenaltyEvents(p, _fixture.AwayClub, _fixture.HomeClub).Select(e => (e.Minute, e)));
+
         foreach (var g in _fixture.HomeScorers.Where(g => g.Minute <= _currentMinute))
-        {
-            var player = Engine.GetPlayer(g.PlayerId);
-            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", "event-goal")));
-        }
+            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", GoalText(g, _fixture.HomeClub), "event-goal")));
         foreach (var g in _fixture.AwayScorers.Where(g => g.Minute <= _currentMinute))
-        {
-            var player = Engine.GetPlayer(g.PlayerId);
-            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", "event-goal")));
-        }
+            events.Add((g.Minute, new MatchEvent(g.Minute, "⚽", GoalText(g, _fixture.AwayClub), "event-goal")));
         foreach (var c in _fixture.HomeCards.Where(c => c.Minute <= _currentMinute))
         {
             var player = Engine.GetPlayer(c.PlayerId);
@@ -450,6 +454,26 @@ else
 
         foreach (var e in events.OrderBy(e => e.Minute))
             _eventFeed.Add(e.Event);
+    }
+
+    private string GoalText(GoalModel goal, ClubModel club) =>
+        $"GOAL! {Engine.GetPlayer(goal.PlayerId)?.Name ?? "Unknown"} ({club.Name}){(goal.IsPenalty ? " - penalty" : "")}";
+
+    // The award, then how it was missed; a scored penalty's second line is its goal.
+    private IEnumerable<MatchEvent> PenaltyEvents(PenaltyModel penalty, ClubModel side, ClubModel defending)
+    {
+        yield return new MatchEvent(penalty.Minute, "🎯", $"Penalty - {side.Name}", "event-penalty");
+
+        var taker = Engine.GetPlayer(penalty.TakerId)?.Name ?? "Unknown";
+        if (penalty.Outcome == PenaltyOutcome.Saved)
+        {
+            var keeper = penalty.KeeperId is { } keeperId ? Engine.GetPlayer(keeperId)?.Name : null;
+            yield return new MatchEvent(penalty.Minute, "🧤", $"Penalty saved - {keeper ?? "Unknown"} ({defending.Name}) saves from {taker} ({side.Name})", "event-penalty-miss");
+        }
+        else if (penalty.Outcome == PenaltyOutcome.Missed)
+        {
+            yield return new MatchEvent(penalty.Minute, "❌", $"Penalty missed - {taker} ({side.Name})", "event-penalty-miss");
+        }
     }
 
     // The timer ticks on a background thread, so a tick and a skip must not run at once.
@@ -504,6 +528,7 @@ else
                 .Concat(_fixture.HomeCards.Where(c => c.IsRed).Select(c => c.Minute))
                 .Concat(_fixture.AwayCards.Where(c => c.IsRed).Select(c => c.Minute))
                 .Concat(myInjuries.Select(i => i.Minute))
+                .Concat(_fixture.HomePenalties.Concat(_fixture.AwayPenalties).Select(p => p.Minute))
                 .Where(m => m > _currentMinute && m <= stoppage)
                 .Order()
                 .FirstOrDefault();
@@ -536,6 +561,19 @@ else
     {
         if (_fixture == null) return;
 
+        // Before the goals, so a penalty's award line comes before the goal it led to.
+        foreach (var penalty in _fixture.HomePenalties.Where(p => p.Minute <= _currentMinute).OrderBy(p => p.Minute).Skip(_revealedHomePenalties).ToList())
+        {
+            _eventFeed.AddRange(PenaltyEvents(penalty, _fixture.HomeClub, _fixture.AwayClub));
+            _revealedHomePenalties++;
+        }
+
+        foreach (var penalty in _fixture.AwayPenalties.Where(p => p.Minute <= _currentMinute).OrderBy(p => p.Minute).Skip(_revealedAwayPenalties).ToList())
+        {
+            _eventFeed.AddRange(PenaltyEvents(penalty, _fixture.AwayClub, _fixture.HomeClub));
+            _revealedAwayPenalties++;
+        }
+
         var homeGoalsToReveal = _fixture.HomeScorers
             .Where(g => g.Minute <= _currentMinute)
             .OrderBy(g => g.Minute)
@@ -544,8 +582,7 @@ else
 
         foreach (var goal in homeGoalsToReveal)
         {
-            var player = Engine.GetPlayer(goal.PlayerId);
-            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.HomeClub.Name})", "event-goal"));
+            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", GoalText(goal, _fixture.HomeClub), "event-goal"));
             _revealedHomeGoals++;
         }
 
@@ -557,8 +594,7 @@ else
 
         foreach (var goal in awayGoalsToReveal)
         {
-            var player = Engine.GetPlayer(goal.PlayerId);
-            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", $"GOAL! {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name})", "event-goal"));
+            _eventFeed.Add(new MatchEvent(goal.Minute, "⚽", GoalText(goal, _fixture.AwayClub), "event-goal"));
             _revealedAwayGoals++;
         }
 
@@ -866,6 +902,8 @@ else
         _revealedAwayGoals = _fixture.AwayScorers.Count(g => g.Minute <= _currentMinute);
         _revealedHomeCards = _fixture.HomeCards.Count(c => c.Minute <= _currentMinute);
         _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
+        _revealedHomePenalties = _fixture.HomePenalties.Count(p => p.Minute <= _currentMinute);
+        _revealedAwayPenalties = _fixture.AwayPenalties.Count(p => p.Minute <= _currentMinute);
 
         _eventFeed.RemoveAll(e => e.Minute > _currentMinute);
     }

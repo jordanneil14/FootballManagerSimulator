@@ -364,6 +364,8 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .event-yellow { background: rgba(255,235,59,.1); }
 .event-red { background: rgba(244,67,54,.1); }
 .event-injury { background: rgba(230,126,34,.12); }
+.event-penalty { background: rgba(226,178,58,.14); }
+.event-penalty-miss { background: rgba(255,255,255,.04); color: var(--text-dim); }
 .row-injured td { background: rgba(244,67,54,.15); color: var(--danger, #e53935); }
 
 /* minmax(0, 1fr) keeps both sides half the width; a long name wraps onto the next line instead of widening its side.

@@ -65,7 +65,7 @@
                     builder.OpenElement(seq++, "span");
                     builder.AddAttribute(seq++, "class", "scorer");
                     builder.AddContent(seq++, ShowMinutes
-                        ? "⚽ " + string.Join(", ", goalList.Select(s => $"{s.Minute}'"))
+                        ? "⚽ " + string.Join(", ", goalList.Select(s => $"{s.Minute}'{(s.IsPenalty ? " (pen)" : "")}"))
                         : string.Join(" ", goalList.Select(_ => "⚽")));
                     builder.CloseElement();
                 }

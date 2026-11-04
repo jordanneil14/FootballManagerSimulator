@@ -942,6 +942,210 @@ public class MatchSimulatorHelperTests
         Assert.All(StarterIds(Away), id => Assert.NotNull(id));
     }
 
+    // ----- Penalties during play -------------------------------------------------------------
+
+    private static PlayerModel Taker(int id, int penalties = 75, int composure = 75, int finishing = 75) =>
+        new() { Id = id, Name = $"Taker {id}", Penalties = penalties, Composure = composure, Finishing = finishing };
+
+    private static PlayerModel Keeper(int diving, int reflexes) =>
+        new() { Id = 999, Name = "Keeper", GKDiving = diving, GKReflexes = reflexes };
+
+    private static List<(TacticSlotModel Slot, PlayerModel Player)> OnPitch(params (TacticSlotType Type, PlayerModel Player)[] players) =>
+        players.Select(p => (new TacticSlotModel { TacticSlotType = p.Type, PlayerId = p.Player.Id }, p.Player)).ToList();
+
+    private List<PlayerModel> SquadOf(ClubModel club) => _state.Players.Where(p => p.Contract?.ClubId == club.Id).ToList();
+
+    [Fact]
+    public void PickPenaltyTaker_TakesTheFirstListedPlayerWhoIsOnThePitch()
+    {
+        var (benched, second, third) = (Taker(1), Taker(2), Taker(3));
+        var club = new ClubModel { PenaltyTakerIds = [benched.Id, second.Id, third.Id] };
+
+        var taker = MatchSimulatorHelper.PickPenaltyTaker(club, OnPitch((TacticSlotType.ST, third), (TacticSlotType.CM, second)));
+
+        Assert.Same(second, taker);
+    }
+
+    [Fact]
+    public void PickPenaltyTaker_WithNobodyListedOnThePitchTakesTheBestOutfieldPenaltyTaker()
+    {
+        var keeper = Taker(1, penalties: 95);
+        var best = Taker(2, penalties: 80);
+        var club = new ClubModel { PenaltyTakerIds = [50] };
+
+        var taker = MatchSimulatorHelper.PickPenaltyTaker(club,
+            OnPitch((TacticSlotType.GK, keeper), (TacticSlotType.CM, Taker(3, penalties: 60)), (TacticSlotType.ST, best)));
+
+        Assert.Same(best, taker);
+        Assert.Same(best, MatchSimulatorHelper.PickPenaltyTaker(new ClubModel(),
+            OnPitch((TacticSlotType.GK, keeper), (TacticSlotType.ST, best))));
+    }
+
+    [Fact]
+    public void PrepareClub_GivesAnAIClubItsThreeBestPenaltyTakersFromTheStartingEleven()
+    {
+        foreach (var (player, i) in SquadOf(Away).Select((p, i) => (p, i)))
+            player.Penalties = 40 + i * 3;
+        Away.PenaltyTakerIds = [];
+
+        _simulator.PrepareClub(Away.Id);
+
+        var expected = Away.TacticSlots
+            .Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES or TacticSlotType.GK))
+            .Select(s => _state.Players.First(p => p.Id == s.PlayerId))
+            .OrderByDescending(p => p.Penalties)
+            .Take(MatchSimulatorHelper.AIPenaltyTakers)
+            .Select(p => p.Id);
+        Assert.Equal(expected, Away.PenaltyTakerIds);
+    }
+
+    [Fact]
+    public void PrepareClub_LeavesMyPenaltyTakersAlone()
+    {
+        _state.MyClubId = Home.Id;
+        var mine = SquadOf(Home).Last().Id;
+        Home.PenaltyTakerIds = [mine];
+
+        _simulator.PrepareClub(Home.Id);
+
+        Assert.Equal([mine], Home.PenaltyTakerIds);
+    }
+
+    [Fact]
+    public void ScoringChance_IsTheTargetRateForAnAverageTakerAndKeeper()
+    {
+        var averageTaker = Taker(1, (int)MatchSimulatorHelper.TakerReference, (int)MatchSimulatorHelper.TakerReference, (int)MatchSimulatorHelper.TakerReference);
+        var averageKeeper = Keeper(72, 73);
+        var expected = MatchSimulatorHelper.PenaltyConversionRate
+            + MatchSimulatorHelper.TakerWeight * (MatchSimulatorHelper.TakerScore(averageTaker) - MatchSimulatorHelper.TakerReference)
+            - MatchSimulatorHelper.KeeperWeight * (MatchSimulatorHelper.KeeperScore(averageKeeper) - MatchSimulatorHelper.KeeperReference);
+
+        Assert.Equal(expected, MatchSimulatorHelper.ScoringChance(averageTaker, averageKeeper), 6);
+        Assert.InRange(MatchSimulatorHelper.ScoringChance(averageTaker, averageKeeper), 0.77, 0.79);
+        Assert.InRange(MatchSimulatorHelper.ScoringChance(averageTaker, null), 0.77, 0.79);
+    }
+
+    [Fact]
+    public void ScoringChance_RisesWithTheTakersStatsAndFallsWithTheKeepers()
+    {
+        var keeper = Keeper(72, 73);
+
+        Assert.True(MatchSimulatorHelper.ScoringChance(Taker(1, penalties: 90), keeper) > MatchSimulatorHelper.ScoringChance(Taker(1), keeper));
+        Assert.True(MatchSimulatorHelper.ScoringChance(Taker(1, composure: 90), keeper) > MatchSimulatorHelper.ScoringChance(Taker(1), keeper));
+        Assert.True(MatchSimulatorHelper.ScoringChance(Taker(1, finishing: 90), keeper) > MatchSimulatorHelper.ScoringChance(Taker(1), keeper));
+        Assert.True(MatchSimulatorHelper.ScoringChance(Taker(1), Keeper(90, 72)) < MatchSimulatorHelper.ScoringChance(Taker(1), keeper));
+        Assert.True(MatchSimulatorHelper.ScoringChance(Taker(1), Keeper(72, 90)) < MatchSimulatorHelper.ScoringChance(Taker(1), keeper));
+    }
+
+    [Fact]
+    public void ScoringChance_StaysWithinItsLimits()
+    {
+        Assert.Equal(MatchSimulatorHelper.MaxScoringChance, MatchSimulatorHelper.ScoringChance(Taker(1, 99, 99, 99), Keeper(1, 1)));
+        Assert.Equal(MatchSimulatorHelper.MinScoringChance, MatchSimulatorHelper.ScoringChance(Taker(1, 1, 1, 1), Keeper(99, 99)));
+    }
+
+    [Fact]
+    public void PenaltyChanceForMinutes_GivesTheTargetMatchRateOverTwoHalvesAndScalesForPartHalves()
+    {
+        var perHalf = MatchSimulatorHelper.PenaltyChanceForMinutes(45);
+        var noPenalty = Math.Pow(1 - perHalf, 2);
+
+        Assert.Equal(MatchSimulatorHelper.PenaltyMatchRate, 1 - noPenalty, 6);
+        Assert.Equal(0, MatchSimulatorHelper.PenaltyChanceForMinutes(0));
+        Assert.Equal(0, MatchSimulatorHelper.PenaltyChanceForMinutes(-5));
+        // Rolling the first 15 minutes and the last 30 separately is the same as rolling the half once.
+        var split = 1 - (1 - MatchSimulatorHelper.PenaltyChanceForMinutes(15)) * (1 - MatchSimulatorHelper.PenaltyChanceForMinutes(30));
+        Assert.Equal(perHalf, split, 6);
+    }
+
+    [Fact]
+    public void OpenPlayGoalChance_LeavesRoomForTheGoalsPenaltiesScore()
+    {
+        var penaltyGoals = 2 * MatchSimulatorHelper.PenaltyChancePerHalf * MatchSimulatorHelper.PenaltyConversionRate;
+        var openPlayGoals = MatchSimulatorHelper.BaseGoalsPerMatch * MatchSimulatorHelper.OpenPlayGoalChance / MatchSimulatorHelper.BaseGoalChance;
+
+        Assert.Equal(MatchSimulatorHelper.BaseGoalsPerMatch, openPlayGoals + penaltyGoals, 6);
+    }
+
+    [Fact]
+    public void BaseGoalsPerMatch_MatchesTheGoalLoopStepSizes()
+    {
+        // Expected landings of a walk with steps of 1..maxStep minutes in a 45-minute half.
+        static double Landings(int maxStep)
+        {
+            var expected = new double[46];
+            for (var d = 1; d <= 45; d++)
+                expected[d] = Enumerable.Range(1, Math.Min(maxStep, d)).Sum(s => 1 + expected[d - s]) / maxStep;
+            return expected[45];
+        }
+
+        var goals = (Landings(MatchSimulatorHelper.FirstHalfMaxStep) + Landings(MatchSimulatorHelper.LaterMaxStep)) * MatchSimulatorHelper.BaseGoalChance;
+
+        Assert.Equal(MatchSimulatorHelper.BaseGoalsPerMatch, goals, 0.0001);
+    }
+
+    [Fact]
+    public void ConcludeFixture_PenaltiesHitTheirTargetsWithoutChangingGoalsPerMatch()
+    {
+        // Every taker and keeper at the reference values, so penalties go in at the target rate.
+        foreach (var player in _state.Players)
+        {
+            (player.Penalties, player.Composure, player.Finishing) = (75, 75, 75);
+            (player.GKDiving, player.GKReflexes) = (72, 73);
+        }
+
+        const int matches = 20_000;
+        int goals = 0, matchesWithPenalty = 0, penalties = 0, scored = 0;
+
+        for (var i = 0; i < matches; i++)
+        {
+            var (fixture, competition) = NewFixture(CompetitionType.League);
+            _simulator.ConcludeFixture(fixture, competition);
+
+            goals += fixture.GoalsHome!.Value + fixture.GoalsAway!.Value;
+            var all = fixture.HomePenalties.Select(p => (p, Home: true)).Concat(fixture.AwayPenalties.Select(p => (p, Home: false))).ToList();
+            if (all.Count > 0) matchesWithPenalty++;
+            penalties += all.Count;
+
+            foreach (var (penalty, home) in all)
+            {
+                Assert.InRange(penalty.Minute, 1, 90);
+                var side = home ? Home : Away;
+                Assert.Contains((int?)penalty.TakerId, StarterIds(side));
+                var sentOff = (home ? fixture.HomeCards : fixture.AwayCards).Where(c => c.IsRed && c.Minute < penalty.Minute).Select(c => c.PlayerId);
+                Assert.DoesNotContain(penalty.TakerId, sentOff);
+
+                var penaltyGoal = (home ? fixture.HomeScorers : fixture.AwayScorers)
+                    .Any(g => g.IsPenalty && g.Minute == penalty.Minute && g.PlayerId == penalty.TakerId);
+                Assert.Equal(penalty.Outcome == PenaltyOutcome.Scored, penaltyGoal);
+                if (penalty.Outcome == PenaltyOutcome.Scored) scored++;
+            }
+        }
+
+        var goalsPerMatch = goals / (double)matches;
+        Assert.InRange(goalsPerMatch, MatchSimulatorHelper.BaseGoalsPerMatch - 0.05, MatchSimulatorHelper.BaseGoalsPerMatch + 0.05);
+        Assert.InRange(matchesWithPenalty / (double)matches, 0.21, 0.24);
+        Assert.InRange(scored / (double)penalties, 0.75, 0.81);
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_KeepsEarlierPenaltiesAndClearsLaterOnes()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        var taker = StarterIds(Home).First(id => id != null)!.Value;
+        var early = new PenaltyModel { Minute = 10, TakerId = taker, Outcome = PenaltyOutcome.Scored };
+        var late = new PenaltyModel { Minute = 70, TakerId = taker, Outcome = PenaltyOutcome.Saved };
+        fixture.HomePenalties.AddRange([early, late]);
+        fixture.HomeScorers.Add(new GoalModel { Minute = 10, PlayerId = taker, IsPenalty = true });
+
+        _simulator.ReGenerateFromMinute(fixture, 50);
+
+        Assert.Contains(early, fixture.HomePenalties);
+        Assert.DoesNotContain(late, fixture.HomePenalties);
+        Assert.Contains(fixture.HomeScorers, g => g.IsPenalty && g.Minute == 10);
+        Assert.All(fixture.HomePenalties.Concat(fixture.AwayPenalties).Where(p => p != early), p => Assert.InRange(p.Minute, 51, 90));
+    }
+
     [Fact]
     public void PositionScoringWeight_FavoursStrikersAndBarelyCountsTheKeeper()
     {

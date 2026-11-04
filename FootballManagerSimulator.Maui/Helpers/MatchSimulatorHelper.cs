@@ -62,15 +62,7 @@ public class MatchSimulatorHelper(
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
         // Goals after minute 120 would be read as shootout goals, so stop at the end of extra time.
-        while (fixture.Minute <= 120)
-        {
-            fixture.Minute += RandomNumberHelper.Next(1, 10);
-            if (fixture.Minute > 120) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-
-            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
-        }
-
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 90, 120, LaterMaxStep, BaseGoalChance, countGoals: true);
         fixture.Minute = 120;
 
         var etCompetition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
@@ -105,17 +97,149 @@ public class MatchSimulatorHelper(
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
         SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-
-        while (fixture.Minute <= 45)
-        {
-            fixture.Minute += RandomNumberHelper.Next(1, 11);
-            if (fixture.Minute > 45) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-
-            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
-        }
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: true);
+        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, countGoals: true);
 
         fixture.Minute = 45;
+    }
+
+    // Steps through the minutes after fromMinute up to toMinute, with a chance of a goal at each step.
+    private void SimulateGoals(FixtureModel fixture,
+        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
+        int fromMinute, int toMinute, int maxStep, double goalChance, bool countGoals)
+    {
+        var minute = fromMinute;
+        while (true)
+        {
+            minute += RandomNumberHelper.Next(1, maxStep + 1);
+            if (minute > toMinute) return;
+            if (RandomNumberHelper.NextDouble() >= goalChance) continue;
+
+            var scoredByHome = AddGoal(fixture, minute, homeSlots, awaySlots);
+            if (countGoals)
+                CountGoal(fixture, scoredByHome);
+        }
+    }
+
+    // ----- Penalties during play ----------------------------------------------------------
+
+    internal const double PenaltyMatchRate = 0.225;
+    internal const double PenaltyConversionRate = 0.78;
+
+    // Rolled once a half, so PenaltyMatchRate of matches have at least one penalty.
+    internal static readonly double PenaltyChancePerHalf = 1 - Math.Sqrt(1 - PenaltyMatchRate);
+
+    // A part of a half (a lineup change regenerates the rest of it) gets its share of the half's chance.
+    internal static double PenaltyChanceForMinutes(int minutes) =>
+        minutes <= 0 ? 0 : 1 - Math.Pow(1 - PenaltyChancePerHalf, minutes / 45.0);
+
+    // Goals come at steps of 1-10 minutes in the first half and 1-9 after it, with a chance of one at each step.
+    internal const int FirstHalfMaxStep = 10;
+    internal const int LaterMaxStep = 9;
+    internal const double BaseGoalChance = 1.0 / 7;
+
+    // Goals in 90 minutes at BaseGoalChance: 16.64 steps a match (exact, from the step sizes), divided by 7.
+    internal const double BaseGoalsPerMatch = 2.3775;
+
+    // Open play gives up the goals penalties now score, so goals per match stay where they were.
+    // Extra time has no penalties, so it keeps BaseGoalChance.
+    internal static readonly double OpenPlayGoalChance =
+        BaseGoalChance * (1 - 2 * PenaltyChancePerHalf * PenaltyConversionRate / BaseGoalsPerMatch);
+
+    // The average taker and keeper scores across the game's clubs (see PenaltySimulationTests.Calibration),
+    // so an average penalty is scored PenaltyConversionRate of the time.
+    internal const double TakerReference = 75.0;
+    internal const double KeeperReference = 72.4;
+    internal const double TakerWeight = 0.004;
+    internal const double KeeperWeight = 0.003;
+    internal const double MinScoringChance = 0.55;
+    internal const double MaxScoringChance = 0.95;
+
+    // Of the penalties not scored, the share the keeper saves; the rest miss the target.
+    internal const double SavedShare = 0.75;
+
+    internal const int AIPenaltyTakers = 3;
+
+    internal static double TakerScore(PlayerModel taker) =>
+        0.6 * taker.Penalties + 0.25 * taker.Composure + 0.15 * taker.Finishing;
+
+    internal static double KeeperScore(PlayerModel keeper) => (keeper.GKDiving + keeper.GKReflexes) / 2.0;
+
+    // With no keeper on the pitch the penalty is scored at the rate for an average keeper.
+    internal static double ScoringChance(PlayerModel taker, PlayerModel? keeper) =>
+        Math.Clamp(PenaltyConversionRate
+            + TakerWeight * (TakerScore(taker) - TakerReference)
+            - KeeperWeight * ((keeper == null ? KeeperReference : KeeperScore(keeper)) - KeeperReference),
+            MinScoringChance, MaxScoringChance);
+
+    internal static double SaveShare(PlayerModel keeper) =>
+        Math.Clamp(SavedShare + 0.005 * (KeeperScore(keeper) - KeeperReference), 0.5, 0.95);
+
+    // The first player on the club's list who is on the pitch; failing that, the outfield player with the best Penalties.
+    internal static PlayerModel? PickPenaltyTaker(ClubModel club, IReadOnlyList<(TacticSlotModel Slot, PlayerModel Player)> onPitch)
+    {
+        foreach (var id in club.PenaltyTakerIds)
+        {
+            if (onPitch.FirstOrDefault(p => p.Player.Id == id) is { Player: { } listed })
+                return listed;
+        }
+
+        return onPitch
+            .OrderBy(p => p.Slot.TacticSlotType == TacticSlotType.GK)
+            .ThenByDescending(p => p.Player.Penalties)
+            .Select(p => p.Player)
+            .FirstOrDefault();
+    }
+
+    private List<(TacticSlotModel Slot, PlayerModel Player)> OnPitchAt(FixtureModel fixture, bool isHome, int minute, IEnumerable<TacticSlotModel> slots)
+    {
+        var missing = GetMissingPlayerIds(fixture, isHome, minute);
+        return slots
+            .Where(s => s.PlayerId is { } id && !missing.Contains(id))
+            .Select(s => (Slot: s, Player: PlayerHelper.GetPlayerById(s.PlayerId!.Value)))
+            .Where(p => p.Player != null)
+            .Select(p => (p.Slot, p.Player!))
+            .ToList();
+    }
+
+    // At most one penalty between fromMinute and toMinute, awarded to either side by the same weighting as goals.
+    private void AwardPenalties(FixtureModel fixture,
+        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
+        int fromMinute, int toMinute, bool countGoals)
+    {
+        if (RandomNumberHelper.NextDouble() >= PenaltyChanceForMinutes(toMinute - fromMinute))
+            return;
+
+        var minute = RandomNumberHelper.Next(fromMinute + 1, toMinute + 1);
+        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
+        var isHome = HomeWinsChance(homeRating, awayRating);
+
+        var club = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
+        var taker = PickPenaltyTaker(club, OnPitchAt(fixture, isHome, minute, isHome ? homeSlots : awaySlots));
+        if (taker == null)
+            return;
+
+        var keeper = OnPitchAt(fixture, !isHome, minute, isHome ? awaySlots : homeSlots)
+            .FirstOrDefault(p => p.Slot.TacticSlotType == TacticSlotType.GK).Player;
+
+        var outcome = RandomNumberHelper.NextDouble() < ScoringChance(taker, keeper) ? PenaltyOutcome.Scored
+            : keeper != null && RandomNumberHelper.NextDouble() < SaveShare(keeper) ? PenaltyOutcome.Saved
+            : PenaltyOutcome.Missed;
+
+        (isHome ? fixture.HomePenalties : fixture.AwayPenalties).Add(new PenaltyModel
+        {
+            Minute = minute,
+            TakerId = taker.Id,
+            KeeperId = keeper?.Id,
+            Outcome = outcome
+        });
+
+        if (outcome != PenaltyOutcome.Scored)
+            return;
+
+        (isHome ? fixture.HomeScorers : fixture.AwayScorers).Add(new GoalModel { Minute = minute, PlayerId = taker.Id, IsPenalty = true });
+        if (countGoals)
+            CountGoal(fixture, isHome);
     }
 
     private int GetGoalScorer(IEnumerable<TacticSlotModel> tacticSlots)
@@ -166,15 +290,8 @@ public class MatchSimulatorHelper(
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
         SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-
-        while (fixture.Minute <= 90)
-        {
-            fixture.Minute += RandomNumberHelper.Next(1, 10);
-            if (fixture.Minute > 90) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-
-            CountGoal(fixture, AddGoal(fixture, fixture.Minute, homeClubTacticSlots, awayClubTacticSlots));
-        }
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: true);
+        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, countGoals: true);
 
         fixture.Minute = 90;
 
@@ -524,44 +641,23 @@ public class MatchSimulatorHelper(
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
         SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-
-        var minute = 0;
-        while (minute <= 45)
-        {
-            minute += RandomNumberHelper.Next(1, 11);
-            if (minute > 45) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
-        }
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
+        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, countGoals: false);
 
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
         SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-
-        minute = 45;
-        while (minute <= 90)
-        {
-            minute += RandomNumberHelper.Next(1, 10);
-            if (minute > 90) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
-        }
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
+        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, countGoals: false);
     }
 
     public void GenerateExtraTimeEvents(FixtureModel fixture) => GenerateExtraTimeEventsFrom(fixture, 90);
 
     private void GenerateExtraTimeEventsFrom(FixtureModel fixture, int fromMinute)
     {
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
-        var minute = fromMinute;
-        while (minute <= 120)
-        {
-            minute += RandomNumberHelper.Next(1, 10);
-            if (minute > 120) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
-        }
+        SimulateGoals(fixture,
+            ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id),
+            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id),
+            fromMinute, 120, LaterMaxStep, BaseGoalChance, countGoals: false);
     }
 
     public void GeneratePenaltyEvents(FixtureModel fixture)
@@ -694,7 +790,7 @@ public class MatchSimulatorHelper(
         // Extra time and penalties are pre-generated when the match reaches them, so a lineup
         // change after that point must regenerate them too.
         var inExtraTime = !fixture.Concluded && fromMinute >= 90 && fromMinute < 120;
-        var hadPenalty = fixture.HomeScorers.Concat(fixture.AwayScorers).Any(g => g.Minute > 120);
+        var hadShootout = fixture.HomeScorers.Concat(fixture.AwayScorers).Any(g => g.Minute > 120);
 
         fixture.HomeScorers.RemoveAll(g => g.Minute > fromMinute);
         fixture.AwayScorers.RemoveAll(g => g.Minute > fromMinute);
@@ -702,6 +798,8 @@ public class MatchSimulatorHelper(
         fixture.AwayCards.RemoveAll(c => c.Minute > fromMinute);
         fixture.HomeInjuries.RemoveAll(i => i.Minute > fromMinute);
         fixture.AwayInjuries.RemoveAll(i => i.Minute > fromMinute);
+        fixture.HomePenalties.RemoveAll(p => p.Minute > fromMinute);
+        fixture.AwayPenalties.RemoveAll(p => p.Minute > fromMinute);
 
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
@@ -710,32 +808,20 @@ public class MatchSimulatorHelper(
         {
             SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
             SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
-            var minute = fromMinute;
-            while (minute <= 45)
-            {
-                minute += RandomNumberHelper.Next(1, 11);
-                if (minute > 45) break;
-                if (RandomNumberHelper.Next(1, 8) != 3) continue;
-                AddGoal(fixture, minute, homeClubTacticSlots, awayClubTacticSlots);
-            }
+            SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
+            AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute, 45, countGoals: false);
         }
 
         var secondHalfStart = Math.Max(fromMinute, 45);
         SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
         SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
-        var minute2 = secondHalfStart;
-        while (minute2 <= 90)
-        {
-            minute2 += RandomNumberHelper.Next(1, 10);
-            if (minute2 > 90) break;
-            if (RandomNumberHelper.Next(1, 8) != 3) continue;
-            AddGoal(fixture, minute2, homeClubTacticSlots, awayClubTacticSlots);
-        }
+        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
+        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart, 90, countGoals: false);
 
         if (inExtraTime)
             GenerateExtraTimeEventsFrom(fixture, fromMinute);
 
-        if (hadPenalty && fromMinute <= 120)
+        if (hadShootout && fromMinute <= 120)
             GeneratePenaltyEvents(fixture);
     }
 
@@ -750,7 +836,17 @@ public class MatchSimulatorHelper(
         if (clubId == State.MyClubId)
             return;
 
-        TacticHelper.ResetTacticForClub(ClubHelper.GetClubById(clubId));
+        var club = ClubHelper.GetClubById(clubId);
+        TacticHelper.ResetTacticForClub(club);
         TacticHelper.FillEmptyTacticSlotsByClubId(clubId);
+
+        club.PenaltyTakerIds = ClubHelper.GetStartingElevenByClub(clubId)
+            .Where(s => s.TacticSlotType != TacticSlotType.GK && s.PlayerId != null)
+            .Select(s => PlayerHelper.GetPlayerById(s.PlayerId!.Value))
+            .OfType<PlayerModel>()
+            .OrderByDescending(p => p.Penalties)
+            .Take(AIPenaltyTakers)
+            .Select(p => p.Id)
+            .ToList();
     }
 }
