@@ -68,12 +68,28 @@ public class ClubHelperTests
     {
         var club = _state.Clubs[0];
         var starters = club.TacticSlots.Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES)).ToList();
-        starters[0].PlayerId = 1;
-        starters[1].PlayerId = 2;
-        club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.SUB).PlayerId = 3;
+        starters[0].PlayerId = 1; // GK in the GK slot
+        starters[1].PlayerId = 3; // RB in the RB slot
+        club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.SUB).PlayerId = 2;
 
-        var expected = _state.Players.First(p => p.Id == 1).Rating + _state.Players.First(p => p.Id == 2).Rating;
+        var expected = _state.Players.First(p => p.Id == 1).Rating + _state.Players.First(p => p.Id == 3).Rating;
         Assert.Equal(expected, _helper.GetStartingElevenSumRatingForClub(1));
+    }
+
+    [Fact]
+    public void GetStartingElevenSumRatingForClub_CountsOutOfPositionPlayersForLess()
+    {
+        var club = _state.Clubs[0];
+        foreach (var slot in club.TacticSlots) slot.PlayerId = null;
+        var rbSlot = club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.RB);
+        var striker = _state.Players.First(p => p.Id == 13);
+        Assert.Equal("ST", striker.PreferredPosition);
+
+        rbSlot.PlayerId = striker.Id;
+
+        var expected = (int)Math.Round(striker.Rating * PositionFamiliarityRules.UnfamiliarMultiplier, MidpointRounding.AwayFromZero);
+        Assert.Equal(expected, _helper.GetStartingElevenSumRatingForClub(1));
+        Assert.True(expected < striker.Rating);
     }
 }
 

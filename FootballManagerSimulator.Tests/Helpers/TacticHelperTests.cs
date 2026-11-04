@@ -113,17 +113,61 @@ public class TacticHelperTests
     }
 
     [Fact]
-    public void FillEmptyTacticSlots_FallsBackFromWingerToWideMidfielder()
+    public void FillEmptyTacticSlots_FallsBackFromWingerToAnAdjacentRole()
     {
         Club.Formation = "4-2-3-1";
-        // Remove the natural right winger so RW must be filled from a RM.
+        // Remove the natural right winger so RW must be filled by a neighbouring role (RM or a spare ST).
         _state.Players.RemoveAll(p => p.PreferredPosition == "RW");
         _helper.ResetTacticForClub(Club);
 
         _helper.FillEmptyTacticSlotsByClubId(Club.Id);
 
         var rw = Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.RW);
-        Assert.Equal("RM", _state.Players.First(p => p.Id == rw.PlayerId).PreferredPosition);
+        var picked = _state.Players.First(p => p.Id == rw.PlayerId);
+        Assert.Equal(PositionFamiliarity.Adjacent, PositionFamiliarityRules.GetFamiliarity(picked, TacticSlotType.RW));
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_PrefersANaturalPlayerOverABetterOneOutOfPosition()
+    {
+        // 4-4-2 has one RB slot. A 70 natural RB (70) should beat an 80 CM, who'd be unfamiliar there (56),
+        // and the CM should still make the XI in midfield.
+        var rb = _state.Players.First(p => p.PreferredPosition == "RB");
+        rb.Rating = 70;
+        var star = TestData.Player(500, Club.Id, "CM", rating: 80);
+        _state.Players.Add(star);
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        Assert.Equal(rb.Id, Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.RB).PlayerId);
+        Assert.Contains(Club.TacticSlots, s => s.TacticSlotType == TacticSlotType.CM && s.PlayerId == star.Id);
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_UsesTheBestFitWhenNoNaturalPlayerIsFree()
+    {
+        // With no RB, the CB (related, ×0.85) should cover rather than a far-off striker.
+        _state.Players.RemoveAll(p => p.PreferredPosition == "RB");
+        _state.Players.Add(TestData.Player(500, Club.Id, "ST", rating: 70));
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        var rb = Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.RB);
+        var picked = _state.Players.First(p => p.Id == rb.PlayerId);
+        Assert.Equal(PositionFamiliarity.Related, PositionFamiliarityRules.GetFamiliarity(picked, TacticSlotType.RB));
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_PutsAnOutfielderInGoalWhenNoKeeperIsFree()
+    {
+        _state.Players.RemoveAll(p => p.PreferredPosition == "GK");
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        Assert.NotNull(Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.GK).PlayerId);
     }
 
     [Fact]

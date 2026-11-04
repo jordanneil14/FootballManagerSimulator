@@ -317,6 +317,13 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .rating-badge.elite { background: rgba(21,196,126,.22); color: var(--accent); }
 .rating-badge.good { background: rgba(226,178,58,.18); color: var(--gold); }
 
+/* A starter picked out of position: the further from his own role, the hotter the colour. */
+.fam { font-weight: 700; cursor: help; }
+.fam-adjacent { color: #f2d544; }   /* yellow: neighbouring role, ×0.95 */
+.fam-related { color: #f5a524; }    /* amber: same line or flank, ×0.85 */
+.fam-unfamiliar { color: #f2762e; } /* orange: anywhere else outfield, ×0.70 */
+.fam-gkswap { color: var(--danger); } /* red: keeper outfield or outfielder in goal, ×0.40 */
+
 .zone-promo td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
 .zone-playoff td:first-child { box-shadow: inset 3px 0 0 #7fb2ff; }
 .zone-releg td:first-child { box-shadow: inset 3px 0 0 var(--danger); }

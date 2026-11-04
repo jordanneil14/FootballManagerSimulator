@@ -705,81 +705,58 @@ public class TacticHelper(
     private PlayerModel? FindPlayer(Squad squad, int playerId) =>
         squad.PlayersById.TryGetValue(playerId, out var player) ? player : PlayerHelper.GetPlayerById(playerId);
 
+    // Fills the empty starting slots from the reserves. Each step makes the single best remaining
+    // pick: the reserve and slot with the highest effective rating (rating after any out-of-position
+    // cut), so a natural full-back beats a much better centre-midfielder at right-back. A keeper is
+    // never put outfield (he's kept for the bench); an outfielder only goes in goal if no keeper is free.
     private void FillEmptyFirstElevenTacticSlots(Squad squad)
     {
         var unavailableIds = squad.UnavailableIds;
         var club = squad.Club;
-        var players = squad.Players.Where(p => !unavailableIds.Contains(p.Id)).ToList();
 
-        // Move players from the reserves into the starting 11
-        var tacticSlots = club
-            .TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
+        var emptySlots = club.TacticSlots
+            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null)
+            .ToList();
 
-        foreach (var slot in tacticSlots)
+        var candidates = new List<ReserveCandidate>();
+        foreach (var slot in club.TacticSlots.Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value)))
         {
-            var position = ResolvePosition(slot.TacticSlotType);
-
-            var preferredPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(position.ToString())).ToList();
-
-            var fallbackPosition = GetFallbackPosition(position);
-            var secondaryPlayers = players.Where(p => p.PreferredPosition.Split("/").Contains(fallbackPosition.ToString()));
-            preferredPlayers.AddRange(secondaryPlayers);
-            if (!preferredPlayers.Any()) continue;
-
-            var reserves = club
-                .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value));
-
-            var selectedPlayer = reserves.Join(preferredPlayers, arg => arg.PlayerId, arg2 => arg2.Id,
-                (first, second) => new
-                {
-                    first.PlayerId,
-                    second.Rating,
-                }).OrderByDescending(p => p.Rating).FirstOrDefault();
-
-            if (selectedPlayer == null) continue;
-
-            club
-                .TacticSlots
-                .First(p => p.Id == slot.Id)
-                .PlayerId = selectedPlayer.PlayerId;
-
-            club
-                .TacticSlots
-                .Where(p => p.PlayerId == slot.PlayerId)
-                .Skip(1)
-                .First().PlayerId = null;
+            if (FindPlayer(squad, slot.PlayerId!.Value) is { } player)
+                candidates.Add(new ReserveCandidate(slot, player));
         }
 
-        var emptySlots = club
-            .TacticSlots
-            .Where(p => p.TacticSlotType != TacticSlotType.RES && p.TacticSlotType != TacticSlotType.SUB && p.PlayerId == null);
-
-        foreach (var emptySlot in emptySlots)
+        while (emptySlots.Count > 0 && candidates.Count > 0)
         {
-            var isGkSlot = emptySlot.TacticSlotType == TacticSlotType.GK;
-            var selectedPlayer = club
-                .TacticSlots
-                .Where(p => p.TacticSlotType == TacticSlotType.RES && p.PlayerId != null && !unavailableIds.Contains(p.PlayerId.Value))
-                .Select(p => new { Slot = p, Player = FindPlayer(squad, p.PlayerId!.Value) })
-                .Where(p => p.Player != null && (isGkSlot ? p.Player.PreferredPosition == "GK" : p.Player.PreferredPosition != "GK"))
-                .OrderByDescending(p => p.Player!.Rating)
+            var best = emptySlots
+                .SelectMany(slot => candidates
+                    .Where(candidate => slot.TacticSlotType == TacticSlotType.GK || !IsGoalkeeper(candidate.Player))
+                    .Select(candidate =>
+                {
+                    var familiarity = PositionFamiliarityRules.GetFamiliarity(candidate.Player, slot.TacticSlotType);
+                    return new
+                    {
+                        Slot = slot,
+                        Candidate = candidate,
+                        Familiarity = familiarity,
+                        Effective = PositionFamiliarityRules.EffectiveRating(candidate.Player, slot.TacticSlotType)
+                    };
+                }))
+                .OrderBy(p => p.Familiarity == PositionFamiliarity.GoalkeeperSwap)
+                .ThenByDescending(p => p.Effective)
+                .ThenBy(p => p.Familiarity)
                 .FirstOrDefault();
-            if (selectedPlayer == null) continue;
 
-            club
-                .TacticSlots
-                .First(p => p.Id == emptySlot.Id)
-                .PlayerId = selectedPlayer.Slot.PlayerId;
+            if (best == null) break;
 
-            club
-                .TacticSlots
-                .Where(p => p.PlayerId == emptySlot.PlayerId)
-                .Skip(1)
-                .First().PlayerId = null;
+            best.Slot.PlayerId = best.Candidate.Player.Id;
+            best.Candidate.Slot.PlayerId = null;
+            emptySlots.Remove(best.Slot);
+            candidates.Remove(best.Candidate);
         }
     }
+
+    private static bool IsGoalkeeper(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Contains("GK");
 
     private void FillEmptySubTacticSlots(Squad squad)
     {
@@ -893,23 +870,5 @@ public class TacticHelper(
         FillEmptyFirstElevenTacticSlots(squad);
         FillEmptySubTacticSlots(squad);
         FillEmptyReserveSlotsByClubId(clubId);
-    }
-
-    private static Position GetFallbackPosition(Position position)
-    {
-        return position switch
-        {
-            Position.RM => Position.RW,
-            Position.RW => Position.RM,
-            Position.LM => Position.LW,
-            Position.LW => Position.LM,
-            _ => position,
-        };
-    }
-
-    private static Position ResolvePosition(TacticSlotType tacticSlotType)
-    {
-        Enum.TryParse(tacticSlotType.ToString(), out Position position);
-        return position;
     }
 }

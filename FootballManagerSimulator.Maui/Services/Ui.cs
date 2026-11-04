@@ -1,4 +1,7 @@
-﻿namespace FootballManagerSimulator.Maui.Services;
+﻿using FootballManagerSimulator.Maui.Enums;
+using FootballManagerSimulator.Maui.Models;
+
+namespace FootballManagerSimulator.Maui.Services;
 
 /// <summary>Small presentation helpers shared across the Razor components.</summary>
 public static class Ui
@@ -95,6 +98,26 @@ public static class Ui
         "RW" or "LW" or "ST" or "CF" or "RF" or "LF" or "ATT" => "att",
         _ => ""
     };
+
+    // Colours a starter's position and match-day rating by how well he knows the slot:
+    // yellow (adjacent), amber (related), orange (unfamiliar), red (goalkeeper swap).
+    public static string FamiliarityCssClass(PlayerModel? player, TacticSlotType slot) =>
+        player == null ? "" : PositionFamiliarityRules.GetFamiliarity(player, slot) switch
+        {
+            PositionFamiliarity.Adjacent => "fam fam-adjacent",
+            PositionFamiliarity.Related => "fam fam-related",
+            PositionFamiliarity.Unfamiliar => "fam fam-unfamiliar",
+            PositionFamiliarity.GoalkeeperSwap => "fam fam-gkswap",
+            _ => ""
+        };
+
+    // Tooltip for an out-of-position starter, e.g. "Out of position (CB at RB): 80 → 68". Null when he's natural.
+    public static string? FamiliarityTitle(PlayerModel? player, TacticSlotType slot)
+    {
+        if (player == null || PositionFamiliarityRules.GetFamiliarity(player, slot) == PositionFamiliarity.Natural)
+            return null;
+        return $"Out of position ({player.PreferredPosition} at {slot}): {player.Rating} → {PositionFamiliarityRules.EffectiveRating(player, slot)}";
+    }
 
     public static string RatingCssClass(int rating) => rating switch
     {

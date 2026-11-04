@@ -160,7 +160,8 @@ else
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
                             <td>@(player?.Name ?? "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
-                            <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
+                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
+                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType).ToString() : "")</td>
                         </tr>
                     }
                 </tbody>

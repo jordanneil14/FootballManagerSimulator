@@ -32,12 +32,13 @@ public class ClubHelper(
         var startingEleven = State.Clubs.First(p => p.Id == clubId).TacticSlots
             .Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
 
+        // Players picked out of position count for less (see PositionFamiliarityRules).
         var sum = 0;
         foreach (var slot in startingEleven)
         {
             if (slot.PlayerId == null) continue;
-            var playerRating = State.Players.First(p => p.Id == slot.PlayerId).Rating;
-            sum += playerRating;
+            var player = State.Players.First(p => p.Id == slot.PlayerId);
+            sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType);
         }
         return sum;
     }

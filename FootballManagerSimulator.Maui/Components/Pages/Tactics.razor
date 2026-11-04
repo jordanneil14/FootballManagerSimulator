@@ -182,8 +182,8 @@
                     <span class="inj-chip" title="@player!.InjuryDescription — back @player.InjuryEndDate?.ToString("d MMM")">🤕 @(player.InjuryEndDate!.Value.DayNumber - Engine.State.Date.DayNumber)d</span>
                 }
             </td>
-            <td class="num" style="width:50px">@(player != null ? player.PreferredPosition : "")</td>
-            <td class="num" style="width:50px">@(player != null ? player.Rating.ToString() : "")</td>
+            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? player.PreferredPosition : "")</td>
+            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType).ToString() : "")</td>
         </tr>;
     }
 
