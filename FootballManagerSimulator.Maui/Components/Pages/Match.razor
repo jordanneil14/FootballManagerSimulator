@@ -83,8 +83,8 @@ else
         <button class="tab-btn @(_tab == 0 ? "active" : "")" @onclick="() => _tab = 0">Match Events</button>
         <button class="tab-btn @(_tab == 1 ? "active" : "")" @onclick="() => _tab = 1">Lineups</button>
         <button class="tab-btn @(_tab == 2 ? "active" : "")" @onclick="() => _tab = 2">Tactics</button>
+        <button class="tab-btn @(_tab == 4 ? "active" : "")" @onclick="() => _tab = 4">Opposition Tactics</button>
         <button class="tab-btn @(_tab == 3 ? "active" : "")" @onclick="() => _tab = 3">Live Scores</button>
-        <button class="tab-btn @(_tab == 4 ? "active" : "")" @onclick="() => _tab = 4">Formations</button>
     </div>
 
     @if (_tab == 0)
@@ -142,61 +142,21 @@ else
         @* Unlimited changes; each one re-evaluates the rest of the match, just like a substitution. *@
         <TeamInstructionsPanel Disabled="@(!CanEditTactics)" OnChanged="OnInstructionsChanged" />
 
-        <div class="panel" style="@(!CanEditTactics ? "opacity:.5;pointer-events:none" : "")">
-            <h2>Squad @(CanEditTactics ? "(tap to swap)" : "")</h2>
-            @{
-                var starters = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB && s.TacticSlotType != TacticSlotType.RES).ToList();
-                var subs = Engine.MyClub.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
-                var injuredIds = InjuredOnPitch().Select(p => p.Id).ToHashSet();
-                var sentOffIds = MySentOffIds();
-            }
-            <div class="table-wrap"><table class="data squad-table">
-                <tbody>
-                    @for (var i = 0; i < starters.Count; i++)
-                    {
-                        var idx = Engine.MyClub.TacticSlots.IndexOf(starters[i]);
-                        var slot = starters[i];
-                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        var sentOff = player != null && sentOffIds.Contains(player.Id);
-                        var injured = player != null && !sentOff && injuredIds.Contains(player.Id);
-                        <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "") @(sentOff ? "row-injured" : injured ? "row-injured" : "")"
-                            @onclick="() => OnSlotClick(idx)">
-                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
-                            <td class="num sq-pos @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
-                            <td class="num sq-rating" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
-                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
-                        </tr>
-                    }
-                </tbody>
-            </table></div>
-
-            <h3 style="margin-top:1rem">
-                Substitutions
-                @if (SubstitutionsLimited)
-                {
-                    <span class="muted" style="font-weight:normal">(@Engine.SubstitutionsMade(_fixture) / @GameEngine.MaxSubstitutions used)</span>
-                }
-            </h3>
-            <div class="table-wrap"><table class="data squad-table">
-                <tbody>
-                    @for (var i = 0; i < subs.Count; i++)
-                    {
-                        var idx = Engine.MyClub.TacticSlots.IndexOf(subs[i]);
-                        var slot = subs[i];
-                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        var posLabel = player?.Position ?? "SUB";
-                        <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
-                            @onclick="() => OnSlotClick(idx)">
-                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
-                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@SubArrows(player)</td>
-                            <td class="num sq-rating">@(player?.Rating.ToString() ?? "")</td>
-                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
-                        </tr>
-                    }
-                </tbody>
-            </table></div>
+        @SquadPanel(Engine.MyClub, mine: true)
+    }
+    else if (_tab == 4 && OpponentClub is { } opponent)
+    {
+        @* The same as the Tactics tab, for the side we're playing, and never editable. *@
+        <div class="panel">
+            <h2>Formation</h2>
+            <select class="input" disabled>
+                <option selected>@opponent.Formation</option>
+            </select>
         </div>
+
+        <TeamInstructionsPanel Club="opponent" ReadOnly="true" />
+
+        @SquadPanel(opponent, mine: false)
     }
     else if (_tab == 3)
     {
@@ -245,69 +205,6 @@ else
                 </div>
             }
         }
-    }
-    else if (_tab == 4)
-    {
-        var homeClub = Engine.GetClub(_fixture.HomeClub.Id);
-        var awayClub = Engine.GetClub(_fixture.AwayClub.Id);
-        var homeInjuredIds = _fixture.HomeInjuries.Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
-        var awayInjuredIds = _fixture.AwayInjuries.Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
-        var homeSentOffIds = _fixture.HomeCards.Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
-        var awaySentOffIds = _fixture.AwayCards.Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
-
-        <div class="panel">
-            <h2>@_fixture.HomeClub.Name</h2>
-            @if (homeClub != null)
-            {
-                var homeStarters = homeClub.TacticSlots.Take(11).ToList();
-                <div class="pitch">
-                    <div class="pitch-box-top"></div>
-                    <div class="pitch-box-bottom"></div>
-                    <div class="pitch-corner tl"></div>
-                    <div class="pitch-corner tr"></div>
-                    <div class="pitch-corner bl"></div>
-                    <div class="pitch-corner br"></div>
-                    @for (var i = 0; i < homeStarters.Count; i++)
-                    {
-                        var slot = homeStarters[i];
-                        var (x, y) = PitchLayout.Position(homeStarters, i);
-                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        var sentOff = player != null && homeSentOffIds.Contains(player.Id);
-                        var injured = player != null && !sentOff && homeInjuredIds.Contains(player.Id);
-                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : Ui.IsOutOfPosition(player, slot.TacticSlotType) ? "out-of-position" : "")" style="left:@(x)%;top:@(y)%">
-                            <div class="dot">@slot.TacticSlotType</div>
-                            <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
-                        </div>
-                    }
-                </div>
-            }
-
-            <h2 style="margin-top:2rem">@_fixture.AwayClub.Name</h2>
-            @if (awayClub != null)
-            {
-                var awayStarters = awayClub.TacticSlots.Take(11).ToList();
-                <div class="pitch">
-                    <div class="pitch-box-top"></div>
-                    <div class="pitch-box-bottom"></div>
-                    <div class="pitch-corner tl"></div>
-                    <div class="pitch-corner tr"></div>
-                    <div class="pitch-corner bl"></div>
-                    <div class="pitch-corner br"></div>
-                    @for (var i = 0; i < awayStarters.Count; i++)
-                    {
-                        var slot = awayStarters[i];
-                        var (x, y) = PitchLayout.Position(awayStarters, i);
-                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
-                        var sentOff = player != null && awaySentOffIds.Contains(player.Id);
-                        var injured = player != null && !sentOff && awayInjuredIds.Contains(player.Id);
-                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : Ui.IsOutOfPosition(player, slot.TacticSlotType) ? "out-of-position" : "")" style="left:@(x)%;top:@(y)%">
-                            <div class="dot">@slot.TacticSlotType</div>
-                            <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
     }
 }
 
@@ -874,6 +771,80 @@ else
         {
             <span class="sub-arrow sub-out" title="Substituted off">▼ @(minute)'</span>
         }
+    };
+
+    private ClubModel? OpponentClub => _fixture == null ? null
+        : Engine.GetClub(IsMyClub(_fixture.HomeClub) ? _fixture.AwayClub.Id : _fixture.HomeClub.Id);
+
+    private bool IsHomeSide(ClubModel club) => club.Id == _fixture!.HomeClub.Id;
+
+    private HashSet<int> SentOffIds(ClubModel club) =>
+        (IsHomeSide(club) ? _fixture!.HomeCards : _fixture!.AwayCards)
+            .Where(c => c.IsRed && c.Minute <= _currentMinute).Select(c => c.PlayerId).ToHashSet();
+
+    private HashSet<int> InjuredIds(ClubModel club) =>
+        (IsHomeSide(club) ? _fixture!.HomeInjuries : _fixture!.AwayInjuries)
+            .Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
+
+    // The starters and bench with live fitness. Only the user's own side can be tapped to swap;
+    // the opposition's is shown the same way but can't be changed.
+    private RenderFragment SquadPanel(ClubModel club, bool mine) => __builder =>
+    {
+        var canEdit = mine && CanEditTactics;
+        var starters = club.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB && s.TacticSlotType != TacticSlotType.RES).ToList();
+        var subs = club.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
+        var injuredIds = mine ? InjuredOnPitch().Select(p => p.Id).ToHashSet() : InjuredIds(club);
+        var sentOffIds = SentOffIds(club);
+
+        <div class="panel" style="@(mine && !CanEditTactics ? "opacity:.5;pointer-events:none" : !mine ? "pointer-events:none" : "")">
+            <h2>Squad @(canEdit ? "(tap to swap)" : "")</h2>
+            <div class="table-wrap"><table class="data squad-table">
+                <tbody>
+                    @for (var i = 0; i < starters.Count; i++)
+                    {
+                        var idx = club.TacticSlots.IndexOf(starters[i]);
+                        var slot = starters[i];
+                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                        var sentOff = player != null && sentOffIds.Contains(player.Id);
+                        var injured = player != null && !sentOff && injuredIds.Contains(player.Id);
+                        <tr class="@(canEdit ? "clickable" : "") @(mine && _selectedSlot == idx ? "highlight" : "") @(sentOff || injured ? "row-injured" : "")"
+                            @onclick="() => { if (mine) OnSlotClick(idx); }">
+                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) }@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
+                            <td class="num sq-pos @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
+                            <td class="num sq-rating" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
+                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
+                        </tr>
+                    }
+                </tbody>
+            </table></div>
+
+            <h3 style="margin-top:1rem">
+                Substitutions
+                @if (mine && SubstitutionsLimited)
+                {
+                    <span class="muted" style="font-weight:normal">(@Engine.SubstitutionsMade(_fixture!) / @GameEngine.MaxSubstitutions used)</span>
+                }
+            </h3>
+            <div class="table-wrap"><table class="data squad-table">
+                <tbody>
+                    @for (var i = 0; i < subs.Count; i++)
+                    {
+                        var idx = club.TacticSlots.IndexOf(subs[i]);
+                        var slot = subs[i];
+                        var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
+                        var posLabel = player?.Position ?? "SUB";
+                        <tr class="@(canEdit ? "clickable" : "") @(mine && _selectedSlot == idx ? "highlight" : "")"
+                            @onclick="() => { if (mine) OnSlotClick(idx); }">
+                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) }</td>
+                            <td class="num sq-rating">@(player?.Rating.ToString() ?? "")</td>
+                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
+                        </tr>
+                    }
+                </tbody>
+            </table></div>
+        </div>
     };
 
     private bool MatchFinished => _phase is MatchPhase.FullTime or MatchPhase.Concluded;

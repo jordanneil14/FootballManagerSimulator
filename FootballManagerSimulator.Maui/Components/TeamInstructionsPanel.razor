@@ -1,12 +1,15 @@
 @inject GameEngine Engine
 
-@* Mentality and pressing for the user's club. Each option shows its advantage (+) and disadvantage (−). *@
+@* Mentality and pressing for the user's club, or read-only for another club (the opposition on the
+   match screen). Each option shows its advantage (+) and disadvantage (−). *@
 @{
-    var instructions = Engine.MyClub.Instructions ?? new TeamInstructionsModel();
-    var stamina = Engine.MyOutfieldAverageStamina();
+    var club = Club ?? Engine.MyClub;
+    var instructions = club.Instructions ?? new TeamInstructionsModel();
+    var stamina = Engine.OutfieldAverageStamina(club);
+    var locked = Disabled || ReadOnly;
 }
 
-<div class="panel" style="@(Disabled ? "opacity:.5;pointer-events:none" : "")">
+<div class="panel" style="@(Disabled ? "opacity:.5;pointer-events:none" : ReadOnly ? "pointer-events:none" : "")">
     <h2>Team Instructions</h2>
 
     <div class="instr-group">
@@ -14,7 +17,7 @@
         <div class="seg">
             @foreach (var option in new[] { Mentality.Defensive, Mentality.Balanced, Mentality.Attacking })
             {
-                <button class="seg-btn @(instructions.Mentality == option ? "active" : "")" disabled="@Disabled"
+                <button class="seg-btn @(instructions.Mentality == option ? "active" : "")" disabled="@locked"
                         @onclick="() => SetMentality(option)">@option</button>
             }
         </div>
@@ -26,14 +29,14 @@
         <div class="seg">
             @foreach (var option in new[] { Pressing.Low, Pressing.Medium, Pressing.High })
             {
-                <button class="seg-btn @(instructions.Pressing == option ? "active" : "")" disabled="@Disabled"
+                <button class="seg-btn @(instructions.Pressing == option ? "active" : "")" disabled="@locked"
                         @onclick="() => SetPressing(option)">@option</button>
             }
         </div>
         @TradeOff(PressingText(instructions.Pressing))
         @if (instructions.Pressing == Pressing.High && stamina > 0)
         {
-            <div class="instr-hint">@StaminaHint(stamina)</div>
+            <div class="instr-hint">@StaminaHint(stamina, theirs: ReadOnly)</div>
         }
     </div>
 </div>
@@ -41,19 +44,27 @@
 @code {
     [Parameter] public bool Disabled { get; set; }
 
+    // Shows another club's instructions (defaults to the user's club). Only the user's own can be changed.
+    [Parameter] public ClubModel? Club { get; set; }
+
+    // Shows the instructions at full strength but can't be changed: used for the opposition.
+    [Parameter] public bool ReadOnly { get; set; }
+
     // Raised after a change, so the match screen can re-evaluate the rest of the match.
     [Parameter] public EventCallback OnChanged { get; set; }
 
+    private bool CanChange => !Disabled && !ReadOnly && (Club == null || Club.Id == Engine.MyClub.Id);
+
     private async Task SetMentality(Mentality mentality)
     {
-        if (Disabled || Engine.MyClub.Instructions?.Mentality == mentality) return;
+        if (!CanChange || Engine.MyClub.Instructions?.Mentality == mentality) return;
         Engine.SetMentality(mentality);
         await OnChanged.InvokeAsync();
     }
 
     private async Task SetPressing(Pressing pressing)
     {
-        if (Disabled || Engine.MyClub.Instructions?.Pressing == pressing) return;
+        if (!CanChange || Engine.MyClub.Instructions?.Pressing == pressing) return;
         Engine.SetPressing(pressing);
         await OnChanged.InvokeAsync();
     }
@@ -76,11 +87,13 @@
         _ => (null, null)
     };
 
-    private static string StaminaHint(double stamina)
+    private static string StaminaHint(double stamina, bool theirs)
     {
         var share = TacticalModifierRules.FatigueShare(stamina);
         var fade = share <= 0.4 ? "only lightly" : share <= 0.7 ? "noticeably" : "badly";
-        return $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} once you've pressed for about 45 minutes.";
+        return theirs
+            ? $"Their outfield players' average stamina is {stamina:0}, so the press will fade {fade} once they've pressed for about 45 minutes."
+            : $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} once you've pressed for about 45 minutes.";
     }
 
     private static RenderFragment TradeOff((string? Plus, string? Minus) text) => __builder =>
