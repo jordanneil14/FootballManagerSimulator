@@ -35,6 +35,7 @@ public class StateModel : IState
     public ManagerHistoryModel ManagerHistory { get; set; } = new ManagerHistoryModel();
     public List<ScoutModel> Scouts { get; set; } = new List<ScoutModel>();
     public List<PhysioModel> Physios { get; set; } = new List<PhysioModel>();
+    public List<AnalystModel> Analysts { get; set; } = new List<AnalystModel>();
     public List<int> DiscoveredPlayerIds { get; set; } = new List<int>();
     public bool ShowTransferNotifications { get; set; }
     public bool ShowManagerNotifications { get; set; }

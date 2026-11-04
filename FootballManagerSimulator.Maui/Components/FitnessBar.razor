@@ -1,0 +1,22 @@
+@* A player's fitness: a small bar coloured by how fit he is, with the number beside it. *@
+@{
+    var value = Math.Clamp(Value, 0, FitnessRules.Max);
+    var rounded = (int)Math.Floor(value);
+}
+@if (Compact)
+{
+    @* Narrow tables (the live match squad on a phone): just the number, in the bar's colour. *@
+    <span class="fit-num-only @FitnessRules.CssClass(value)" title="Fitness @rounded / 100">@rounded</span>
+}
+else
+{
+    <span class="fit" title="Fitness @rounded / 100">
+        <span class="fit-bar"><span class="fit-fill @FitnessRules.CssClass(value)" style="width:@(rounded)%"></span></span>
+        <span class="fit-num">@rounded</span>
+    </span>
+}
+
+@code {
+    [Parameter] public double Value { get; set; } = FitnessRules.Max;
+    [Parameter] public bool Compact { get; set; }
+}

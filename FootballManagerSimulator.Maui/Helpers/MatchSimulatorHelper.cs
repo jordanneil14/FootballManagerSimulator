@@ -79,12 +79,21 @@ public class MatchSimulatorHelper(
         }
     }
 
-    private static void RecordStartingElevens(FixtureModel fixture,
+    // Kick-off: records who started and how each side is pressing.
+    private void RecordStartingElevens(FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
     {
         fixture.HomePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
         fixture.AwayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        PressingLog.Start(fixture.HomePressing, CurrentPressing(fixture, true));
+        PressingLog.Start(fixture.AwayPressing, CurrentPressing(fixture, false));
+        fixture.HomeSubstitutions.Clear();
+        fixture.AwaySubstitutions.Clear();
+        fixture.FitnessApplied = false;
     }
+
+    private Pressing CurrentPressing(FixtureModel fixture, bool isHome) =>
+        ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id).Instructions?.Pressing ?? Pressing.Medium;
 
     private void SimulateFirstHalf(FixtureModel fixture)
     {
@@ -407,16 +416,22 @@ public class MatchSimulatorHelper(
 
         for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(8, 20))
         {
-            if (!SideEventRoll(InjuryChancePerStep, homeRate, awayRate, out var isHome))
+            // Tired players get injured more: each side's rate is scaled by its players' average
+            // injury weight, and the injured player is picked in proportion to it.
+            var homeWeights = InjuryWeights(fixture, homePlayerIds, fixture.HomeInjuries, minute);
+            var awayWeights = InjuryWeights(fixture, awayPlayerIds, fixture.AwayInjuries, minute);
+            var homeTiredness = homeWeights.Count == 0 ? 1 : homeWeights.Average(w => w.Weight);
+            var awayTiredness = awayWeights.Count == 0 ? 1 : awayWeights.Average(w => w.Weight);
+
+            if (!SideEventRoll(InjuryChancePerStep, homeRate * homeTiredness, awayRate * awayTiredness, out var isHome))
                 continue;
 
             var injuries = isHome ? fixture.HomeInjuries : fixture.AwayInjuries;
-            var alreadyInjured = injuries.Select(i => i.PlayerId).ToHashSet();
-            var playerIds = (isHome ? homePlayerIds : awayPlayerIds).Where(id => !alreadyInjured.Contains(id)).ToList();
+            var candidates = isHome ? homeWeights : awayWeights;
 
-            if (!playerIds.Any()) continue;
+            if (candidates.Count == 0) continue;
 
-            var playerId = playerIds[RandomNumberHelper.Next(0, playerIds.Count)];
+            var playerId = PickWeighted(candidates);
             var (description, daysOut) = PickInjury();
 
             injuries.Add(new InjuryModel
@@ -427,6 +442,28 @@ public class MatchSimulatorHelper(
                 DaysOut = daysOut
             });
         }
+    }
+
+    // Players who could be injured at this minute (not already injured), each with its injury weight.
+    private List<(int PlayerId, double Weight)> InjuryWeights(FixtureModel fixture, List<int> playerIds,
+        List<InjuryModel> injuries, int minute)
+    {
+        var alreadyInjured = injuries.Select(i => i.PlayerId).ToHashSet();
+        return playerIds
+            .Where(id => !alreadyInjured.Contains(id))
+            .Select(id => (id, FitnessRules.InjuryWeight(FitnessAt(fixture, id, minute))))
+            .ToList();
+    }
+
+    private static int PickWeighted(List<(int PlayerId, double Weight)> candidates)
+    {
+        var roll = RandomNumberHelper.NextDouble() * candidates.Sum(c => c.Weight);
+        foreach (var (playerId, weight) in candidates)
+        {
+            roll -= weight;
+            if (roll < 0) return playerId;
+        }
+        return candidates[^1].PlayerId;
     }
 
     private static (string Description, int DaysOut) PickInjury()
@@ -545,6 +582,7 @@ public class MatchSimulatorHelper(
         ReduceSuspensions(fixture, competition);
         ApplySuspensions(fixture, competition);
         ApplyInjuries(fixture);
+        ApplyFitness(fixture);
 
         if (!wasConcluded)
         {
@@ -711,10 +749,10 @@ public class MatchSimulatorHelper(
     // Applied after cubing, so it is cubed too: a 6% rating edge.
     internal static readonly double MyClubRatingBoost = Math.Pow(1.06, RatingGapExponent);
 
-    private (double homeRating, double awayRating) GetAdjustedRatings(FixtureModel fixture)
+    private (double homeRating, double awayRating) GetAdjustedRatings(FixtureModel fixture, int minute = 0)
     {
-        var homeRating = Math.Pow(ClubHelper.GetStartingElevenSumRatingForClub(fixture.HomeClub.Id), RatingGapExponent);
-        var awayRating = Math.Pow(ClubHelper.GetStartingElevenSumRatingForClub(fixture.AwayClub.Id), RatingGapExponent);
+        var homeRating = Math.Pow(StrengthAt(fixture, true, minute), RatingGapExponent);
+        var awayRating = Math.Pow(StrengthAt(fixture, false, minute), RatingGapExponent);
 
         if (fixture.HomeClub.Id == State.MyClubId)
             homeRating *= MyClubRatingBoost;
@@ -726,10 +764,90 @@ public class MatchSimulatorHelper(
         return (homeRating, awayRating);
     }
 
+    // ----- Fitness ---------------------------------------------------------------------------
+
+    // The XI's strength at this minute: each player's rating after any out-of-position cut,
+    // scaled by how fit he is at that point of the match.
+    private double StrengthAt(FixtureModel fixture, bool isHome, int minute)
+    {
+        var clubId = isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id;
+        var sum = 0.0;
+        foreach (var slot in ClubHelper.GetStartingElevenByClub(clubId))
+        {
+            if (slot.PlayerId is not { } id || PlayerHelper.GetPlayerById(id) is not { } player) continue;
+            sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType)
+                   * FitnessRules.StrengthFactor(FitnessAt(fixture, id, minute));
+        }
+        return sum;
+    }
+
+    // A player's fitness at this minute of the match: what he started with, less the drain for the
+    // minutes he has been on the pitch (more for minutes his side spent pressing high). Before he
+    // has played, or once full time has charged it, it is simply his current fitness.
+    public double FitnessAt(FixtureModel fixture, int playerId, int minute)
+    {
+        if (PlayerHelper.GetPlayerById(playerId) is not { } player)
+            return FitnessRules.Max;
+        if (fixture.FitnessApplied)
+            return player.Fitness;
+
+        bool isHome;
+        if (fixture.HomePlayerIds.Contains(playerId)) isHome = true;
+        else if (fixture.AwayPlayerIds.Contains(playerId)) isHome = false;
+        else return player.Fitness;
+
+        var (on, off) = OnPitchSpan(fixture, isHome, playerId);
+        var end = Math.Min(minute, off ?? minute);
+        if (end <= on)
+            return player.Fitness;
+
+        var log = isHome ? fixture.HomePressing : fixture.AwayPressing;
+        var current = CurrentPressing(fixture, isHome);
+        var pressed = PressingLog.MinutesPressedHigh(log, end, current) - PressingLog.MinutesPressedHigh(log, on, current);
+
+        var drain = FitnessRules.Drain(player.Stamina, end - on, pressed, FitnessRules.IsGoalkeeper(player));
+        return Math.Clamp(player.Fitness - drain, 0, FitnessRules.Max);
+    }
+
+    // When a player came on (0 for a starter) and, if he has, when he went off (substituted or sent off).
+    private static (int On, int? Off) OnPitchSpan(FixtureModel fixture, bool isHome, int playerId)
+    {
+        var subs = isHome ? fixture.HomeSubstitutions : fixture.AwaySubstitutions;
+        var on = subs.Where(s => s.OnId == playerId).Select(s => s.Minute).DefaultIfEmpty(0).Max();
+        int? off = subs.Where(s => s.OffId == playerId && s.Minute >= on).Select(s => (int?)s.Minute).Min();
+
+        var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
+        if (cards.Where(c => c.IsRed && c.PlayerId == playerId && c.Minute >= on).Select(c => (int?)c.Minute).Min() is { } sentOff)
+            off = off is { } subbed ? Math.Min(subbed, sentOff) : sentOff;
+
+        return (on, off);
+    }
+
+    // Full time: every player who took part is charged for the minutes he played.
+    private void ApplyFitness(FixtureModel fixture)
+    {
+        if (fixture.FitnessApplied)
+            return;
+
+        var end = Math.Clamp(fixture.Minute, 90, 120);
+        var finalFitness = fixture.HomePlayerIds.Concat(fixture.AwayPlayerIds)
+            .Distinct()
+            .Select(id => (Id: id, Fitness: FitnessAt(fixture, id, end)))
+            .ToList();
+
+        foreach (var (id, fitness) in finalFitness)
+        {
+            if (PlayerHelper.GetPlayerById(id) is { } player)
+                player.Fitness = fitness;
+        }
+
+        fixture.FitnessApplied = true;
+    }
+
     // Each player missing before the given minute costs the team 20% of its rating.
     private (double homeRating, double awayRating) GetRatingsAtMinute(FixtureModel fixture, int minute)
     {
-        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
+        var (homeRating, awayRating) = GetAdjustedRatings(fixture, minute);
         var homeMissing = GetMissingPlayerIds(fixture, true, minute).Count;
         var awayMissing = GetMissingPlayerIds(fixture, false, minute).Count;
 
@@ -792,12 +910,20 @@ public class MatchSimulatorHelper(
         var own = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
         var opponent = ClubHelper.GetClubById(isHome ? fixture.AwayClub.Id : fixture.HomeClub.Id);
 
-        // Stamina only matters for a side that's pressing high, so skip the lookup otherwise.
-        var stamina = own.Instructions?.Pressing == Pressing.High
-            ? AverageOutfieldStamina(fixture, isHome, minute)
-            : 0;
+        return TacticalModifierRules.For(own.Instructions, opponent.Instructions,
+            Fatigue(fixture, isHome, minute), Fatigue(fixture, !isHome, minute));
+    }
 
-        return TacticalModifierRules.For(own.Instructions, opponent.Instructions, stamina, minute);
+    // How tired a side is at this minute (0 to 1), from how long it has pressed high and its Stamina.
+    private double Fatigue(FixtureModel fixture, bool isHome, int minute)
+    {
+        var log = isHome ? fixture.HomePressing : fixture.AwayPressing;
+        var pressed = PressingLog.MinutesPressedHigh(log, minute, CurrentPressing(fixture, isHome));
+        var load = TacticalModifierRules.Load(minute, pressed);
+        // Below the threshold there's no fatigue whatever the Stamina, so skip the lookup.
+        if (load <= TacticalModifierRules.FatigueStartLoad)
+            return 0;
+        return TacticalModifierRules.FatigueProgress(load, AverageOutfieldStamina(fixture, isHome, minute));
     }
 
     private double AverageOutfieldStamina(FixtureModel fixture, bool isHome, int minute)
@@ -880,6 +1006,10 @@ public class MatchSimulatorHelper(
         fixture.HomePenalties.RemoveAll(p => p.Minute > fromMinute);
         fixture.AwayPenalties.RemoveAll(p => p.Minute > fromMinute);
 
+        // A pressing change takes effect from now; the minutes already pressed still count towards fatigue.
+        PressingLog.ChangeAt(fixture.HomePressing, fromMinute, CurrentPressing(fixture, true));
+        PressingLog.ChangeAt(fixture.AwayPressing, fromMinute, CurrentPressing(fixture, false));
+
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
@@ -919,7 +1049,8 @@ public class MatchSimulatorHelper(
     internal const double AIAnyPressStamina = 78;
     internal const double AISoftenChance = 0.2;
 
-    // Call after both line-ups are picked: the choice depends on both XIs.
+    // Call after both line-ups are picked: the choice depends on both XIs. A side that settled
+    // its approach the day before (the user's opponent) sticks to that plan.
     public void ChooseAIInstructions(FixtureModel fixture)
     {
         var (homeRating, awayRating) = GetAdjustedRatings(fixture);
@@ -931,9 +1062,59 @@ public class MatchSimulatorHelper(
             var club = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
             if (club.Id == State.MyClubId) continue;
 
+            var planned = isHome ? fixture.HomePlannedInstructions : fixture.AwayPlannedInstructions;
+            if (planned != null)
+            {
+                club.Instructions = planned.Clone();
+                continue;
+            }
+
             var share = (isHome ? homeRating : awayRating) / total;
             club.Instructions = PickAIInstructions(share, AverageOutfieldStamina(fixture, isHome, 0), RandomNumberHelper.NextDouble());
         }
+    }
+
+    // The day before the user's match, the AI opponent settles its approach. Line-ups aren't picked
+    // yet, so both sides are judged on their best available XI (the best keeper and ten best
+    // outfielders fit on match day), not on whoever the user has selected tonight.
+    public void PlanOpponentInstructions(FixtureModel fixture)
+    {
+        var home = ExpectedXi(fixture.HomeClub.Id, fixture.Date);
+        var away = ExpectedXi(fixture.AwayClub.Id, fixture.Date);
+
+        var homeRating = Math.Pow(home.Sum(p => p.Rating), RatingGapExponent);
+        var awayRating = Math.Pow(away.Sum(p => p.Rating), RatingGapExponent);
+        if (fixture.HomeClub.Id == State.MyClubId) homeRating *= MyClubRatingBoost;
+        else if (fixture.AwayClub.Id == State.MyClubId) awayRating *= MyClubRatingBoost;
+        awayRating *= .8;
+
+        var total = homeRating + awayRating;
+        if (total <= 0) return;
+
+        if (fixture.HomeClub.Id != State.MyClubId)
+            fixture.HomePlannedInstructions = PickAIInstructions(homeRating / total, OutfieldStamina(home), RandomNumberHelper.NextDouble());
+        if (fixture.AwayClub.Id != State.MyClubId)
+            fixture.AwayPlannedInstructions = PickAIInstructions(awayRating / total, OutfieldStamina(away), RandomNumberHelper.NextDouble());
+    }
+
+    private List<PlayerModel> ExpectedXi(int clubId, DateOnly matchDate)
+    {
+        var available = State.Players
+            .Where(p => p.Contract?.ClubId == clubId && p.SuspensionMatches == 0 && !p.IsInjured(matchDate))
+            .OrderByDescending(p => p.Rating)
+            .ToList();
+        var keeper = available.FirstOrDefault(IsKeeper);
+        var outfield = available.Where(p => !IsKeeper(p)).Take(10);
+        return (keeper == null ? outfield : outfield.Prepend(keeper)).ToList();
+    }
+
+    private static bool IsKeeper(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Contains("GK");
+
+    private static double OutfieldStamina(IEnumerable<PlayerModel> xi)
+    {
+        var outfield = xi.Where(p => !IsKeeper(p)).ToList();
+        return outfield.Count == 0 ? 0 : outfield.Average(p => p.Stamina);
     }
 
     internal static TeamInstructionsModel PickAIInstructions(double strengthShare, double averageStamina, double softenRoll)

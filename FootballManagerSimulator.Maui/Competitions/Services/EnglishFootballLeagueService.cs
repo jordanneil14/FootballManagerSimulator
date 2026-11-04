@@ -12,31 +12,7 @@ public class EnglishFootballLeagueService(IState state, INotificationFactory not
 
 	public void GeneratePreMatchReportForFixture(FixtureModel fixture)
 	{
-		var oppositionClub = fixture.HomeClub.Id == State.Clubs.First(p => p.Id == State.MyClubId).Id
-			? State.Clubs.First(p => p.Id == fixture.AwayClub.Id)
-			: State.Clubs.First(p => p.Id == fixture.HomeClub.Id);
-
-		var league = (LeagueModel)State.Competitions.First(p => p.Id == State.Clubs.First(p => p.Id == State.MyClubId).LeagueId);
-		var leagueTable = league.GenerateLeagueTable().ToList();
-
-		var leaguePosition = leagueTable.First(p => p.Club.Id == oppositionClub.Id);
-		var leaguePositionIndex = leagueTable.IndexOf(leaguePosition) + 1;
-
-		var oppositionPlayers = State.Players
-			.Where(p => p.Contract != null && p.Contract.ClubId == oppositionClub.Id)
-			.OrderByDescending(p => p.Rating)
-			.Take(3)
-			.Select(p => p.Name);
-
-		var message = $"I've generated a pre-match report for the upcoming fixture against {oppositionClub.Name}.\n" +
-			$"They sit {NumberHelper.AddOrdinal(leaguePositionIndex)} in the league and have numerous players who can cause a threat:\n" +
-			$"\t{string.Join("\n\t", oppositionPlayers)}";
-
-		NotificationFactory.AddNotification(
-			State.Date,
-			"Club Analyst",
-			"Pre-Match Report",
-			message);
+		LeaguePreMatchReport.Send(State, NotificationFactory, fixture);
 	}
 
 

@@ -8,6 +8,8 @@ public interface IMatchSimulatorHelper
     void PrepareMatch(FixtureModel fixture);
     void PrepareClub(int clubId);
     void ChooseAIInstructions(FixtureModel fixture);
+    void PlanOpponentInstructions(FixtureModel fixture);
+    double FitnessAt(FixtureModel fixture, int playerId, int minute);
     void ConcludeFixture(FixtureModel fixture, ICompetition competition);
     void PreGenerateMatch(FixtureModel fixture);
     void GenerateExtraTimeEvents(FixtureModel fixture);

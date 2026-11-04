@@ -27,11 +27,23 @@ public static class TacticalModifierRules
     public const double HighPressCardRate = 1.35;
     public const double HighPressInjuryRate = 1.20;
 
-    // Where a fully-tired pressing side ends up: the fade runs through the second half and is complete by the 75th minute.
-    public const double HighPressTiredThreat = 0.88;
-    public const double HighPressTiredExposure = 1.18;
-    public const int FatigueStartMinute = 45;
-    public const int FatigueFullMinute = 75;
+    // Where a fully-tired pressing side ends up. Softer than it would otherwise be because player
+    // fitness (FitnessRules) also drains faster while pressing, so tiredness isn't counted twice.
+    public const double HighPressTiredThreat = 0.92;
+    public const double HighPressTiredExposure = 1.12;
+
+    // Fatigue comes from a side's workload: every minute played counts once, and every minute spent
+    // pressing high counts PressingLoadFactor more. A side pressing from kick-off starts to tire at
+    // half-time (load 90) and is fully tired by the 75th minute (load 150). A side that only starts
+    // pressing later is fresher, so it tires later; one that never presses never gets there in 90 minutes.
+    public const double PressingLoadFactor = 1.0;
+    public const double FatigueStartLoad = 90;
+    public const double FatigueFullLoad = 150;
+
+    // Pressing or sitting off against a side that is tiring: its threat goes up by this much
+    // times how tired the opponent is (0 to 1). Squeezing them works only with fresh legs of your own.
+    public const double HighPressSqueezeBonus = 0.15;
+    public const double LowPressCounterBonus = 0.25;
 
     // How much of the fade a side suffers, from its outfield players' average Stamina:
     // (FatigueStaminaReference - stamina) / FatigueStaminaRange, kept between the min and 1.
@@ -39,12 +51,11 @@ public static class TacticalModifierRules
     public const double FatigueStaminaRange = 30;
     public const double MinFatigue = 0.3;
 
-    // Low press: gives the opponent the ball, but no fatigue, fewer cards, and fresher late on.
+    // Low press: gives the opponent the ball, but no fatigue, fewer cards, and dangerous on the
+    // counter against a side that has run itself into the ground.
     public const double LowPressThreat = 0.94;
     public const double LowPressExposure = 0.96;
     public const double LowPressCardRate = 0.80;
-    public const int LowPressLateMinute = 60;
-    public const double LowPressLateThreatVsHighPress = 1.10;
 
     public const double MinModifier = 0.5;
     public const double MaxModifier = 1.8;
@@ -53,15 +64,19 @@ public static class TacticalModifierRules
     public static double FatigueShare(double averageStamina) =>
         Math.Clamp((FatigueStaminaReference - averageStamina) / FatigueStaminaRange, MinFatigue, 1.0);
 
-    // How far into the fade a High-pressing side is at this minute (0 in the first half, 1 from the 75th minute).
-    public static double FatigueProgress(int minute, double averageStamina)
+    // A side's workload by this minute, having pressed high for minutesPressedHigh of it.
+    public static double Load(int minute, int minutesPressedHigh) => minute + PressingLoadFactor * minutesPressedHigh;
+
+    // How tired a side is (0 = fresh, 1 = fully tired), from its workload and Stamina.
+    public static double FatigueProgress(double load, double averageStamina)
     {
-        if (minute <= FatigueStartMinute) return 0;
-        var elapsed = Math.Min(1.0, (minute - FatigueStartMinute) / (double)(FatigueFullMinute - FatigueStartMinute));
+        if (load <= FatigueStartLoad) return 0;
+        var elapsed = Math.Min(1.0, (load - FatigueStartLoad) / (FatigueFullLoad - FatigueStartLoad));
         return elapsed * FatigueShare(averageStamina);
     }
 
-    public static SideModifiers For(TeamInstructionsModel? own, TeamInstructionsModel? opponent, double ownAverageStamina, int minute)
+    // ownFatigue / opponentFatigue: each side's FatigueProgress at this minute.
+    public static SideModifiers For(TeamInstructionsModel? own, TeamInstructionsModel? opponent, double ownFatigue, double opponentFatigue)
     {
         own ??= new TeamInstructionsModel();
         opponent ??= new TeamInstructionsModel();
@@ -83,9 +98,10 @@ public static class TacticalModifierRules
         switch (own.Pressing)
         {
             case Pressing.High:
-                var progress = FatigueProgress(minute, ownAverageStamina);
-                threat *= Lerp(HighPressThreat, HighPressTiredThreat, progress);
-                exposure *= Lerp(HighPressExposure, HighPressTiredExposure, progress);
+                threat *= Lerp(HighPressThreat, HighPressTiredThreat, ownFatigue);
+                exposure *= Lerp(HighPressExposure, HighPressTiredExposure, ownFatigue);
+                // Squeezing a tired side: they can't play out under pressure, as long as your own legs are fresh.
+                threat *= 1 + HighPressSqueezeBonus * opponentFatigue * (1 - ownFatigue);
                 cards *= HighPressCardRate;
                 injuries *= HighPressInjuryRate;
                 break;
@@ -93,8 +109,8 @@ public static class TacticalModifierRules
                 threat *= LowPressThreat;
                 exposure *= LowPressExposure;
                 cards *= LowPressCardRate;
-                if (minute > LowPressLateMinute && opponent.Pressing == Pressing.High)
-                    threat *= LowPressLateThreatVsHighPress;
+                // Sitting off a tired side: the space behind them opens up on the counter.
+                threat *= 1 + LowPressCounterBonus * opponentFatigue;
                 break;
         }
 

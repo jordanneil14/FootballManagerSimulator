@@ -160,6 +160,7 @@ public class LeagueFixtureGenerationTests
     public void PreMatchReportNamesOppositionTheirLeaguePositionAndBestPlayers(string serviceName)
     {
         var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        state.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
         var me = TestData.Club(1, "Mine");
         var them = TestData.Club(2, "Rivals");
         var third = TestData.Club(3, "Third");
@@ -181,9 +182,8 @@ public class LeagueFixtureGenerationTests
         service.GeneratePreMatchReportForFixture(new FixtureModel { HomeClub = them, AwayClub = me });
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Equal("Pre-Match Report", report.Subject);
-        Assert.StartsWith("I've generated a pre-match report for the upcoming fixture against Rivals.", report.Message);
-        Assert.Contains("1st", report.Message);
+        Assert.Equal(("Ann Alyst", "Pre-Match Report"), (report.Recipient, report.Subject));
+        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's match. They sit 1st in the league.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message); // only the top three
@@ -193,6 +193,7 @@ public class LeagueFixtureGenerationTests
     public void PreMatchReport_WorksOutTheOppositionWhenIAmAtHome()
     {
         var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        state.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
         var me = TestData.Club(1, "Mine");
         var them = TestData.Club(2, "Rivals");
         state.Clubs.AddRange([me, them]);
@@ -206,7 +207,7 @@ public class LeagueFixtureGenerationTests
         new ScottishPremiershipService(state, notifications).GeneratePreMatchReportForFixture(new FixtureModel { HomeClub = me, AwayClub = them });
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Contains("against Rivals", report.Message);
+        Assert.Contains("look at Rivals", report.Message);
         Assert.Contains("2nd", report.Message);
         Assert.Contains("Player 1", report.Message);
         Assert.DoesNotContain("Player 2", report.Message);
@@ -220,6 +221,7 @@ public class LeagueFixtureGenerationTests
     public void CupPreMatchReport_NamesTheCupTheOppositionAndTheirBestPlayers(string serviceName, bool iAmAtHome)
     {
         var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        state.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
         var me = TestData.Club(1, "Mine");
         var them = TestData.Club(2, "Rivals");
         state.Clubs.AddRange([me, them]);
@@ -235,11 +237,59 @@ public class LeagueFixtureGenerationTests
         service.GeneratePreMatchReportForFixture(fixture);
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Equal(("Club Analyst", "Pre-Match Report", SeasonStart), (report.Recipient, report.Subject, report.Date));
-        Assert.StartsWith("I've generated a pre-match report for the upcoming Big Cup tie against Rivals.", report.Message);
+        Assert.Equal(("Ann Alyst", "Pre-Match Report", SeasonStart), (report.Recipient, report.Subject, report.Date));
+        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's match. It's a Big Cup tie.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message);
         Assert.DoesNotContain("Player 6", report.Message);
+    }
+
+    [Fact]
+    public void PreMatchReport_IsOnlySentWithAnAnalyst()
+    {
+        var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        var me = TestData.Club(1, "Mine");
+        var them = TestData.Club(2, "Rivals");
+        state.Clubs.AddRange([me, them]);
+        var league = TestData.League(1, state.Clubs);
+        state.Competitions.Add(league);
+        var cupFixture = new FixtureModel { HomeClub = me, AwayClub = them };
+        state.Competitions.Add(new CupModel { Id = 7, Name = "Big Cup", Fixtures = [cupFixture] });
+        var notifications = new RecordingNotifications();
+
+        new LeagueService(state, notifications).GeneratePreMatchReportForFixture(new FixtureModel { HomeClub = me, AwayClub = them });
+        new EnglishCommunityShieldService(state, notifications).GeneratePreMatchReportForFixture(cupFixture);
+
+        Assert.Empty(notifications.Sent);
+    }
+
+    [Fact]
+    public void PreMatchReport_DescribesTheOppositionsFormationAndPlannedApproach()
+    {
+        var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        state.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
+        var me = TestData.Club(1, "Mine");
+        var them = TestData.Club(2, "Rivals", formation: "3-5-2");
+        them.Instructions = new TeamInstructionsModel(); // last match's set-up, which the plan replaces
+        state.Clubs.AddRange([me, them]);
+        state.Competitions.Add(TestData.League(1, state.Clubs));
+        var fixture = new FixtureModel
+        {
+            HomeClub = me,
+            AwayClub = them,
+            AwayPlannedInstructions = new TeamInstructionsModel { Mentality = Mentality.Defensive, Pressing = Pressing.High }
+        };
+        var notifications = new RecordingNotifications();
+
+        new LeagueService(state, notifications).GeneratePreMatchReportForFixture(fixture);
+
+        var report = Assert.Single(notifications.Sent).Message;
+        Assert.Contains("Formation: 3-5-2", report);
+        Assert.Contains("Mentality: Defensive", report);
+        Assert.Contains("Pressing: High", report);
+        Assert.Contains("more attacking to break them down", report);
+        Assert.Contains("sit off and hit them on the counter", report);
+        Assert.Contains("switch to a high press ourselves", report);
     }
 }

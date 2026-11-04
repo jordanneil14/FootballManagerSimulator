@@ -56,6 +56,8 @@ public class ProcessHelper(
         AnnounceTransferWindowChange();
         ScoutHelper.ProcessScouts();
         ProcessPhysios();
+        ProcessAnalysts();
+        RecoverFitness();
 
         if (State.Date.Month == 6 && State.Date.Day == 30)
         {
@@ -94,7 +96,11 @@ public class ProcessHelper(
                 .FirstOrDefault();
 
             if (fixture != null && fixture.Date.DayNumber == State.Date.DayNumber + 1)
+            {
+                // The opponent settles its approach now, so the analyst's report matches what the user will face.
+                ServiceProvider.GetRequiredService<IMatchSimulatorHelper>().PlanOpponentInstructions(fixture);
                 CompetitionFactories.First(p => p.Type == comp.Type).CompetitionService.GeneratePreMatchReportForFixture(fixture);
+            }
         }
 
         EventManager.ExecuteEvents();
@@ -645,6 +651,42 @@ public class ProcessHelper(
                 "Assistant Manager",
                 "Physio Left",
                 $"{physio.Name} has left the club because there was not enough in the budget to pay their £{PhysioRules.MonthlyWage:n0} monthly wage.");
+        }
+    }
+
+    // Every player gets some fitness back each day; the user's physios speed up their own players.
+    private void RecoverFitness()
+    {
+        var physios = State.Physios.Count;
+        foreach (var player in State.Players)
+        {
+            if (player.Fitness >= FitnessRules.Max) continue;
+            var mine = State.MyClubId != null && player.Contract?.ClubId == State.MyClubId;
+            player.Fitness = FitnessRules.Recover(player.Fitness, player.Stamina, mine ? physios : 0);
+        }
+    }
+
+    private void ProcessAnalysts()
+    {
+        var club = State.Clubs.FirstOrDefault(c => c.Id == State.MyClubId);
+        if (club == null) return;
+
+        foreach (var analyst in State.Analysts.Where(p => State.Date >= p.NextPaymentDate).ToList())
+        {
+            analyst.MonthsWorked++;
+
+            if (club.TransferBudget >= AnalystRules.MonthlyWage)
+            {
+                club.TransferBudget -= AnalystRules.MonthlyWage;
+                continue;
+            }
+
+            State.Analysts.Remove(analyst);
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Assistant Manager",
+                "Analyst Left",
+                $"{analyst.Name} has left the club because there was not enough in the budget to pay their £{AnalystRules.MonthlyWage:n0} monthly wage.");
         }
     }
 }

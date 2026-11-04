@@ -69,10 +69,10 @@
 
     private static (string? Plus, string? Minus) PressingText(Pressing pressing) => pressing switch
     {
-        Pressing.Low => ("No fatigue and fewer bookings, and sharper in the last half hour against a side that has been pressing and is tiring.",
+        Pressing.Low => ("No fatigue and fewer bookings, and dangerous on the counter once a side that has been pressing starts to tire.",
                          "Gives the opponent the ball, so you create less."),
-        Pressing.High => ("The strongest setting for the first hour: you win the ball high up the pitch.",
-                          "More bookings and injuries, and your side tires through the second half. Low stamina makes the fade much worse."),
+        Pressing.High => ("The strongest setting while your legs are fresh, and even better against a side that has tired itself out pressing.",
+                          "More bookings and injuries, and your side tires once it has pressed for about 45 minutes. Low stamina makes the fade much worse."),
         _ => (null, null)
     };
 
@@ -80,7 +80,7 @@
     {
         var share = TacticalModifierRules.FatigueShare(stamina);
         var fade = share <= 0.4 ? "only lightly" : share <= 0.7 ? "noticeably" : "badly";
-        return $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} in the second half.";
+        return $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} once you've pressed for about 45 minutes.";
     }
 
     private static RenderFragment TradeOff((string? Plus, string? Minus) text) => __builder =>

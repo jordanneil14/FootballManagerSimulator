@@ -161,10 +161,11 @@ else
                         var injured = player != null && !sentOff && injuredIds.Contains(player.Id);
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "") @(sentOff ? "row-injured" : injured ? "row-injured" : "")"
                             @onclick="() => OnSlotClick(idx)">
-                            <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td class="squad-name">@(player?.Name ?? "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
-                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:62px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
-                            <td class="num" style="width:76px;white-space:nowrap" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
+                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
+                            <td class="num sq-pos @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
+                            <td class="num sq-rating" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
+                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
                         </tr>
                     }
                 </tbody>
@@ -187,9 +188,10 @@ else
                         var posLabel = player?.Position ?? "SUB";
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
                             @onclick="() => OnSlotClick(idx)">
-                            <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
-                            <td class="squad-name">@(player?.Name ?? "— empty —")@SubArrows(player)</td>
-                            <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
+                            <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@SubArrows(player)</td>
+                            <td class="num sq-rating">@(player?.Rating.ToString() ?? "")</td>
+                            <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
                         </tr>
                     }
                 </tbody>
@@ -896,6 +898,10 @@ else
         Engine.ChangeFormation(formation);
         OnLineupChanged();
     }
+
+    // A player's fitness at the current minute of this match (it drops while he's on the pitch).
+    private double LiveFitness(PlayerModel player) =>
+        _fixture == null ? player.Fitness : Engine.MatchSimulator.FitnessAt(_fixture, player.Id, _currentMinute);
 
     private void OnInstructionsChanged()
     {

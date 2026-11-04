@@ -738,7 +738,9 @@ public class TacticHelper(
                         Slot = slot,
                         Candidate = candidate,
                         Familiarity = familiarity,
+                        // Fitness counts too, so tired players are rested when there's a fresher option.
                         Effective = PositionFamiliarityRules.EffectiveRating(candidate.Player, slot.TacticSlotType)
+                                    * FitnessRules.StrengthFactor(candidate.Player.Fitness)
                     };
                 }))
                 .OrderBy(p => p.Familiarity == PositionFamiliarity.GoalkeeperSwap)

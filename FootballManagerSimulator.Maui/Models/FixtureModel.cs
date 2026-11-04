@@ -26,9 +26,21 @@ public class FixtureModel : IFixture
     public int? FirstLegGoalsAway { get; set; }
     public List<InjuryModel> HomeInjuries { get; set; } = new List<InjuryModel>();
     public List<InjuryModel> AwayInjuries { get; set; } = new List<InjuryModel>();
+    // The approach an AI side settled on the day before (see PlanOpponentInstructions), so the
+    // analyst's report matches the match. Null means the side chooses on match day.
+    public TeamInstructionsModel? HomePlannedInstructions { get; set; }
+    public TeamInstructionsModel? AwayPlannedInstructions { get; set; }
+    // When each side changed its pressing during the match, so fatigue counts the minutes actually pressed.
+    public List<PressingSpellModel> HomePressing { get; set; } = new List<PressingSpellModel>();
+    public List<PressingSpellModel> AwayPressing { get; set; } = new List<PressingSpellModel>();
     // Penalties awarded to each side, whatever the outcome.
     public List<PenaltyModel> HomePenalties { get; set; } = new List<PenaltyModel>();
     public List<PenaltyModel> AwayPenalties { get; set; } = new List<PenaltyModel>();
+    // Substitutions made during the match, so fitness counts the minutes each player was on the pitch.
+    public List<SubstitutionModel> HomeSubstitutions { get; set; } = new List<SubstitutionModel>();
+    public List<SubstitutionModel> AwaySubstitutions { get; set; } = new List<SubstitutionModel>();
+    // Set at full time once the players' fitness has been charged for this match.
+    public bool FitnessApplied { get; set; }
     // Set once an English Cup tie's prize money has gone to both clubs, so it is never paid twice.
     public bool PrizeMoneyPaid { get; set; }
     // Everyone who took the pitch: the starting XI at kick-off, plus each substitute as they come on.

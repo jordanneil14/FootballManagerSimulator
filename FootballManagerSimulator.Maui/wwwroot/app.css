@@ -263,6 +263,17 @@ p { color: var(--text-dim); line-height: 1.55; }
 .stat .value { font-size: 1.5rem; font-weight: 800; font-family: var(--mono); margin-top: .25rem; }
 .stat .value.accent { color: var(--accent); }
 
+/* Player page fitness card: the bar and number when the card is wide enough, otherwise just the
+   number (sized like the other stats). Decided by the card's own width, not the screen's. */
+.stat-fitness { container-type: inline-size; }
+.stat-fitness .fit-narrow { display: none; }
+.stat-fitness .fit-wide .fit-bar { width: 44px; height: 7px; }
+.stat-fitness .fit-wide .fit-num { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+@container (max-width: 90px) {
+    .stat-fitness .fit-wide { display: none; }
+    .stat-fitness .fit-narrow { display: inline; }
+}
+
 /* ---------- Tabs ---------- */
 .tab-bar { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 1.4rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .tab-bar::-webkit-scrollbar { display: none; }
@@ -342,11 +353,32 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .fam-gkswap { color: var(--danger); } /* red: keeper outfield or outfielder in goal, ×0.40 */
 .old-rating { color: var(--text-faint); font-weight: 400; margin-right: .15rem; }
 
+/* Fitness bar: green when fit, then yellow, orange and red as a player tires. */
+.fit { display: inline-flex; align-items: center; gap: .3rem; white-space: nowrap; }
+.fit-bar { display: inline-block; width: 34px; height: 6px; border-radius: 3px; background: var(--panel-3); overflow: hidden; }
+.fit-fill { display: block; height: 100%; border-radius: 3px; }
+.fit-fill.fit-good { background: var(--accent); }
+.fit-fill.fit-ok { background: #f2d544; }
+.fit-fill.fit-low { background: #f2762e; }
+.fit-fill.fit-poor { background: var(--danger); }
+.fit-num { font-family: var(--mono); font-size: .78rem; color: var(--text-dim); min-width: 1.4rem; text-align: right; }
+.fit-num-only { font-family: var(--mono); font-weight: 700; }
+.fit-num-only.fit-good { color: var(--accent); }
+.fit-num-only.fit-ok { color: #f2d544; }
+.fit-num-only.fit-low { color: #f2762e; }
+.fit-num-only.fit-poor { color: var(--danger); }
+
 /* Live match squad lists: fixed columns so long names wrap instead of pushing the table out of its panel. */
-table.data.squad-table { table-layout: fixed; }
-table.data.squad-table td { padding: .5rem .4rem; overflow: hidden; }
-table.data.squad-table td.num { white-space: nowrap; }
-table.data.squad-table td.squad-name { overflow-wrap: anywhere; }
+/* The small columns shrink to their contents (width 1% + nowrap) and the name takes everything left,
+   so the name can never be squeezed out. Names wrap between words only. */
+table.data.squad-table td { padding: .45rem .3rem; vertical-align: middle; }
+table.data.squad-table td.sq-slot,
+table.data.squad-table td.sq-pos,
+table.data.squad-table td.sq-rating,
+table.data.squad-table td.sq-fit { width: 1%; white-space: nowrap; }
+table.data.squad-table td.sq-pos { font-size: .78rem; }
+table.data.squad-table td.sq-slot .pos-chip { min-width: 1.9rem; padding: .1rem .3rem; }
+table.data.squad-table td.squad-name { width: 100%; overflow-wrap: break-word; line-height: 1.25; }
 .pitch-player.out-of-position .dot { background: #f2d544; color: #1a1500; }
 .pitch-player.out-of-position .pname { background: #f2d544; color: #1a1500; }
 

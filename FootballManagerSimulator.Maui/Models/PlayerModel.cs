@@ -75,6 +75,8 @@ public class PlayerModel : IPerson
     public int Acceleration { get; set; }
     public int Speed { get; set; }
     public int Stamina { get; set; }
+    // 0-100: drops while playing, recovers day by day (see FitnessRules). Old saves start fully fit.
+    public double Fitness { get; set; } = FitnessRules.Max;
     public int Strength { get; set; }
     public int Balance { get; set; }
     public int Agility { get; set; }

@@ -21,8 +21,10 @@ public class TacticsBalanceSimulationTests(ITestOutputHelper output)
 
     private sealed record Result(double PointsPerGame, double WinRate, double DrawRate, double GoalsPerMatch);
 
+    // switchTo / switchMinute: we change our instructions mid-match, as the user can from the match screen.
     private static Result Play(int ourRating, TeamInstructionsModel ours, int ourStamina = 65,
-        TeamInstructionsModel? theirs = null, int matches = Matches)
+        TeamInstructionsModel? theirs = null, int matches = Matches,
+        TeamInstructionsModel? switchTo = null, int switchMinute = 0)
     {
         var state = TestData.StateWithClubs(3, myClubId: 3);
         var players = new PlayerHelper(state);
@@ -54,17 +56,35 @@ public class TacticsBalanceSimulationTests(ITestOutputHelper output)
             var fixture = new FixtureModel { HomeClub = us, AwayClub = them, Date = state.Date, FixtureType = FixtureType.Base };
             league.Fixtures.Clear();
             league.Fixtures.Add(fixture);
-            simulator.ConcludeFixture(fixture, league);
 
-            goals += fixture.GoalsHome!.Value + fixture.GoalsAway!.Value;
-            if (fixture.GoalsHome > fixture.GoalsAway) { points += 3; wins++; }
-            else if (fixture.GoalsHome == fixture.GoalsAway) { points += 1; draws++; }
+            int ourGoals, theirGoals;
+            if (switchTo == null)
+            {
+                simulator.ConcludeFixture(fixture, league);
+                (ourGoals, theirGoals) = (fixture.GoalsHome!.Value, fixture.GoalsAway!.Value);
+            }
+            else
+            {
+                // The live-match path: the whole match is generated at kick-off, then re-evaluated from the change.
+                us.Instructions = ours.Clone();
+                simulator.PreGenerateMatch(fixture);
+                us.Instructions = switchTo.Clone();
+                simulator.ReGenerateFromMinute(fixture, switchMinute);
+                ourGoals = fixture.HomeScorers.Count(g => g.Minute <= 90);
+                theirGoals = fixture.AwayScorers.Count(g => g.Minute <= 90);
+                us.Instructions = ours.Clone();
+            }
+
+            goals += ourGoals + theirGoals;
+            if (ourGoals > theirGoals) { points += 3; wins++; }
+            else if (ourGoals == theirGoals) { points += 1; draws++; }
 
             // Keep the squads fit and eligible: only the tactics should change the results.
             foreach (var player in state.Players)
             {
                 player.SuspensionMatches = 0;
                 player.InjuryEndDate = null;
+                player.Fitness = FitnessRules.Max;
             }
         }
 
@@ -127,8 +147,10 @@ public class TacticsBalanceSimulationTests(ITestOutputHelper output)
     [SimulationFact]
     public void LowPress_CostsAgainstMediumButHoldsUpAgainstAHighPress()
     {
-        var mediumVsMedium = Play(EvenRating, With());
-        var lowVsMedium = Play(EvenRating, With(pressing: Pressing.Low));
+        // The low press's cost against a neutral side is small (about 0.02 points a game), so this
+        // pair needs more matches to rise clearly above the noise.
+        var mediumVsMedium = Play(EvenRating, With(), matches: 100_000);
+        var lowVsMedium = Play(EvenRating, With(pressing: Pressing.Low), matches: 100_000);
         var mediumVsHigh = Play(EvenRating, With(), theirs: With(pressing: Pressing.High));
         var lowVsHigh = Play(EvenRating, With(pressing: Pressing.Low), theirs: With(pressing: Pressing.High));
         Print("even, medium vs medium", mediumVsMedium);
@@ -138,6 +160,39 @@ public class TacticsBalanceSimulationTests(ITestOutputHelper output)
 
         Assert.True(lowVsMedium.PointsPerGame < mediumVsMedium.PointsPerGame, "A low press should cost against a neutral side");
         Assert.True(lowVsHigh.PointsPerGame > mediumVsHigh.PointsPerGame, "A low press should do better than medium against a high press");
+    }
+
+    // Against a side pressing high all game, changing at the hour once they're tiring: either sit off
+    // and counter, or press them yourself with fresh legs. Both should beat doing nothing.
+    [SimulationFact]
+    public void AgainstATiringPress_SwitchingAtTheHourPaysOff()
+    {
+        var theirs = With(pressing: Pressing.High);
+        var stay = Play(EvenRating, With(), theirs: theirs);
+        var toLow = Play(EvenRating, With(), theirs: theirs, switchTo: With(pressing: Pressing.Low), switchMinute: 60);
+        var toHigh = Play(EvenRating, With(), theirs: theirs, switchTo: With(pressing: Pressing.High), switchMinute: 60);
+        Print("vs high press: medium all game", stay);
+        Print("vs high press: medium, low from 60'", toLow);
+        Print("vs high press: medium, high from 60'", toHigh);
+
+        Assert.True(toLow.PointsPerGame > stay.PointsPerGame, "Sitting off a tiring press should pay off");
+        Assert.True(toHigh.PointsPerGame > stay.PointsPerGame, "Pressing a tiring side with fresh legs should pay off");
+    }
+
+    // Pressing only in the second half avoids most of the fatigue, so it mustn't be a free win
+    // against a side that hasn't tired itself out.
+    [SimulationFact]
+    public void SecondHalfPress_IsNotAFreeWinAgainstAFreshSide()
+    {
+        var stay = Play(EvenRating, With());
+        var fromHalfTime = Play(EvenRating, With(), switchTo: With(pressing: Pressing.High), switchMinute: 45);
+        var fromTheHour = Play(EvenRating, With(), switchTo: With(pressing: Pressing.High), switchMinute: 60);
+        Print("vs medium: medium all game", stay);
+        Print("vs medium: high from 45'", fromHalfTime);
+        Print("vs medium: high from 60'", fromTheHour);
+
+        Assert.InRange(fromHalfTime.PointsPerGame - stay.PointsPerGame, -0.1, 0.06);
+        Assert.InRange(fromTheHour.PointsPerGame - stay.PointsPerGame, -0.1, 0.06);
     }
 
     [SimulationFact]

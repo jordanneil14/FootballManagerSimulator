@@ -128,6 +128,35 @@ public class TacticHelperTests
     }
 
     [Fact]
+    public void FillEmptyTacticSlots_RestsATiredPlayerForAFresherOne()
+    {
+        // Two keepers: the better one is exhausted (40 fitness: 85 × 0.7 = 59.5), so the fresh 65 plays.
+        var keepers = _state.Players.Where(p => p.PreferredPosition == "GK").ToList();
+        keepers[0].Rating = 85;
+        keepers[0].Fitness = 40;
+        keepers[1].Rating = 65;
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        Assert.Equal(keepers[1].Id, Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.GK).PlayerId);
+    }
+
+    [Fact]
+    public void FillEmptyTacticSlots_StillPicksTheBetterPlayerWhenOnlySlightlyTired()
+    {
+        var keepers = _state.Players.Where(p => p.PreferredPosition == "GK").ToList();
+        keepers[0].Rating = 85;
+        keepers[0].Fitness = 88; // above the point where fitness costs anything
+        keepers[1].Rating = 65;
+        _helper.ResetTacticForClub(Club);
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        Assert.Equal(keepers[0].Id, Club.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.GK).PlayerId);
+    }
+
+    [Fact]
     public void FillEmptyTacticSlots_PrefersANaturalPlayerOverABetterOneOutOfPosition()
     {
         // 4-4-2 has one RB slot. A 70 natural RB (70) should beat an 80 CM, who'd be unfamiliar there (56),

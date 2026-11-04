@@ -172,9 +172,10 @@ public class JobOfferHelper(IState state, INotificationFactory notificationFacto
             oldClub.TransferBudget += RefundFor(@event, oldClub);
         }
 
-        // Scouts and physios are on the old club's payroll, so they stay behind.
+        // Scouts, physios and the analyst are on the old club's payroll, so they stay behind.
         State.Scouts.Clear();
         State.Physios.Clear();
+        State.Analysts.Clear();
 
         foreach (var pending in State.Notifications.Where(p => p.RequiresAction))
         {

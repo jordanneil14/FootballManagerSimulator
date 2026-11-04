@@ -85,6 +85,14 @@ else
     <div class="stat-row">
         <div class="stat"><div class="label">Overall</div><div class="value accent">@player.Rating</div></div>
         <div class="stat"><div class="label">Age</div><div class="value">@player.GetAge(Engine.State.Date)</div></div>
+        @* Bar and number when the card has room; just the number on a narrow phone (see .stat-fitness in app.css). *@
+        <div class="stat stat-fitness">
+            <div class="label">Fitness</div>
+            <div class="value">
+                <span class="fit-wide"><FitnessBar Value="player.Fitness" /></span>
+                <span class="fit-narrow"><FitnessBar Value="player.Fitness" Compact="true" /></span>
+            </div>
+        </div>
     </div>
 
     <div class="stat-row">

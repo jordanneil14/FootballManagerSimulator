@@ -28,6 +28,8 @@ public interface IState
     ManagerHistoryModel ManagerHistory { get; set; }
     List<ScoutModel> Scouts { get; set; }
     List<PhysioModel> Physios { get; set; }
+    // At most one (AnalystRules.MaxAnalysts); without one there are no pre-match reports.
+    List<AnalystModel> Analysts { get; set; }
     // Players shown on the Scout screen; scouts add to it every month.
     List<int> DiscoveredPlayerIds { get; set; }
     bool ShowTransferNotifications { get; set; }

@@ -264,12 +264,13 @@ public class FACupTests : IDisposable
     {
         var cup = CreateCup();
         State.MyClubId = ClubsIn(3).First().Id;
+        State.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
         RunNextDraw();
         var mine = cup.Fixtures.Single(f => f.HomeClub.Id == State.MyClubId || f.AwayClub.Id == State.MyClubId);
 
         _host.Get<EnglishFACupService>().GeneratePreMatchReportForFixture(mine);
 
-        Assert.Contains(State.Notifications, n => n.Subject == "Pre-Match Report" && n.Message.Contains("upcoming National Association Cup tie"));
+        Assert.Contains(State.Notifications, n => n.Subject == "Pre-Match Report" && n.Message.Contains("It's a National Association Cup tie."));
     }
 
     // ----- Rules --------------------------------------------------------------------------

@@ -32,14 +32,14 @@ public class ClubHelper(
         var startingEleven = State.Clubs.First(p => p.Id == clubId).TacticSlots
             .Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
 
-        // Players picked out of position count for less (see PositionFamiliarityRules).
-        var sum = 0;
+        // Players picked out of position, or not fully fit, count for less (see PositionFamiliarityRules, FitnessRules).
+        var sum = 0.0;
         foreach (var slot in startingEleven)
         {
             if (slot.PlayerId == null) continue;
             var player = State.Players.First(p => p.Id == slot.PlayerId);
-            sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType);
+            sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType) * FitnessRules.StrengthFactor(player.Fitness);
         }
-        return sum;
+        return (int)Math.Round(sum);
     }
 }

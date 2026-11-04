@@ -184,6 +184,7 @@ public class GameEngine(
         State.ManagerHistory = new ManagerHistoryModel();
         State.Scouts.Clear();
         State.Physios.Clear();
+        State.Analysts.Clear();
         State.DiscoveredPlayerIds.Clear();
         State.CareerId = NewCareerId();
     }
@@ -652,6 +653,7 @@ public class GameEngine(
             _playersBeenOnPitch.Remove(goingOff!.Value);
             if (!_startingPlayerIds.Contains(goingOff.Value) && !_substitutions.Any(s => s.OnId == goingOff.Value))
                 MyFixturePlayerIds(fixture).Remove(goingOff.Value);
+            SaveSubstitutions(fixture);
             SwapTacticSlots(fromIndex, toIndex);
             return null;
         }
@@ -667,8 +669,17 @@ public class GameEngine(
         var playerIds = MyFixturePlayerIds(fixture);
         if (!playerIds.Contains(comingOn.Value))
             playerIds.Add(comingOn.Value);
+        SaveSubstitutions(fixture);
         SwapTacticSlots(fromIndex, toIndex);
         return null;
+    }
+
+    // Copies this match's substitutions onto the fixture, where fitness and saves can see them.
+    private void SaveSubstitutions(FixtureModel fixture)
+    {
+        var saved = fixture.HomeClub.Id == MyClub.Id ? fixture.HomeSubstitutions : fixture.AwaySubstitutions;
+        saved.Clear();
+        saved.AddRange(_substitutions.Select(s => new SubstitutionModel { Minute = s.Minute, OffId = s.OffId, OnId = s.OnId }));
     }
 
     public void AutoPickTeam()
@@ -1313,6 +1324,8 @@ public class GameEngine(
             State.ManagerHistory = deserialised.ManagerHistory;
             State.Scouts = deserialised.Scouts;
             State.Physios = deserialised.Physios;
+            // Saves from before analysts existed have none.
+            State.Analysts = deserialised.Analysts ?? new List<AnalystModel>();
             State.DiscoveredPlayerIds = deserialised.DiscoveredPlayerIds;
             State.MatchSpeedMs = deserialised.MatchSpeedMs;
             State.AutoSaveEnabled = deserialised.AutoSaveEnabled;

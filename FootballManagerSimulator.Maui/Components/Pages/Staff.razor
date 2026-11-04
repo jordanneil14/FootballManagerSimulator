@@ -3,6 +3,7 @@
 @inject GameEngine Engine
 @inject IScoutHelper Scouts
 @inject IPhysioHelper Physios
+@inject IAnalystHelper Analysts
 @inject NavigationManager Nav
 
 <PageTitle>Staff</PageTitle>
@@ -104,6 +105,46 @@
             </div>
         }
     </div>
+
+    <div class="panel">
+        <h2 style="justify-content:space-between;flex-wrap:wrap">
+            <span>📋 Analyst <span class="panel-title-sub">@Engine.State.Analysts.Count / @AnalystRules.MaxAnalysts</span></span>
+            <button class="btn btn-primary" @onclick="HireAnalyst"
+                    disabled="@(Engine.State.Analysts.Count >= AnalystRules.MaxAnalysts || Engine.MyClub.TransferBudget < AnalystRules.MonthlyWage)">
+                Hire Analyst (@Ui.Money(AnalystRules.MonthlyWage)/month)
+            </button>
+        </h2>
+        <p style="font-size:.82rem">
+            An analyst costs <strong>@Ui.Money(AnalystRules.MonthlyWage)</strong> per month from the budget. The day before each match they send a
+            pre-match report on the opposition: their key players, formation, mentality and pressing. Without an analyst you get no pre-match reports.
+        </p>
+        @if (Engine.State.Analysts.Count == 0)
+        {
+            <p class="muted">You haven't hired an analyst yet.</p>
+        }
+        else
+        {
+            <div class="table-wrap">
+                <table class="data">
+                    <thead>
+                        <tr><th>Name</th><th>Hired</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var analyst in Engine.State.Analysts)
+                        {
+                            <tr>
+                                <td><strong>@analyst.Name</strong></td>
+                                <td>@analyst.HiredDate.ToString("dd MMM yyyy")</td>
+                                <td style="text-align:right;white-space:nowrap">
+                                    <button class="btn btn-danger" @onclick="() => _dismissAnalyst = analyst">Dismiss</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
 }
 
 <ConfirmModal Visible="_dismissScout != null"
@@ -122,10 +163,33 @@
               OnConfirm="DismissPhysio"
               OnCancel="() => _dismissPhysio = null" />
 
+<ConfirmModal Visible="_dismissAnalyst != null"
+              Title="@($"Dismiss {_dismissAnalyst?.Name}?")"
+              Message="They will leave the club immediately and you will stop receiving pre-match reports."
+              ConfirmText="Dismiss"
+              ConfirmClass="btn-danger"
+              OnConfirm="DismissAnalyst"
+              OnCancel="() => _dismissAnalyst = null" />
+
 @code {
     private string? _message;
     private ScoutModel? _dismissScout;
     private PhysioModel? _dismissPhysio;
+    private AnalystModel? _dismissAnalyst;
+
+    private void HireAnalyst()
+    {
+        _message = Analysts.HireAnalyst();
+        Engine.NotifyChanged();
+    }
+
+    private void DismissAnalyst()
+    {
+        if (_dismissAnalyst != null)
+            _message = Analysts.DismissAnalyst(_dismissAnalyst.Id);
+        _dismissAnalyst = null;
+        Engine.NotifyChanged();
+    }
 
     private void HireScout()
     {

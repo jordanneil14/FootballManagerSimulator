@@ -182,6 +182,7 @@
             </td>
             <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? player.PreferredPosition : "")</td>
             <td class="num" style="width:76px;white-space:nowrap" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
+            <td class="num" style="width:76px">@if (player != null) { <FitnessBar Value="player.Fitness" /> }</td>
         </tr>;
     }
 

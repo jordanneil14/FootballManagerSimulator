@@ -1158,4 +1158,121 @@ public class MatchSimulatorHelperTests
         Assert.True(MatchSimulatorHelper.PositionScoringWeight(TacticSlotType.GK)
             < MatchSimulatorHelper.PositionScoringWeight(TacticSlotType.CB));
     }
+
+    // ----- Opponent's plan (analyst report) -------------------------------------------------
+
+    private ClubModel Mine => _state.Clubs[2];
+
+    [Fact]
+    public void PlanOpponentInstructions_PlansOnlyTheAISide()
+    {
+        foreach (var player in _state.Players)
+            player.Rating = player.Contract?.ClubId == Mine.Id ? 85 : 45;
+        var fixture = new FixtureModel { HomeClub = Mine, AwayClub = Home, Date = _state.Date.AddDays(1) };
+
+        _simulator.PlanOpponentInstructions(fixture);
+
+        Assert.Null(fixture.HomePlannedInstructions);
+        Assert.NotNull(fixture.AwayPlannedInstructions);
+        // A clear underdog always drops off (only its mentality is ever softened).
+        Assert.Equal(Pressing.Low, fixture.AwayPlannedInstructions!.Pressing);
+    }
+
+    [Fact]
+    public void ChooseAIInstructions_SticksToTheDayBeforePlan()
+    {
+        var plan = new TeamInstructionsModel { Mentality = Mentality.Attacking, Pressing = Pressing.High };
+        var fixture = new FixtureModel { HomeClub = Mine, AwayClub = Home, Date = _state.Date, AwayPlannedInstructions = plan };
+
+        _simulator.ChooseAIInstructions(fixture);
+
+        Assert.Equal(Mentality.Attacking, Home.Instructions.Mentality);
+        Assert.Equal(Pressing.High, Home.Instructions.Pressing);
+        Assert.NotSame(plan, Home.Instructions);
+    }
+
+    [Fact]
+    public void ChooseAIInstructions_NeverTouchesMyClub()
+    {
+        Mine.Instructions = new TeamInstructionsModel { Mentality = Mentality.Defensive };
+        var fixture = new FixtureModel { HomeClub = Mine, AwayClub = Home, Date = _state.Date };
+
+        _simulator.ChooseAIInstructions(fixture);
+
+        Assert.Equal(Mentality.Defensive, Mine.Instructions.Mentality);
+    }
+
+    // ----- Fitness ---------------------------------------------------------------------------
+
+    private List<PlayerModel> StartersOf(ClubModel club) => club.TacticSlots
+        .Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES) && s.PlayerId != null)
+        .Select(s => _state.Players.First(p => p.Id == s.PlayerId))
+        .ToList();
+
+    [Fact]
+    public void FullTime_ChargesEveryStarterForTheMatchAndLeavesTheBenchFresh()
+    {
+        foreach (var player in _state.Players) player.Stamina = 65;
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+        var bench = Home.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null)
+            .Select(s => _state.Players.First(p => p.Id == s.PlayerId)).ToList();
+
+        _simulator.ConcludeFixture(fixture, competition);
+
+        var sentOff = fixture.HomeCards.Concat(fixture.AwayCards).Where(c => c.IsRed).Select(c => c.PlayerId).ToHashSet();
+        Assert.All(StartersOf(Home).Concat(StartersOf(Away)).Where(p => !sentOff.Contains(p.Id)),
+            p => Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.IsGoalkeeper(p)), p.Fitness, 6));
+        // Keepers tire at a third of the rate.
+        var keeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
+        var outfielder = StartersOf(Home).First(p => p.PreferredPosition != "GK" && !sentOff.Contains(p.Id));
+        Assert.Equal((FitnessRules.Max - outfielder.Fitness) / 3, FitnessRules.Max - keeper.Fitness, 6);
+        Assert.All(bench, p => Assert.Equal(FitnessRules.Max, p.Fitness));
+        Assert.True(fixture.FitnessApplied);
+    }
+
+    [Fact]
+    public void FullTime_ASidePressingHighTiresMore()
+    {
+        foreach (var player in _state.Players) player.Stamina = 65;
+        Home.Instructions = new TeamInstructionsModel { Pressing = Pressing.High };
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+
+        _simulator.ConcludeFixture(fixture, competition);
+
+        var homeKeeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
+        var awayKeeper = StartersOf(Away).First(p => p.PreferredPosition == "GK");
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 90, goalkeeper: true), homeKeeper.Fitness, 6);
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, goalkeeper: true), awayKeeper.Fitness, 6);
+    }
+
+    [Fact]
+    public void FitnessAt_ASubstituteOnlyTiresFromWhenHeCameOn()
+    {
+        foreach (var player in _state.Players) player.Stamina = 65;
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        var starter = StartersOf(Home).First(p => p.PreferredPosition != "GK");
+        var sub = Home.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null)
+            .Select(s => _state.Players.First(p => p.Id == s.PlayerId))
+            .First(p => !FitnessRules.IsGoalkeeper(p));
+        fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = 60, OffId = starter.Id, OnId = sub.Id });
+        fixture.HomePlayerIds.Add(sub.Id);
+
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 60, 0), _simulator.FitnessAt(fixture, starter.Id, 90), 6);
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 30, 0), _simulator.FitnessAt(fixture, sub.Id, 90), 6);
+        Assert.Equal(FitnessRules.Max, _simulator.FitnessAt(fixture, sub.Id, 50));
+    }
+
+    [Fact]
+    public void FitnessAt_StartsFromThePlayersFitnessGoingIntoTheMatch()
+    {
+        foreach (var player in _state.Players) player.Stamina = 65;
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        var tired = StartersOf(Home).First(p => p.PreferredPosition != "GK");
+        tired.Fitness = 70;
+        _simulator.PreGenerateMatch(fixture);
+
+        Assert.Equal(70, _simulator.FitnessAt(fixture, tired.Id, 0), 6);
+        Assert.Equal(70 - FitnessRules.Drain(65, 45, 0), _simulator.FitnessAt(fixture, tired.Id, 45), 6);
+    }
 }

@@ -97,23 +97,38 @@ Three levels (decided). Mentality is mostly a risk dial (T ≈ E).
 
 | Option | Effect | Advantage | Disadvantage |
 |---|---|---|---|
-| Low | T ×0.94, E ×0.96. Cards ×0.80. After the 60th minute, T ×1.10 against a side pressing high (they're tiring and you're fresh). | No fatigue, fewer cards, sharper late on against a press. | You give the opponent the ball, so you create less. |
+| Low | T ×0.94, E ×0.96. Cards ×0.80. **Counter:** T × (1 + 0.25 × opponent's fatigue). | No fatigue, fewer cards, dangerous on the counter once a pressing side tires. | You give the opponent the ball, so you create less. |
 | **Medium** | — | — | — |
-| High | T ×1.08, E ×0.97 (winning the ball high up the pitch). Cards ×1.35, injuries ×1.20. **Fatigue:** from half-time, T and E drift towards T 0.88 / E 1.18, reaching it by the 75th minute and staying there (including extra time). | The strongest setting for the first half. | Bookings, injuries, and a second-half fade. A side with poor stamina is worse off than if it hadn't pressed at all. |
+| High | T ×1.08, E ×0.97 (winning the ball high up the pitch). Cards ×1.35, injuries ×1.20. **Fatigue:** T and E drift towards T 0.92 / E 1.12 as the side tires (softened once player fitness was added, see player-fitness.md). **Squeeze:** T × (1 + 0.15 × opponent's fatigue × (1 − own fatigue)). | The strongest setting while your legs are fresh, and better still against a side that has tired itself out. | Bookings, injuries, and a fade once you've pressed for a while. A side with poor stamina is worse off than if it hadn't pressed at all. |
 
-Fatigue is scaled by the XI's average outfield `Stamina` (players on the pitch at that minute):
-`fade = clamp((85 − avgStamina) / 30, 0.3, 1.0)`. A very fit side gets 30% of the full drift;
-a side averaging 55 or less gets all of it. Fitness is never a complete fix.
+**Fatigue (as built).** It comes from **workload**, not the clock:
+`load = minutes played + minutes spent pressing high`, recorded per fixture side as a log of
+pressing changes (`FixtureModel.HomePressing` / `AwayPressing`, `PressingLog`).
+- Fatigue starts at load 90 and is complete at load 150. A side pressing from kick-off starts to tire
+  at half-time and is fully tired by the 75th minute. A side that starts pressing at the hour reaches
+  half its fade by the 90th. A side that never presses never tires in 90 minutes.
+- It is scaled by the XI's average outfield `Stamina` (players on the pitch at that minute):
+  `share = clamp((85 − avgStamina) / 30, 0.3, 1.0)`. A very fit side gets 30% of the fade; a side
+  averaging 55 or less gets all of it. Fitness is never a complete fix.
+- A side's fatigue only hurts it while it is pressing high, but it stays tired after it stops. That
+  tiredness is what the opponent's Low counter and High squeeze feed on.
 
-Simulated results (20,000 matches each, evenly matched sides, points per game against Medium):
+So against a side pressing high, there are two answers once they tire: **sit off and counter**, or
+**press them yourself with fresher legs**. Both beat standing still, and the analyst's report says so.
+
+Simulated results with player fitness included (20,000 matches each, 100,000 for the Low vs Medium pair; evenly matched sides;
+points per game compared with Medium all game):
 
 | Our press | Our stamina | Opponent | PPG change |
 |---|---|---|---|
-| High | 82 | Medium | +0.06 |
-| High | 65 | Medium | ±0.00 |
-| High | 45 | Medium | −0.04 |
-| Low | 65 | Medium | −0.03 |
-| Low (vs Medium against the same press) | 65 | High | +0.02 |
+| High all game | 82 | Medium | +0.11 |
+| High all game | 65 | Medium | −0.02 |
+| High all game | 45 | Medium | −0.11 |
+| Low all game | 65 | Medium | −0.02 |
+| Low all game | 65 | High | +0.05 |
+| Medium, then Low from 60' | 65 | High | about 0 |
+| Medium, then High from 60' | 65 | High | +0.02 |
+| Medium, then High from 45' / 60' | 65 | Medium | +0.01 / 0 |
 
 ### 3. Passing style
 

@@ -570,6 +570,70 @@ public class ProcessHelperTests : IDisposable
         Assert.Equal(1_000_000 - PhysioRules.MonthlyWage, State.Clubs[0].TransferBudget);
     }
 
+    // ----- Analyst -----------------------------------------------------------------------
+
+    [Fact]
+    public void Analyst_IsPaidFromMyBudgetEachMonth()
+    {
+        var analyst = new AnalystModel { Id = 1, Name = "Ann Alyst", HiredDate = PhysioHired };
+        State.Analysts.Add(analyst);
+        State.Clubs[0].TransferBudget = 1_000_000;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Equal(1_000_000 - AnalystRules.MonthlyWage, State.Clubs[0].TransferBudget);
+        Assert.Equal(1, analyst.MonthsWorked);
+        Assert.Single(State.Analysts);
+    }
+
+    [Fact]
+    public void Analyst_LeavesUnpaidWhenTheBudgetCannotCoverTheWage()
+    {
+        State.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst", HiredDate = PhysioHired });
+        State.Clubs[0].TransferBudget = AnalystRules.MonthlyWage - 1;
+
+        AdvanceTo(PhysioHired.AddMonths(1));
+
+        Assert.Empty(State.Analysts);
+        Assert.Equal(AnalystRules.MonthlyWage - 1, State.Clubs[0].TransferBudget);
+        Assert.Single(State.Notifications, n => n.Subject == "Analyst Left");
+    }
+
+    // ----- Fitness -----------------------------------------------------------------------
+
+    [Fact]
+    public void Fitness_RecoversEveryDayUpToFull()
+    {
+        var mine = PlayerAt(1);
+        var theirs = PlayerAt(2);
+        mine.Stamina = theirs.Stamina = (int)FitnessRules.StaminaReference;
+        mine.Fitness = theirs.Fitness = 70;
+
+        AdvanceTo(new DateOnly(2026, 8, 10));
+        Assert.Equal(70 + FitnessRules.RecoveryPerDay, mine.Fitness, 6);
+        Assert.Equal(70 + FitnessRules.RecoveryPerDay, theirs.Fitness, 6);
+
+        for (var date = new DateOnly(2026, 8, 11); date <= new DateOnly(2026, 8, 20); date = date.AddDays(1))
+            AdvanceTo(date);
+        Assert.Equal(FitnessRules.Max, mine.Fitness);
+    }
+
+    [Fact]
+    public void Fitness_MyPhysiosSpeedUpMyPlayersOnly()
+    {
+        HirePhysio(1);
+        State.Clubs[0].TransferBudget = 1_000_000;
+        var mine = PlayerAt(1);
+        var theirs = PlayerAt(2);
+        mine.Stamina = theirs.Stamina = (int)FitnessRules.StaminaReference;
+        mine.Fitness = theirs.Fitness = 50;
+
+        AdvanceTo(new DateOnly(2026, 8, 10));
+
+        Assert.Equal(50 + FitnessRules.Recovery(FitnessRules.StaminaReference, 1), mine.Fitness, 6);
+        Assert.Equal(50 + FitnessRules.RecoveryPerDay, theirs.Fitness, 6);
+    }
+
     // ----- Sacking ------------------------------------------------------------------------
 
     [Theory]
