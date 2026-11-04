@@ -14,6 +14,8 @@ public class ClubModel
 	public int WageBudget { get; set; }
     public List<TacticSlotModel> TacticSlots { get; set; } = new List<TacticSlotModel>();
     public string Formation { get; set; } = "4-4-2";
+    // In order of preference: the first of them on the pitch takes the penalty.
+    public List<int> PenaltyTakerIds { get; set; } = new List<int>();
     public string Colour { get; set; } = "";
     public double JobSecurity { get; set; } = BoardConfidenceRules.Starting;
     public DateOnly? VacantUntil { get; set; }

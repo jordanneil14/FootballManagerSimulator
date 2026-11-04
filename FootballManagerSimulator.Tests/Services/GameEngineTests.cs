@@ -580,6 +580,108 @@ public class GameEngineTests : IDisposable
         Assert.Equal((second, first), (MyClub.TacticSlots[0].PlayerId, MyClub.TacticSlots[5].PlayerId));
     }
 
+    // ----- Penalty takers ----------------------------------------------------------------
+
+    private List<int> MySquadIds(int count) =>
+        _state.Players.Where(p => p.Contract?.ClubId == MyClub.Id).Take(count).Select(p => p.Id).ToList();
+
+    private List<int> TakerIds() => _engine.PenaltyTakers().Select(p => p.Id).ToList();
+
+    [Fact]
+    public void SetPenaltyTaker_TheEmptyPlaceAfterTheListAddsToTheEnd()
+    {
+        var (a, b) = (MySquadIds(2)[0], MySquadIds(2)[1]);
+
+        _engine.SetPenaltyTaker(0, a);
+        _engine.SetPenaltyTaker(1, b);
+
+        Assert.Equal([a, b], TakerIds());
+    }
+
+    [Fact]
+    public void SetPenaltyTaker_ReplacesTheTakerInAFilledPlace()
+    {
+        var ids = MySquadIds(3);
+        _engine.SetPenaltyTaker(0, ids[0]);
+        _engine.SetPenaltyTaker(1, ids[1]);
+
+        _engine.SetPenaltyTaker(0, ids[2]);
+
+        Assert.Equal([ids[2], ids[1]], TakerIds());
+    }
+
+    [Fact]
+    public void SetPenaltyTaker_APlayerAlreadyListedMovesRatherThanAppearingTwice()
+    {
+        var ids = MySquadIds(3);
+        foreach (var id in ids) _engine.SetPenaltyTaker(TakerIds().Count, id);
+
+        _engine.SetPenaltyTaker(0, ids[2]);
+        Assert.Equal([ids[2], ids[1], ids[0]], TakerIds());
+
+        _engine.SetPenaltyTaker(3, ids[2]); // the empty place: to the end
+        Assert.Equal([ids[1], ids[0], ids[2]], TakerIds());
+    }
+
+    [Fact]
+    public void SetPenaltyTaker_IgnoresPlayersFromOtherClubsAndPlacesPastTheEmptyOne()
+    {
+        var mine = MySquadIds(1)[0];
+
+        _engine.SetPenaltyTaker(0, PlayerAt(_state.Clubs[1].Id).Id);
+        _engine.SetPenaltyTaker(1, mine);
+
+        Assert.Empty(TakerIds());
+    }
+
+    [Fact]
+    public void SwapPenaltyTakers_SwapsTwoTakersOrMovesOneToTheEnd()
+    {
+        var ids = MySquadIds(3);
+        foreach (var id in ids) _engine.SetPenaltyTaker(TakerIds().Count, id);
+
+        _engine.SwapPenaltyTakers(0, 2);
+        Assert.Equal([ids[2], ids[1], ids[0]], TakerIds());
+
+        _engine.SwapPenaltyTakers(3, 0);
+        Assert.Equal([ids[1], ids[0], ids[2]], TakerIds());
+    }
+
+    [Fact]
+    public void RemovePenaltyTaker_TakesThePlayerOffTheList()
+    {
+        var ids = MySquadIds(2);
+        foreach (var id in ids) _engine.SetPenaltyTaker(TakerIds().Count, id);
+
+        _engine.RemovePenaltyTaker(0);
+        _engine.RemovePenaltyTaker(5);
+
+        Assert.Equal([ids[1]], TakerIds());
+    }
+
+    [Fact]
+    public void PenaltyTakers_LeavesOutPlayersWhoHaveLeftTheClub()
+    {
+        var ids = MySquadIds(2);
+        foreach (var id in ids) _engine.SetPenaltyTaker(TakerIds().Count, id);
+
+        _state.Players.First(p => p.Id == ids[0]).Contract = null;
+
+        Assert.Equal([ids[1]], TakerIds());
+        Assert.Equal([ids[1]], MyClub.PenaltyTakerIds);
+    }
+
+    [Fact]
+    public void PenaltyTakers_LeavesOutPlayersWhoHaveRetiredFromTheGame()
+    {
+        var ids = MySquadIds(2);
+        foreach (var id in ids) _engine.SetPenaltyTaker(TakerIds().Count, id);
+
+        _state.Players.RemoveAll(p => p.Id == ids[0]);
+
+        Assert.Equal([ids[1]], TakerIds());
+    }
+
     // ----- In-match substitutions ---------------------------------------------------------
 
     private (FixtureModel Fixture, List<int> Pitch, List<int> Bench) LiveMatch()

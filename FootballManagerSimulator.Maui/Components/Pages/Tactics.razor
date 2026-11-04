@@ -83,6 +83,67 @@
     </div>
 </div>
 
+@{
+    var takers = Engine.PenaltyTakers();
+    var startingIds = starters.Select(s => s.PlayerId).ToHashSet();
+    var takingId = takers.FirstOrDefault(p => startingIds.Contains(p.Id))?.Id;
+    var pickedPlayer = _selected is { } sel && slots[sel].PlayerId is { } pickedId ? Engine.GetPlayer(pickedId) : null;
+}
+
+<div class="panel" style="@LockedStyle">
+    <h2>🎯 Set Pieces</h2>
+    <h3 style="font-size:.9rem;margin-bottom:.4rem">Penalty Takers</h3>
+    <p class="muted" style="font-size:.82rem;margin-bottom:1rem">The highest player on this list who is on the pitch takes the penalty. Tap a player above, then tap a slot to add them. Tap two takers to swap their order.</p>
+    <div class="table-wrap">
+        <table class="data">
+            <thead>
+                <tr>
+                    <th class="num">#</th><th>Pos</th><th>Player</th>
+                    <th class="num" title="Finishing">Fin</th>
+                    <th class="num" title="Penalties">Pen</th>
+                    <th class="num" title="Composure">Com</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < takers.Count; i++)
+                {
+                    var index = i;
+                    var taker = takers[i];
+                    <tr class="clickable @(_selectedPen == index ? "highlight" : "")" @onclick="() => OnPenaltySlotClick(index)">
+                        <td class="num" style="width:44px">@(index + 1)</td>
+                        <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(taker.PreferredPosition)">@taker.PreferredPosition</span></td>
+                        <td>
+                            <strong>@taker.Name</strong>
+                            @if (taker.Id == takingId)
+                            {
+                                <span class="tag green" style="margin-left:.4rem">⚽ Taking</span>
+                            }
+                            else if (!startingIds.Contains(taker.Id))
+                            {
+                                <span class="tag" style="margin-left:.4rem">Not on pitch</span>
+                            }
+                        </td>
+                        <td class="num" style="width:50px"><span class="@StatClass(taker.Finishing)">@taker.Finishing</span></td>
+                        <td class="num" style="width:50px"><span class="@StatClass(taker.Penalties)">@taker.Penalties</span></td>
+                        <td class="num" style="width:50px"><span class="@StatClass(taker.Composure)">@taker.Composure</span></td>
+                        <td class="num" style="width:56px">
+                            <button class="btn btn-danger" style="padding:.2rem .55rem;font-size:.8rem" title="Remove @taker.Name"
+                                    disabled="@Locked" @onclick="() => RemovePenaltyTaker(index)" @onclick:stopPropagation>✕</button>
+                        </td>
+                    </tr>
+                }
+                <tr class="clickable @(_selectedPen == takers.Count ? "highlight" : "")" @onclick="() => OnPenaltySlotClick(takers.Count)">
+                    <td class="num" style="width:44px">@(takers.Count + 1)</td>
+                    <td colspan="6" style="font-style:italic;color:@(pickedPlayer != null ? "var(--accent)" : "var(--text-faint)")">
+                        — @(pickedPlayer != null ? $"Tap to add {pickedPlayer.Name}" : "Tap a player, then tap here to add them") —
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 @code {
     private int? _selected;
 
@@ -126,9 +187,46 @@
         </tr>;
     }
 
+    // A penalty slot picked first: the next player tapped goes into it.
+    private int? _selectedPen;
+
+    private static string StatClass(int value) =>
+        value >= 80 ? "stat-val hi" : value >= 70 ? "stat-val mid" : "stat-val";
+
+    private void OnPenaltySlotClick(int index)
+    {
+        if (Locked) return;
+
+        if (_selected is { } slotIndex)
+        {
+            if (Engine.MyClub.TacticSlots[slotIndex].PlayerId is { } playerId)
+                Engine.SetPenaltyTaker(index, playerId);
+            _selected = null;
+            return;
+        }
+
+        if (_selectedPen == null) { _selectedPen = index; return; }
+        if (_selectedPen != index) Engine.SwapPenaltyTakers(_selectedPen.Value, index);
+        _selectedPen = null;
+    }
+
+    private void RemovePenaltyTaker(int index)
+    {
+        if (Locked) return;
+        _selectedPen = null;
+        Engine.RemovePenaltyTaker(index);
+    }
+
     private void OnSlotClick(int index)
     {
         if (Locked) return;
+        if (_selectedPen is { } penIndex)
+        {
+            if (Engine.MyClub.TacticSlots[index].PlayerId is { } playerId)
+                Engine.SetPenaltyTaker(penIndex, playerId);
+            _selectedPen = null;
+            return;
+        }
         if (_selected == null) { _selected = index; return; }
         if (_selected == index) { _selected = null; return; }
         Engine.SwapTacticSlots(_selected.Value, index);
@@ -139,6 +237,7 @@
     {
         if (Locked) return;
         _selected = null;
+        _selectedPen = null;
         Engine.ChangeFormation(formation);
     }
 }

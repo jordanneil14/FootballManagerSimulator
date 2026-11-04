@@ -506,6 +506,67 @@ public class GameEngine(
         (slots[toIndex].PlayerId, slots[fromIndex].PlayerId) = (slots[fromIndex].PlayerId, slots[toIndex].PlayerId);
     }
 
+    // The penalty takers in order, leaving out anyone who has since left the club.
+    public List<PlayerModel> PenaltyTakers()
+    {
+        PrunePenaltyTakers();
+        return MyClub.PenaltyTakerIds.Select(id => GetPlayer(id)!).ToList();
+    }
+
+    // Checked by looking the player up, since a retired player is no longer in the game at all.
+    private bool IsAtMyClub(int playerId) => GetPlayer(playerId)?.Contract?.ClubId == MyClub.Id;
+
+    private List<int> PrunePenaltyTakers()
+    {
+        var takers = MyClub.PenaltyTakerIds;
+        takers.RemoveAll(id => !IsAtMyClub(id));
+        return takers;
+    }
+
+    /// <summary>
+    /// Puts a player at a place in the penalty list; the place after the last taker adds them to the end.
+    /// A player already on the list swaps places rather than appearing twice; anyone else replaces that taker.
+    /// </summary>
+    public void SetPenaltyTaker(int index, int playerId)
+    {
+        var takers = PrunePenaltyTakers();
+        if (index < 0 || index > takers.Count || !IsAtMyClub(playerId)) return;
+
+        var existing = takers.IndexOf(playerId);
+        if (index == takers.Count)
+        {
+            if (existing >= 0) takers.RemoveAt(existing);
+            takers.Add(playerId);
+        }
+        else if (existing >= 0)
+            (takers[existing], takers[index]) = (takers[index], takers[existing]);
+        else
+            takers[index] = playerId;
+    }
+
+    // Swapping a taker with the empty place after the list moves them to the end.
+    public void SwapPenaltyTakers(int first, int second)
+    {
+        var takers = PrunePenaltyTakers();
+        if (first < 0 || second < 0 || first > takers.Count || second > takers.Count || first == second) return;
+
+        if (first == takers.Count || second == takers.Count)
+        {
+            var moving = Math.Min(first, second);
+            takers.Add(takers[moving]);
+            takers.RemoveAt(moving);
+        }
+        else
+            (takers[first], takers[second]) = (takers[second], takers[first]);
+    }
+
+    public void RemovePenaltyTaker(int index)
+    {
+        var takers = PrunePenaltyTakers();
+        if (index >= 0 && index < takers.Count)
+            takers.RemoveAt(index);
+    }
+
     public const int MaxSubstitutions = 5;
 
     // Substitutions made in the match being played. The engine lives for the whole app session,
