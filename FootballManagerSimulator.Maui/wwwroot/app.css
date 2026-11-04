@@ -232,6 +232,7 @@ p { color: var(--text-dim); line-height: 1.55; }
 .page-head h1 { font-size: 1.6rem; margin: 0; }
 .page-head .subtitle { color: var(--text-faint); font-size: .9rem; margin-top: .2rem; }
 .page-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.page-head + p { margin-top: 0; }
 
 /* ---------- Panels & cards ---------- */
 .panel {
