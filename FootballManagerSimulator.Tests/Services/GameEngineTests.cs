@@ -1220,6 +1220,57 @@ public class GameEngineTests : IDisposable
         Assert.True(_engine.CanSave);
     }
 
+    // Kicks off, then makes the kinds of change the match screen allows: a substitution, a new
+    // formation and a different approach.
+    private (string Formation, List<int?> Slots, Mentality Mentality, Pressing Pressing) KickOffAndChangeTactics(FixtureModel fixture)
+    {
+        _engine.AutoPickTeam();
+        var kickOff = (MyClub.Formation, MyClub.TacticSlots.Select(s => s.PlayerId).ToList(), MyClub.Instructions.Mentality, MyClub.Instructions.Pressing);
+        Assert.Null(_engine.StartMatch());
+
+        var pitch = MyClub.TacticSlots.FindIndex(s => s.TacticSlotType == TacticSlotType.ST);
+        var bench = MyClub.TacticSlots.FindIndex(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null);
+        Assert.Null(_engine.MatchSwap(fixture, _engine.GetCompetitionForFixture(fixture), pitch, bench, 60));
+        _engine.ChangeFormation(MyClub.Formation == "5-4-1" ? "4-3-3" : "5-4-1");
+        _engine.SetMentality(Mentality.Attacking);
+        _engine.SetPressing(Pressing.High);
+        Assert.NotEqual(kickOff.Item2, MyClub.TacticSlots.Select(s => s.PlayerId).ToList());
+
+        return kickOff;
+    }
+
+    private void AssertTacticsAre((string Formation, List<int?> Slots, Mentality Mentality, Pressing Pressing) expected)
+    {
+        Assert.Equal(expected.Formation, MyClub.Formation);
+        Assert.Equal(expected.Slots, MyClub.TacticSlots.Select(s => s.PlayerId).ToList());
+        Assert.Equal(expected.Mentality, MyClub.Instructions.Mentality);
+        Assert.Equal(expected.Pressing, MyClub.Instructions.Pressing);
+    }
+
+    [Fact]
+    public void CompleteRemainingFixtures_PutsMyTacticsBackToHowTheyWereAtKickOff()
+    {
+        var fixture = AddFixtureToday(MyClub, _state.Clubs[1]);
+        var kickOff = KickOffAndChangeTactics(fixture);
+
+        _engine.MatchSimulator.ConcludeFixture(fixture, _engine.GetCompetitionForFixture(fixture)!);
+        _engine.CompleteRemainingFixtures();
+
+        AssertTacticsAre(kickOff);
+    }
+
+    [Fact]
+    public void Advance_PutsMyTacticsBackWhenTheMatchWasLeftAtFullTime()
+    {
+        var fixture = AddFixtureToday(MyClub, _state.Clubs[1]);
+        var kickOff = KickOffAndChangeTactics(fixture);
+
+        fixture.Concluded = true; // full time, then left the match another way than Continue
+        _engine.Advance();
+
+        AssertTacticsAre(kickOff);
+    }
+
     [Fact]
     public void ListSaves_SkipsCorruptFiles()
     {

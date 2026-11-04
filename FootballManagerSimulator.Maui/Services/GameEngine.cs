@@ -204,7 +204,10 @@ public class GameEngine(
 
         try
         {
-            // Catches a match day left at the full-time screen, so its cup ties still pay before the date moves on.
+            // Catches a match day left at the full-time screen, so its cup ties still pay and the
+            // line-up goes back to how it was at kick-off before the date moves on.
+            if (MyFixtureToday() is not { Concluded: false })
+                RestoreKickOffTactics();
             PayCupPrizeMoney();
             processHelper.Process();
             // A new day has started, so yesterday's match is over however the user left it.
@@ -331,6 +334,7 @@ public class GameEngine(
             return "Unable to start game. You have an injured player in your starting lineup or substitutes.";
 
         State.MatchInProgress = true;
+        RememberKickOffTactics();
 
         foreach (var competition in State.Competitions)
         {
@@ -395,10 +399,33 @@ public class GameEngine(
                 MatchSimulator.ProcessMatch(fixture, competition);
 
         State.MatchInProgress = false;
+        RestoreKickOffTactics();
         PayCupPrizeMoney();
         AutoSave();
         NotifyChanged();
     }
+
+    // The user's formation, line-up and instructions at kick-off. Changes made during the match
+    // (substitutions, a new shape, a different mentality) are only for that match, so they are
+    // undone once it is over. Not saved: saving is blocked while a match is in progress.
+    private (string Formation, List<TacticSlotModel> Slots, TeamInstructionsModel Instructions)? _kickOffTactics;
+
+    private void RememberKickOffTactics() =>
+        _kickOffTactics = (MyClub.Formation, CopySlots(MyClub.TacticSlots), MyClub.Instructions.Clone());
+
+    private void RestoreKickOffTactics()
+    {
+        if (_kickOffTactics is not { } kickOff || CurrentClub is not { } club)
+            return;
+
+        _kickOffTactics = null;
+        club.Formation = kickOff.Formation;
+        club.TacticSlots = CopySlots(kickOff.Slots);
+        club.Instructions = kickOff.Instructions.Clone();
+    }
+
+    private static List<TacticSlotModel> CopySlots(IEnumerable<TacticSlotModel> slots) =>
+        slots.Select(s => new TacticSlotModel { Id = s.Id, TacticSlotType = s.TacticSlotType, PlayerId = s.PlayerId }).ToList();
 
     // English cup ties pay both clubs, the winner double, but only once every match today is over,
     // so no money moves while the user's own game is still being played.
