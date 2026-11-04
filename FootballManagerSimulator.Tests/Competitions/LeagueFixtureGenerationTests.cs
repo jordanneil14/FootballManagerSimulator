@@ -183,7 +183,7 @@ public class LeagueFixtureGenerationTests
 
         var report = Assert.Single(notifications.Sent);
         Assert.Equal(("Ann Alyst", "Pre-Match Report"), (report.Recipient, report.Subject));
-        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's match. They sit 1st in the league.", report.Message);
+        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's away match. They sit 1st in the league.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message); // only the top three
@@ -238,7 +238,7 @@ public class LeagueFixtureGenerationTests
 
         var report = Assert.Single(notifications.Sent);
         Assert.Equal(("Ann Alyst", "Pre-Match Report", SeasonStart), (report.Recipient, report.Subject, report.Date));
-        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's match. It's a Big Cup tie.", report.Message);
+        Assert.StartsWith($"I've had a look at Rivals ahead of tomorrow's {(iAmAtHome ? "home" : "away")} match. It's a Big Cup tie.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message);

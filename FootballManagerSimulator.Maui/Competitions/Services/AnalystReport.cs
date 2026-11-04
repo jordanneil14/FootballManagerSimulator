@@ -35,7 +35,9 @@ public static class AnalystReport
             .Take(PlayersToWatch)
             .Select(p => $"{p.Name} ({p.PreferredPosition})");
 
-        return $"I've had a look at {opponent.Name} ahead of tomorrow's match. {situation}\n\n" +
+        var venue = opponentIsHome ? "away" : "home";
+
+        return $"I've had a look at {opponent.Name} ahead of tomorrow's {venue} match. {situation}\n\n" +
                $"Players to watch:\n\t{string.Join("\n\t", playersToWatch)}\n\n" +
                "How I expect them to set up:\n" +
                $"\tFormation: {opponent.Formation}\n" +
