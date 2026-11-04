@@ -95,7 +95,7 @@ else
         <div class="panel">
             <h2>General</h2>
             <dl class="kv">
-                <dt>Birth Date</dt><dd>@player.BirthDate</dd>
+                <dt>Birth Date</dt><dd>@(player.GetBirthDate()?.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? player.BirthDate)</dd>
                 <dt>Height</dt><dd>@player.Height</dd>
                 <dt>Weight</dt><dd>@player.Weight</dd>
                 <dt>Nationality</dt><dd>@player.Nationality</dd>

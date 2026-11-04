@@ -57,4 +57,11 @@ public class PlayerModelTests
     {
         Assert.False(new PlayerModel().HasGivenUp(new DateOnly(2040, 6, 30)));
     }
+
+    [Fact]
+    public void GetBirthDate_ReadsTheGeneratorsMonthFirstFormat()
+    {
+        Assert.Equal(new DateOnly(1998, 3, 14), new PlayerModel { BirthDate = "03/14/1998" }.GetBirthDate());
+        Assert.Null(new PlayerModel { BirthDate = "" }.GetBirthDate());
+    }
 }

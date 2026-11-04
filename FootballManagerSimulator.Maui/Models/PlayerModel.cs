@@ -29,9 +29,14 @@ public class PlayerModel : IPerson
     // Stored as MM/dd/yyyy by the player generator
     public string BirthDate { get; set; } = "";
 
+    public DateOnly? GetBirthDate() =>
+        DateOnly.TryParseExact(BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var birthDate)
+            ? birthDate
+            : null;
+
     public int GetAge(DateOnly onDate)
     {
-        if (!DateOnly.TryParseExact(BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var birthDate))
+        if (GetBirthDate() is not { } birthDate)
             return 0;
 
         var age = onDate.Year - birthDate.Year;
