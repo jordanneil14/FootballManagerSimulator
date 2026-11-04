@@ -156,10 +156,24 @@ public class ProcessHelper(
             $"These players' contracts expire in {months} months, on {seasonEnd:d MMMM yyyy}. Offer new contracts from their player pages or they will leave the club. Players who are retiring will not sign again:\n\t{string.Join("\n\t", lines)}");
     }
 
+    public const int TransferWindowWarningDays = 7;
+
     // The window dates are fixed, so compare today with yesterday rather than scheduling an event.
     private void AnnounceTransferWindowChange()
     {
         var isOpen = TransferWindowRules.IsOpen(State.Date);
+
+        // A week's warning, so there's time to finish any deals. The window is open through its last day.
+        if (isOpen && TransferWindowRules.ClosesOn(State.Date) == State.Date.AddDays(TransferWindowWarningDays))
+        {
+            NotificationFactory.AddNotification(
+                State.Date,
+                "Chairman",
+                "Transfer Window Closing",
+                $"The transfer window closes in 1 week. {TransferWindowRules.ClosesOn(State.Date):d MMMM yyyy} is the last day to complete any deals.");
+            return;
+        }
+
         if (isOpen == TransferWindowRules.IsOpen(State.Date.AddDays(-1)))
             return;
 

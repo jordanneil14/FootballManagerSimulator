@@ -171,6 +171,8 @@ public class ProcessHelperTests : IDisposable
     [InlineData(2027, 9, 1, "Transfer Window Closed", "reopens on 1 January 2028")]
     [InlineData(2028, 1, 1, "Transfer Window Open", "closes on 31 January 2028")]
     [InlineData(2028, 2, 1, "Transfer Window Closed", "reopens on 15 June 2028")]
+    [InlineData(2027, 8, 24, "Transfer Window Closing", "closes in 1 week. 31 August 2027 is the last day")]
+    [InlineData(2028, 1, 24, "Transfer Window Closing", "closes in 1 week. 31 January 2028 is the last day")]
     public void TransferWindow_AnnouncesTheDayItOpensOrCloses(int y, int m, int d, string subject, string message)
     {
         AdvanceTo(new DateOnly(y, m, d));
@@ -184,6 +186,8 @@ public class ProcessHelperTests : IDisposable
     [InlineData(2027, 6, 16)]
     [InlineData(2027, 9, 2)]
     [InlineData(2028, 1, 15)]
+    [InlineData(2027, 8, 23)]
+    [InlineData(2027, 8, 25)]
     public void TransferWindow_SaysNothingOnOtherDays(int y, int m, int d)
     {
         AdvanceTo(new DateOnly(y, m, d));
