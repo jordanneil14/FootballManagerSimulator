@@ -760,6 +760,9 @@ public class TacticHelper(
     private static bool IsGoalkeeper(PlayerModel player) =>
         player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Contains("GK");
 
+    private static bool IsWinger(PlayerModel player) =>
+        player.PreferredPosition.Split('/', StringSplitOptions.TrimEntries).Any(p => p is "RW" or "LW");
+
     private void FillEmptySubTacticSlots(Squad squad)
     {
         var unavailableIds = squad.UnavailableIds;
@@ -789,6 +792,24 @@ public class TacticHelper(
             emptySlot.PlayerId = bestPlayer.Player.Id;
             bestPlayer.Slot.PlayerId = null;
             assignedIds.Add(bestPlayer.Player.Id);
+        }
+
+        // A winger too, if the bench doesn't have one yet, so there's an option to change the shape.
+        var wingSlot = subSlots.FirstOrDefault(s => !s.PlayerId.HasValue);
+        var benchHasWinger = subSlots.Any(s => s.PlayerId is { } id && FindPlayer(squad, id) is { } p && IsWinger(p));
+        if (wingSlot != null && !benchHasWinger)
+        {
+            var bestWinger = AvailableReserves(squad, assignedIds)
+                .Where(p => IsWinger(p.Player))
+                .OrderByDescending(p => p.Player.Rating)
+                .FirstOrDefault();
+
+            if (bestWinger != null)
+            {
+                wingSlot.PlayerId = bestWinger.Player.Id;
+                bestWinger.Slot.PlayerId = null;
+                assignedIds.Add(bestWinger.Player.Id);
+            }
         }
 
         foreach (var emptySlot in subSlots.Where(s => !s.PlayerId.HasValue).ToList())

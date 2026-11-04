@@ -114,6 +114,22 @@ public class TacticHelperTests
     }
 
     [Fact]
+    public void FillEmptyTacticSlots_NamesAWingerAmongTheSubs()
+    {
+        // Enough stronger midfielders to fill the bench on rating alone.
+        _state.Players.AddRange(Enumerable.Range(500, 8).Select(id => TestData.Player(id, Club.Id, "CM", rating: 90)));
+        foreach (var winger in _state.Players.Where(p => p.PreferredPosition is "RW" or "LW"))
+            winger.Rating = 40;
+        _helper.ResetTacticForClub(Club); // 4-4-2, so the wingers don't start
+
+        _helper.FillEmptyTacticSlotsByClubId(Club.Id);
+
+        var bench = Club.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB)
+            .Select(s => _state.Players.First(p => p.Id == s.PlayerId)).ToList();
+        Assert.Single(bench, p => p.PreferredPosition is "RW" or "LW");
+    }
+
+    [Fact]
     public void FillEmptyTacticSlots_FallsBackFromWingerToAnAdjacentRole()
     {
         Club.Formation = "4-2-3-1";
