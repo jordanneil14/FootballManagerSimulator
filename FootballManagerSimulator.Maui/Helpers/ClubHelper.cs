@@ -7,6 +7,9 @@ public class ClubHelper(
     IState state) : IClubHelper
 {
     private readonly IState State = state;
+    // Match simulation looks clubs and players up many times a minute, so avoid scanning the lists each time.
+    private readonly IdIndex<ClubModel> ClubsById = new(p => p.Id);
+    private readonly IdIndex<PlayerModel> PlayersById = new(p => p.Id);
 
     public ClubModel? GetClubByName(string name)
     {
@@ -17,19 +20,17 @@ public class ClubHelper(
 
     public ClubModel GetClubById(int id)
     {
-        return State.Clubs
-            .Where(p => p.Id == id)
-            .First();
+        return ClubsById.Find(State.Clubs, id) ?? throw new InvalidOperationException($"No club with id {id}.");
     }
 
     public IEnumerable<TacticSlotModel> GetStartingElevenByClub(int clubId)
     {
-        return State.Clubs.First(p => p.Id == clubId).TacticSlots.Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
+        return GetClubById(clubId).TacticSlots.Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
     }
 
     public int GetStartingElevenSumRatingForClub(int clubId)
     {
-        var startingEleven = State.Clubs.First(p => p.Id == clubId).TacticSlots
+        var startingEleven = GetClubById(clubId).TacticSlots
             .Where(p => p.TacticSlotType != Enums.TacticSlotType.SUB && p.TacticSlotType != Enums.TacticSlotType.RES);
 
         // Players picked out of position, or not fully fit, count for less (see PositionFamiliarityRules, FitnessRules).
@@ -37,7 +38,8 @@ public class ClubHelper(
         foreach (var slot in startingEleven)
         {
             if (slot.PlayerId == null) continue;
-            var player = State.Players.First(p => p.Id == slot.PlayerId);
+            var player = PlayersById.Find(State.Players, slot.PlayerId.Value)
+                ?? throw new InvalidOperationException($"No player with id {slot.PlayerId}.");
             sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType) * FitnessRules.StrengthFactor(player.Fitness);
         }
         return (int)Math.Round(sum);

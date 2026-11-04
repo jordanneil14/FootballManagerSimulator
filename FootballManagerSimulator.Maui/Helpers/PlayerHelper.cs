@@ -6,6 +6,8 @@ namespace FootballManagerSimulator.Maui.Helpers;
 public class PlayerHelper(IState state) : IPlayerHelper
 {
     private readonly IState state = state;
+    // Match simulation looks players up many times a minute, so avoid scanning every player each time.
+    private readonly IdIndex<PlayerModel> playersById = new(p => p.Id);
 
     public ClubModel? GetClubByName(string name)
     {
@@ -22,9 +24,7 @@ public class PlayerHelper(IState state) : IPlayerHelper
 
     public PlayerModel? GetPlayerById(int id)
     {
-        return state.Players
-            .Where(p => p.Id == id)
-            .FirstOrDefault();
+        return playersById.Find(state.Players, id);
     }
 
     public PlayerModel? GetPlayerByName(string name)
