@@ -59,33 +59,14 @@ else
     var todaysCompetitions = Engine.State.Competitions
         .Where(c => c.Fixtures.Any(f => f.Date == Engine.State.Date))
         .ToList();
-    var countries = todaysCompetitions
-        .Select(CountryName)
-        .Distinct()
-        .OrderBy(c => c == OtherCountry)
-        .ThenBy(c => c)
-        .ToList();
-    if (_selectedCountry == null || !countries.Contains(_selectedCountry))
-    {
-        var myCompetition = myFixture == null ? null : todaysCompetitions.FirstOrDefault(c => c.Fixtures.Contains(myFixture));
-        _selectedCountry = myCompetition != null ? CountryName(myCompetition) : countries.FirstOrDefault();
-    }
+    var countries = CountryTabs.Order(todaysCompetitions.Select(c => Settings.CountryName(c.Id)));
+    var myCompetition = myFixture == null ? null : todaysCompetitions.FirstOrDefault(c => c.Fixtures.Contains(myFixture));
+    _selectedCountry = CountryTabs.Resolve(countries, _selectedCountry, myCompetition == null ? null : Settings.CountryName(myCompetition.Id));
 }
 
-@if (countries.Count > 1)
-{
-    <div class="day-tabs">
-        @foreach (var country in countries)
-        {
-            <button class="day-tab country-tab @(country == _selectedCountry ? "active" : "")"
-                    @onclick="@(() => _selectedCountry = country)">
-                @country
-            </button>
-        }
-    </div>
-}
+<CountryTabs Countries="countries" @bind-Selected="_selectedCountry" />
 
-@foreach (var competition in todaysCompetitions.Where(c => CountryName(c) == _selectedCountry))
+@foreach (var competition in todaysCompetitions.Where(c => Settings.CountryName(c.Id) == _selectedCountry))
 {
     var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
 
@@ -133,14 +114,6 @@ else
     private SettingsModel Settings => SettingsOptions.Value;
     private string? _error;
     private string? _selectedCountry;
-    private const string OtherCountry = "Other";
-
-    private string CountryName(ICompetition competition)
-    {
-        var config = Settings.Competitions.FirstOrDefault(p => p.Id == competition.Id);
-        if (config == null || config.CountryId == 0) return OtherCountry;
-        return Settings.Countries.FirstOrDefault(p => p.Id == config.CountryId)?.Name ?? OtherCountry;
-    }
 
     private void Resume()
     {

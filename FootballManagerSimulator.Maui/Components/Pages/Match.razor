@@ -203,10 +203,19 @@ else
         }
         else
         {
-            var grouped = otherFixtures
+            var settings = SettingsOptions.Value;
+            var withCompetition = otherFixtures
                 .Select(f => new { Fixture = f, Competition = Engine.GetCompetitionForFixture(f) })
+                .Select(x => new { x.Fixture, x.Competition, Country = x.Competition == null ? SettingsModel.OtherCountry : settings.CountryName(x.Competition.Id) })
+                .ToList();
+            var countries = CountryTabs.Order(withCompetition.Select(x => x.Country));
+            _liveScoresCountry = CountryTabs.Resolve(countries, _liveScoresCountry, _competition == null ? null : settings.CountryName(_competition.Id));
+            var grouped = withCompetition
+                .Where(x => x.Country == _liveScoresCountry)
                 .GroupBy(x => x.Competition?.Id ?? 0)
                 .OrderBy(g => g.Key);
+
+            <CountryTabs Countries="countries" @bind-Selected="_liveScoresCountry" />
 
             @foreach (var group in grouped)
             {
@@ -302,6 +311,7 @@ else
     private record MatchEvent(int Minute, string Icon, string Description, string CssClass);
 
     private int _tab;
+    private string? _liveScoresCountry;
     private FixtureModel? _fixture;
     private ICompetition? _competition;
 

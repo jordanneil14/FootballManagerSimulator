@@ -16,6 +16,15 @@ public class SettingsModel
     public string LeagueHeading(LeagueModel league) =>
         Countries.FirstOrDefault(p => p.Id == league.CountryId) is { } country ? $"{country.Name} - {league.Name}" : league.Name;
 
+    public const string OtherCountry = "Other";
+
+    // Competitions with no country, such as friendlies, come back as "Other".
+    public string CountryName(int competitionId)
+    {
+        var countryId = Competitions.FirstOrDefault(p => p.Id == competitionId)?.CountryId ?? 0;
+        return Countries.FirstOrDefault(p => p.Id == countryId)?.Name ?? OtherCountry;
+    }
+
     public class IdNameModel
     {
         public string Name { get; set; } = string.Empty;

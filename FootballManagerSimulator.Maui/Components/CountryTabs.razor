@@ -1,0 +1,31 @@
+@if (Countries.Count > 1)
+{
+    <div class="day-tabs">
+        @foreach (var country in Countries)
+        {
+            <button class="day-tab country-tab @(country == Selected ? "active" : "")"
+                    @onclick="() => SelectedChanged.InvokeAsync(country)">
+                @country
+            </button>
+        }
+    </div>
+}
+
+@code {
+    // Already ordered with Order(); hidden when everything is in one country.
+    [Parameter, EditorRequired] public List<string> Countries { get; set; } = [];
+    [Parameter] public string? Selected { get; set; }
+    [Parameter] public EventCallback<string> SelectedChanged { get; set; }
+
+    public static List<string> Order(IEnumerable<string> countries) => countries
+        .Distinct()
+        .OrderBy(c => c == SettingsModel.OtherCountry)
+        .ThenBy(c => c)
+        .ToList();
+
+    // Keeps the current tab while it still has fixtures, otherwise prefers the user's own country.
+    public static string? Resolve(List<string> countries, string? current, string? preferred) =>
+        current != null && countries.Contains(current) ? current
+        : preferred != null && countries.Contains(preferred) ? preferred
+        : countries.FirstOrDefault();
+}

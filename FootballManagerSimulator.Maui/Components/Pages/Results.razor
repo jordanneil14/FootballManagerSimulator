@@ -13,10 +13,21 @@
     </div>
 </div>
 
-@foreach (var competition in Engine.State.Competitions)
+@{
+    var todaysCompetitions = Engine.State.Competitions
+        .Where(c => c.Fixtures.Any(f => f.Date == Engine.State.Date))
+        .ToList();
+    var countries = CountryTabs.Order(todaysCompetitions.Select(c => Settings.CountryName(c.Id)));
+    var myCompetition = todaysCompetitions.FirstOrDefault(c => c.Fixtures.Any(f =>
+        f.Date == Engine.State.Date && (f.HomeClub.Id == Engine.State.MyClubId || f.AwayClub.Id == Engine.State.MyClubId)));
+    _selectedCountry = CountryTabs.Resolve(countries, _selectedCountry, myCompetition == null ? null : Settings.CountryName(myCompetition.Id));
+}
+
+<CountryTabs Countries="countries" @bind-Selected="_selectedCountry" />
+
+@foreach (var competition in todaysCompetitions.Where(c => Settings.CountryName(c.Id) == _selectedCountry))
 {
     var fixtures = competition.Fixtures.Where(f => f.Date == Engine.State.Date).ToList();
-    if (!fixtures.Any()) continue;
 
     <div class="fixture-block">
         <div class="fixture-block-head">@CompetitionHeading(competition) <span style="font-weight:400;color:var(--text-faint);margin-left:.5rem">Round @fixtures.First().Round</span></div>
@@ -39,6 +50,7 @@
 
 @code {
     private SettingsModel Settings => SettingsOptions.Value;
+    private string? _selectedCountry;
 
     private string CompetitionHeading(ICompetition competition)
     {
