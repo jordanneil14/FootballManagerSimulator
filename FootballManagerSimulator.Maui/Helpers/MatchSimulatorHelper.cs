@@ -104,6 +104,7 @@ public class MatchSimulatorHelper(
     }
 
     // Steps through the minutes after fromMinute up to toMinute, with a chance of a goal at each step.
+    // Team instructions scale that chance: more open sides mean more goals, tighter ones fewer.
     private void SimulateGoals(FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
         int fromMinute, int toMinute, int maxStep, double goalChance, bool countGoals)
@@ -113,9 +114,12 @@ public class MatchSimulatorHelper(
         {
             minute += RandomNumberHelper.Next(1, maxStep + 1);
             if (minute > toMinute) return;
-            if (RandomNumberHelper.NextDouble() >= goalChance) continue;
 
-            var scoredByHome = AddGoal(fixture, minute, homeSlots, awaySlots);
+            var weights = GetGoalWeightsAtMinute(fixture, minute);
+            var chance = Math.Min(MaxGoalChancePerStep, goalChance * (weights.Home + weights.Away));
+            if (RandomNumberHelper.NextDouble() >= chance) continue;
+
+            var scoredByHome = AddGoal(fixture, minute, homeSlots, awaySlots, weights);
             if (countGoals)
                 CountGoal(fixture, scoredByHome);
         }
@@ -211,8 +215,8 @@ public class MatchSimulatorHelper(
             return;
 
         var minute = RandomNumberHelper.Next(fromMinute + 1, toMinute + 1);
-        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
-        var isHome = HomeWinsChance(homeRating, awayRating);
+        var weights = GetGoalWeightsAtMinute(fixture, minute);
+        var isHome = HomeWinsChance(weights.Home, weights.Away);
 
         var club = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
         var taker = PickPenaltyTaker(club, OnPitchAt(fixture, isHome, minute, isHome ? homeSlots : awaySlots));
@@ -339,12 +343,15 @@ public class MatchSimulatorHelper(
             .Select(s => s.PlayerId!.Value)
             .ToHashSet();
 
+        // Pressing changes how often each side is booked (see TacticalModifierRules).
+        var homeRate = GetSideModifiers(fixture, true, minuteFrom).CardRate;
+        var awayRate = GetSideModifiers(fixture, false, minuteFrom).CardRate;
+
         for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(5, 15))
         {
-            if (RandomNumberHelper.Next(1, 12) != 1)
+            if (!SideEventRoll(CardChancePerStep, homeRate, awayRate, out var isHome))
                 continue;
 
-            var isHome = RandomNumberHelper.Next(0, 2) == 0;
             var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
             var sentOff = GetSentOffPlayerIds(cards, minute + 1);
             var bookedKeepers = cards.Where(c => goalkeeperIds.Contains(c.PlayerId)).Select(c => c.PlayerId).ToHashSet();
@@ -394,12 +401,15 @@ public class MatchSimulatorHelper(
         var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
         var awayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
 
+        // Pressing changes how often each side picks up injuries (see TacticalModifierRules).
+        var homeRate = GetSideModifiers(fixture, true, minuteFrom).InjuryRate;
+        var awayRate = GetSideModifiers(fixture, false, minuteFrom).InjuryRate;
+
         for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(8, 20))
         {
-            if (RandomNumberHelper.Next(1, 25) != 1)
+            if (!SideEventRoll(InjuryChancePerStep, homeRate, awayRate, out var isHome))
                 continue;
 
-            var isHome = RandomNumberHelper.Next(0, 2) == 0;
             var injuries = isHome ? fixture.HomeInjuries : fixture.AwayInjuries;
             var alreadyInjured = injuries.Select(i => i.PlayerId).ToHashSet();
             var playerIds = (isHome ? homePlayerIds : awayPlayerIds).Where(id => !alreadyInjured.Contains(id)).ToList();
@@ -660,11 +670,14 @@ public class MatchSimulatorHelper(
             fromMinute, 120, LaterMaxStep, BaseGoalChance, countGoals: false);
     }
 
+    // The shoot-out is decided on strength alone: team instructions play no part in it.
     public void GeneratePenaltyEvents(FixtureModel fixture)
     {
+        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, 121);
         AddGoal(fixture, 121,
             ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id),
-            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id));
+            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id),
+            new GoalWeights(homeRating, awayRating));
     }
 
     public void FinaliseMatch(FixtureModel fixture, ICompetition competition)
@@ -743,6 +756,72 @@ public class MatchSimulatorHelper(
     private static bool HomeWinsChance(double homeRating, double awayRating) =>
         RandomNumberHelper.NextDouble() * (homeRating + awayRating) < homeRating;
 
+    // ----- Team instructions ---------------------------------------------------------------
+
+    // Each side's weight to score. With neutral instructions they are the strength shares and add up to 1.
+    internal readonly record struct GoalWeights(double Home, double Away);
+
+    // A step's goal chance never goes above this, however open both sides are.
+    internal const double MaxGoalChancePerStep = 0.35;
+
+    // The base chance of a card event every 5-15 minutes, and of an injury every 8-20.
+    internal const double CardChancePerStep = 1.0 / 11;
+    internal const double InjuryChancePerStep = 1.0 / 24;
+
+    // Strength shares scaled by instructions: a side's weight is its share × its Threat × the
+    // opponent's Exposure (see TacticalModifierRules).
+    internal static GoalWeights CombineWeights(double homeRating, double awayRating, SideModifiers home, SideModifiers away)
+    {
+        var total = homeRating + awayRating;
+        if (total <= 0) return new GoalWeights(0.5, 0.5);
+        return new GoalWeights(
+            homeRating / total * home.Threat * away.Exposure,
+            awayRating / total * away.Threat * home.Exposure);
+    }
+
+    private GoalWeights GetGoalWeightsAtMinute(FixtureModel fixture, int minute)
+    {
+        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
+        return CombineWeights(homeRating, awayRating,
+            GetSideModifiers(fixture, true, minute),
+            GetSideModifiers(fixture, false, minute));
+    }
+
+    private SideModifiers GetSideModifiers(FixtureModel fixture, bool isHome, int minute)
+    {
+        var own = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
+        var opponent = ClubHelper.GetClubById(isHome ? fixture.AwayClub.Id : fixture.HomeClub.Id);
+
+        // Stamina only matters for a side that's pressing high, so skip the lookup otherwise.
+        var stamina = own.Instructions?.Pressing == Pressing.High
+            ? AverageOutfieldStamina(fixture, isHome, minute)
+            : 0;
+
+        return TacticalModifierRules.For(own.Instructions, opponent.Instructions, stamina, minute);
+    }
+
+    private double AverageOutfieldStamina(FixtureModel fixture, bool isHome, int minute)
+    {
+        var club = isHome ? fixture.HomeClub : fixture.AwayClub;
+        var outfield = OnPitchAt(fixture, isHome, minute, ClubHelper.GetStartingElevenByClub(club.Id))
+            .Where(p => p.Slot.TacticSlotType != TacticSlotType.GK)
+            .ToList();
+        return outfield.Count == 0 ? 0 : outfield.Average(p => p.Player.Stamina);
+    }
+
+    // Rolls whether a card or injury happens at this step, and to which side. Each side's rate
+    // scales its share and the overall chance; at neutral rates this is baseChance split 50/50.
+    private static bool SideEventRoll(double baseChance, double homeRate, double awayRate, out bool isHome)
+    {
+        isHome = false;
+        var totalRate = homeRate + awayRate;
+        if (totalRate <= 0 || RandomNumberHelper.NextDouble() >= baseChance * totalRate / 2)
+            return false;
+
+        isHome = RandomNumberHelper.NextDouble() * totalRate < homeRate;
+        return true;
+    }
+
     private static HashSet<int> GetSentOffPlayerIds(IEnumerable<CardModel> cards, int minute)
     {
         return cards.Where(c => c.IsRed && c.Minute < minute).Select(c => c.PlayerId).ToHashSet();
@@ -751,13 +830,13 @@ public class MatchSimulatorHelper(
     // Returns true if the goal went to the home side, false for the away side, or null if
     // neither side has a player who could score.
     private bool? AddGoal(FixtureModel fixture, int minute,
-        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
+        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
+        GoalWeights weights)
     {
         var homeFilled = homeSlots.Where(s => s.PlayerId != null).ToList();
         var awayFilled = awaySlots.Where(s => s.PlayerId != null).ToList();
 
-        var (homeRating, awayRating) = GetRatingsAtMinute(fixture, minute);
-        var isHome = HomeWinsChance(homeRating, awayRating);
+        var isHome = HomeWinsChance(weights.Home, weights.Away);
 
         if (isHome && !homeFilled.Any()) isHome = false;
         else if (!isHome && !awayFilled.Any()) isHome = true;
@@ -829,6 +908,58 @@ public class MatchSimulatorHelper(
     {
         foreach (var clubId in new[] { fixture.HomeClub.Id, fixture.AwayClub.Id })
             PrepareClub(clubId);
+        ChooseAIInstructions(fixture);
+    }
+
+    // AI sides set up for the opponent: a clear favourite attacks, a clear underdog sits deep,
+    // and anyone fit enough presses high.
+    internal const double AIFavouriteShare = 0.62;
+    internal const double AIUnderdogShare = 0.38;
+    internal const double AIFavouritePressStamina = 70;
+    internal const double AIAnyPressStamina = 78;
+    internal const double AISoftenChance = 0.2;
+
+    // Call after both line-ups are picked: the choice depends on both XIs.
+    public void ChooseAIInstructions(FixtureModel fixture)
+    {
+        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
+        var total = homeRating + awayRating;
+        if (total <= 0) return;
+
+        foreach (var isHome in new[] { true, false })
+        {
+            var club = ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id);
+            if (club.Id == State.MyClubId) continue;
+
+            var share = (isHome ? homeRating : awayRating) / total;
+            club.Instructions = PickAIInstructions(share, AverageOutfieldStamina(fixture, isHome, 0), RandomNumberHelper.NextDouble());
+        }
+    }
+
+    internal static TeamInstructionsModel PickAIInstructions(double strengthShare, double averageStamina, double softenRoll)
+    {
+        var instructions = new TeamInstructionsModel();
+
+        if (strengthShare >= AIFavouriteShare)
+        {
+            instructions.Mentality = Mentality.Attacking;
+            instructions.Pressing = averageStamina >= AIFavouritePressStamina ? Pressing.High : Pressing.Medium;
+        }
+        else if (strengthShare < AIUnderdogShare)
+        {
+            instructions.Mentality = Mentality.Defensive;
+            instructions.Pressing = Pressing.Low;
+        }
+        else if (averageStamina >= AIAnyPressStamina)
+        {
+            instructions.Pressing = Pressing.High;
+        }
+
+        // Now and then a side is more cautious than its situation suggests, so the AI isn't fully predictable.
+        if (softenRoll < AISoftenChance)
+            instructions.Mentality = Mentality.Balanced;
+
+        return instructions;
     }
 
     public void PrepareClub(int clubId)

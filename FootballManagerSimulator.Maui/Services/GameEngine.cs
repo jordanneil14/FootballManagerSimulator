@@ -276,6 +276,10 @@ public class GameEngine(
 
         foreach (var clubId in clubIds)
             MatchSimulator.PrepareClub(clubId);
+
+        // AI sides choose mentality and pressing once both line-ups are known.
+        foreach (var fixture in TodaysFixtures())
+            MatchSimulator.ChooseAIInstructions(fixture);
     }
 
     /// <summary>
@@ -674,6 +678,32 @@ public class GameEngine(
     }
 
     public void ResetTactic() => tacticHelper.ResetTacticForClub(MyClub);
+
+    public void SetMentality(Mentality mentality)
+    {
+        MyClub.Instructions ??= new TeamInstructionsModel();
+        MyClub.Instructions.Mentality = mentality;
+        NotifyChanged();
+    }
+
+    public void SetPressing(Pressing pressing)
+    {
+        MyClub.Instructions ??= new TeamInstructionsModel();
+        MyClub.Instructions.Pressing = pressing;
+        NotifyChanged();
+    }
+
+    // The average Stamina of the user's outfield starters, which sets how badly a high press fades.
+    public double MyOutfieldAverageStamina()
+    {
+        var stamina = MyClub.TacticSlots
+            .Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES or TacticSlotType.GK) && s.PlayerId != null)
+            .Select(s => GetPlayer(s.PlayerId!.Value))
+            .OfType<PlayerModel>()
+            .Select(p => (double)p.Stamina)
+            .ToList();
+        return stamina.Count == 0 ? 0 : stamina.Average();
+    }
 
     public void ChangeFormation(string formation)
     {

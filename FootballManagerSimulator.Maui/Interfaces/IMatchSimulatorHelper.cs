@@ -7,6 +7,7 @@ public interface IMatchSimulatorHelper
     void ProcessMatch(FixtureModel fixture, ICompetition competition);
     void PrepareMatch(FixtureModel fixture);
     void PrepareClub(int clubId);
+    void ChooseAIInstructions(FixtureModel fixture);
     void ConcludeFixture(FixtureModel fixture, ICompetition competition);
     void PreGenerateMatch(FixtureModel fixture);
     void GenerateExtraTimeEvents(FixtureModel fixture);

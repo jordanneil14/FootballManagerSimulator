@@ -111,6 +111,9 @@ public static class Ui
             _ => ""
         };
 
+    public static bool IsOutOfPosition(PlayerModel? player, TacticSlotType slot) =>
+        player != null && PositionFamiliarityRules.GetFamiliarity(player, slot) != PositionFamiliarity.Natural;
+
     // Tooltip for an out-of-position starter, e.g. "Out of position (CB at RB): 80 → 68". Null when he's natural.
     public static string? FamiliarityTitle(PlayerModel? player, TacticSlotType slot)
     {

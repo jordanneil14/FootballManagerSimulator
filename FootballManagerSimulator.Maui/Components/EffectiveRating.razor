@@ -1,0 +1,19 @@
+@* A starter's match-day rating. Out of position, the original rating is struck through and the
+   reduced one shown beside it, coloured by how far from his own role he is. *@
+@if (Player != null)
+{
+    var effective = PositionFamiliarityRules.EffectiveRating(Player, Slot);
+    if (effective < Player.Rating)
+    {
+        <s class="old-rating">@Player.Rating</s> <span class="@Ui.FamiliarityCssClass(Player, Slot)">@effective</span>
+    }
+    else
+    {
+        @Player.Rating
+    }
+}
+
+@code {
+    [Parameter] public PlayerModel? Player { get; set; }
+    [Parameter] public TacticSlotType Slot { get; set; }
+}

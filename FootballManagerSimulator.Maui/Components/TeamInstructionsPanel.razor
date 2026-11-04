@@ -1,0 +1,96 @@
+@inject GameEngine Engine
+
+@* Mentality and pressing for the user's club. Each option shows its advantage (+) and disadvantage (−). *@
+@{
+    var instructions = Engine.MyClub.Instructions ?? new TeamInstructionsModel();
+    var stamina = Engine.MyOutfieldAverageStamina();
+}
+
+<div class="panel" style="@(Disabled ? "opacity:.5;pointer-events:none" : "")">
+    <h2>Team Instructions</h2>
+
+    <div class="instr-group">
+        <div class="instr-label">Mentality</div>
+        <div class="seg">
+            @foreach (var option in new[] { Mentality.Defensive, Mentality.Balanced, Mentality.Attacking })
+            {
+                <button class="seg-btn @(instructions.Mentality == option ? "active" : "")" disabled="@Disabled"
+                        @onclick="() => SetMentality(option)">@option</button>
+            }
+        </div>
+        @TradeOff(MentalityText(instructions.Mentality))
+    </div>
+
+    <div class="instr-group">
+        <div class="instr-label">Pressing</div>
+        <div class="seg">
+            @foreach (var option in new[] { Pressing.Low, Pressing.Medium, Pressing.High })
+            {
+                <button class="seg-btn @(instructions.Pressing == option ? "active" : "")" disabled="@Disabled"
+                        @onclick="() => SetPressing(option)">@option</button>
+            }
+        </div>
+        @TradeOff(PressingText(instructions.Pressing))
+        @if (instructions.Pressing == Pressing.High && stamina > 0)
+        {
+            <div class="instr-hint">@StaminaHint(stamina)</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool Disabled { get; set; }
+
+    // Raised after a change, so the match screen can re-evaluate the rest of the match.
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private async Task SetMentality(Mentality mentality)
+    {
+        if (Disabled || Engine.MyClub.Instructions?.Mentality == mentality) return;
+        Engine.SetMentality(mentality);
+        await OnChanged.InvokeAsync();
+    }
+
+    private async Task SetPressing(Pressing pressing)
+    {
+        if (Disabled || Engine.MyClub.Instructions?.Pressing == pressing) return;
+        Engine.SetPressing(pressing);
+        await OnChanged.InvokeAsync();
+    }
+
+    private static (string? Plus, string? Minus) MentalityText(Mentality mentality) => mentality switch
+    {
+        Mentality.Defensive => ("Concede far fewer goals. More draws, so good for an underdog or for protecting a lead.",
+                                "You score fewer too. A stronger side turns wins into draws."),
+        Mentality.Attacking => ("More goals at both ends, so a stronger side's quality shows. Good for a favourite or for chasing a game.",
+                                "Leaves you open. A weaker side usually loses more heavily."),
+        _ => (null, null)
+    };
+
+    private static (string? Plus, string? Minus) PressingText(Pressing pressing) => pressing switch
+    {
+        Pressing.Low => ("No fatigue and fewer bookings, and sharper in the last half hour against a side that has been pressing and is tiring.",
+                         "Gives the opponent the ball, so you create less."),
+        Pressing.High => ("The strongest setting for the first hour: you win the ball high up the pitch.",
+                          "More bookings and injuries, and your side tires through the second half. Low stamina makes the fade much worse."),
+        _ => (null, null)
+    };
+
+    private static string StaminaHint(double stamina)
+    {
+        var share = TacticalModifierRules.FatigueShare(stamina);
+        var fade = share <= 0.4 ? "only lightly" : share <= 0.7 ? "noticeably" : "badly";
+        return $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} in the second half.";
+    }
+
+    private static RenderFragment TradeOff((string? Plus, string? Minus) text) => __builder =>
+    {
+        if (text.Plus == null)
+        {
+            <div class="instr-note muted">Neutral: no advantage or disadvantage.</div>
+            return;
+        }
+        <div class="instr-note plus">+ @text.Plus</div>
+        <div class="instr-note minus">− @text.Minus</div>
+    };
+}

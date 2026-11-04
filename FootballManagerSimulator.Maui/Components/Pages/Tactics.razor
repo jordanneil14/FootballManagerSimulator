@@ -44,6 +44,8 @@
     </select>
 </div>
 
+<TeamInstructionsPanel Disabled="@Locked" />
+
 <div class="panel" style="@LockedStyle">
     <h2>Starting XI</h2>
     <div class="pitch">
@@ -61,7 +63,7 @@
             var idx = slots.IndexOf(slot);
             var isSuspended = player is { SuspensionMatches: > 0 };
             var isInjured = player != null && player.IsInjured(Engine.State.Date);
-            <div class="pitch-player @(isSuspended ? "suspended" : isInjured ? "injured" : "")" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)"
+            <div class="pitch-player @(isSuspended ? "suspended" : isInjured ? "injured" : Ui.IsOutOfPosition(player, slot.TacticSlotType) ? "out-of-position" : "")" style="left:@(x)%;top:@(y)%;cursor:pointer" @onclick="() => OnSlotClick(idx)"
                  title="@(isSuspended ? $"Suspended for {player!.SuspensionMatches} more match(es)" : isInjured ? $"{player!.InjuryDescription} — back {player.InjuryEndDate:d MMM}" : null)">
                 <div class="dot" style="@(_selected == idx ? "outline:3px solid #fff" : "")">@slot.TacticSlotType</div>
                 <div class="pname">@(isSuspended ? "🟥 " : isInjured ? "🤕 " : "")@(player?.Name ?? "—")</div>
@@ -118,10 +120,6 @@
                             @if (taker.Id == takingId)
                             {
                                 <span class="tag green" style="margin-left:.4rem">⚽ Taking</span>
-                            }
-                            else if (!startingIds.Contains(taker.Id))
-                            {
-                                <span class="tag" style="margin-left:.4rem">Not on pitch</span>
                             }
                         </td>
                         <td class="num" style="width:50px"><span class="@StatClass(taker.Finishing)">@taker.Finishing</span></td>
@@ -183,7 +181,7 @@
                 }
             </td>
             <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? player.PreferredPosition : "")</td>
-            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType).ToString() : "")</td>
+            <td class="num" style="width:76px;white-space:nowrap" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
         </tr>;
     }
 

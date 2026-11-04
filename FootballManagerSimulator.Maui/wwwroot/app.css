@@ -275,6 +275,23 @@ p { color: var(--text-dim); line-height: 1.55; }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+/* ---------- Team instructions ---------- */
+.instr-group + .instr-group { margin-top: 1.2rem; }
+.instr-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--text-dim); margin-bottom: .4rem; }
+.seg { display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; max-width: 420px; }
+.seg-btn {
+    flex: 1; padding: .5rem .6rem; font: inherit; font-size: .85rem; font-weight: 600;
+    background: var(--panel-2); color: var(--text-dim); border: none; cursor: pointer;
+}
+.seg-btn + .seg-btn { border-left: 1px solid var(--border); }
+.seg-btn:hover { color: var(--text); background: var(--panel-3); }
+.seg-btn.active { background: var(--accent-soft); color: var(--accent); }
+.seg-btn:disabled { cursor: not-allowed; }
+.instr-note { font-size: .82rem; line-height: 1.45; margin-top: .4rem; }
+.instr-note.plus { color: var(--accent); }
+.instr-note.minus { color: #ff9ca0; }
+.instr-hint { font-size: .8rem; margin-top: .4rem; color: var(--warn); }
+
 /* ---------- Tables ---------- */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
 table.data { width: 100%; border-collapse: collapse; font-size: .9rem; background: var(--panel); }
@@ -323,6 +340,15 @@ table.data.fixture-table td:nth-child(2) { width: 4.6rem; white-space: nowrap; }
 .fam-related { color: #f5a524; }    /* amber: same line or flank, ×0.85 */
 .fam-unfamiliar { color: #f2762e; } /* orange: anywhere else outfield, ×0.70 */
 .fam-gkswap { color: var(--danger); } /* red: keeper outfield or outfielder in goal, ×0.40 */
+.old-rating { color: var(--text-faint); font-weight: 400; margin-right: .15rem; }
+
+/* Live match squad lists: fixed columns so long names wrap instead of pushing the table out of its panel. */
+table.data.squad-table { table-layout: fixed; }
+table.data.squad-table td { padding: .5rem .4rem; overflow: hidden; }
+table.data.squad-table td.num { white-space: nowrap; }
+table.data.squad-table td.squad-name { overflow-wrap: anywhere; }
+.pitch-player.out-of-position .dot { background: #f2d544; color: #1a1500; }
+.pitch-player.out-of-position .pname { background: #f2d544; color: #1a1500; }
 
 .zone-promo td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
 .zone-playoff td:first-child { box-shadow: inset 3px 0 0 #7fb2ff; }

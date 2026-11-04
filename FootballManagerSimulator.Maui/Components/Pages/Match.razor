@@ -139,6 +139,9 @@ else
             </select>
         </div>
 
+        @* Unlimited changes; each one re-evaluates the rest of the match, just like a substitution. *@
+        <TeamInstructionsPanel Disabled="@(!CanEditTactics)" OnChanged="OnInstructionsChanged" />
+
         <div class="panel" style="@(!CanEditTactics ? "opacity:.5;pointer-events:none" : "")">
             <h2>Squad @(CanEditTactics ? "(tap to swap)" : "")</h2>
             @{
@@ -147,7 +150,7 @@ else
                 var injuredIds = InjuredOnPitch().Select(p => p.Id).ToHashSet();
                 var sentOffIds = MySentOffIds();
             }
-            <table class="data">
+            <div class="table-wrap"><table class="data squad-table">
                 <tbody>
                     @for (var i = 0; i < starters.Count; i++)
                     {
@@ -159,13 +162,13 @@ else
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "") @(sentOff ? "row-injured" : injured ? "row-injured" : "")"
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
-                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
-                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:50px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player != null ? PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType).ToString() : "")</td>
+                            <td class="squad-name">@(player?.Name ?? "— empty —")@SubArrows(player)@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
+                            <td class="num @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" style="width:62px" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
+                            <td class="num" style="width:76px;white-space:nowrap" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
                         </tr>
                     }
                 </tbody>
-            </table>
+            </table></div>
 
             <h3 style="margin-top:1rem">
                 Substitutions
@@ -174,7 +177,7 @@ else
                     <span class="muted" style="font-weight:normal">(@Engine.SubstitutionsMade(_fixture) / @GameEngine.MaxSubstitutions used)</span>
                 }
             </h3>
-            <table class="data">
+            <div class="table-wrap"><table class="data squad-table">
                 <tbody>
                     @for (var i = 0; i < subs.Count; i++)
                     {
@@ -185,12 +188,12 @@ else
                         <tr class="@(CanEditTactics ? "clickable" : "") @(_selectedSlot == idx ? "highlight" : "")"
                             @onclick="() => OnSlotClick(idx)">
                             <td style="width:70px"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
-                            <td>@(player?.Name ?? "— empty —")@SubArrows(player)</td>
+                            <td class="squad-name">@(player?.Name ?? "— empty —")@SubArrows(player)</td>
                             <td class="num" style="width:50px">@(player?.Rating.ToString() ?? "")</td>
                         </tr>
                     }
                 </tbody>
-            </table>
+            </table></div>
         </div>
     }
     else if (_tab == 3)
@@ -269,7 +272,7 @@ else
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
                         var sentOff = player != null && homeSentOffIds.Contains(player.Id);
                         var injured = player != null && !sentOff && homeInjuredIds.Contains(player.Id);
-                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : "")" style="left:@(x)%;top:@(y)%">
+                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : Ui.IsOutOfPosition(player, slot.TacticSlotType) ? "out-of-position" : "")" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
                             <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
                         </div>
@@ -295,7 +298,7 @@ else
                         var player = slot.PlayerId.HasValue ? Engine.GetPlayer(slot.PlayerId.Value) : null;
                         var sentOff = player != null && awaySentOffIds.Contains(player.Id);
                         var injured = player != null && !sentOff && awayInjuredIds.Contains(player.Id);
-                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : "")" style="left:@(x)%;top:@(y)%">
+                        <div class="pitch-player @(sentOff ? "suspended" : injured ? "injured" : Ui.IsOutOfPosition(player, slot.TacticSlotType) ? "out-of-position" : "")" style="left:@(x)%;top:@(y)%">
                             <div class="dot">@slot.TacticSlotType</div>
                             <div class="pname">@(sentOff ? "🟥 " : injured ? "🤕 " : "")@(player != null ? Surname(player.Name) : "—")</div>
                         </div>
@@ -891,6 +894,12 @@ else
     {
         if (!CanEditTactics || formation == Engine.MyClub.Formation) return;
         Engine.ChangeFormation(formation);
+        OnLineupChanged();
+    }
+
+    private void OnInstructionsChanged()
+    {
+        if (!CanEditTactics) return;
         OnLineupChanged();
     }
 
