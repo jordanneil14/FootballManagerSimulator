@@ -28,4 +28,7 @@ public class FixtureModel : IFixture
     public List<InjuryModel> AwayInjuries { get; set; } = new List<InjuryModel>();
     // Set once an English Cup tie's prize money has gone to both clubs, so it is never paid twice.
     public bool PrizeMoneyPaid { get; set; }
+    // Everyone who took the pitch: the starting XI at kick-off, plus each substitute as they come on.
+    public List<int> HomePlayerIds { get; set; } = new List<int>();
+    public List<int> AwayPlayerIds { get; set; } = new List<int>();
 }

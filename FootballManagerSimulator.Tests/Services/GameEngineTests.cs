@@ -588,7 +588,8 @@ public class GameEngineTests : IDisposable
         var slots = MyClub.TacticSlots;
         var pitch = slots.Select((s, i) => (s, i)).Where(t => t.s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES)).Select(t => t.i).ToList();
         var bench = slots.Select((s, i) => (s, i)).Where(t => t.s.TacticSlotType == TacticSlotType.SUB && t.s.PlayerId != null).Select(t => t.i).ToList();
-        return (new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1] }, pitch, bench);
+        var startingXI = pitch.Select(i => slots[i].PlayerId!.Value).ToList();
+        return (new FixtureModel { HomeClub = MyClub, AwayClub = _state.Clubs[1], HomePlayerIds = startingXI }, pitch, bench);
     }
 
     private static readonly LeagueModel League = new() { Type = CompetitionType.League };
@@ -682,6 +683,51 @@ public class GameEngineTests : IDisposable
         _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
 
         Assert.Empty(_engine.SubbedOnMinutes(fixture, sub));
+    }
+
+    [Fact]
+    public void MatchSwap_ASubstituteBroughtOnAndTakenOffStillCountsAsHavingPlayed()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var starter = MyClub.TacticSlots[pitch[1]].PlayerId!.Value;
+        var sub = MyClub.TacticSlots[bench[0]].PlayerId!.Value;
+        var secondSub = MyClub.TacticSlots[bench[1]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
+        _engine.MatchSwap(fixture, League, pitch[1], bench[1], 70);
+
+        Assert.Contains(starter, fixture.HomePlayerIds);
+        Assert.Contains(sub, fixture.HomePlayerIds);
+        Assert.Contains(secondSub, fixture.HomePlayerIds);
+        Assert.Equal(13, fixture.HomePlayerIds.Count);
+    }
+
+    [Fact]
+    public void MatchSwap_UndoingASubstitutionRemovesThePlayerFromThoseWhoPlayed()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var sub = MyClub.TacticSlots[bench[0]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
+        _engine.MatchSwap(fixture, League, pitch[1], bench[0], 30);
+
+        Assert.DoesNotContain(sub, fixture.HomePlayerIds);
+        Assert.Equal(11, fixture.HomePlayerIds.Count);
+    }
+
+    [Fact]
+    public void MatchSwap_UndoingAFriendlyReturnKeepsAStarterAmongThoseWhoPlayed()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var friendly = new FriendlyModel();
+        var starter = MyClub.TacticSlots[pitch[1]].PlayerId!.Value;
+
+        _engine.MatchSwap(fixture, friendly, pitch[1], bench[0], 30); // starter off
+        _engine.MatchSwap(fixture, friendly, pitch[1], bench[0], 60); // and back on
+        _engine.MatchSwap(fixture, friendly, pitch[1], bench[0], 60); // return undone
+
+        Assert.Contains(starter, fixture.HomePlayerIds);
+        Assert.Equal(1, fixture.HomePlayerIds.Count(id => id == starter));
     }
 
     [Fact]

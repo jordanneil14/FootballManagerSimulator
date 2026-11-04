@@ -512,6 +512,7 @@ public class GameEngine(
     // so this survives leaving the match screen and coming back.
     private FixtureModel? _substitutionFixture;
     private readonly HashSet<int> _playersBeenOnPitch = [];
+    private readonly HashSet<int> _startingPlayerIds = [];
     private readonly List<(int OffId, int OnId, int Minute)> _substitutions = [];
 
     private static bool IsOnPitch(TacticSlotModel slot) =>
@@ -523,9 +524,16 @@ public class GameEngine(
         _substitutionFixture = fixture;
         _substitutions.Clear();
         _playersBeenOnPitch.Clear();
+        _startingPlayerIds.Clear();
         foreach (var slot in MyClub.TacticSlots.Where(s => IsOnPitch(s) && s.PlayerId != null))
+        {
             _playersBeenOnPitch.Add(slot.PlayerId!.Value);
+            _startingPlayerIds.Add(slot.PlayerId!.Value);
+        }
     }
+
+    private List<int> MyFixturePlayerIds(FixtureModel fixture) =>
+        fixture.HomeClub.Id == MyClub.Id ? fixture.HomePlayerIds : fixture.AwayPlayerIds;
 
     public int SubstitutionsMade(FixtureModel fixture) =>
         _substitutionFixture == fixture ? _substitutions.Count : 0;
@@ -577,6 +585,8 @@ public class GameEngine(
         {
             _substitutions.RemoveAt(undo);
             _playersBeenOnPitch.Remove(goingOff!.Value);
+            if (!_startingPlayerIds.Contains(goingOff.Value) && !_substitutions.Any(s => s.OnId == goingOff.Value))
+                MyFixturePlayerIds(fixture).Remove(goingOff.Value);
             SwapTacticSlots(fromIndex, toIndex);
             return null;
         }
@@ -589,6 +599,9 @@ public class GameEngine(
 
         _substitutions.Add((goingOff ?? 0, comingOn.Value, minute));
         _playersBeenOnPitch.Add(comingOn.Value);
+        var playerIds = MyFixturePlayerIds(fixture);
+        if (!playerIds.Contains(comingOn.Value))
+            playerIds.Add(comingOn.Value);
         SwapTacticSlots(fromIndex, toIndex);
         return null;
     }

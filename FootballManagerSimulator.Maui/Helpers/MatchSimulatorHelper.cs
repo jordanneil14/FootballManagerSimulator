@@ -87,11 +87,19 @@ public class MatchSimulatorHelper(
         }
     }
 
+    private static void RecordStartingElevens(FixtureModel fixture,
+        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
+    {
+        fixture.HomePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        fixture.AwayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+    }
+
     private void SimulateFirstHalf(FixtureModel fixture)
     {
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
+        RecordStartingElevens(fixture, homeClubTacticSlots, awayClubTacticSlots);
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
 
@@ -510,6 +518,7 @@ public class MatchSimulatorHelper(
         var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
         var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
 
+        RecordStartingElevens(fixture, homeClubTacticSlots, awayClubTacticSlots);
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
 
