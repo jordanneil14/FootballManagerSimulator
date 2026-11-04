@@ -179,14 +179,15 @@ public class TacticalModifierRulesTests
     }
 
     [Theory]
-    [InlineData(0.70, 75, Mentality.Attacking, Pressing.High)]
-    [InlineData(0.70, 60, Mentality.Attacking, Pressing.Medium)]
-    [InlineData(0.50, 60, Mentality.Balanced, Pressing.Medium)]
-    [InlineData(0.50, 80, Mentality.Balanced, Pressing.High)]
-    [InlineData(0.30, 80, Mentality.Defensive, Pressing.Low)]
-    public void AI_SetsUpForItsChances(double share, double stamina, Mentality mentality, Pressing pressing)
+    [InlineData(1.05, 75, Mentality.Attacking, Pressing.High)]
+    [InlineData(1.02, 60, Mentality.Attacking, Pressing.Medium)]
+    [InlineData(1.01, 60, Mentality.Balanced, Pressing.Medium)]
+    [InlineData(1.00, 80, Mentality.Balanced, Pressing.High)]
+    [InlineData(0.99, 60, Mentality.Balanced, Pressing.Medium)]
+    [InlineData(0.98, 80, Mentality.Defensive, Pressing.Low)]
+    public void AI_SetsUpForItsChances(double ratio, double stamina, Mentality mentality, Pressing pressing)
     {
-        var instructions = MatchSimulatorHelper.PickAIInstructions(share, stamina, softenRoll: 0.99);
+        var instructions = MatchSimulatorHelper.PickAIInstructions(ratio, stamina, softenRoll: 0.99);
         Assert.Equal(mentality, instructions.Mentality);
         Assert.Equal(pressing, instructions.Pressing);
     }
@@ -194,7 +195,7 @@ public class TacticalModifierRulesTests
     [Fact]
     public void AI_SometimesSoftensItsMentality()
     {
-        Assert.Equal(Mentality.Balanced, MatchSimulatorHelper.PickAIInstructions(0.7, 60, softenRoll: 0.0).Mentality);
-        Assert.Equal(Mentality.Balanced, MatchSimulatorHelper.PickAIInstructions(0.3, 60, softenRoll: 0.0).Mentality);
+        Assert.Equal(Mentality.Balanced, MatchSimulatorHelper.PickAIInstructions(1.1, 60, softenRoll: 0.0).Mentality);
+        Assert.Equal(Mentality.Balanced, MatchSimulatorHelper.PickAIInstructions(0.9, 60, softenRoll: 0.0).Mentality);
     }
 }

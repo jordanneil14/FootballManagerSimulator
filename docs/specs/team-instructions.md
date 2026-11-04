@@ -294,9 +294,16 @@ much, tone down the Attacking T/E.
    - Code: `Models/TeamInstructionsModel.cs`, `Models/TacticalModifierRules.cs`,
      `MatchSimulatorHelper` (`GetGoalWeightsAtMinute`, `SideEventRoll`, `ChooseAIInstructions`),
      `Components/TeamInstructionsPanel.razor`.
-   - AI choice in phase 1: favourite (share ≥ 0.62) plays Attacking, and presses High if its
-     average stamina is 70+; underdog (< 0.38) plays Defensive with a Low press; anyone else is
-     Balanced, pressing High only with stamina 78+. 20% of the time the mentality is softened to Balanced.
+   - AI choice in phase 1: a side compares its XI's strength with the opponent's (a plain ratio,
+     ignoring venue and the user's hidden rating boost). A favourite (ratio ≥ 1.02) plays Attacking,
+     and presses High if its average stamina is 70+; an underdog (≤ 0.98) plays Defensive with a
+     Low press; anyone else is Balanced, pressing High only with stamina 78+. 20% of the time the
+     mentality is softened to Balanced. Across a new game's league fixtures this gives about 63%
+     Balanced, 19% Attacking and 18% Defensive.
+   - Why a ratio rather than the strength share `s`: sides in a league are within 5–8% of each
+     other, which the share's home factor (×0.8 away) and the user's boost outweigh. With the
+     original thresholds (s ≥ 0.62 / < 0.38) no league side ever attacked, and with thresholds at
+     the mentality break-evens (about 0.57 / 0.46) the plan was set by venue alone.
    - Not done yet from the wider spec: recording each side's instructions on `FixtureModel`, and
      the attribute-scaled averages beyond stamina (they belong to phase 2 settings).
    - Mentality results (20,000 matches each, points per game against Balanced): underdog

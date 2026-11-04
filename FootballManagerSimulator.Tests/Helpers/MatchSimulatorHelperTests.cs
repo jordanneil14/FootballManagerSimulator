@@ -1179,6 +1179,20 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void PlanOpponentInstructions_IgnoresVenueAndMyHiddenBoost()
+    {
+        foreach (var player in _state.Players)
+            player.Rating = 70;
+        var fixture = new FixtureModel { HomeClub = Mine, AwayClub = Home, Date = _state.Date.AddDays(1) };
+
+        _simulator.PlanOpponentInstructions(fixture);
+
+        // An even match-up away at the user's ground isn't treated as an underdog's game.
+        Assert.NotEqual(Mentality.Defensive, fixture.AwayPlannedInstructions!.Mentality);
+        Assert.NotEqual(Pressing.Low, fixture.AwayPlannedInstructions.Pressing);
+    }
+
+    [Fact]
     public void ChooseAIInstructions_SticksToTheDayBeforePlan()
     {
         var plan = new TeamInstructionsModel { Mentality = Mentality.Attacking, Pressing = Pressing.High };

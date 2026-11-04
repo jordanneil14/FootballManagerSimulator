@@ -1041,10 +1041,13 @@ public class MatchSimulatorHelper(
         ChooseAIInstructions(fixture);
     }
 
-    // AI sides set up for the opponent: a clear favourite attacks, a clear underdog sits deep,
-    // and anyone fit enough presses high.
-    internal const double AIFavouriteShare = 0.62;
-    internal const double AIUnderdogShare = 0.38;
+    // AI sides set up for the opponent: a favourite attacks, an underdog sits deep, and anyone fit
+    // enough presses high. Like a manager, a side compares the two XIs directly, ignoring venue and
+    // the user's hidden rating boost. Sides in a league are within 5-8% of each other, so judging by
+    // the match-engine share left the plan decided by venue alone (away sides defended, home sides
+    // stayed Balanced).
+    internal const double AIFavouriteRatio = 1.02;
+    internal const double AIUnderdogRatio = 0.98;
     internal const double AIFavouritePressStamina = 70;
     internal const double AIAnyPressStamina = 78;
     internal const double AISoftenChance = 0.2;
@@ -1053,9 +1056,9 @@ public class MatchSimulatorHelper(
     // its approach the day before (the user's opponent) sticks to that plan.
     public void ChooseAIInstructions(FixtureModel fixture)
     {
-        var (homeRating, awayRating) = GetAdjustedRatings(fixture);
-        var total = homeRating + awayRating;
-        if (total <= 0) return;
+        var homeStrength = StrengthAt(fixture, true, 0);
+        var awayStrength = StrengthAt(fixture, false, 0);
+        if (homeStrength <= 0 || awayStrength <= 0) return;
 
         foreach (var isHome in new[] { true, false })
         {
@@ -1069,8 +1072,8 @@ public class MatchSimulatorHelper(
                 continue;
             }
 
-            var share = (isHome ? homeRating : awayRating) / total;
-            club.Instructions = PickAIInstructions(share, AverageOutfieldStamina(fixture, isHome, 0), RandomNumberHelper.NextDouble());
+            var ratio = isHome ? homeStrength / awayStrength : awayStrength / homeStrength;
+            club.Instructions = PickAIInstructions(ratio, AverageOutfieldStamina(fixture, isHome, 0), RandomNumberHelper.NextDouble());
         }
     }
 
@@ -1082,19 +1085,14 @@ public class MatchSimulatorHelper(
         var home = ExpectedXi(fixture.HomeClub.Id, fixture.Date);
         var away = ExpectedXi(fixture.AwayClub.Id, fixture.Date);
 
-        var homeRating = Math.Pow(home.Sum(p => p.Rating), RatingGapExponent);
-        var awayRating = Math.Pow(away.Sum(p => p.Rating), RatingGapExponent);
-        if (fixture.HomeClub.Id == State.MyClubId) homeRating *= MyClubRatingBoost;
-        else if (fixture.AwayClub.Id == State.MyClubId) awayRating *= MyClubRatingBoost;
-        awayRating *= .8;
-
-        var total = homeRating + awayRating;
-        if (total <= 0) return;
+        double homeStrength = home.Sum(p => p.Rating);
+        double awayStrength = away.Sum(p => p.Rating);
+        if (homeStrength <= 0 || awayStrength <= 0) return;
 
         if (fixture.HomeClub.Id != State.MyClubId)
-            fixture.HomePlannedInstructions = PickAIInstructions(homeRating / total, OutfieldStamina(home), RandomNumberHelper.NextDouble());
+            fixture.HomePlannedInstructions = PickAIInstructions(homeStrength / awayStrength, OutfieldStamina(home), RandomNumberHelper.NextDouble());
         if (fixture.AwayClub.Id != State.MyClubId)
-            fixture.AwayPlannedInstructions = PickAIInstructions(awayRating / total, OutfieldStamina(away), RandomNumberHelper.NextDouble());
+            fixture.AwayPlannedInstructions = PickAIInstructions(awayStrength / homeStrength, OutfieldStamina(away), RandomNumberHelper.NextDouble());
     }
 
     private List<PlayerModel> ExpectedXi(int clubId, DateOnly matchDate)
@@ -1117,16 +1115,17 @@ public class MatchSimulatorHelper(
         return outfield.Count == 0 ? 0 : outfield.Average(p => p.Stamina);
     }
 
-    internal static TeamInstructionsModel PickAIInstructions(double strengthShare, double averageStamina, double softenRoll)
+    // strengthRatio: the side's XI strength divided by the opponent's.
+    internal static TeamInstructionsModel PickAIInstructions(double strengthRatio, double averageStamina, double softenRoll)
     {
         var instructions = new TeamInstructionsModel();
 
-        if (strengthShare >= AIFavouriteShare)
+        if (strengthRatio >= AIFavouriteRatio)
         {
             instructions.Mentality = Mentality.Attacking;
             instructions.Pressing = averageStamina >= AIFavouritePressStamina ? Pressing.High : Pressing.Medium;
         }
-        else if (strengthShare < AIUnderdogShare)
+        else if (strengthRatio <= AIUnderdogRatio)
         {
             instructions.Mentality = Mentality.Defensive;
             instructions.Pressing = Pressing.Low;
