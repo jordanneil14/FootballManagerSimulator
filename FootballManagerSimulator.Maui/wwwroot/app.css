@@ -431,6 +431,7 @@ table.data.squad-table td.squad-name { width: 100%; overflow-wrap: break-word; l
 .event-red { background: rgba(244,67,54,.1); }
 .event-injury { background: rgba(230,126,34,.12); }
 .event-penalty { background: rgba(226,178,58,.14); }
+.event-fulltime { background: var(--panel-3); font-weight: 600; }
 .event-penalty-miss { background: rgba(255,255,255,.04); color: var(--text-dim); }
 .row-injured td { background: rgba(244,67,54,.15); color: var(--danger, #e53935); }
 

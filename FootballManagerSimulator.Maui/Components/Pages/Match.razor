@@ -369,11 +369,13 @@ else
             {
                 _phase = MatchPhase.Concluded;
                 _isPaused = true;
+                AddFullTimeEvent();
             }
             else if (_currentMinute >= 120)
             {
                 _phase = MatchPhase.Concluded;
                 _isPaused = true;
+                AddFullTimeEvent();
             }
             else if (_currentMinute >= 90)
             {
@@ -685,7 +687,27 @@ else
         };
 
         if (_phase == MatchPhase.FullTime || _phase == MatchPhase.Concluded)
+        {
+            AddFullTimeEvent();
             ConcludeMatch();
+        }
+    }
+
+    // Unicode has no whistle emoji, so the chequered flag marks the finish.
+    private const string FullTimeIcon = "🏁";
+
+    // The final whistle, once, at the minute the match ended: the score, or who won a shoot-out.
+    private void AddFullTimeEvent()
+    {
+        if (_fixture == null || _eventFeed.Any(e => e.CssClass == "event-fulltime")) return;
+
+        var shootoutWinner = _fixture.HomeScorers.Any(g => g.Minute > 120) ? _fixture.HomeClub
+            : _fixture.AwayScorers.Any(g => g.Minute > 120) ? _fixture.AwayClub
+            : null;
+        var text = shootoutWinner != null
+            ? $"Full Time - {shootoutWinner.Name} win on penalties"
+            : $"Full Time - {_fixture.HomeClub.Name} {_displayedHomeGoals}-{_displayedAwayGoals} {_fixture.AwayClub.Name}";
+        _eventFeed.Add(new MatchEvent(_currentMinute, FullTimeIcon, text, "event-fulltime"));
     }
 
     private MatchPhase CheckFullTime()
@@ -847,6 +869,7 @@ else
         _fixture!.GoalsHome = _displayedHomeGoals;
         _fixture.GoalsAway = _displayedAwayGoals;
         _phase = MatchPhase.Concluded;
+        AddFullTimeEvent();
         ConcludeMatch();
         StateHasChanged();
     }
