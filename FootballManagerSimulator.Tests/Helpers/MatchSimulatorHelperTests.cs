@@ -1260,6 +1260,21 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
+    public void FullTime_ASidePressingLowTiresLess()
+    {
+        foreach (var player in _state.Players) player.Stamina = 65;
+        Home.Instructions = new TeamInstructionsModel { Pressing = Pressing.Low };
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+
+        _simulator.ConcludeFixture(fixture, competition);
+
+        var homeKeeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
+        var awayKeeper = StartersOf(Away).First(p => p.PreferredPosition == "GK");
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.GoalkeeperDrainMultiplier, 90), homeKeeper.Fitness, 6);
+        Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.GoalkeeperDrainMultiplier), awayKeeper.Fitness, 6);
+    }
+
+    [Fact]
     public void FitnessAt_ASubstituteOnlyTiresFromWhenHeCameOn()
     {
         foreach (var player in _state.Players) player.Stamina = 65;

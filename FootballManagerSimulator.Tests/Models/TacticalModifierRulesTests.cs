@@ -161,6 +161,20 @@ public class TacticalModifierRulesTests
     }
 
     [Fact]
+    public void PressingLog_CountsMinutesAtAnyLevel()
+    {
+        var log = new List<PressingSpellModel>();
+        PressingLog.Start(log, Pressing.Medium);
+        PressingLog.ChangeAt(log, 30, Pressing.Low);
+        PressingLog.ChangeAt(log, 50, Pressing.High);
+        PressingLog.ChangeAt(log, 70, Pressing.Low);
+
+        Assert.Equal(40, PressingLog.MinutesPressed(log, 90, Pressing.Low, Pressing.Low));
+        Assert.Equal(30, PressingLog.MinutesPressed(log, 90, Pressing.Low, Pressing.Medium));
+        Assert.Equal(70, PressingLog.MinutesPressed([], 70, Pressing.Low, Pressing.Low));
+    }
+
+    [Fact]
     public void CombineWeights_WithNeutralInstructionsAreTheStrengthShares()
     {
         var weights = MatchSimulatorHelper.CombineWeights(3, 1, SideModifiers.Neutral, SideModifiers.Neutral);

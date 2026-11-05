@@ -15,6 +15,8 @@ public static class FitnessRules
     public const double MinDrainFactor = 0.6;
     public const double MaxDrainFactor = 1.6;
     public const double HighPressDrainMultiplier = 1.25;
+    // Sitting off costs less running than the default Medium press.
+    public const double LowPressDrainMultiplier = 0.9;
     // Goalkeepers cover far less ground, so they tire at a third of the rate (two-thirds less).
     public const double GoalkeeperDrainMultiplier = 1.0 / 3;
     // Centre-backs hold their position more than other outfielders, so they tire a third slower.
@@ -37,12 +39,14 @@ public static class FitnessRules
     public static double DrainFactor(double stamina) =>
         Math.Clamp(1 + (StaminaReference - stamina) / StaminaRange, MinDrainFactor, MaxDrainFactor);
 
-    // Fitness lost over minutesOnPitch, pressedHighMinutes of which his side spent pressing high.
-    // roleMultiplier: see RoleDrainMultiplier.
-    public static double Drain(double stamina, int minutesOnPitch, int pressedHighMinutes, double roleMultiplier = 1)
+    // Fitness lost over minutesOnPitch, pressedHighMinutes of which his side spent pressing high and
+    // pressedLowMinutes sitting off in a low press. roleMultiplier: see RoleDrainMultiplier.
+    public static double Drain(double stamina, int minutesOnPitch, int pressedHighMinutes, double roleMultiplier = 1, int pressedLowMinutes = 0)
     {
-        var pressed = Math.Clamp(pressedHighMinutes, 0, Math.Max(0, minutesOnPitch));
-        var effectiveMinutes = minutesOnPitch + (HighPressDrainMultiplier - 1) * pressed;
+        var played = Math.Max(0, minutesOnPitch);
+        var high = Math.Clamp(pressedHighMinutes, 0, played);
+        var low = Math.Clamp(pressedLowMinutes, 0, played - high);
+        var effectiveMinutes = played + (HighPressDrainMultiplier - 1) * high + (LowPressDrainMultiplier - 1) * low;
         return Math.Max(0, DrainPerMinute * DrainFactor(stamina) * effectiveMinutes * roleMultiplier);
     }
 

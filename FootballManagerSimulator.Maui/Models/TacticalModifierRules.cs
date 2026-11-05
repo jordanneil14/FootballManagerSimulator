@@ -51,7 +51,7 @@ public static class TacticalModifierRules
     public const double FatigueStaminaRange = 30;
     public const double MinFatigue = 0.3;
 
-    // Low press: gives the opponent the ball, but no fatigue, fewer cards, and dangerous on the
+    // Low press: gives the opponent the ball, but players tire a little slower, fewer cards, and dangerous on the
     // counter against a side that has run itself into the ground.
     public const double LowPressThreat = 0.94;
     public const double LowPressExposure = 0.96;

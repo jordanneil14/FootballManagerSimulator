@@ -51,17 +51,21 @@ public static class PressingLog
         log.Add(new PressingSpellModel { FromMinute = fromMinute, Pressing = pressing });
     }
 
-    // Minutes spent pressing high before the given minute. With no log (a match from an older
-    // save), the side is taken to have kept its current pressing since kick-off.
-    public static int MinutesPressedHigh(IReadOnlyList<PressingSpellModel> log, int minute, Pressing current)
+    // Minutes spent pressing high before the given minute.
+    public static int MinutesPressedHigh(IReadOnlyList<PressingSpellModel> log, int minute, Pressing current) =>
+        MinutesPressed(log, minute, current, Pressing.High);
+
+    // Minutes spent at this pressing level before the given minute. With no log (a match from an
+    // older save), the side is taken to have kept its current pressing since kick-off.
+    public static int MinutesPressed(IReadOnlyList<PressingSpellModel> log, int minute, Pressing current, Pressing level)
     {
         if (log.Count == 0)
-            return current == Pressing.High ? minute : 0;
+            return current == level ? minute : 0;
 
         var total = 0;
         for (var i = 0; i < log.Count; i++)
         {
-            if (log[i].Pressing != Pressing.High) continue;
+            if (log[i].Pressing != level) continue;
             var from = log[i].FromMinute;
             var to = i + 1 < log.Count ? log[i + 1].FromMinute : int.MaxValue;
             total += Math.Max(0, Math.Min(to, minute) - from);

@@ -12,6 +12,7 @@ Every player has **fitness from 0 to 100** (`PlayerModel.Fitness`). New players 
 - Every minute on the pitch costs `(37 / 90) × DrainFactor(Stamina)`, about 0.41.
   `DrainFactor = clamp(1 + (65 − Stamina) / 60, 0.6, 1.6)`, so lower Stamina tires quicker.
 - Minutes while the team is **pressing high** cost **×1.25**.
+- Minutes while the team is in a **low press** cost **×0.9**.
 - A substitute only tires from the minute he comes on. A player taken off or sent off stops tiring.
 - At an average Stamina of 65: **37** lost over 90 minutes (about 46 when pressing high all game).
 - **Goalkeepers** (GK among their listed positions) tire at **a third of the rate**: about 12 over 90 minutes.

@@ -80,6 +80,20 @@ public class FitnessRulesTests
     }
 
     [Fact]
+    public void PressingLowDrainsATenthSlowerForThoseMinutes()
+    {
+        var medium = FitnessRules.Drain(65, 90, 0);
+        var lowAllGame = FitnessRules.Drain(65, 90, 0, pressedLowMinutes: 90);
+        var lowHalf = FitnessRules.Drain(65, 90, 0, pressedLowMinutes: 45);
+
+        Assert.Equal(medium * FitnessRules.LowPressDrainMultiplier, lowAllGame, 6);
+        Assert.Equal(FitnessRules.DrainPerMinute * (45 + 45 * FitnessRules.LowPressDrainMultiplier), lowHalf, 6);
+        Assert.True(lowAllGame < medium);
+        // High and low minutes together can't exceed the minutes played.
+        Assert.Equal(FitnessRules.Drain(65, 90, 90), FitnessRules.Drain(65, 90, 90, pressedLowMinutes: 90), 6);
+    }
+
+    [Fact]
     public void Recovery_IsFasterWithStaminaAndPhysios()
     {
         Assert.Equal(FitnessRules.RecoveryPerDay, FitnessRules.Recovery(65), 6);

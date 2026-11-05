@@ -97,7 +97,7 @@ Three levels (decided). Mentality is mostly a risk dial (T ≈ E).
 
 | Option | Effect | Advantage | Disadvantage |
 |---|---|---|---|
-| Low | T ×0.94, E ×0.96. Cards ×0.80. **Counter:** T × (1 + 0.25 × opponent's fatigue). | No fatigue, fewer cards, dangerous on the counter once a pressing side tires. | You give the opponent the ball, so you create less. |
+| Low | T ×0.94, E ×0.96. Cards ×0.80. **Counter:** T × (1 + 0.25 × opponent's fatigue). | Players tire 10% slower, fewer cards, dangerous on the counter once a pressing side tires. | You give the opponent the ball, so you create less. |
 | **Medium** | — | — | — |
 | High | T ×1.08, E ×0.97 (winning the ball high up the pitch). Cards ×1.35, injuries ×1.20. **Fatigue:** T and E drift towards T 0.92 / E 1.12 as the side tires (softened once player fitness was added, see player-fitness.md). **Squeeze:** T × (1 + 0.15 × opponent's fatigue × (1 − own fatigue)). | The strongest setting while your legs are fresh, and better still against a side that has tired itself out. | Bookings, injuries, and a fade once you've pressed for a while. A side with poor stamina is worse off than if it hadn't pressed at all. |
 
