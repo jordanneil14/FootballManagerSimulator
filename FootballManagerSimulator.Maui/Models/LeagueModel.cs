@@ -138,6 +138,50 @@ public class LeagueModel : ICompetition
             });
         }
 
+        return Order(table);
+    }
+
+    // The table as it stood before the given day's matches, plus those matches at the scores liveScore gives.
+    // Today's results count from liveScore even once concluded, so the other games (which conclude at
+    // kick-off) show their scores so far rather than their final ones. A null liveScore leaves them out.
+    public List<LeaguePositionModel> GenerateLiveLeagueTable(DateOnly today, Func<FixtureModel, (int Home, int Away)>? liveScore)
+    {
+        var rows = Clubs.ToDictionary(c => c.Id, c => new LeaguePositionModel { Club = c });
+
+        foreach (var fixture in Fixtures)
+        {
+            if (fixture.FixtureType != FixtureType.Base) continue;
+
+            (int Home, int Away) score;
+            if (fixture.Date == today)
+            {
+                if (liveScore == null) continue;
+                score = liveScore(fixture);
+            }
+            else if (fixture.Concluded)
+                score = (fixture.GoalsHome.GetValueOrDefault(), fixture.GoalsAway.GetValueOrDefault());
+            else
+                continue;
+
+            if (!rows.TryGetValue(fixture.HomeClub.Id, out var home) || !rows.TryGetValue(fixture.AwayClub.Id, out var away))
+                continue;
+
+            home.Played++;
+            away.Played++;
+            home.GoalsScored += score.Home;
+            home.GoalsConceded += score.Away;
+            away.GoalsScored += score.Away;
+            away.GoalsConceded += score.Home;
+            if (score.Home > score.Away) home.Points += 3;
+            else if (score.Away > score.Home) away.Points += 3;
+            else { home.Points++; away.Points++; }
+        }
+
+        return Order(rows.Values).ToList();
+    }
+
+    private IOrderedEnumerable<LeaguePositionModel> Order(IEnumerable<LeaguePositionModel> table)
+    {
         return table
             .OrderBy(p => TopSplitClubIds.Count > 0 && !TopSplitClubIds.Contains(p.Club.Id))
             .ThenByDescending(p => p.Points)

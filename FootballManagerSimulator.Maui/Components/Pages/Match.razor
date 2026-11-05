@@ -85,6 +85,10 @@ else
         <button class="tab-btn @(_tab == 2 ? "active" : "")" @onclick="() => _tab = 2">Tactics</button>
         <button class="tab-btn @(_tab == 4 ? "active" : "")" @onclick="() => _tab = 4">Opposition Tactics</button>
         <button class="tab-btn @(_tab == 3 ? "active" : "")" @onclick="() => _tab = 3">Live Scores</button>
+        @if (LiveTableLeague != null)
+        {
+            <button class="tab-btn @(_tab == 5 ? "active" : "")" @onclick="() => _tab = 5">Live Table</button>
+        }
     </div>
 
     @if (_tab == 0)
@@ -206,6 +210,46 @@ else
             }
         }
     }
+    else if (_tab == 5 && LiveTableLeague is { } liveLeague)
+    {
+        var table = LiveTable(liveLeague);
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr>
+                        <th class="num">#</th><th>Club</th>
+                        <th class="num">Pld</th><th class="num">Pts</th>
+                        <th class="num">F</th><th class="num">A</th><th class="num">GD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (var i = 0; i < table.Count; i++)
+                    {
+                        var row = table[i];
+                        var position = i + 1;
+                        var start = _liveTableStartPositions!.GetValueOrDefault(row.Club.Id, position);
+                        <tr @key="row.Club.Id" class="@(row.Club.Id == Engine.State.MyClubId ? "highlight" : "") @LiveZoneClass(position, liveLeague)">
+                            <td class="num">@position</td>
+                            <td>
+                                <strong>@row.Club.Name</strong>
+                                @if (position != start)
+                                {
+                                    <span class="tag @(position < start ? "green" : "red")" style="margin-left:.4rem" title="@($"{FootballManagerSimulator.Maui.Helpers.NumberHelper.AddOrdinal(start)} at kick-off")">
+                                        @FootballManagerSimulator.Maui.Helpers.NumberHelper.AddOrdinal(position) @(position < start ? "▲" : "▼")
+                                    </span>
+                                }
+                            </td>
+                            <td class="num">@row.Played</td>
+                            <td class="num"><strong>@row.Points</strong></td>
+                            <td class="num">@row.GoalsScored</td>
+                            <td class="num">@row.GoalsConceded</td>
+                            <td class="num">@row.GoalDifference</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 }
 
 @code {
@@ -249,6 +293,50 @@ else
     private readonly HashSet<int> _playingOnInjured = [];
 
     private bool SubstitutionsLimited => _competition?.Type != CompetitionType.Friendly;
+
+    // Only for a regular league match in my own league: cups, friendlies and play-offs don't move the table.
+    private LeagueModel? LiveTableLeague =>
+        _fixture?.FixtureType == FixtureType.Base && _competition is LeagueModel league && league.Id == Engine.CurrentClub?.LeagueId
+            ? league
+            : null;
+
+    private List<LeaguePositionModel>? _liveTable;
+    private Dictionary<int, int>? _liveTableStartPositions;
+    private List<FixtureModel>? _liveTableFixtures;
+    private int _liveTableGoals = -1;
+
+    // The table as it stands. Goals so far only ever go up (a re-simulation only rewrites later minutes),
+    // so the table is rebuilt only when today's goal count changes, not on every tick.
+    private List<LeaguePositionModel> LiveTable(LeagueModel league)
+    {
+        var today = _fixture!.Date;
+        _liveTableFixtures ??= league.Fixtures.Where(f => f.Date == today && f.FixtureType == FixtureType.Base).ToList();
+        _liveTableStartPositions ??= league.GenerateLiveLeagueTable(today, null)
+            .Select((row, i) => (row.Club.Id, Position: i + 1))
+            .ToDictionary(p => p.Id, p => p.Position);
+
+        var goals = _liveTableFixtures.Sum(f => { var s = LiveScore(f); return s.Home + s.Away; });
+        if (_liveTable == null || goals != _liveTableGoals)
+        {
+            _liveTable = league.GenerateLiveLeagueTable(today, LiveScore);
+            _liveTableGoals = goals;
+        }
+        return _liveTable;
+    }
+
+    private (int Home, int Away) LiveScore(FixtureModel fixture) => fixture == _fixture
+        ? (_displayedHomeGoals, _displayedAwayGoals)
+        : (fixture.HomeScorers.Count(g => g.Minute <= _currentMinute), fixture.AwayScorers.Count(g => g.Minute <= _currentMinute));
+
+    private static string LiveZoneClass(int position, LeagueModel league)
+    {
+        var places = league.Clubs.Count;
+        if (position <= league.AutomaticPromotionPlaces) return "zone-promo";
+        if (position <= league.AutomaticPromotionPlaces + league.PlayoffPlaces) return "zone-playoff";
+        if (position > places - league.RelegationPlaces) return "zone-releg";
+        if (position > places - league.RelegationPlaces - league.RelegationPlayoffPlaces) return "zone-playoff";
+        return "";
+    }
 
     protected override void OnInitialized()
     {
