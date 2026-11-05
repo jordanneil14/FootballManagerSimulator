@@ -52,6 +52,44 @@ public class LeagueModelTests
         Assert.Equal(["Alpha", "Bravo", "Charlie", "Delta"], table.Select(p => p.Club.Name));
     }
 
+    [Fact]
+    public void GenerateLiveLeagueTable_UsesLiveScoresForTodayInsteadOfFinalResults()
+    {
+        var today = new DateOnly(2026, 9, 1);
+        _league.Fixtures.Add(TestData.Result(_a, _b, 1, 0));
+        // Today's match has already been concluded (as the other games are at kick-off) with a final score of 0-3.
+        var live = TestData.Result(_b, _c, 0, 3);
+        live.Date = today;
+        _league.Fixtures.Add(live);
+
+        var before = _league.GenerateLiveLeagueTable(today, null);
+        Assert.Equal(["Alpha", "Charlie", "Bravo"], before.Select(p => p.Club.Name));
+        Assert.Equal(0, before.Single(p => p.Club == _c).Played);
+
+        // 2-0 to Bravo so far.
+        var asItStands = _league.GenerateLiveLeagueTable(today, f => (2, 0));
+        // Level with Alpha on points and goal difference, ahead on goals scored.
+        Assert.Equal(["Bravo", "Alpha", "Charlie"], asItStands.Select(p => p.Club.Name));
+        var bravo = asItStands.Single(p => p.Club == _b);
+        Assert.Equal((3, 2, 1, 2), (bravo.Points, bravo.GoalsScored, bravo.GoalsConceded, bravo.Played));
+    }
+
+    [Fact]
+    public void GenerateLiveLeagueTable_MatchesGenerateLeagueTableWithNothingToday()
+    {
+        _league.Fixtures.Add(TestData.Result(_a, _b, 2, 1));
+        _league.Fixtures.Add(TestData.Result(_c, _a, 1, 1));
+        _league.Fixtures.Add(TestData.Result(_b, _c, 0, 3));
+        _league.Fixtures.Add(TestData.Result(_b, _a, 4, 0, FixtureType.PlayoffFinal));
+
+        var live = _league.GenerateLiveLeagueTable(new DateOnly(2026, 9, 1), f => (9, 9));
+        var table = _league.GenerateLeagueTable().ToList();
+
+        Assert.Equal(
+            table.Select(p => (p.Club.Id, p.Points, p.GoalsScored, p.GoalsConceded, p.Played)),
+            live.Select(p => (p.Club.Id, p.Points, p.GoalsScored, p.GoalsConceded, p.Played)));
+    }
+
     [Theory]
     [InlineData(5, 2, "+3")]
     [InlineData(2, 5, "-3")]
