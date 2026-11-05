@@ -731,20 +731,6 @@ public class GameEngine(
         NotifyChanged();
     }
 
-    // The average Stamina of the user's outfield starters, which sets how badly a high press fades.
-    public double MyOutfieldAverageStamina() => OutfieldAverageStamina(MyClub);
-
-    public double OutfieldAverageStamina(ClubModel club)
-    {
-        var stamina = club.TacticSlots
-            .Where(s => s.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES or TacticSlotType.GK) && s.PlayerId != null)
-            .Select(s => GetPlayer(s.PlayerId!.Value))
-            .OfType<PlayerModel>()
-            .Select(p => (double)p.Stamina)
-            .ToList();
-        return stamina.Count == 0 ? 0 : stamina.Average();
-    }
-
     public void ChangeFormation(string formation)
     {
         var oldPlayerIds = MyClub.TacticSlots

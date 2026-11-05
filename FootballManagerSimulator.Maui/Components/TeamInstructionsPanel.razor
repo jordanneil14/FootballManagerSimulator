@@ -5,7 +5,6 @@
 @{
     var club = Club ?? Engine.MyClub;
     var instructions = club.Instructions ?? new TeamInstructionsModel();
-    var stamina = Engine.OutfieldAverageStamina(club);
     var locked = Disabled || ReadOnly;
 }
 
@@ -34,10 +33,6 @@
             }
         </div>
         @TradeOff(PressingText(instructions.Pressing))
-        @if (instructions.Pressing == Pressing.High && stamina > 0)
-        {
-            <div class="instr-hint">@StaminaHint(stamina, theirs: ReadOnly)</div>
-        }
     </div>
 </div>
 
@@ -86,15 +81,6 @@
                           "More bookings and injuries, and your side tires once it has pressed for about 45 minutes. Low stamina makes the fade much worse."),
         _ => (null, null)
     };
-
-    private static string StaminaHint(double stamina, bool theirs)
-    {
-        var share = TacticalModifierRules.FatigueShare(stamina);
-        var fade = share <= 0.4 ? "only lightly" : share <= 0.7 ? "noticeably" : "badly";
-        return theirs
-            ? $"Their outfield players' average stamina is {stamina:0}, so the press will fade {fade} once they've pressed for about 45 minutes."
-            : $"Your outfield players' average stamina is {stamina:0}, so the press will fade {fade} once you've pressed for about 45 minutes.";
-    }
 
     private static RenderFragment TradeOff((string? Plus, string? Minus) text) => __builder =>
     {

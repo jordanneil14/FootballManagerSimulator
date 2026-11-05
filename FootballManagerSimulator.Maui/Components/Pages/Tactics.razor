@@ -7,10 +7,6 @@
 
 <div class="page-head">
     <div><h1>Tactics</h1><div class="subtitle">Formation @Engine.MyClub.Formation · click two players to swap them</div></div>
-    <div class="page-actions">
-        <button class="btn btn-primary" disabled="@Locked" @onclick="AutoPick">🪄 Auto Pick</button>
-        <button class="btn" disabled="@Locked" @onclick="Reset">↺ Reset</button>
-    </div>
 </div>
 
 @if (Locked)
@@ -47,7 +43,13 @@
 <TeamInstructionsPanel Disabled="@Locked" />
 
 <div class="panel" style="@LockedStyle">
-    <h2>Starting XI</h2>
+    <div class="panel-head">
+        <h2>Starting XI</h2>
+        <div class="page-actions">
+            <button class="btn btn-primary" disabled="@Locked" @onclick="AutoPick">🪄 Auto Pick</button>
+            <button class="btn" disabled="@Locked" @onclick="Reset">↺ Reset</button>
+        </div>
+    </div>
     <div class="pitch">
         <div class="pitch-box-top"></div>
         <div class="pitch-box-bottom"></div>
