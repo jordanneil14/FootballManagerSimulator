@@ -182,8 +182,9 @@ public class LeagueFixtureGenerationTests
         service.GeneratePreMatchReportForFixture(new FixtureModel { HomeClub = them, AwayClub = me });
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Equal(("Ann Alyst", "Pre-Match Report"), (report.Recipient, report.Subject));
-        Assert.StartsWith("I've had a look at Rivals ahead of tomorrow's away match. They sit 1st in the league.", report.Message);
+        Assert.Equal(("Ann Alyst", "Pre-Match Report: Rivals (A)"), (report.Recipient, report.Subject));
+        Assert.StartsWith("Boss, here's what I've got on Rivals ahead of tomorrow's away game.", report.Message);
+        Assert.Contains("They're 1st in the league with 3 points, 1 place and 3 points above us.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message); // only the top three
@@ -207,8 +208,8 @@ public class LeagueFixtureGenerationTests
         new ScottishPremiershipService(state, notifications).GeneratePreMatchReportForFixture(new FixtureModel { HomeClub = me, AwayClub = them });
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Contains("look at Rivals", report.Message);
-        Assert.Contains("2nd", report.Message);
+        Assert.Contains("got on Rivals ahead of tomorrow's home game", report.Message);
+        Assert.Contains("They're 2nd in the league with 0 points, 1 place and 3 points below us.", report.Message);
         Assert.Contains("Player 1", report.Message);
         Assert.DoesNotContain("Player 2", report.Message);
     }
@@ -237,8 +238,9 @@ public class LeagueFixtureGenerationTests
         service.GeneratePreMatchReportForFixture(fixture);
 
         var report = Assert.Single(notifications.Sent);
-        Assert.Equal(("Ann Alyst", "Pre-Match Report", SeasonStart), (report.Recipient, report.Subject, report.Date));
-        Assert.StartsWith($"I've had a look at Rivals ahead of tomorrow's {(iAmAtHome ? "home" : "away")} match. It's a Big Cup tie.", report.Message);
+        Assert.Equal(("Ann Alyst", $"Pre-Match Report: Rivals ({(iAmAtHome ? "H" : "A")})", SeasonStart), (report.Recipient, report.Subject, report.Date));
+        Assert.StartsWith($"Boss, here's what I've got on Rivals ahead of tomorrow's {(iAmAtHome ? "home" : "away")} game.", report.Message);
+        Assert.Contains("It's a Big Cup tie.", report.Message);
         Assert.Contains("Player 5", report.Message);
         Assert.Contains("Player 3", report.Message);
         Assert.DoesNotContain("Player 2", report.Message);
@@ -285,11 +287,54 @@ public class LeagueFixtureGenerationTests
         new LeagueService(state, notifications).GeneratePreMatchReportForFixture(fixture);
 
         var report = Assert.Single(notifications.Sent).Message;
-        Assert.Contains("Formation: 3-5-2", report);
-        Assert.Contains("Mentality: Defensive", report);
-        Assert.Contains("Pressing: High", report);
-        Assert.Contains("more attacking to break them down", report);
-        Assert.Contains("sit off and hit them on the counter", report);
-        Assert.Contains("switch to a high press ourselves", report);
+        Assert.Contains("HOW THEY'LL SET UP\n• 3-5-2\n• Defensive: they'll sit back", report);
+        Assert.Contains("• High press:", report);
+        Assert.Contains("we may need to be more attacking", report);
+        Assert.Contains("hit them on the counter, or press them ourselves", report);
+        Assert.DoesNotContain("gospel", report);
+    }
+
+    [Fact]
+    public void PreMatchReport_GivesFormStrengthMissingPlayersGoalsAndTiredStarters()
+    {
+        var state = new StateModel { Date = SeasonStart, MyClubId = 1 };
+        state.Analysts.Add(new AnalystModel { Id = 1, Name = "Ann Alyst" });
+        var me = TestData.Club(1, "Mine");
+        var them = TestData.Club(2, "Rivals");
+        var third = TestData.Club(3, "Third");
+        state.Clubs.AddRange([me, them, third]);
+        var league = TestData.League(1, state.Clubs);
+        var day = SeasonStart.AddDays(-10);
+        foreach (var (home, away, gh, ga) in new[] { (them, third, 1, 0), (third, them, 2, 0), (them, third, 1, 1) })
+        {
+            var result = TestData.Result(home, away, gh, ga);
+            result.Date = day = day.AddDays(1);
+            league.Fixtures.Add(result);
+        }
+        state.Competitions.Add(league);
+
+        // Their XI is far stronger than ours. Their best player is out injured.
+        var theirs = TestData.AddSquad(state, them, 100, baseRating: 80);
+        var injured = theirs.MaxBy(p => p.Rating)!;
+        injured.InjuryEndDate = SeasonStart.AddDays(10);
+        var striker = theirs.Where(p => p != injured).MaxBy(p => p.Rating)!;
+        league.Fixtures[0].HomeScorers.Add(new GoalModel { Minute = 10, PlayerId = striker.Id });
+        league.Fixtures[2].HomeScorers.Add(new GoalModel { Minute = 20, PlayerId = striker.Id });
+        var mine = TestData.AddSquad(state, me, 200, baseRating: 60);
+        mine[1].Rating = mine[2].Rating = 99; // sure to be in our XI
+        mine[1].Fitness = 62.4;
+        mine[2].Fitness = 70;
+        var fixture = new FixtureModel { HomeClub = me, AwayClub = them, Date = SeasonStart.AddDays(1) };
+        var notifications = new RecordingNotifications();
+
+        new LeagueService(state, notifications).GeneratePreMatchReportForFixture(fixture);
+
+        var report = Assert.Single(notifications.Sent).Message;
+        Assert.Contains("Form: W L D.", report);
+        Assert.Contains("On paper their likely XI is clearly stronger than ours.", report);
+        Assert.Contains($"Not available: {injured.Name} ({injured.PreferredPosition}, injured).", report);
+        Assert.Contains($"• {striker.Name} ({striker.PreferredPosition}): 2 goals this season", report);
+        Assert.DoesNotContain($"• {injured.Name}", report);
+        Assert.Contains($"{mine[1].Name} (62 fitness) and {mine[2].Name} (70) are still feeling the last game.", report);
     }
 }

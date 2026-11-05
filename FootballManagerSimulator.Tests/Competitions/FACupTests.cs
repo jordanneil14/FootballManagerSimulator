@@ -270,7 +270,7 @@ public class FACupTests : IDisposable
 
         _host.Get<EnglishFACupService>().GeneratePreMatchReportForFixture(mine);
 
-        Assert.Contains(State.Notifications, n => n.Subject == "Pre-Match Report" && n.Message.Contains("It's a National Association Cup tie."));
+        Assert.Contains(State.Notifications, n => n.Subject.StartsWith("Pre-Match Report") && n.Message.Contains("It's a National Association Cup tie."));
     }
 
     // ----- Rules --------------------------------------------------------------------------
