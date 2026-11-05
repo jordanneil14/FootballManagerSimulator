@@ -126,6 +126,17 @@ public class FullGameTests : IDisposable
     }
 
     [Fact]
+    public void NewGame_StartsMyReputationJustBelowMyClub()
+    {
+        var engine = _host.StartNewGame(clubId: 9);
+        var standing = _host.Get<IReputationHelper>().Standings()[9];
+
+        Assert.Equal(Math.Max(JobRules.Floor, standing - JobRules.StartingBelowClub), engine.State.ManagerReputation);
+        Assert.NotNull(engine.State.ManagerHistory.CurrentJob!.ExpectedFinish);
+        Assert.Empty(engine.State.JobApplications);
+    }
+
+    [Fact]
     public void NewGame_OpensWithAFewVacantJobsElsewhere()
     {
         var engine = _host.StartNewGame(clubId: 9);
@@ -171,12 +182,17 @@ public class FullGameTests : IDisposable
         PlayUntil(engine, new DateOnly(2026, 10, 20));
         Assert.All(state.Competitions.SelectMany(c => c.Fixtures).Where(f => f.Date < state.Date), f => Assert.True(f.Concluded));
         Assert.Contains("Out of work", engine.NextMatchCaption());
+        // Two months out of work: there is always a job I could get, and being sacked cost me reputation.
+        Assert.True(_host.Get<IJobOfferHelper>().ReachableVacancies() > 0);
+        var reputation = state.ManagerReputation;
+        Assert.NotNull(reputation);
 
         // Still unemployed after a save and load.
         Assert.Equal("Game saved successfully.", engine.SaveGame("unemployed"));
         engine.StartNewGame();
         Assert.Null(engine.LoadGame("unemployed.fms"));
         Assert.True(engine.IsUnemployed);
+        Assert.Equal(reputation, engine.State.ManagerReputation);
 
         var vacancy = state.Clubs.First(c => c.Id != 9);
         vacancy.VacantUntil = state.Date.AddDays(7);
@@ -248,6 +264,11 @@ public class FullGameTests : IDisposable
         var budgetsBefore = state.Clubs.ToDictionary(c => c.Id, c => c.TransferBudget);
 
         PlayUntil(engine, new DateOnly(2027, 6, 30)); // end-of-season processing runs on 30 June
+
+        // My reputation is reviewed, and the squad given a target for next season.
+        Assert.Single(state.Notifications, n => n.Subject == "Your Reputation" && n.Date == state.Date);
+        Assert.NotNull(state.LastSeasonReputationChange);
+        Assert.NotNull(state.ManagerHistory.CurrentJob!.ExpectedFinish);
 
         // Every club receives its seasonal budget allocation for its new league on top of what it had left,
         // with AI clubs capped at one and a half times that allocation and mine at the allocation itself.

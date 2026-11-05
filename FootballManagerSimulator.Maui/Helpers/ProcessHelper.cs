@@ -23,6 +23,7 @@ public class ProcessHelper(
     ITacticHelper tacticHelper,
     IJobOfferHelper jobOfferHelper,
     IScoutHelper scoutHelper,
+    IReputationHelper reputationHelper,
     IServiceProvider serviceProvider) : IProcessHelper
 {
     private readonly IState State = state;
@@ -36,6 +37,7 @@ public class ProcessHelper(
     private readonly ITacticHelper TacticHelper = tacticHelper;
     private readonly IJobOfferHelper JobOfferHelper = jobOfferHelper;
     private readonly IScoutHelper ScoutHelper = scoutHelper;
+    private readonly IReputationHelper ReputationHelper = reputationHelper;
     private readonly IServiceProvider ServiceProvider = serviceProvider;
 
     // Advances the simulation by one day. If the user's club (or any club) has an
@@ -75,6 +77,8 @@ public class ProcessHelper(
         if (State.Date.Month == ContractRenewalRules.RenewalMonth && State.Date.Day == ContractRenewalRules.RenewalDay)
             RenewAIContracts();
 
+        JobOfferHelper.ProcessUnemployment();
+        JobOfferHelper.ProcessApplications();
         JobOfferHelper.ProcessVacancies();
 
         if (State.Date.DayOfWeek == DayOfWeek.Monday)
@@ -193,14 +197,18 @@ public class ProcessHelper(
 
     private void ProcessEndOfSeason()
     {
+        // Judged on the final table, before promotion and relegation move the clubs; promotion itself counts after.
+        var review = ReputationHelper.ReviewSeason();
         RecordLeagueTitle();
         ProcessPromotionAndRelegation();
+        ReputationHelper.CompleteSeason(review);
         ExpireContracts();
         TransferListHelper.SignFreeAgentsForShortSquads();
         TopUpSquads(SquadSizeRules.Minimum);
         ResetSuspensions();
         RecreateCompetitions();
         var (myIncrease, myReturned) = IncreaseTransferBudgets();
+        ReputationHelper.SetExpectedFinish();
 
         // An unemployed manager has no budget to hear about.
         if (State.MyClubId == null)

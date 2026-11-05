@@ -49,6 +49,12 @@ public class GameFactory(
 
 		State.ManagerHistory.StartJob(State.Clubs.First(p => p.Id == State.MyClubId), State.Date);
 
+		// A new career starts just below the chosen club.
+		var reputation = ServiceProvider.GetRequiredService<IReputationHelper>();
+		State.ManagerReputation = null;
+		_ = reputation.Reputation;
+		reputation.SetExpectedFinish();
+
 		CreateStartingVacancies();
 		SeedAiJobSecurity();
 

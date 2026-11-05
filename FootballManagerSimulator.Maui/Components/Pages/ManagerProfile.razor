@@ -1,15 +1,31 @@
 @page "/manager"
 @layout GameLayout
 @inject GameEngine Engine
+@inject IReputationHelper Reputation
 
 <PageTitle>Manager Profile</PageTitle>
 
 @{
     var history = Engine.State.ManagerHistory;
     var goalDifference = history.GoalsFor - history.GoalsAgainst;
+    var reputation = Reputation.Reputation;
+    var lastChange = Engine.State.LastSeasonReputationChange;
 }
 
 <div class="page-head"><div><h1>Manager Profile</h1><div class="subtitle">@Engine.State.ManagerName · @(Engine.CurrentClub is { } club ? $"Manager of {club.Name}" : "Unemployed")</div></div></div>
+
+<div class="panel">
+    <h2>⭐ Reputation</h2>
+    <div class="table-wrap">
+        <table class="data">
+            <tbody>
+                <tr><td>Reputation</td><td class="num"><span style="color:var(--gold)">@JobRules.StarsText(reputation)</span> @JobRules.Format(reputation)</td></tr>
+                <tr><td>Last season</td><td class="num" style="color:@ChangeColour(lastChange)">@ChangeText(lastChange)</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <p class="muted">Clubs judge you on your reputation. It rises when your team does better than expected or wins trophies, and falls after poor seasons, sackings and long spells out of work.</p>
+</div>
 
 <div class="panel">
     <h2>🆚 Head-To-Head</h2>
@@ -99,5 +115,18 @@
 
 @code {
     private static string Percent(double value) => $"{value:0.0}%";
+    private static string ChangeText(double? change) => change switch
+    {
+        null => "—",
+        >= 0.5 => $"+{change:0}",
+        <= -0.5 => $"{change:0}",
+        _ => "No change"
+    };
+    private static string ChangeColour(double? change) => change switch
+    {
+        >= 0.5 => "var(--accent)",
+        <= -0.5 => "var(--danger)",
+        _ => "var(--text-dim)"
+    };
     private static string PerGame(int total, int played) => ManagerJobModel.PerGame(total, played).ToString("0.00");
 }

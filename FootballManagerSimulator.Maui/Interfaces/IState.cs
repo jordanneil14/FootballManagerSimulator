@@ -26,6 +26,11 @@ public interface IState
     string CareerId { get; set; }
     double BoardConfidence { get; set; }
     ManagerHistoryModel ManagerHistory { get; set; }
+    // Null until first needed, so old saves start from their club (see ReputationHelper).
+    double? ManagerReputation { get; set; }
+    double? LastSeasonReputationChange { get; set; }
+    List<JobApplicationModel> JobApplications { get; set; }
+    List<JobRejectionModel> JobRejections { get; set; }
     List<ScoutModel> Scouts { get; set; }
     List<PhysioModel> Physios { get; set; }
     // At most one (AnalystRules.MaxAnalysts); without one there are no pre-match reports.

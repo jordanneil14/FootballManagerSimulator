@@ -182,6 +182,10 @@ public class GameEngine(
         State.ScreenStack.Clear();
         State.BoardConfidence = BoardConfidenceRules.Starting;
         State.ManagerHistory = new ManagerHistoryModel();
+        State.ManagerReputation = null;
+        State.LastSeasonReputationChange = null;
+        State.JobApplications.Clear();
+        State.JobRejections.Clear();
         State.Scouts.Clear();
         State.Physios.Clear();
         State.Analysts.Clear();
@@ -855,13 +859,8 @@ public class GameEngine(
     public double? MySquadAverageRating()
     {
         if (CurrentClub is not { } club) return null;
-        var ratings = State.Players
-            .Where(p => p.Contract?.ClubId == club.Id)
-            .Select(p => p.Rating)
-            .OrderByDescending(r => r)
-            .Take(SquadAverageBestPlayers)
-            .ToList();
-        return ratings.Count == 0 ? null : ratings.Average();
+        return Helpers.ReputationHelper.SquadStrengths(State.Players.Where(p => p.Contract?.ClubId == club.Id))
+            .TryGetValue(club.Id, out var average) ? average : null;
     }
 
     // No player will drop to a club well below their level; weaker players will always join.
@@ -1344,6 +1343,10 @@ public class GameEngine(
             State.TransferListItems = deserialised.TransferListItems;
             State.BoardConfidence = deserialised.BoardConfidence;
             State.ManagerHistory = deserialised.ManagerHistory;
+            State.ManagerReputation = deserialised.ManagerReputation;
+            State.LastSeasonReputationChange = deserialised.LastSeasonReputationChange;
+            State.JobApplications = deserialised.JobApplications ?? [];
+            State.JobRejections = deserialised.JobRejections ?? [];
             State.Scouts = deserialised.Scouts;
             State.Physios = deserialised.Physios;
             // Saves from before analysts existed have none.

@@ -39,5 +39,9 @@ public class StateModel : IState
     public List<int> DiscoveredPlayerIds { get; set; } = new List<int>();
     public bool ShowTransferNotifications { get; set; }
     public bool ShowManagerNotifications { get; set; }
+    public double? ManagerReputation { get; set; }
+    public double? LastSeasonReputationChange { get; set; }
+    public List<JobApplicationModel> JobApplications { get; set; } = [];
+    public List<JobRejectionModel> JobRejections { get; set; } = [];
 }
 

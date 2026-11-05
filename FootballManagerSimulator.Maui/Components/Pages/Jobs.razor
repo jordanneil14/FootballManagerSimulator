@@ -2,17 +2,20 @@
 @layout GameLayout
 @inject GameEngine Engine
 @inject IJobOfferHelper JobOffers
-@inject NavigationManager Nav
+@inject IReputationHelper Reputation
 @inject Microsoft.Extensions.Options.IOptions<SettingsModel> SettingsOptions
 
 <PageTitle>Jobs</PageTitle>
 
-<div class="page-head"><div><h1>Jobs</h1><div class="subtitle">Clubs looking for a manager, and clubs to watch</div></div></div>
-
 @{
+    var standings = Reputation.Standings();
+    var reputation = Reputation.Reputation;
     var vacancies = JobOffers.Vacancies().ToList();
     var underThreat = JobOffers.ManagersUnderThreat().ToList();
+    var applications = Engine.State.JobApplications.OrderBy(p => p.DecideOn).ToList();
 }
+
+<div class="page-head"><div><h1>Jobs</h1><div class="subtitle">Your reputation: <span style="color:var(--gold)">@JobRules.StarsText(reputation)</span> @JobRules.Format(reputation)</div></div></div>
 
 <div class="panel">
     <h2>💼 Vacancies <span class="panel-title-sub">@vacancies.Count</span></h2>
@@ -25,16 +28,33 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>Club</th><th>League</th><th>Appointing by</th><th></th></tr>
+                    <tr><th>Club</th><th>League</th><th>Standing</th><th>Your chance</th><th>Appointing by</th><th></th></tr>
                 </thead>
                 <tbody>
                     @foreach (var club in vacancies)
                     {
+                        var chance = JobOffers.ChanceFor(club, standings);
+                        var refusal = JobOffers.ApplyRefusal(club, standings);
                         <tr>
                             <td><a href="/club/@club.Id"><strong>@club.Name</strong></a></td>
                             <td class="muted">@LeagueName(club.LeagueId)</td>
+                            <td style="color:var(--gold)">@JobRules.StarsText(standings.GetValueOrDefault(club.Id))</td>
+                            <td style="color:@JobRules.Colour(chance)">@JobRules.Label(chance)</td>
                             <td class="muted">@club.VacantUntil?.ToString("ddd dd MMM")</td>
-                            <td class="num"><button class="btn btn-primary" @onclick="() => _pendingClub = club">Join</button></td>
+                            <td class="num">
+                                @if (JobOffers.ApplicationFor(club.Id) != null)
+                                {
+                                    <span class="muted">Applied</span>
+                                }
+                                else if (refusal == null)
+                                {
+                                    <button class="btn btn-primary" @onclick="() => _pendingClub = club">Apply</button>
+                                }
+                                else
+                                {
+                                    <span class="muted">@refusal</span>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -42,6 +62,31 @@
         </div>
     }
 </div>
+
+@if (applications.Any())
+{
+    <div class="panel">
+        <h2>📨 Your Applications <span class="panel-title-sub">@applications.Count</span></h2>
+        <div class="table-wrap">
+            <table class="data">
+                <thead>
+                    <tr><th>Club</th><th>Applied</th><th>Decision by</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var application in applications)
+                    {
+                        var club = Engine.State.Clubs.FirstOrDefault(p => p.Id == application.ClubId);
+                        <tr>
+                            <td><a href="/club/@application.ClubId"><strong>@club?.Name</strong></a></td>
+                            <td class="muted">@application.AppliedOn.ToString("ddd dd MMM")</td>
+                            <td class="muted">@application.DecideOn.ToString("ddd dd MMM")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
 
 <div class="panel">
     <h2>🔥 Managers Under Threat <span class="panel-title-sub">@underThreat.Count</span></h2>
@@ -54,14 +99,17 @@
         <div class="table-wrap">
             <table class="data">
                 <thead>
-                    <tr><th>Club</th><th>League</th><th>Job security</th></tr>
+                    <tr><th>Club</th><th>League</th><th>Standing</th><th>Your chance</th><th>Job security</th></tr>
                 </thead>
                 <tbody>
                     @foreach (var club in underThreat)
                     {
+                        var chance = JobOffers.ChanceFor(club, standings);
                         <tr>
                             <td><a href="/club/@club.Id"><strong>@club.Name</strong></a></td>
                             <td class="muted">@LeagueName(club.LeagueId)</td>
+                            <td style="color:var(--gold)">@JobRules.StarsText(standings.GetValueOrDefault(club.Id))</td>
+                            <td style="color:@JobRules.Colour(chance)">@JobRules.Label(chance)</td>
                             <td style="color:var(--warn)">@BoardConfidenceRules.Label(club.JobSecurity)</td>
                         </tr>
                     }
@@ -72,9 +120,9 @@
 </div>
 
 <ConfirmModal Visible="_pendingClub != null"
-              Title="@($"Join {_pendingClub?.Name}?")"
-              Message="@($"{(Engine.CurrentClub is { } current ? $"You will leave {current.Name} and take charge" : "You will take charge")} of {_pendingClub?.Name}. Board confidence starts again at {BoardConfidenceRules.Starting}/100.")"
-              OnConfirm="ConfirmJoin"
+              Title="@($"Apply to {_pendingClub?.Name}?")"
+              Message="@ConfirmMessage()"
+              OnConfirm="ConfirmApply"
               OnCancel="() => _pendingClub = null" />
 
 @code {
@@ -88,13 +136,18 @@
         return string.IsNullOrEmpty(country) ? name : $"{country} - {name}";
     }
 
-    private void ConfirmJoin()
+    private string ConfirmMessage()
+    {
+        if (_pendingClub == null) return "";
+        var chance = JobRules.Label(JobOffers.ChanceFor(_pendingClub));
+        return $"Your chance: {chance}. {_pendingClub.Name} will let you know within a few days. If they offer you the job you can still turn it down.";
+    }
+
+    private void ConfirmApply()
     {
         if (_pendingClub == null) return;
-        var joined = JobOffers.JoinClub(_pendingClub.Id);
+        JobOffers.Apply(_pendingClub.Id);
         _pendingClub = null;
         Engine.NotifyChanged();
-        if (joined)
-            Nav.NavigateTo("/game");
     }
 }

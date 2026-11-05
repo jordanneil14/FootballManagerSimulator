@@ -91,6 +91,10 @@ public class ManagerJobModel
     public int GoalsFor { get; set; }
     public int GoalsAgainst { get; set; }
     public int CleanSheets { get; set; }
+    // Where the squad was expected to finish in its league this season; set at the start of each season.
+    public int? ExpectedFinish { get; set; }
+    // The club that sacked you won't have you back for a while.
+    public bool Sacked { get; set; }
 
     public double WinPercentage => Percentage(Won, Played);
     public double PointsPerGame => PerGame(Won * 3 + Drawn, Played);
