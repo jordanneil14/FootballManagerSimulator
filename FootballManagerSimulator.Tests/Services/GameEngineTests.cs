@@ -712,6 +712,46 @@ public class GameEngineTests : IDisposable
         Assert.Equal(unused, MyClub.TacticSlots[bench[5]].PlayerId); // the sixth swap was not made
     }
 
+    [Theory]
+    [InlineData(CompetitionType.League)]
+    [InlineData(CompetitionType.Friendly)]
+    public void MatchSwap_ASentOffPlayerCannotBeSubstituted(CompetitionType type)
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var sentOff = MyClub.TacticSlots[pitch[3]].PlayerId!.Value;
+        var substitute = MyClub.TacticSlots[bench[0]].PlayerId;
+        fixture.HomeCards.Add(new CardModel { Minute = 40, PlayerId = sentOff, IsRed = true });
+
+        Assert.Contains("sent off", _engine.MatchSwap(fixture, new LeagueModel { Type = type }, pitch[3], bench[0], 60));
+        Assert.Contains("sent off", _engine.MatchSwap(fixture, new LeagueModel { Type = type }, bench[0], pitch[3], 60));
+
+        Assert.Equal(sentOff, MyClub.TacticSlots[pitch[3]].PlayerId);
+        Assert.Equal(substitute, MyClub.TacticSlots[bench[0]].PlayerId);
+        Assert.Equal(0, _engine.SubstitutionsMade(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_APlayerCanStillBeSubstitutedBeforeHisRedCard()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var player = MyClub.TacticSlots[pitch[3]].PlayerId!.Value;
+        fixture.HomeCards.Add(new CardModel { Minute = 70, PlayerId = player, IsRed = true }); // not shown yet
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], bench[0], 60));
+    }
+
+    [Fact]
+    public void MatchSwap_ASentOffPlayerCanStillChangePositionOnThePitch()
+    {
+        var (fixture, pitch, _) = LiveMatch();
+        var sentOff = MyClub.TacticSlots[pitch[3]].PlayerId!.Value;
+        fixture.HomeCards.Add(new CardModel { Minute = 40, PlayerId = sentOff, IsRed = true });
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], pitch[5], 60));
+
+        Assert.Equal(sentOff, MyClub.TacticSlots[pitch[5]].PlayerId);
+    }
+
     [Fact]
     public void MatchSwap_SubstitutionsInACompetitiveMatchUseAtMostThreeStoppages()
     {

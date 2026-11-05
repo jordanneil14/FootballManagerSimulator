@@ -680,6 +680,11 @@ public class GameEngine(
             return null;
         }
 
+        // A sent-off player leaves his side a man down; he can't be replaced, in any kind of match.
+        var myCards = fixture.HomeClub.Id == MyClub.Id ? fixture.HomeCards : fixture.AwayCards;
+        if (goingOff is { } offId && myCards.Any(c => c.IsRed && c.PlayerId == offId && c.Minute <= minute))
+            return $"{GetPlayer(offId)?.Name ?? "That player"} has been sent off and can't be substituted.";
+
         var undo = _substitutions.FindIndex(s => s.OnId == goingOff && s.OffId == comingOn && s.Minute == minute);
         if (undo >= 0)
         {
