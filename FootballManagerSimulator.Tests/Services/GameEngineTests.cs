@@ -713,6 +713,74 @@ public class GameEngineTests : IDisposable
     }
 
     [Fact]
+    public void MatchSwap_SubstitutionsInACompetitiveMatchUseAtMostThreeStoppages()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 55));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[2], bench[1], 65));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], bench[2], 75));
+        Assert.Equal(3, _engine.SubstitutionStoppagesUsed(fixture));
+        var unused = MyClub.TacticSlots[bench[3]].PlayerId;
+
+        // A fourth stoppage is refused, and the swap isn't made...
+        Assert.Contains("stoppages", _engine.MatchSwap(fixture, League, pitch[4], bench[3], 80));
+        Assert.Equal(unused, MyClub.TacticSlots[bench[3]].PlayerId);
+        Assert.Equal(3, _engine.SubstitutionsMade(fixture));
+
+        // ...but another change in a minute already used is fine.
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[4], bench[3], 75));
+        Assert.Equal(3, _engine.SubstitutionStoppagesUsed(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_ChangesAtHalfTimeDoNotUseAStoppage()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 30));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[2], bench[1], 45));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], bench[2], 60));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[4], bench[3], 70));
+
+        Assert.Equal(3, _engine.SubstitutionStoppagesUsed(fixture));
+        Assert.Equal(4, _engine.SubstitutionsMade(fixture));
+    }
+
+    [Fact]
+    public void MatchSwap_UndoingASubstitutionFreesItsStoppage()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[1], bench[0], 55));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[2], bench[1], 65));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], bench[2], 75));
+
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[3], bench[2], 75)); // swapped straight back
+
+        Assert.Equal(2, _engine.SubstitutionStoppagesUsed(fixture));
+        Assert.Null(_engine.MatchSwap(fixture, League, pitch[4], bench[3], 80));
+    }
+
+    [Fact]
+    public void MatchSwap_AFriendlyHasNoStoppageLimit()
+    {
+        var (fixture, pitch, bench) = LiveMatch();
+        var friendly = new FriendlyModel();
+
+        for (var i = 0; i < 5; i++)
+            Assert.Null(_engine.MatchSwap(fixture, friendly, pitch[i + 1], bench[i], 50 + i * 5));
+    }
+
+    [Theory]
+    [InlineData(45, true)]   // half-time
+    [InlineData(90, true)]   // the break before extra time
+    [InlineData(80, false)]  // a fourth stoppage
+    [InlineData(70, true)]   // a stoppage already used
+    [InlineData(100, true)]  // extra time brings one more
+    public void SubstitutionRules_CanStopPlayAfterThreeStoppages(int minute, bool allowed) =>
+        Assert.Equal(allowed, SubstitutionRules.CanStopPlayAt([30, 45, 60, 70], minute));
+
+    [Fact]
     public void MatchSwap_APlayerTakenOffCannotComeBackOn()
     {
         var (fixture, pitch, bench) = LiveMatch();

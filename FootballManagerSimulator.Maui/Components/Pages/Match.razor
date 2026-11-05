@@ -285,6 +285,7 @@ else
     private int _revealedAwayInjuries;
     private int _revealedHomePenalties;
     private int _revealedAwayPenalties;
+    private int _revealedOpponentSubs;
     private int? _selectedSlot;
     private string? _swapError;
     private string? _stoppageReason;
@@ -359,6 +360,7 @@ else
             _revealedAwayInjuries = _fixture.AwayInjuries.Count(i => i.Minute <= _currentMinute);
             _revealedHomePenalties = _fixture.HomePenalties.Count(p => p.Minute <= _currentMinute);
             _revealedAwayPenalties = _fixture.AwayPenalties.Count(p => p.Minute <= _currentMinute);
+            _revealedOpponentSubs = OpponentSubstitutions().Count(s => s.Minute <= _currentMinute);
 
             _eventFeed.Add(new MatchEvent(0, "🟢", "Kick Off!", ""));
             RebuildEventFeed();
@@ -441,6 +443,11 @@ else
         {
             var player = Engine.GetPlayer(i.PlayerId);
             events.Add((i.Minute, new MatchEvent(i.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {i.Description}", "event-injury")));
+        }
+        foreach (var s in OpponentSubstitutions().Where(s => s.Minute <= _currentMinute))
+        {
+            if (SubstitutionEvent(s) is { } sub)
+                events.Add((s.Minute, sub));
         }
 
         foreach (var e in events.OrderBy(e => e.Minute))
@@ -647,6 +654,14 @@ else
             _eventFeed.Add(new MatchEvent(injury.Minute, "", $"Injury - {player?.Name ?? "Unknown"} ({_fixture.AwayClub.Name}) - {injury.Description}", "event-injury"));
             _revealedAwayInjuries++;
             if (IsMyClub(_fixture.AwayClub)) StopForInjury(player, injury);
+        }
+
+        // After the injuries, so an injured player's replacement comes after the injury in the same minute.
+        foreach (var sub in OpponentSubstitutions().Where(s => s.Minute <= _currentMinute).OrderBy(s => s.Minute).Skip(_revealedOpponentSubs).ToList())
+        {
+            if (SubstitutionEvent(sub) is { } subEvent)
+                _eventFeed.Add(subEvent);
+            _revealedOpponentSubs++;
         }
 
         // A skip reveals several minutes at once, added above one event type at a time, so put the
@@ -874,13 +889,39 @@ else
         (IsHomeSide(club) ? _fixture!.HomeInjuries : _fixture!.AwayInjuries)
             .Where(i => i.Minute <= _currentMinute).Select(i => i.PlayerId).ToHashSet();
 
+    // The opposition's bench as it stands: its kick-off bench, less anyone who has come on, plus the
+    // players they replaced. (From the club's own slots for a match saved before AI substitutions.)
+    private List<TacticSlotModel> OpponentBench(ClubModel opponent)
+    {
+        var kickOff = IsHomeSide(opponent) ? _fixture!.HomeStartingSlots : _fixture!.AwayStartingSlots;
+        var bench = (kickOff.Count > 0 ? kickOff : opponent.TacticSlots).Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
+        var made = OpponentSubstitutions().Where(s => s.Minute <= _currentMinute).ToList();
+        return bench
+            .Select(slot => made.FirstOrDefault(s => s.OnId == slot.PlayerId) is { } sub && Engine.GetPlayer(sub.OffId) != null
+                ? new TacticSlotModel { Id = slot.Id, TacticSlotType = TacticSlotType.SUB, PlayerId = sub.OffId }
+                : slot)
+            .ToList();
+    }
+
+    private RenderFragment OpponentSubArrows(PlayerModel? player) => __builder =>
+    {
+        if (player == null) return;
+        foreach (var sub in OpponentSubstitutions().Where(s => s.Minute <= _currentMinute))
+        {
+            if (sub.OnId == player.Id) { <span class="sub-arrow sub-in" title="Substituted on">▲ @(sub.Minute)'</span> }
+            if (sub.OffId == player.Id) { <span class="sub-arrow sub-out" title="Substituted off">▼ @(sub.Minute)'</span> }
+        }
+    };
+
     // The starters and bench with live fitness. Only the user's own side can be tapped to swap;
-    // the opposition's is shown the same way but can't be changed.
+    // the opposition's is shown the same way, as it stands at this minute, but can't be changed.
     private RenderFragment SquadPanel(ClubModel club, bool mine) => __builder =>
     {
         var canEdit = mine && CanEditTactics;
-        var starters = club.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB && s.TacticSlotType != TacticSlotType.RES).ToList();
-        var subs = club.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList();
+        var starters = mine
+            ? club.TacticSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB && s.TacticSlotType != TacticSlotType.RES).ToList()
+            : Engine.MatchSimulator.LineupAt(_fixture!, IsHomeSide(club), _currentMinute + 1);
+        var subs = mine ? club.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).ToList() : OpponentBench(club);
         var injuredIds = mine ? InjuredOnPitch().Select(p => p.Id).ToHashSet() : InjuredIds(club);
         var sentOffIds = SentOffIds(club);
 
@@ -898,7 +939,7 @@ else
                         <tr class="@(canEdit ? "clickable" : "") @(mine && _selectedSlot == idx ? "highlight" : "") @(sentOff || injured ? "row-injured" : "")"
                             @onclick="() => { if (mine) OnSlotClick(idx); }">
                             <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(slot.TacticSlotType.ToString())">@slot.TacticSlotType</span></td>
-                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) }@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) } else { @OpponentSubArrows(player) }@if (sentOff) { <span> 🟥</span> } else if (injured) { <span> 🤕</span> }</td>
                             <td class="num sq-pos @Ui.FamiliarityCssClass(player, slot.TacticSlotType)" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)">@(player?.PreferredPosition ?? "")</td>
                             <td class="num sq-rating" title="@Ui.FamiliarityTitle(player, slot.TacticSlotType)"><EffectiveRating Player="player" Slot="slot.TacticSlotType" /></td>
                             <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
@@ -911,7 +952,12 @@ else
                 Substitutions
                 @if (mine && SubstitutionsLimited)
                 {
-                    <span class="muted" style="font-weight:normal">(@Engine.SubstitutionsMade(_fixture!) / @GameEngine.MaxSubstitutions used)</span>
+                    <span class="muted" style="font-weight:normal" title="Changes at half-time don't use a stoppage">(@Engine.SubstitutionsMade(_fixture!) / @GameEngine.MaxSubstitutions used · @Engine.SubstitutionStoppagesUsed(_fixture!) / @SubstitutionRules.StoppagesAllowed(_currentMinute) stoppages)</span>
+                }
+                else if (!mine && SubstitutionsLimited)
+                {
+                    var made = OpponentSubstitutions().Where(s => s.Minute <= _currentMinute).ToList();
+                    <span class="muted" style="font-weight:normal">(@made.Count / @GameEngine.MaxSubstitutions used · @SubstitutionRules.StoppagesUsed(made.Select(s => s.Minute)) / @SubstitutionRules.StoppagesAllowed(_currentMinute) stoppages)</span>
                 }
             </h3>
             <div class="table-wrap"><table class="data squad-table">
@@ -925,7 +971,7 @@ else
                         <tr class="@(canEdit ? "clickable" : "") @(mine && _selectedSlot == idx ? "highlight" : "")"
                             @onclick="() => { if (mine) OnSlotClick(idx); }">
                             <td class="sq-slot"><span class="pos-chip @Ui.PositionCssClass(posLabel)">@posLabel</span></td>
-                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) }</td>
+                            <td class="squad-name" title="@player?.Name">@(player != null ? Surname(player.Name) : "— empty —")@if (mine) { @SubArrows(player) } else { @OpponentSubArrows(player) }</td>
                             <td class="num sq-rating">@(player?.Rating.ToString() ?? "")</td>
                             <td class="num sq-fit">@if (player != null) { <FitnessBar Value="LiveFitness(player)" Compact="true" /> }</td>
                         </tr>
@@ -979,8 +1025,25 @@ else
         _revealedAwayCards = _fixture.AwayCards.Count(c => c.Minute <= _currentMinute);
         _revealedHomePenalties = _fixture.HomePenalties.Count(p => p.Minute <= _currentMinute);
         _revealedAwayPenalties = _fixture.AwayPenalties.Count(p => p.Minute <= _currentMinute);
+        _revealedOpponentSubs = OpponentSubstitutions().Count(s => s.Minute <= _currentMinute);
 
         _eventFeed.RemoveAll(e => e.Minute > _currentMinute);
+    }
+
+    // The opposition's substitutions, made by the AI as the match is generated. (The user's own aren't
+    // listed in the feed: the user made them, and can undo one in the same minute.)
+    private List<SubstitutionModel> OpponentSubstitutions() =>
+        _fixture == null || OpponentClub is not { } opponent ? []
+        : IsHomeSide(opponent) ? _fixture.HomeSubstitutions : _fixture.AwaySubstitutions;
+
+    private MatchEvent? SubstitutionEvent(SubstitutionModel sub)
+    {
+        if (OpponentClub is not { } opponent || Engine.GetPlayer(sub.OnId) is not { } on)
+            return null;
+        var text = Engine.GetPlayer(sub.OffId) is { } off
+            ? $"Substitution - {on.Name} replaces {off.Name} ({opponent.Name})"
+            : $"Substitution - {on.Name} comes on ({opponent.Name})";
+        return new MatchEvent(sub.Minute, "🔁", text, "event-sub");
     }
 
     private string PhaseCaption() => _phase switch

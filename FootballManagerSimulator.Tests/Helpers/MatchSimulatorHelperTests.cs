@@ -48,6 +48,10 @@ public class MatchSimulatorHelperTests
         .Select(s => s.PlayerId)
         .ToHashSet();
 
+    // Everyone who took the pitch for a side: its starters and any substitutes (an AI side replaces the injured).
+    private static HashSet<int?> PlayedIds(FixtureModel fixture, bool isHome) =>
+        (isHome ? fixture.HomePlayerIds : fixture.AwayPlayerIds).Select(id => (int?)id).ToHashSet();
+
     [Fact]
     public void ConcludeFixture_LeagueMatch_ScoreMatchesScorersAndWinnerIsConsistent()
     {
@@ -64,8 +68,8 @@ public class MatchSimulatorHelperTests
             Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers), g => Assert.InRange(g.Minute, 1, 90));
             var expectedWinner = fixture.GoalsHome > fixture.GoalsAway ? Home : fixture.GoalsAway > fixture.GoalsHome ? Away : null;
             Assert.Same(expectedWinner, fixture.ClubWon);
-            Assert.All(fixture.HomeScorers, g => Assert.Contains(g.PlayerId, StarterIds(Home)));
-            Assert.All(fixture.AwayScorers, g => Assert.Contains(g.PlayerId, StarterIds(Away)));
+            Assert.All(fixture.HomeScorers, g => Assert.Contains(g.PlayerId, PlayedIds(fixture, true)));
+            Assert.All(fixture.AwayScorers, g => Assert.Contains(g.PlayerId, PlayedIds(fixture, false)));
         }
     }
 
@@ -157,7 +161,7 @@ public class MatchSimulatorHelperTests
             Assert.Equal(0, fixture.GoalsAway);
             Assert.All(fixture.HomeScorers.Concat(fixture.AwayScorers), g => Assert.InRange(g.Minute, 1, 90));
             Assert.All(fixture.HomeCards.Concat(fixture.AwayCards), c => Assert.InRange(c.Minute, 1, 90));
-            Assert.All(fixture.HomeCards, c => Assert.Contains(c.PlayerId, StarterIds(Home)));
+            Assert.All(fixture.HomeCards, c => Assert.Contains(c.PlayerId, PlayedIds(fixture, true)));
         }
     }
 
@@ -198,7 +202,7 @@ public class MatchSimulatorHelperTests
             _simulator.PreGenerateMatch(fixture);
 
             Assert.All(fixture.HomeInjuries.Concat(fixture.AwayInjuries), injury => Assert.InRange(injury.Minute, 1, 90));
-            Assert.All(fixture.HomeInjuries, injury => Assert.Contains(injury.PlayerId, StarterIds(Home)));
+            Assert.All(fixture.HomeInjuries, injury => Assert.Contains(injury.PlayerId, PlayedIds(fixture, true)));
             preGenerated += fixture.HomeInjuries.Count + fixture.AwayInjuries.Count;
 
             var (other, competition) = NewFixture(CompetitionType.League);
@@ -220,6 +224,110 @@ public class MatchSimulatorHelperTests
         var goals = fixture.HomeScorers.Concat(fixture.AwayScorers).ToList();
         Assert.All(goals, g => Assert.InRange(g.Minute, 91, 121));
         Assert.Single(goals, g => g.Minute == 121); // exactly one penalty-shootout winner
+    }
+
+    // ----- The side on the pitch at each minute ---------------------------------------------
+
+    private (TacticSlotModel Starter, int BenchPlayerId) HomeStrikerAndBenchPlayer()
+    {
+        var starter = Home.TacticSlots[9];
+        var bench = Home.TacticSlots.First(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null);
+        return (starter, bench.PlayerId!.Value);
+    }
+
+    [Fact]
+    public void KickOff_KeepsTheAISidesStartingSlotsButNotMine()
+    {
+        var mine = _state.Clubs[2];
+        _tactics.ResetTacticForClub(mine);
+        _tactics.FillEmptyTacticSlotsByClubId(mine.Id);
+        var fixture = new FixtureModel { HomeClub = Home, AwayClub = mine, Date = _state.Date };
+
+        _simulator.PreGenerateMatch(fixture);
+
+        Assert.Equal(StarterIds(Home), fixture.HomeStartingSlots.Where(s => s.TacticSlotType != TacticSlotType.SUB).Select(s => s.PlayerId).ToHashSet());
+        Assert.Equal(
+            Home.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).Select(s => s.PlayerId).ToHashSet(),
+            fixture.HomeStartingSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).Select(s => s.PlayerId).ToHashSet());
+        Assert.Empty(fixture.AwayStartingSlots);
+    }
+
+    [Fact]
+    public void LineupAt_AppliesAnAISubstitutionOnlyAfterItsMinute()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear(); // any made for injuries at kick-off
+        var (starter, benchId) = HomeStrikerAndBenchPlayer();
+        var striker = starter.PlayerId!.Value;
+        fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = 60, OffId = striker, OnId = benchId });
+
+        var before = _simulator.LineupAt(fixture, true, 60);
+        var after = _simulator.LineupAt(fixture, true, 61);
+
+        Assert.Contains(before, s => s.PlayerId == striker);
+        Assert.DoesNotContain(before, s => s.PlayerId == benchId);
+        Assert.DoesNotContain(after, s => s.PlayerId == striker);
+        Assert.Equal(starter.TacticSlotType, after.Single(s => s.PlayerId == benchId).TacticSlotType);
+        Assert.Equal(11, after.Count);
+    }
+
+    [Fact]
+    public void LineupAt_AnAISideIsItsKickOffXINotWhateverItsSlotsSayLater()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear(); // any made for injuries at kick-off
+        var kickOff = StarterIds(Home);
+        var (starter, benchId) = HomeStrikerAndBenchPlayer();
+
+        // Something changes the club's own slots mid-match (the next day's team selection, say).
+        Home.TacticSlots.First(s => s.PlayerId == benchId).PlayerId = starter.PlayerId;
+        starter.PlayerId = benchId;
+
+        Assert.Equal(kickOff, _simulator.LineupAt(fixture, true, 70).Select(s => s.PlayerId).ToHashSet());
+    }
+
+    // Regenerating keeps the AI's substitutions up to the minute it starts from and plays on from there with
+    // them made. (Its later ones are redone, so a substitution part-way through what's regenerated is tested
+    // with the injury substitutions below.) 63 is not a decision minute.
+    [Theory]
+    [InlineData(45)]
+    [InlineData(60)]
+    [InlineData(63)]
+    public void ReGenerateFromMinute_PlaysOnWithTheAISubstitutionsMadeSoFar(int subMinute)
+    {
+        var (starter, benchId) = HomeStrikerAndBenchPlayer();
+        var striker = starter.PlayerId!.Value;
+        var benchScored = false;
+
+        for (var i = 0; i < Iterations * 5; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            _simulator.PreGenerateMatch(fixture);
+            fixture.HomeSubstitutions.Clear(); // any made for injuries at kick-off
+            fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = subMinute, OffId = striker, OnId = benchId });
+            fixture.HomePlayerIds.Add(benchId);
+
+            _simulator.ReGenerateFromMinute(fixture, subMinute);
+
+            Assert.DoesNotContain(fixture.HomeScorers, g => g.PlayerId == striker && g.Minute > subMinute);
+            Assert.DoesNotContain(fixture.HomeCards, c => c.PlayerId == striker && c.Minute > subMinute);
+            benchScored |= fixture.HomeScorers.Any(g => g.PlayerId == benchId);
+        }
+
+        Assert.True(benchScored, "the substitute never scored after coming on");
+    }
+
+    [Fact]
+    public void FullTime_ClearsTheKeptStartingSlots()
+    {
+        var (fixture, competition) = NewFixture(CompetitionType.League);
+
+        _simulator.ConcludeFixture(fixture, competition);
+
+        Assert.Empty(fixture.HomeStartingSlots);
+        Assert.Empty(fixture.AwayStartingSlots);
     }
 
     [Fact]
@@ -702,14 +810,14 @@ public class MatchSimulatorHelperTests
                     Assert.InRange(inj.Minute, 1, 90);
                     Assert.NotEmpty(inj.Description);
                     Assert.True(inj.DaysOut > 0);
-                    Assert.Contains(inj.PlayerId, StarterIds(Home));
+                    Assert.Contains(inj.PlayerId, PlayedIds(fixture, true));
                 });
                 Assert.All(fixture.AwayInjuries, inj =>
                 {
                     Assert.InRange(inj.Minute, 1, 90);
                     Assert.NotEmpty(inj.Description);
                     Assert.True(inj.DaysOut > 0);
-                    Assert.Contains(inj.PlayerId, StarterIds(Away));
+                    Assert.Contains(inj.PlayerId, PlayedIds(fixture, false));
                 });
             }
         }
@@ -882,9 +990,26 @@ public class MatchSimulatorHelperTests
     }
 
     [Fact]
-    public void ReGenerateFromMinute_AnAiInjuredPlayerPlaysOnAsBefore()
+    public void ReGenerateFromMinute_AnAIInjuredPlayerWithNoSubstitutionsLeftWeakensTheSide()
     {
-        // Club 3 is mine, so neither side here makes substitutions and the injury doesn't weaken Home.
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        // All five used early (on nobody, so the side is unchanged); nothing left for an injury.
+        for (var i = 0; i < MatchSimulatorHelper.AIMaxSubstitutions; i++)
+            fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = 5, OffId = -1, OnId = -1 });
+        var fullStrength = HomeGoalShareAfterMinute10(fixture);
+
+        fixture.HomeInjuries.Add(new InjuryModel { Minute = 10, PlayerId = Home.TacticSlots[9].PlayerId!.Value, Description = "Minor knock", DaysOut = 5 });
+        var playerShort = HomeGoalShareAfterMinute10(fixture);
+
+        Assert.True(playerShort < fullStrength - 0.03, $"{playerShort:P1} with an injured player on vs {fullStrength:P1} at full strength");
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_AnInjuredPlayerOnAnUnrecordedAISidePlaysOn()
+    {
+        // Never kicked off here, so nothing is kept for Home: it's treated like a match saved before AI
+        // substitutions, which can't replace anyone, so its injured play on as they used to.
         var (fixture, _) = NewFixture(CompetitionType.League);
         var fullStrength = HomeGoalShareAfterMinute10(fixture);
 
@@ -892,6 +1017,294 @@ public class MatchSimulatorHelperTests
         var injured = HomeGoalShareAfterMinute10(fixture);
 
         Assert.InRange(injured, fullStrength - 0.03, fullStrength + 0.03);
+    }
+
+    // ----- AI injury substitutions ------------------------------------------------------------
+
+    [Fact]
+    public void PreGenerateMatch_AnAISideReplacesInjuredAndTiredPlayersInTheirSlots()
+    {
+        int replaced = 0, tired = 0, sides = 0;
+        for (var i = 0; i < Iterations * 10; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            _simulator.PreGenerateMatch(fixture);
+            var bench = fixture.HomeStartingSlots.Concat(fixture.AwayStartingSlots)
+                .Where(s => s.TacticSlotType == TacticSlotType.SUB).Select(s => s.PlayerId).ToHashSet();
+
+            foreach (var isHome in new[] { true, false })
+            {
+                var subs = isHome ? fixture.HomeSubstitutions : fixture.AwaySubstitutions;
+                var injuries = isHome ? fixture.HomeInjuries : fixture.AwayInjuries;
+                var scorers = isHome ? fixture.HomeScorers : fixture.AwayScorers;
+                var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
+                var playerIds = isHome ? fixture.HomePlayerIds : fixture.AwayPlayerIds;
+
+                var decisionMinutes = MatchSimulatorHelper.DecisionMinutes(fixture).Append(45).ToHashSet();
+                for (var k = 0; k < subs.Count; k++)
+                {
+                    var sub = subs[k];
+                    var forInjury = injuries.Any(inj => inj.PlayerId == sub.OffId && inj.Minute == sub.Minute);
+                    if (forInjury)
+                        replaced++;
+                    else
+                    {
+                        // A change of the AI's choosing: only at half-time or a decision minute, never the keeper,
+                        // a few at a time, and one kept back for injuries until late on.
+                        tired++;
+                        Assert.Contains(sub.Minute, decisionMinutes);
+                        Assert.NotEqual(TacticSlotType.GK, _simulator.LineupAt(fixture, isHome, sub.Minute).Single(s => s.PlayerId == sub.OffId).TacticSlotType);
+                        if (sub.Minute < MatchSimulatorHelper.AIReserveUntil)
+                            Assert.True(k < MatchSimulatorHelper.AIMaxSubstitutions - MatchSimulatorHelper.AIReserveSubstitutions);
+                    }
+                    Assert.Contains((int?)sub.OnId, bench);
+                    Assert.Contains(sub.OnId, playerIds);
+                    var slotBefore = _simulator.LineupAt(fixture, isHome, sub.Minute).Single(s => s.PlayerId == sub.OffId);
+                    var slotAfter = _simulator.LineupAt(fixture, isHome, sub.Minute + 1).Single(s => s.PlayerId == sub.OnId);
+                    Assert.Equal(slotBefore.TacticSlotType, slotAfter.TacticSlotType);
+                    Assert.DoesNotContain(scorers, g => g.PlayerId == sub.OffId && g.Minute > sub.Minute);
+                    Assert.DoesNotContain(cards, c => c.PlayerId == sub.OffId && c.Minute > sub.Minute);
+                    Assert.DoesNotContain(scorers, g => g.PlayerId == sub.OnId && g.Minute <= sub.Minute);
+                }
+
+                // Never more than five, never the same player twice, in at most three stoppages besides half-time.
+                Assert.InRange(subs.Count, 0, MatchSimulatorHelper.AIMaxSubstitutions);
+                Assert.Equal(subs.Count, subs.Select(s => s.OnId).Distinct().Count());
+                Assert.InRange(SubstitutionRules.StoppagesUsed(subs.Select(s => s.Minute)), 0, MatchSimulatorHelper.AIMaxSubstitutionStoppages);
+                foreach (var minute in decisionMinutes)
+                    Assert.InRange(subs.Count(s => s.Minute == minute && !injuries.Any(inj => inj.PlayerId == s.OffId && inj.Minute == minute)),
+                        0, MatchSimulatorHelper.AIMaxChangesPerStoppage);
+                sides++;
+            }
+        }
+
+        Assert.True(replaced > 0, "no AI side was ever injured");
+        // Fresh legs most matches: a side brings on a few tired players' replacements.
+        Assert.InRange(tired / (double)sides, 1.5, MatchSimulatorHelper.AIMaxSubstitutions);
+    }
+
+    [Fact]
+    public void ReplaceInjuredAIPlayer_AKeeperIsReplacedByTheBenchKeeper()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear();
+        var keeper = _simulator.LineupAt(fixture, true, 30).Single(s => s.TacticSlotType == TacticSlotType.GK).PlayerId!.Value;
+
+        Assert.True(_simulator.ReplaceInjuredAIPlayer(fixture, true, keeper, 30));
+
+        var on = _state.Players.Single(p => p.Id == fixture.HomeSubstitutions.Single().OnId);
+        Assert.Contains("GK", on.PreferredPosition);
+    }
+
+    [Fact]
+    public void ReplaceInjuredAIPlayer_NeverForMySide()
+    {
+        var mine = _state.Clubs[2];
+        _tactics.ResetTacticForClub(mine);
+        _tactics.FillEmptyTacticSlotsByClubId(mine.Id);
+        var fixture = new FixtureModel { HomeClub = mine, AwayClub = Away, Date = _state.Date };
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear();
+
+        Assert.False(_simulator.ReplaceInjuredAIPlayer(fixture, true, mine.TacticSlots[9].PlayerId!.Value, 30));
+        Assert.Empty(fixture.HomeSubstitutions);
+    }
+
+    [Fact]
+    public void AICanSubstitute_FiveSubstitutionsInThreeStoppagesBesidesHalfTime()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear();
+        void Sub(int minute) => fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = minute, OffId = -1, OnId = -1 });
+
+        Sub(45); Sub(55); Sub(65); Sub(75);
+        Assert.False(_simulator.AICanSubstitute(fixture, true, 80));  // a fourth stoppage
+        Assert.True(_simulator.AICanSubstitute(fixture, true, 65));   // one already used
+        Sub(65);
+        Assert.False(_simulator.AICanSubstitute(fixture, true, 65));  // all five made
+        Assert.False(_simulator.AICanSubstitute(fixture, true, 45));
+    }
+
+    [Fact]
+    public void AICanSubstitute_AFriendlyHasNoLimitButTheBench()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.Friendly);
+        _simulator.PreGenerateMatch(fixture);
+        for (var minute = 50; minute < 90; minute += 5)
+            fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = minute, OffId = -1, OnId = -1 });
+
+        Assert.True(_simulator.AICanSubstitute(fixture, true, 89));
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_RedoesTheAISidesLaterSubstitutionsOnly()
+    {
+        var (fixture, _) = NewFixture(CompetitionType.League);
+        _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear();
+        var bench = fixture.HomeStartingSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB).Select(s => s.PlayerId!.Value).ToList();
+        var lineup = _simulator.LineupAt(fixture, true, 1);
+        var early = new SubstitutionModel { Minute = 40, OffId = lineup[9].PlayerId!.Value, OnId = bench[0] };
+        var late = new SubstitutionModel { Minute = 70, OffId = lineup[8].PlayerId!.Value, OnId = bench[1] };
+        fixture.HomeSubstitutions.AddRange([early, late]);
+        fixture.HomePlayerIds.AddRange([bench[0], bench[1]]);
+
+        _simulator.ReGenerateFromMinute(fixture, 60);
+
+        Assert.Contains(early, fixture.HomeSubstitutions);
+        Assert.DoesNotContain(late, fixture.HomeSubstitutions);
+        Assert.Contains(bench[0], fixture.HomePlayerIds);
+        // Any substitution after 60 now is one made again in the regenerated part: for an injury, or at a decision minute.
+        var decisionMinutes = MatchSimulatorHelper.DecisionMinutes(fixture).ToHashSet();
+        Assert.All(fixture.HomeSubstitutions.Where(s => s.Minute > 60), s => Assert.True(
+            decisionMinutes.Contains(s.Minute) || fixture.HomeInjuries.Any(i => i.PlayerId == s.OffId && i.Minute == s.Minute)));
+        Assert.Equal(fixture.HomeSubstitutions.Any(s => s.OnId == bench[1]), fixture.HomePlayerIds.Contains(bench[1]));
+    }
+
+    // ----- AI tiredness substitutions ---------------------------------------------------------
+
+    [Fact]
+    public void DecisionMinutes_AreWithinAFewMinutesOfTheirMarksAndStayPutForAFixture()
+    {
+        var seen = new HashSet<int>();
+        for (var id = 0; id < 50; id++)
+        {
+            var fixture = new FixtureModel { Id = id, HomeClub = Home, AwayClub = Away };
+            var minutes = MatchSimulatorHelper.DecisionMinutes(fixture).ToList();
+
+            Assert.Equal(minutes, MatchSimulatorHelper.DecisionMinutes(fixture).ToList());
+            for (var i = 0; i < minutes.Count; i++)
+                Assert.InRange(minutes[i], MatchSimulatorHelper.AIDecisionMinutes[i] - MatchSimulatorHelper.AIDecisionJitter,
+                    MatchSimulatorHelper.AIDecisionMinutes[i] + MatchSimulatorHelper.AIDecisionJitter);
+            seen.Add(minutes[0]);
+        }
+
+        Assert.True(seen.Count > 3, "the first decision minute hardly varies between fixtures");
+    }
+
+    [Fact]
+    public void PreGenerateMatch_AnAISideTakesOffAWornOutPlayerAtItsFirstDecision()
+    {
+        var takenOff = 0;
+        const int matches = 100;
+        for (var i = 0; i < matches; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            var worn = _state.Players.Single(p => p.Id == Home.TacticSlots[9].PlayerId);
+            worn.Fitness = 40;
+            _simulator.PreGenerateMatch(fixture);
+            worn.Fitness = FitnessRules.Max;
+
+            var first = MatchSimulatorHelper.DecisionMinutes(fixture).First();
+            if (fixture.HomeSubstitutions.Any(s => s.OffId == worn.Id && s.Minute <= first))
+                takenOff++;
+        }
+
+        // Every time, unless he went off injured or was sent off first, or other changes used up the stoppage.
+        Assert.True(takenOff > matches * 0.8, $"taken off by the first decision in {takenOff} of {matches}");
+    }
+
+    // ----- AI changes for the state of the game, bookings and friendlies ----------------------
+
+    private static bool IsForInjury(FixtureModel fixture, bool isHome, SubstitutionModel sub) =>
+        (isHome ? fixture.HomeInjuries : fixture.AwayInjuries).Any(i => i.PlayerId == sub.OffId && i.Minute == sub.Minute);
+
+    [Fact]
+    public void ReGenerateFromMinute_ABookedDefenderIsSometimesTakenOffAtHalfTime()
+    {
+        const int matches = 300;
+        int takenOff = 0, otherChanges = 0;
+        for (var i = 0; i < matches; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.League);
+            _simulator.PreGenerateMatch(fixture);
+            fixture.HomeSubstitutions.Clear();
+            fixture.HomeCards.Clear();
+            var centreBack = _simulator.LineupAt(fixture, true, 1).First(s => s.TacticSlotType == TacticSlotType.CB).PlayerId!.Value;
+            fixture.HomeCards.Add(new CardModel { Minute = 20, PlayerId = centreBack });
+
+            _simulator.ReGenerateFromMinute(fixture, 20);
+
+            var atHalfTime = fixture.HomeSubstitutions.Where(s => s.Minute == 45 && !IsForInjury(fixture, true, s)).ToList();
+            if (atHalfTime.Any(s => s.OffId == centreBack)) takenOff++;
+            otherChanges += atHalfTime.Count(s => s.OffId != centreBack);
+        }
+
+        // AIBookedSubChance, less the times a second yellow or an injury comes first.
+        Assert.InRange(takenOff / (double)matches, 0.2, 0.5);
+        // Nobody else is fresh enough to need changing at half-time.
+        Assert.True(otherChanges < matches * 0.05, $"{otherChanges} other half-time changes in {matches} matches");
+    }
+
+    [Fact]
+    public void ReGenerateFromMinute_ALosingSideChangesMoreOfItsAttackersAfterTheHour()
+    {
+        const int matches = 500;
+
+        double AttackingChanges(bool losing)
+        {
+            var changes = 0;
+            for (var i = 0; i < matches; i++)
+            {
+                var (fixture, _) = NewFixture(CompetitionType.League);
+                _simulator.PreGenerateMatch(fixture);
+                fixture.HomeSubstitutions.Clear();
+                fixture.HomeScorers.Clear();
+                fixture.AwayScorers.Clear();
+                // Three goals up or down by 30 minutes.
+                var scorers = losing ? fixture.AwayScorers : fixture.HomeScorers;
+                var scorer = _simulator.LineupAt(fixture, !losing, 1)[9].PlayerId!.Value;
+                foreach (var minute in new[] { 10, 20, 30 })
+                    scorers.Add(new GoalModel { Minute = minute, PlayerId = scorer });
+
+                _simulator.ReGenerateFromMinute(fixture, 30);
+
+                changes += fixture.HomeSubstitutions.Count(s =>
+                    s.Minute >= MatchSimulatorHelper.AIChasingFrom && s.Minute < MatchSimulatorHelper.AIHoldingFrom
+                    && !IsForInjury(fixture, true, s)
+                    && MatchSimulatorHelper.IsAttackingSlot(_simulator.LineupAt(fixture, true, s.Minute).Single(slot => slot.PlayerId == s.OffId).TacticSlotType));
+            }
+            return changes / (double)matches;
+        }
+
+        var chasing = AttackingChanges(losing: true);
+        var winning = AttackingChanges(losing: false);
+        Assert.True(chasing > winning, $"{chasing:F2} attacking changes a match chasing the game vs {winning:F2} three up");
+    }
+
+    [Fact]
+    public void PreGenerateMatch_AFriendlySideRotatesAtHalfTimeAndAgainLater()
+    {
+        var total = 0;
+        for (var i = 0; i < Iterations; i++)
+        {
+            var (fixture, _) = NewFixture(CompetitionType.Friendly);
+            _simulator.PreGenerateMatch(fixture);
+
+            Assert.Equal(MatchSimulatorHelper.AIFriendlyHalfTimeChanges,
+                fixture.HomeSubstitutions.Count(s => s.Minute == 45 && !IsForInjury(fixture, true, s)));
+            total += fixture.HomeSubstitutions.Count;
+        }
+
+        // Most of the bench gets a run-out: more than a competitive match's limit.
+        Assert.True(total / (double)Iterations > MatchSimulatorHelper.AIMaxSubstitutions, $"{total / (double)Iterations:F1} substitutions a friendly");
+    }
+
+    [Fact]
+    public void PreGenerateMatch_MySideMakesNoChangesOfItsOwn()
+    {
+        var mine = _state.Clubs[2];
+        _tactics.ResetTacticForClub(mine);
+        _tactics.FillEmptyTacticSlotsByClubId(mine.Id);
+
+        for (var i = 0; i < Iterations; i++)
+        {
+            var fixture = new FixtureModel { HomeClub = mine, AwayClub = Away, Date = _state.Date };
+            _simulator.PreGenerateMatch(fixture);
+            Assert.Empty(fixture.HomeSubstitutions);
+        }
     }
 
     [Fact]
@@ -1084,6 +1497,47 @@ public class MatchSimulatorHelperTests
         Assert.Equal(MatchSimulatorHelper.BaseGoalsPerMatch, goals, 0.0001);
     }
 
+    // Each kind of event carries its next step over a period's end, so a match cut into many short periods
+    // has as many goals, cards, injuries and penalties as one with only the usual few periods.
+    [Fact]
+    public void SplittingAMatchIntoPeriodsChangesNoEventRates()
+    {
+        const int matches = 10_000;
+        // Home is mine, so regenerating keeps its substitutions (an AI side's later ones would be redone).
+        _state.MyClubId = Home.Id;
+
+        (double Goals, double Cards, double Injuries, double Penalties) Rates(bool split)
+        {
+            int goals = 0, cards = 0, injuries = 0, penalties = 0;
+            for (var i = 0; i < matches; i++)
+            {
+                var (fixture, _) = NewFixture(CompetitionType.League);
+                _simulator.PreGenerateMatch(fixture);
+                if (split)
+                {
+                    // Substitutions of nobody: they change neither side but end a period every 3 minutes.
+                    for (var minute = 3; minute < 90; minute += 3)
+                        fixture.HomeSubstitutions.Add(new SubstitutionModel { Minute = minute, OffId = -1, OnId = -1 });
+                }
+                _simulator.ReGenerateFromMinute(fixture, 0);
+
+                goals += fixture.HomeScorers.Count + fixture.AwayScorers.Count;
+                cards += fixture.HomeCards.Count + fixture.AwayCards.Count;
+                injuries += fixture.HomeInjuries.Count + fixture.AwayInjuries.Count;
+                penalties += fixture.HomePenalties.Count + fixture.AwayPenalties.Count;
+            }
+            return (goals / (double)matches, cards / (double)matches, injuries / (double)matches, penalties / (double)matches);
+        }
+
+        var halves = Rates(split: false);
+        var periods = Rates(split: true);
+
+        Assert.InRange(periods.Goals, halves.Goals - 0.07, halves.Goals + 0.07);
+        Assert.InRange(periods.Cards, halves.Cards * 0.95, halves.Cards * 1.05);
+        Assert.InRange(periods.Injuries, halves.Injuries * 0.9, halves.Injuries * 1.1);
+        Assert.InRange(periods.Penalties, halves.Penalties - 0.025, halves.Penalties + 0.025);
+    }
+
     [Fact]
     public void ConcludeFixture_PenaltiesHitTheirTargetsWithoutChangingGoalsPerMatch()
     {
@@ -1111,7 +1565,7 @@ public class MatchSimulatorHelperTests
             {
                 Assert.InRange(penalty.Minute, 1, 90);
                 var side = home ? Home : Away;
-                Assert.Contains((int?)penalty.TakerId, StarterIds(side));
+                Assert.Contains((int?)penalty.TakerId, PlayedIds(fixture, home));
                 var sentOff = (home ? fixture.HomeCards : fixture.AwayCards).Where(c => c.IsRed && c.Minute < penalty.Minute).Select(c => c.PlayerId);
                 Assert.DoesNotContain(penalty.TakerId, sentOff);
 
@@ -1233,14 +1687,22 @@ public class MatchSimulatorHelperTests
 
         _simulator.ConcludeFixture(fixture, competition);
 
+        // Each is charged for the minutes he was on: a starter until he was taken off (the AI changes
+        // tired and injured players), a substitute from when he came on, and an unused substitute nothing.
         var sentOff = fixture.HomeCards.Concat(fixture.AwayCards).Where(c => c.IsRed).Select(c => c.PlayerId).ToHashSet();
+        var subs = fixture.HomeSubstitutions.Concat(fixture.AwaySubstitutions).ToList();
+        var offAt = subs.ToDictionary(s => s.OffId, s => s.Minute);
+        var onAt = subs.ToDictionary(s => s.OnId, s => s.Minute);
         Assert.All(StartersOf(Home).Concat(StartersOf(Away)).Where(p => !sentOff.Contains(p.Id)),
-            p => Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, 90, 0, FitnessRules.RoleDrainMultiplier(p)), p.Fitness, 6));
+            p => Assert.Equal(FitnessRules.Max - FitnessRules.Drain(65, offAt.GetValueOrDefault(p.Id, 90), 0, FitnessRules.RoleDrainMultiplier(p)), p.Fitness, 6));
+        Assert.All(bench.Where(p => !sentOff.Contains(p.Id)), p => Assert.Equal(
+            onAt.TryGetValue(p.Id, out var on) ? FitnessRules.Max - FitnessRules.Drain(65, 90 - on, 0, FitnessRules.RoleDrainMultiplier(p)) : FitnessRules.Max,
+            p.Fitness, 6));
         // Keepers tire at a third of the rate.
         var keeper = StartersOf(Home).First(p => p.PreferredPosition == "GK");
-        var outfielder = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1 && !sentOff.Contains(p.Id));
-        Assert.Equal((FitnessRules.Max - outfielder.Fitness) / 3, FitnessRules.Max - keeper.Fitness, 6);
-        Assert.All(bench, p => Assert.Equal(FitnessRules.Max, p.Fitness));
+        var outfielder = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1 && !sentOff.Contains(p.Id) && !offAt.ContainsKey(p.Id));
+        if (!offAt.ContainsKey(keeper.Id))
+            Assert.Equal((FitnessRules.Max - outfielder.Fitness) / 3, FitnessRules.Max - keeper.Fitness, 6);
         Assert.True(fixture.FitnessApplied);
     }
 
@@ -1280,6 +1742,7 @@ public class MatchSimulatorHelperTests
         foreach (var player in _state.Players) player.Stamina = 65;
         var (fixture, _) = NewFixture(CompetitionType.League);
         _simulator.PreGenerateMatch(fixture);
+        fixture.HomeSubstitutions.Clear(); // the AI's own changes
         var starter = StartersOf(Home).First(p => FitnessRules.RoleDrainMultiplier(p) == 1);
         var sub = Home.TacticSlots.Where(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId != null)
             .Select(s => _state.Players.First(p => p.Id == s.PlayerId))

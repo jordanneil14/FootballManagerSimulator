@@ -599,7 +599,7 @@ public class GameEngine(
             takers.RemoveAt(index);
     }
 
-    public const int MaxSubstitutions = 5;
+    public const int MaxSubstitutions = SubstitutionRules.MaxSubstitutions;
 
     // Substitutions made in the match being played. The engine lives for the whole app session,
     // so this survives leaving the match screen and coming back.
@@ -630,6 +630,9 @@ public class GameEngine(
 
     public int SubstitutionsMade(FixtureModel fixture) =>
         _substitutionFixture == fixture ? _substitutions.Count : 0;
+
+    public int SubstitutionStoppagesUsed(FixtureModel fixture) =>
+        _substitutionFixture == fixture ? SubstitutionRules.StoppagesUsed(_substitutions.Select(s => s.Minute)) : 0;
 
     // The minutes a player was brought on or taken off in the match being played, for the tactics tab.
     public List<int> SubbedOnMinutes(FixtureModel fixture, int playerId) =>
@@ -690,6 +693,10 @@ public class GameEngine(
 
         if (!friendly && _substitutions.Count >= MaxSubstitutions)
             return $"You have already made all {MaxSubstitutions} substitutions.";
+
+        if (!friendly && !SubstitutionRules.CanStopPlayAt(_substitutions.Select(s => s.Minute), minute))
+            return $"You have used all {SubstitutionRules.StoppagesAllowed(minute)} of your substitution stoppages. " +
+                   (minute < 45 ? "You can still make changes at half-time." : "You can't make any more substitutions.");
 
         _substitutions.Add((goingOff ?? 0, comingOn.Value, minute));
         _playersBeenOnPitch.Add(comingOn.Value);

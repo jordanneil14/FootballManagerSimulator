@@ -39,6 +39,11 @@ public class FixtureModel : IFixture
     // Substitutions made during the match, so fitness counts the minutes each player was on the pitch.
     public List<SubstitutionModel> HomeSubstitutions { get; set; } = new List<SubstitutionModel>();
     public List<SubstitutionModel> AwaySubstitutions { get; set; } = new List<SubstitutionModel>();
+    // An AI side's XI and bench at kick-off, kept while the match is played so the side at any minute is
+    // these slots with the substitutions so far applied, and its substitutes come from this bench. The
+    // user's side changes its own slots live, so isn't kept. Cleared at full time.
+    public List<TacticSlotModel> HomeStartingSlots { get; set; } = new List<TacticSlotModel>();
+    public List<TacticSlotModel> AwayStartingSlots { get; set; } = new List<TacticSlotModel>();
     // Set at full time once the players' fitness has been charged for this match.
     public bool FitnessApplied { get; set; }
     // Set once an English Cup tie's prize money has gone to both clubs, so it is never paid twice.

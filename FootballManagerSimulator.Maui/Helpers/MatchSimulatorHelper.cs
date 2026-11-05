@@ -58,11 +58,8 @@ public class MatchSimulatorHelper(
 
     private void SimulateExtraTime(FixtureModel fixture)
     {
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
         // Goals after minute 120 would be read as shootout goals, so stop at the end of extra time.
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 90, 120, LaterMaxStep, BaseGoalChance, countGoals: true);
+        SimulateHalf(fixture, 90, 120, LaterMaxStep, BaseGoalChance, countGoals: true, openPlay: false);
         fixture.Minute = 120;
 
         var etCompetition = State.Competitions.First(p => p.Fixtures.Contains(fixture));
@@ -79,12 +76,16 @@ public class MatchSimulatorHelper(
         }
     }
 
-    // Kick-off: records who started and how each side is pressing.
-    private void RecordStartingElevens(FixtureModel fixture,
-        IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots)
+    // Kick-off: records who started (and, for an AI side, in which slots) and how each side is pressing.
+    private void RecordStartingElevens(FixtureModel fixture)
     {
+        var homeSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id).ToList();
+        var awaySlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id).ToList();
+
         fixture.HomePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
         fixture.AwayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        fixture.HomeStartingSlots = KickOffSlots(fixture.HomeClub.Id);
+        fixture.AwayStartingSlots = KickOffSlots(fixture.AwayClub.Id);
         PressingLog.Start(fixture.HomePressing, CurrentPressing(fixture, true));
         PressingLog.Start(fixture.AwayPressing, CurrentPressing(fixture, false));
         fixture.HomeSubstitutions.Clear();
@@ -92,40 +93,346 @@ public class MatchSimulatorHelper(
         fixture.FitnessApplied = false;
     }
 
+    // An AI side's XI and bench at kick-off; nothing for the user's side.
+    private List<TacticSlotModel> KickOffSlots(int clubId) => clubId == State.MyClubId
+        ? []
+        : ClubHelper.GetClubById(clubId).TacticSlots
+            .Where(s => s.TacticSlotType != TacticSlotType.RES)
+            .Select(CopySlot)
+            .ToList();
+
+    private static TacticSlotModel CopySlot(TacticSlotModel slot) =>
+        new() { Id = slot.Id, TacticSlotType = slot.TacticSlotType, PlayerId = slot.PlayerId };
+
+    private static bool IsOnPitch(TacticSlotModel slot) =>
+        slot.TacticSlotType is not (TacticSlotType.SUB or TacticSlotType.RES);
+
+    // The side's XI for whatever happens at this minute. An AI side is its kick-off XI with each substitution
+    // made before this minute applied, the player coming on taking the slot of the one going off; so a match
+    // regenerated from part-way through plays each minute with the side that was on the pitch then. The
+    // user's side is its slots as they are now, since the user's changes swap them live and regenerate the rest.
+    // With nothing recorded (a match that hasn't kicked off, or one saved before this was kept) it is the club's slots.
+    public List<TacticSlotModel> LineupAt(FixtureModel fixture, bool isHome, int minute)
+    {
+        var club = isHome ? fixture.HomeClub : fixture.AwayClub;
+        var starting = isHome ? fixture.HomeStartingSlots : fixture.AwayStartingSlots;
+        if (club.Id == State.MyClubId || starting.Count == 0)
+            return ClubHelper.GetStartingElevenByClub(club.Id).ToList();
+
+        var lineup = starting.Where(IsOnPitch).Select(CopySlot).ToList();
+        var subs = isHome ? fixture.HomeSubstitutions : fixture.AwaySubstitutions;
+        foreach (var sub in subs.Where(s => s.Minute < minute).OrderBy(s => s.Minute))
+        {
+            if (lineup.FirstOrDefault(s => s.PlayerId == sub.OffId) is { } slot)
+                slot.PlayerId = sub.OnId;
+        }
+        return lineup;
+    }
+
+    private (List<TacticSlotModel> Home, List<TacticSlotModel> Away) LineupsAt(FixtureModel fixture, int minute) =>
+        (LineupAt(fixture, true, minute), LineupAt(fixture, false, minute));
+
+    // ----- AI substitutions -------------------------------------------------------------------
+
+    // The same limits as the user (see SubstitutionRules). Friendlies have no limits but the bench.
+    internal const int AIMaxSubstitutions = SubstitutionRules.MaxSubstitutions;
+    internal const int AIMaxSubstitutionStoppages = SubstitutionRules.MaxStoppages;
+
+    private static List<SubstitutionModel> Substitutions(FixtureModel fixture, bool isHome) =>
+        isHome ? fixture.HomeSubstitutions : fixture.AwaySubstitutions;
+
+    private bool IsAISide(FixtureModel fixture, bool isHome) =>
+        (isHome ? fixture.HomeClub : fixture.AwayClub).Id != State.MyClubId
+        && (isHome ? fixture.HomeStartingSlots : fixture.AwayStartingSlots).Count > 0;
+
+    private bool IsFriendly(FixtureModel fixture) =>
+        State.Competitions.FirstOrDefault(c => c.Fixtures.Contains(fixture))?.Type == CompetitionType.Friendly;
+
+    // Whether an AI side may bring a player on at this minute: it has substitutions left, and this minute
+    // is a break, a stoppage it has already used, or it has a stoppage left.
+    internal bool AICanSubstitute(FixtureModel fixture, bool isHome, int minute)
+    {
+        if (IsFriendly(fixture))
+            return true;
+
+        var subs = Substitutions(fixture, isHome);
+        return subs.Count < AIMaxSubstitutions && SubstitutionRules.CanStopPlayAt(subs.Select(s => s.Minute), minute);
+    }
+
+    // The bench player who would do best in this slot now: his rating there, after any out-of-position cut,
+    // scaled by his fitness; with forGoals, his Finishing counts for extra. A player who has already come on
+    // isn't on the bench any more.
+    private PlayerModel? BestReplacement(FixtureModel fixture, bool isHome, TacticSlotType slotType, int minute, bool forGoals = false)
+    {
+        var cameOn = Substitutions(fixture, isHome).Select(s => s.OnId).ToHashSet();
+        return (isHome ? fixture.HomeStartingSlots : fixture.AwayStartingSlots)
+            .Where(s => s.TacticSlotType == TacticSlotType.SUB && s.PlayerId is { } id && !cameOn.Contains(id))
+            .Select(s => PlayerHelper.GetPlayerById(s.PlayerId!.Value))
+            .OfType<PlayerModel>()
+            .OrderByDescending(p => ValueInSlot(fixture, p, slotType, minute) + (forGoals ? AIChasingFinishingWeight * p.Finishing : 0))
+            .FirstOrDefault();
+    }
+
+    // Takes offId off and puts onId on in his slot, from the minute after this one.
+    private static void Substitute(FixtureModel fixture, bool isHome, int offId, int onId, int minute)
+    {
+        Substitutions(fixture, isHome).Add(new SubstitutionModel { Minute = minute, OffId = offId, OnId = onId });
+        var playerIds = isHome ? fixture.HomePlayerIds : fixture.AwayPlayerIds;
+        if (!playerIds.Contains(onId))
+            playerIds.Add(onId);
+    }
+
+    // Tiredness: a player is taken off when he's below this fitness, or when the best bench player for his
+    // slot would be worth at least AIFreshLegsMargin more than him now.
+    internal const double AITiredFitness = 60;
+    internal const double AIFreshLegsMargin = 0.03;
+    // Changes made at one decision minute, and substitutions kept back for injuries until AIReserveUntil.
+    internal const int AIMaxChangesPerStoppage = 2;
+    internal const int AIReserveSubstitutions = 1;
+    internal const int AIReserveUntil = 78;
+
+    // What a player is worth in this slot at this minute: his rating there, after any out-of-position cut,
+    // scaled by his fitness.
+    private double ValueInSlot(FixtureModel fixture, PlayerModel player, TacticSlotType slotType, int minute) =>
+        PositionFamiliarityRules.EffectiveRating(player, slotType) * FitnessRules.StrengthFactor(FitnessAt(fixture, player.Id, minute));
+
+    // Fresh legs for tiredness alone only from this minute; before it (half-time) only the worn out and the booked go.
+    internal const int AIFreshLegsFrom = 55;
+    // Losing from this minute, a side throws on its best finishers up front; winning from AIHoldingFrom, it
+    // takes its tired attackers off first.
+    internal const int AIChasingFrom = 65;
+    internal const int AIHoldingFrom = 80;
+    internal const double AIChasingFinishingWeight = 0.15;
+    // The chance, at half-time or a decision minute, that a booked defender or midfielder is taken off
+    // before he picks up a second yellow.
+    internal const double AIBookedSubChance = 0.35;
+    // A friendly side rotates: this many changes at half-time, and this many at its first decision minute.
+    internal const int AIFriendlyHalfTimeChanges = 4;
+    internal const int AIFriendlyLaterChanges = 3;
+
+    internal static bool IsAttackingSlot(TacticSlotType slotType) => slotType is
+        TacticSlotType.ST or TacticSlotType.LS or TacticSlotType.LF or
+        TacticSlotType.CAM or TacticSlotType.LW or TacticSlotType.RW;
+
+    // Goals for and against a side up to this minute.
+    private static (int For, int Against) ScoreAt(FixtureModel fixture, bool isHome, int minute)
+    {
+        var home = fixture.HomeScorers.Count(g => g.Minute <= minute);
+        var away = fixture.AwayScorers.Count(g => g.Minute <= minute);
+        return isHome ? (home, away) : (away, home);
+    }
+
+    private static bool IsOnAYellow(List<CardModel> cards, int playerId, int minute) =>
+        cards.Any(c => c.PlayerId == playerId && !c.IsRed && c.Minute <= minute);
+
+    // At half-time and each decision minute an AI side looks at its outfielders (keepers stay on, and anyone
+    // sent off or carrying an injury can't be changed). In order, it takes off:
+    //  1. anyone worn out (below AITiredFitness), most tired first;
+    //  2. now and then a booked defender or midfielder, before he's sent off;
+    //  3. from AIFreshLegsFrom, a tired player the best bench player for his slot would clearly beat now.
+    //     Chasing a game, its attackers go first, for the bench's best finishers, as soon as they're no worse;
+    //     holding a lead late on, its tired attackers go first, as soon as the substitute is no worse.
+    // A friendly side also rotates, changing several players at half-time and its first decision whatever.
+    private void MakeAIChanges(FixtureModel fixture, bool isHome, int minute)
+    {
+        if (!IsAISide(fixture, isHome))
+            return;
+
+        var friendly = IsFriendly(fixture);
+        var (scored, conceded) = ScoreAt(fixture, isHome, minute);
+        var chasing = minute >= AIChasingFrom && scored < conceded;
+        var holding = minute >= AIHoldingFrom && scored > conceded;
+        var rotating = friendly && (minute == 45 || minute == DecisionMinutes(fixture).First());
+        var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
+
+        var missing = GetMissingPlayerIds(fixture, isHome, minute + 1);
+        var candidates = LineupAt(fixture, isHome, minute + 1)
+            .Where(s => s.TacticSlotType != TacticSlotType.GK && s.PlayerId is { } id && !missing.Contains(id))
+            .Select(s => (Slot: s, Player: PlayerHelper.GetPlayerById(s.PlayerId!.Value)))
+            .Where(p => p.Player != null)
+            .Select(p => (p.Slot, Player: p.Player!,
+                Fitness: FitnessAt(fixture, p.Player!.Id, minute),
+                AtRisk: !IsAttackingSlot(p.Slot.TacticSlotType) && IsOnAYellow(cards, p.Player!.Id, minute)
+                        && RandomNumberHelper.NextDouble() < AIBookedSubChance))
+            .OrderByDescending(c => c.Fitness < AITiredFitness)
+            .ThenByDescending(c => c.AtRisk)
+            .ThenByDescending(c => (chasing || holding) && IsAttackingSlot(c.Slot.TacticSlotType))
+            .ThenBy(c => c.Fitness)
+            .ToList();
+
+        var limit = rotating ? (minute == 45 ? AIFriendlyHalfTimeChanges : AIFriendlyLaterChanges) : AIMaxChangesPerStoppage;
+        var reserve = minute < AIReserveUntil && !friendly ? AIReserveSubstitutions : 0;
+        var made = 0;
+        foreach (var (slot, player, fitness, atRisk) in candidates)
+        {
+            if (made >= limit || !AICanSubstitute(fixture, isHome, minute))
+                break;
+            if (!friendly && AIMaxSubstitutions - Substitutions(fixture, isHome).Count <= reserve)
+                break;
+
+            var attacking = IsAttackingSlot(slot.TacticSlotType);
+            if (BestReplacement(fixture, isHome, slot.TacticSlotType, minute, forGoals: chasing && attacking) is not { } replacement)
+                break;
+
+            var change = fitness < AITiredFitness || atRisk || rotating;
+            if (!change && minute >= AIFreshLegsFrom)
+            {
+                var margin = (chasing || holding) && attacking ? 0 : AIFreshLegsMargin;
+                change = ValueInSlot(fixture, replacement, slot.TacticSlotType, minute)
+                         >= ValueInSlot(fixture, player, slot.TacticSlotType, minute) * (1 + margin);
+            }
+            if (!change)
+                continue;
+
+            Substitute(fixture, isHome, player.Id, replacement.Id, minute);
+            made++;
+        }
+    }
+
+    // An AI side's later substitutions go with the rest of the match being regenerated, and are made
+    // again as it is played. (The user's are the user's own, and are never later than now.)
+    private void RemoveAISubstitutionsAfter(FixtureModel fixture, bool isHome, int fromMinute)
+    {
+        if (!IsAISide(fixture, isHome))
+            return;
+
+        var subs = Substitutions(fixture, isHome);
+        var playerIds = isHome ? fixture.HomePlayerIds : fixture.AwayPlayerIds;
+        foreach (var sub in subs.Where(s => s.Minute > fromMinute).ToList())
+        {
+            subs.Remove(sub);
+            playerIds.Remove(sub.OnId);
+        }
+    }
+
+    // An AI side replaces a player injured at this minute straight away with the best bench player for
+    // his slot, if it can. Returns whether it did; if not, he plays on as a passenger (see GetMissingPlayerIds).
+    internal bool ReplaceInjuredAIPlayer(FixtureModel fixture, bool isHome, int playerId, int minute)
+    {
+        if (!IsAISide(fixture, isHome) || !AICanSubstitute(fixture, isHome, minute))
+            return false;
+
+        var slot = LineupAt(fixture, isHome, minute + 1).FirstOrDefault(s => s.PlayerId == playerId);
+        if (slot == null || BestReplacement(fixture, isHome, slot.TacticSlotType, minute) is not { } replacement)
+            return false;
+
+        Substitute(fixture, isHome, playerId, replacement.Id, minute);
+        return true;
+    }
+
     private Pressing CurrentPressing(FixtureModel fixture, bool isHome) =>
         ClubHelper.GetClubById(isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id).Instructions?.Pressing ?? Pressing.Medium;
 
     private void SimulateFirstHalf(FixtureModel fixture)
     {
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
-        RecordStartingElevens(fixture, homeClubTacticSlots, awayClubTacticSlots);
+        RecordStartingElevens(fixture);
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
 
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: true);
-        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, countGoals: true);
+        SimulateHalf(fixture, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: true);
 
         fixture.Minute = 45;
     }
 
-    // Steps through the minutes after fromMinute up to toMinute, with a chance of a goal at each step.
-    // Team instructions scale that chance: more open sides mean more goals, tighter ones fewer.
+    // Around these minutes of the second half an AI side looks at changing its side. Each ends a period of play.
+    internal static readonly int[] AIDecisionMinutes = [60, 70, 80];
+    internal const int AIDecisionJitter = 3;
+
+    // This match's decision minutes: each of AIDecisionMinutes moved up to AIDecisionJitter either way, so
+    // changes don't all come on the hour. Worked out from the fixture, so they stay put when it's regenerated.
+    internal static IEnumerable<int> DecisionMinutes(FixtureModel fixture) =>
+        AIDecisionMinutes.Select((minute, i) =>
+            minute + (int)((uint)(fixture.Id * 7919 + fixture.HomeClub.Id * 31 + i * 104729) % (2 * AIDecisionJitter + 1)) - AIDecisionJitter);
+
+    // Where a half (or extra time) is up to with each kind of event. Each kind is rolled at steps of a few
+    // minutes; the next step is carried from one period to the next, so splitting a half into periods
+    // changes nothing about how many cards, injuries, goals or penalties it has.
+    private sealed class HalfClock
+    {
+        public int NextCard;
+        public int NextInjury;
+        public int NextGoal;
+        // The half's penalty, if it has one: rolled once for the whole half and awarded in the period it falls in.
+        public int? PenaltyMinute;
+        public int GoalMaxStep;
+        public double GoalChance;
+        public double HomeCardRate, AwayCardRate, HomeInjuryRate, AwayInjuryRate;
+    }
+
+    // Plays the minutes after fromMinute up to toMinute in time order, one period at a time. A period is
+    // played with the sides on the pitch at its start, and ends at a minute where an AI side may make a
+    // change, or where a substitution was made, so everything after it is played with the side that was
+    // on the pitch then. Extra time (openPlay false) has no cards, injuries or penalties.
+    private void SimulateHalf(FixtureModel fixture, int fromMinute, int toMinute, int goalMaxStep, double goalChance,
+        bool countGoals, bool openPlay = true)
+    {
+        if (toMinute <= fromMinute)
+            return;
+
+        // Pressing sets how often each side is booked or injured (see TacticalModifierRules).
+        var home = GetSideModifiers(fixture, true, fromMinute + 1);
+        var away = GetSideModifiers(fixture, false, fromMinute + 1);
+        var clock = new HalfClock
+        {
+            NextCard = fromMinute + 1,
+            NextInjury = fromMinute + 1,
+            NextGoal = fromMinute + RandomNumberHelper.Next(1, goalMaxStep + 1),
+            GoalMaxStep = goalMaxStep,
+            GoalChance = goalChance,
+            HomeCardRate = home.CardRate,
+            AwayCardRate = away.CardRate,
+            HomeInjuryRate = home.InjuryRate,
+            AwayInjuryRate = away.InjuryRate
+        };
+        if (openPlay && RandomNumberHelper.NextDouble() < PenaltyChanceForMinutes(toMinute - fromMinute))
+            clock.PenaltyMinute = RandomNumberHelper.Next(fromMinute + 1, toMinute + 1);
+
+        // Injuries come first: an AI side replaces an injured player at once, which ends the period there,
+        // so the cards and goals after it are played with the substitute on.
+        var start = fromMinute;
+        while (start < toMinute)
+        {
+            var end = NextPeriodEnd(fixture, start, toMinute);
+            var (homeSlots, awaySlots) = LineupsAt(fixture, start + 1);
+            if (openPlay)
+            {
+                if (SimulateInjuries(fixture, homeSlots, awaySlots, clock, end) is { } replacedAt)
+                    end = replacedAt;
+                SimulateCards(fixture, homeSlots, awaySlots, clock, end);
+            }
+            SimulateGoals(fixture, homeSlots, awaySlots, clock, end, countGoals);
+            if (clock.PenaltyMinute is { } penaltyMinute && penaltyMinute <= end)
+            {
+                AwardPenalty(fixture, homeSlots, awaySlots, penaltyMinute, countGoals);
+                clock.PenaltyMinute = null;
+            }
+            if (openPlay && (end == 45 || DecisionMinutes(fixture).Contains(end)))
+            {
+                MakeAIChanges(fixture, true, end);
+                MakeAIChanges(fixture, false, end);
+            }
+            start = end;
+        }
+    }
+
+    private static int NextPeriodEnd(FixtureModel fixture, int start, int toMinute) =>
+        DecisionMinutes(fixture)
+            .Concat(fixture.HomeSubstitutions.Concat(fixture.AwaySubstitutions).Select(s => s.Minute))
+            .Where(m => m > start && m < toMinute)
+            .DefaultIfEmpty(toMinute)
+            .Min();
+
+    // Rolls for a goal at each step up to toMinute. Team instructions scale the chance: more open
+    // sides mean more goals, tighter ones fewer.
     private void SimulateGoals(FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
-        int fromMinute, int toMinute, int maxStep, double goalChance, bool countGoals)
+        HalfClock clock, int toMinute, bool countGoals)
     {
-        var minute = fromMinute;
-        while (true)
+        for (; clock.NextGoal <= toMinute; clock.NextGoal += RandomNumberHelper.Next(1, clock.GoalMaxStep + 1))
         {
-            minute += RandomNumberHelper.Next(1, maxStep + 1);
-            if (minute > toMinute) return;
-
+            var minute = clock.NextGoal;
             var weights = GetGoalWeightsAtMinute(fixture, minute);
-            var chance = Math.Min(MaxGoalChancePerStep, goalChance * (weights.Home + weights.Away));
+            var chance = Math.Min(MaxGoalChancePerStep, clock.GoalChance * (weights.Home + weights.Away));
             if (RandomNumberHelper.NextDouble() >= chance) continue;
 
             var scoredByHome = AddGoal(fixture, minute, homeSlots, awaySlots, weights);
@@ -215,15 +522,11 @@ public class MatchSimulatorHelper(
             .ToList();
     }
 
-    // At most one penalty between fromMinute and toMinute, awarded to either side by the same weighting as goals.
-    private void AwardPenalties(FixtureModel fixture,
+    // A half's penalty (at most one), awarded to either side by the same weighting as goals.
+    private void AwardPenalty(FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots, IEnumerable<TacticSlotModel> awaySlots,
-        int fromMinute, int toMinute, bool countGoals)
+        int minute, bool countGoals)
     {
-        if (RandomNumberHelper.NextDouble() >= PenaltyChanceForMinutes(toMinute - fromMinute))
-            return;
-
-        var minute = RandomNumberHelper.Next(fromMinute + 1, toMinute + 1);
         var weights = GetGoalWeightsAtMinute(fixture, minute);
         var isHome = HomeWinsChance(weights.Home, weights.Away);
 
@@ -298,13 +601,7 @@ public class MatchSimulatorHelper(
 
     private void SimulateSecondHalf(FixtureModel fixture, ICompetition competition)
     {
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: true);
-        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, countGoals: true);
+        SimulateHalf(fixture, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: true);
 
         fixture.Minute = 90;
 
@@ -340,7 +637,7 @@ public class MatchSimulatorHelper(
         FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots,
         IEnumerable<TacticSlotModel> awaySlots,
-        int minuteFrom,
+        HalfClock clock,
         int minuteTo)
     {
         var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
@@ -352,13 +649,10 @@ public class MatchSimulatorHelper(
             .Select(s => s.PlayerId!.Value)
             .ToHashSet();
 
-        // Pressing changes how often each side is booked (see TacticalModifierRules).
-        var homeRate = GetSideModifiers(fixture, true, minuteFrom).CardRate;
-        var awayRate = GetSideModifiers(fixture, false, minuteFrom).CardRate;
-
-        for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(5, 15))
+        for (; clock.NextCard <= minuteTo; clock.NextCard += RandomNumberHelper.Next(5, 15))
         {
-            if (!SideEventRoll(CardChancePerStep, homeRate, awayRate, out var isHome))
+            var minute = clock.NextCard;
+            if (!SideEventRoll(CardChancePerStep, clock.HomeCardRate, clock.AwayCardRate, out var isHome))
                 continue;
 
             var cards = isHome ? fixture.HomeCards : fixture.AwayCards;
@@ -400,22 +694,22 @@ public class MatchSimulatorHelper(
 
     private static readonly int TotalInjuryWeight = InjuryTypes.Sum(i => i.Weight);
 
-    private void SimulateInjuries(
+    // Rolls for injuries up to minuteTo. Stops at the first one an AI side replaces, returning its minute,
+    // since the rest of the period is then played with the substitute on.
+    private int? SimulateInjuries(
         FixtureModel fixture,
         IEnumerable<TacticSlotModel> homeSlots,
         IEnumerable<TacticSlotModel> awaySlots,
-        int minuteFrom,
+        HalfClock clock,
         int minuteTo)
     {
         var homePlayerIds = homeSlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
         var awayPlayerIds = awaySlots.Where(s => s.PlayerId != null).Select(s => s.PlayerId!.Value).ToList();
+        var (homeRate, awayRate) = (clock.HomeInjuryRate, clock.AwayInjuryRate);
 
-        // Pressing changes how often each side picks up injuries (see TacticalModifierRules).
-        var homeRate = GetSideModifiers(fixture, true, minuteFrom).InjuryRate;
-        var awayRate = GetSideModifiers(fixture, false, minuteFrom).InjuryRate;
-
-        for (var minute = minuteFrom; minute <= minuteTo; minute += RandomNumberHelper.Next(8, 20))
+        for (; clock.NextInjury <= minuteTo; clock.NextInjury += RandomNumberHelper.Next(8, 20))
         {
+            var minute = clock.NextInjury;
             // Tired players get injured more: each side's rate is scaled by its players' average
             // injury weight, and the injured player is picked in proportion to it.
             var homeWeights = InjuryWeights(fixture, homePlayerIds, fixture.HomeInjuries, minute);
@@ -441,7 +735,15 @@ public class MatchSimulatorHelper(
                 Description = description,
                 DaysOut = daysOut
             });
+
+            if (ReplaceInjuredAIPlayer(fixture, isHome, playerId, minute))
+            {
+                clock.NextInjury += RandomNumberHelper.Next(8, 20);
+                return minute;
+            }
         }
+
+        return null;
     }
 
     // Players who could be injured at this minute (not already injured), each with its injury weight.
@@ -583,6 +885,8 @@ public class MatchSimulatorHelper(
         ApplySuspensions(fixture, competition);
         ApplyInjuries(fixture);
         ApplyFitness(fixture);
+        fixture.HomeStartingSlots.Clear();
+        fixture.AwayStartingSlots.Clear();
 
         if (!wasConcluded)
         {
@@ -680,42 +984,27 @@ public class MatchSimulatorHelper(
 
     public void PreGenerateMatch(FixtureModel fixture)
     {
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
-        RecordStartingElevens(fixture, homeClubTacticSlots, awayClubTacticSlots);
+        RecordStartingElevens(fixture);
         fixture.GoalsHome = 0;
         fixture.GoalsAway = 0;
 
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 1, 45);
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
-        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 0, 45, countGoals: false);
-
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, 46, 90);
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
-        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, 45, 90, countGoals: false);
+        SimulateHalf(fixture, 0, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
+        SimulateHalf(fixture, 45, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
     }
 
     public void GenerateExtraTimeEvents(FixtureModel fixture) => GenerateExtraTimeEventsFrom(fixture, 90);
 
     private void GenerateExtraTimeEventsFrom(FixtureModel fixture, int fromMinute)
     {
-        SimulateGoals(fixture,
-            ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id),
-            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id),
-            fromMinute, 120, LaterMaxStep, BaseGoalChance, countGoals: false);
+        SimulateHalf(fixture, fromMinute, 120, LaterMaxStep, BaseGoalChance, countGoals: false, openPlay: false);
     }
 
     // The shoot-out is decided on strength alone: team instructions play no part in it.
     public void GeneratePenaltyEvents(FixtureModel fixture)
     {
         var (homeRating, awayRating) = GetRatingsAtMinute(fixture, 121);
-        AddGoal(fixture, 121,
-            ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id),
-            ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id),
-            new GoalWeights(homeRating, awayRating));
+        var (home, away) = LineupsAt(fixture, 121);
+        AddGoal(fixture, 121, home, away, new GoalWeights(homeRating, awayRating));
     }
 
     public void FinaliseMatch(FixtureModel fixture, ICompetition competition)
@@ -770,9 +1059,8 @@ public class MatchSimulatorHelper(
     // scaled by how fit he is at that point of the match.
     private double StrengthAt(FixtureModel fixture, bool isHome, int minute)
     {
-        var clubId = isHome ? fixture.HomeClub.Id : fixture.AwayClub.Id;
         var sum = 0.0;
-        foreach (var slot in ClubHelper.GetStartingElevenByClub(clubId))
+        foreach (var slot in LineupAt(fixture, isHome, minute))
         {
             if (slot.PlayerId is not { } id || PlayerHelper.GetPlayerById(id) is not { } player) continue;
             sum += PositionFamiliarityRules.EffectiveRating(player, slot.TacticSlotType)
@@ -855,17 +1143,18 @@ public class MatchSimulatorHelper(
         return (homeRating * Math.Pow(0.8, homeMissing), awayRating * Math.Pow(0.8, awayMissing));
     }
 
-    // Starters who can't play on at the given minute: those sent off, and the user's injured players
-    // still in the XI, who leave the side a man short until they're substituted. AI clubs make no
-    // substitutions, so their injured players play on as before.
+    // Starters who can't play on at the given minute: those sent off, and injured players still on the
+    // pitch, who leave the side a man short until they're substituted. An AI side replaces an injured
+    // player at once when it can, so for it this is only one injured after its substitutions ran out.
+    // (An AI side from a match saved before AI substitutions can't replace anyone, so its injured play on.)
     private HashSet<int> GetMissingPlayerIds(FixtureModel fixture, bool isHome, int minute)
     {
         var missing = GetSentOffPlayerIds(isHome ? fixture.HomeCards : fixture.AwayCards, minute);
         var club = isHome ? fixture.HomeClub : fixture.AwayClub;
-        if (club.Id != State.MyClubId)
+        if (club.Id != State.MyClubId && !IsAISide(fixture, isHome))
             return missing;
 
-        var starters = ClubHelper.GetStartingElevenByClub(club.Id).Select(s => s.PlayerId).ToHashSet();
+        var starters = LineupAt(fixture, isHome, minute).Select(s => s.PlayerId).ToHashSet();
         missing.UnionWith((isHome ? fixture.HomeInjuries : fixture.AwayInjuries)
             .Where(i => i.Minute < minute && starters.Contains(i.PlayerId))
             .Select(i => i.PlayerId));
@@ -929,8 +1218,7 @@ public class MatchSimulatorHelper(
 
     private double AverageOutfieldStamina(FixtureModel fixture, bool isHome, int minute)
     {
-        var club = isHome ? fixture.HomeClub : fixture.AwayClub;
-        var outfield = OnPitchAt(fixture, isHome, minute, ClubHelper.GetStartingElevenByClub(club.Id))
+        var outfield = OnPitchAt(fixture, isHome, minute, LineupAt(fixture, isHome, minute))
             .Where(p => p.Slot.TacticSlotType != TacticSlotType.GK)
             .ToList();
         return outfield.Count == 0 ? 0 : outfield.Average(p => p.Player.Stamina);
@@ -1006,27 +1294,16 @@ public class MatchSimulatorHelper(
         fixture.AwayInjuries.RemoveAll(i => i.Minute > fromMinute);
         fixture.HomePenalties.RemoveAll(p => p.Minute > fromMinute);
         fixture.AwayPenalties.RemoveAll(p => p.Minute > fromMinute);
+        RemoveAISubstitutionsAfter(fixture, true, fromMinute);
+        RemoveAISubstitutionsAfter(fixture, false, fromMinute);
 
         // A pressing change takes effect from now; the minutes already pressed still count towards fatigue.
         PressingLog.ChangeAt(fixture.HomePressing, fromMinute, CurrentPressing(fixture, true));
         PressingLog.ChangeAt(fixture.AwayPressing, fromMinute, CurrentPressing(fixture, false));
 
-        var homeClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.HomeClub.Id);
-        var awayClubTacticSlots = ClubHelper.GetStartingElevenByClub(fixture.AwayClub.Id);
-
         if (fromMinute < 45)
-        {
-            SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
-            SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute + 1, 45);
-            SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
-            AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, fromMinute, 45, countGoals: false);
-        }
-
-        var secondHalfStart = Math.Max(fromMinute, 45);
-        SimulateCards(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
-        SimulateInjuries(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart + 1, 90);
-        SimulateGoals(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart, 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
-        AwardPenalties(fixture, homeClubTacticSlots, awayClubTacticSlots, secondHalfStart, 90, countGoals: false);
+            SimulateHalf(fixture, fromMinute, 45, FirstHalfMaxStep, OpenPlayGoalChance, countGoals: false);
+        SimulateHalf(fixture, Math.Max(fromMinute, 45), 90, LaterMaxStep, OpenPlayGoalChance, countGoals: false);
 
         if (inExtraTime)
             GenerateExtraTimeEventsFrom(fixture, fromMinute);
