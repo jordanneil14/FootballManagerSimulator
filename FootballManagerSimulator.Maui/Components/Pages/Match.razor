@@ -235,7 +235,7 @@ else
                                 @if (position != start)
                                 {
                                     <span class="tag @(position < start ? "green" : "red")" style="margin-left:.4rem" title="@($"{FootballManagerSimulator.Maui.Helpers.NumberHelper.AddOrdinal(start)} at kick-off")">
-                                        @FootballManagerSimulator.Maui.Helpers.NumberHelper.AddOrdinal(position) @(position < start ? "▲" : "▼")
+                                        @(position < start ? "▲" : "▼")@Math.Abs(start - position)
                                     </span>
                                 }
                             </td>
