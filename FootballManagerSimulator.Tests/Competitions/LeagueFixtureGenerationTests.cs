@@ -320,6 +320,11 @@ public class LeagueFixtureGenerationTests
         var striker = theirs.Where(p => p != injured).MaxBy(p => p.Rating)!;
         league.Fixtures[0].HomeScorers.Add(new GoalModel { Minute = 10, PlayerId = striker.Id });
         league.Fixtures[2].HomeScorers.Add(new GoalModel { Minute = 20, PlayerId = striker.Id });
+        // A later friendly win with a goal from the striker counts towards neither the form nor the goals.
+        var friendly = TestData.Result(them, third, 5, 0);
+        friendly.Date = day.AddDays(1);
+        friendly.HomeScorers.Add(new GoalModel { Minute = 30, PlayerId = striker.Id });
+        state.Competitions.Add(new FriendlyModel { Id = 50, Fixtures = [friendly] });
         var mine = TestData.AddSquad(state, me, 200, baseRating: 60);
         mine[1].Rating = mine[2].Rating = 99; // sure to be in our XI
         mine[1].Fitness = 62.4;

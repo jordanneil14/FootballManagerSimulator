@@ -146,10 +146,11 @@ public static class AnalystReport
         };
     }
 
-    // Goals this season (shoot-out kicks don't count), if any.
+    // Competitive goals this season (friendlies and shoot-out kicks don't count), if any.
     private static string GoalsLine(IState state, int playerId)
     {
         var goals = state.Competitions
+            .Where(c => c.Type != CompetitionType.Friendly)
             .SelectMany(c => c.Fixtures)
             .Where(f => f.Concluded)
             .SelectMany(f => f.HomeScorers.Concat(f.AwayScorers))
